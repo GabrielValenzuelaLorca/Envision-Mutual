@@ -189,7 +189,7 @@ var itemPage = {
                 // formulario de registro
                 context.forms.item = new EFWForm({
                     container: $container.find('.form-container'),
-                    title: 'despierten',
+                    title: 'Item Variable',
                     editable: listItemId ? false : true,
                     // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
                     fields: spo.getViewFields(context.lists.ItemVariable, 'Todos los elementos')

@@ -39,7 +39,7 @@ menuPage.methods.getListBlocksData = function(){
                 },
                 {
                     href: '/liststream?title=Planta&listtitle=Planta&listview=Todos los elementos&panel=filter-open&template=list-row&context=',
-                    title: 'Usuarios',
+                    title: 'Planta',
                     after: '',
                     header: '',
                     footer: '',
