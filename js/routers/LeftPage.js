@@ -46,7 +46,7 @@ menuPage.methods.getListBlocksData = function(){
                     panelClose: true,
                     externalLink: false,
                     f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--Accounts"></i>',
+                    media: '<i class="ms-Icon ms-Icon--People"></i>',
                 }
             ]
         });

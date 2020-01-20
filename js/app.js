@@ -22,9 +22,8 @@ spo.getCurrentUserInformation().done(function(){
             function (response2) {
 
                 var currentUserId = spo.getCurrentUserId();
-                l(spo.getCurrentUser());
                 var query2 = spo.encodeUrlListQuery(response2, {
-                    view: 'Todos los elementos',
+                    view: global.efwDev ? 'dev':'Todos los elementos',
                     odata: {
                         'filter': '(Email eq \'' + spo.getCurrentUser()['EMail'] + '\')',
                         'select': '*,AttachmentFiles',
@@ -36,7 +35,6 @@ spo.getCurrentUserInformation().done(function(){
                     function (response2) {
                         plantaId = response2.d.results.length > 0 ? response2.d.results[0].Title : 0;
                         planta = response2.d.results.length > 0 ? response2.d.results[0] : null;
-                        console.log('*************************logged in as ', planta, plantaId);
 
                         app = new Framework7({
                             id: 'io.framework7.envision', // App bundle ID

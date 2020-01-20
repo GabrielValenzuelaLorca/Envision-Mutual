@@ -55,17 +55,19 @@ listStreamPage.methods.getNoItemsSelectedButtons = function(){
         context = self._getPageContext(),
         buttons = [];
 
-    /* context.navbar.addButton.formLogic = function(form){
-        l('form logic of addbutton')
-        if(typeof form.inputs.From !== 'undefined'){
-            // set current user in FROM field
-            form.inputs.From.setValue(
-            [{'key': spo.getCurrentUserId(), 'text': spo.getCurrentUser()['Title'], 'item': spo.getCurrentUser()}]);         
-        } 
+    // Button template
+    var fileButton = {
+        text: 'Cargar Planta',
+        class: 'uploadPlanta',
+        icon: 'ExcelLogo',
+        onClick: function(component, item){
+            mainView.router.navigate(encodeURI('/uploadPlanta'));
+        }
     }
-
-    buttons.push(context.navbar.addButton); */
     
+    if (page.route.query.title == 'Planta'){
+        buttons.push(fileButton);
+    }
     return buttons;
 }
 
@@ -106,6 +108,10 @@ function getRoutes(){
         {
             path: '/item',
             component: itemPage
+        },
+        {
+            path: '/uploadPlanta',
+            component: uploadPlantaPage
         },
         // Default route (404 page). MUST BE THE LAST
         {
