@@ -192,8 +192,84 @@ var uploadPlantaPage = {
 
                 $sendButton.removeClass('hide');
                 $sendButton.on('click', function (e) {
-                    file = $container.find('.attachmentInput')
-                    console.log(file[0].files[0])
+                    var dialogTitle = 'Nueva carga de planta';
+                    file = $container.find('.attachmentInput')[0]
+
+                    function save() {
+                        var dialog = app.dialog.progress(dialogTitle);
+
+                        files = file.files
+                        handleExcelFromInput(files, 
+                            function(response){
+                                // Do something with the json response
+                                console.log(response)
+                                dialog.close();
+
+                                app.dialog.create({
+                                    title: dialogTitle,
+                                    text: 'Cargado con éxito',
+                                    buttons: [{
+                                        text: 'Aceptar',
+                                        onClick: function () {
+                                            mainView.router.navigate('/liststream?title=Planta&listtitle=Planta&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                        }
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            }, 
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                                dialog.close();
+                                app.dialog.create({
+                                    title: 'Error al cargar el documento ' + file.files[0].name,
+                                    text: responseText.error.message.value,
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            }
+                        );
+
+                    }
+
+                    switch(file.files.length) {
+                        case 1:
+                            app.dialog.create({
+                                title: dialogTitle,
+                                text: '¿Está seguro de cargar el archivo? '+ file.files[0].name,
+                                buttons: [{
+                                    text: 'No'
+                                }, {
+                                    text: 'Sí',
+                                    onClick: function onClick() {
+                                        save();
+                                    }
+                                }],
+                                verticalButtons: false
+                            }).open();
+                            break;
+                        case 0:
+                            app.dialog.create({
+                                title: 'No ha adjuntado ningún documento',
+                                text: 'Para hacer una actualización de planta, debe adjuntar un documento Excel con la información de la planta actual',
+                                buttons: [{
+                                    text: 'Aceptar'
+                                }],
+                                verticalButtons: false
+                            }).open();
+                            break;
+                        default:
+                            app.dialog.create({
+                                title: 'Se han adjuntado muchos documentos',
+                                text: 'Recuerde que para hacer una actualización de planta, solo debe adjuntar un documento Excel con la información de la planta actual',
+                                buttons: [{
+                                    text: 'Aceptar'
+                                }],
+                                verticalButtons: false
+                            }).open();
+                    }
                 });
 
                 // remover loader
