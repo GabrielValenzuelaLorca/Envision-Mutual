@@ -12,7 +12,7 @@ menuPage.methods.getListBlocksData = function(){
 
         settings.push({
             inset: true,
-            header: '',
+            header: 'Coordinación',
             footer: '',
             options: [ 
                 {
@@ -36,7 +36,19 @@ menuPage.methods.getListBlocksData = function(){
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--CheckList"></i>',
-                },
+                }
+            ]
+        });
+    }
+
+    if (true){
+        settings.push({
+            inset: true,
+            header: 'Administración',
+            footer: '',
+            collapsable: true,
+            collapsed: true,
+            options: [
                 {
                     href: '/liststream?title=Planta&listtitle=Planta&listview=Todos los elementos&panel=filter-open&template=list-row&context=',
                     title: 'Planta',
@@ -47,6 +59,17 @@ menuPage.methods.getListBlocksData = function(){
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--People"></i>',
+                },
+                {
+                    href: '/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=',
+                    title: 'Periodos',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
                 }
             ]
         });

@@ -65,8 +65,13 @@ listStreamPage.methods.getNoItemsSelectedButtons = function(){
         }
     }
     
-    if (page.route.query.title == 'Planta'){
-        buttons.push(fileButton);
+    switch (page.route.query.title){
+        case 'Planta':
+            buttons.push(fileButton);    
+            break;
+        case 'Periodos':
+            buttons.push(context.navbar.addButton)    
+            break;
     }
     return buttons;
 }
