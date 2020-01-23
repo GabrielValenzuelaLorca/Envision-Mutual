@@ -1,4 +1,4 @@
-var itemPage = {
+var periodoPage = {
     template: '' +
         '<div class="page" data-page="FormPage">' +
             '<div class="navbar">' +
@@ -104,7 +104,7 @@ var itemPage = {
 
         // obtener título de la lista de inspección
         getListTitle: function () {
-            return 'ItemVariable';
+            return 'Periodo';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -182,43 +182,38 @@ var itemPage = {
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
                     $sendButton = $navbar.find('.link.send'),
-                    $generatePDFButton = $navbar.find('.link.generate-PDF'),
                     $updateButton = $navbar.find('.link.update'),
                     $clearButton = $navbar.find('.link.clear');
 
                 // formulario de registro
                 context.forms.item = new EFWForm({
                     container: $container.find('.form-container'),
-                    title: 'Item Variable',
-                    editable: listItemId ? false : true,
+                    title: mths.getListTitle(),
+                    editable: true,
                     // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
-                    fields: spo.getViewFields(context.lists.ItemVariable, 'Todos los elementos')
+                    fields: spo.getViewFields(context.lists.Periodo, 'Todos los elementos')
                 });
 
-                if (listItemId) {
-                    
-                    context.forms.item.setValues(context.items.ItemVariable);
-                    context.forms.item.setEditable(true);
 
-                    //context.forms.item.inputs.horas.setDisabled(true);
-                    console.log(context.forms.item);
+                if (listItemId) {
+                    context.forms.item.setValues(context.items.Periodo);
+                    context.forms.item.inputs['Activo'].hide();
+                    context.forms.item.inputs['Modified'].setEditable(false);
+                    context.forms.item.inputs['Editor'].setEditable(false);
+                    context.forms.item.inputs['Author'].setEditable(false);
 
                     $updateButton.removeClass('hide');
 
                 } else {
+                    context.forms.item.inputs['Activo'].hide();
+                    context.forms.item.inputs['Modified'].hide();
+                    context.forms.item.inputs['Editor'].hide();
+                    context.forms.item.inputs['Author'].hide();
 
                     $sendButton.removeClass('hide');
                     $clearButton.removeClass('hide');
 
                 }
-
-                $generatePDFButton.removeClass('hide');
-                console.log('context', context);
-
-                $generatePDFButton.on('click', function(e){
-                    exportPdf('.view-main .page-current .page-content', 'minuta.pdf', true, null)
-                    return;
-                });
 
                 $sendButton.on('click', function (e) {
                     var dialogTitle = 'Nuevo elemento';
@@ -226,11 +221,9 @@ var itemPage = {
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
                         var metadata = context.forms.item.getMetadata();
+                        metadata.Activo = true;
 
-                        console.log('metadata',metadata);
-
-                        spo.saveListItem(spo.getSiteUrl(), 'ItemVariable', metadata, function (response) {
-                            var formularioId = response.d.Id;
+                        spo.saveListItem(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {
                             dialog.close();
 
                             app.dialog.create({
@@ -239,7 +232,7 @@ var itemPage = {
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
-                                        mainView.router.refreshPage();
+                                        mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
                                     }
                                 }],
                                 verticalButtons: false
@@ -296,9 +289,8 @@ var itemPage = {
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.tarea.getMetadata();
+                        var metadata = context.forms.item.getMetadata();
 
-                        console.log('metadata', metadata);
                         spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
                             dialog.close();
 
@@ -308,7 +300,7 @@ var itemPage = {
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
-                                        mainView.router.refreshPage();
+                                        mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
                                     }
                                 }],
                                 verticalButtons: false
@@ -330,10 +322,10 @@ var itemPage = {
                             }).open();
                         });
                     }
+                    
+                    context.forms.item.checkFieldsRequired();
 
-                    context.forms.tarea.checkFieldsRequired();
-
-                    var validate = context.forms.tarea.getValidation();
+                    var validate = context.forms.item.getValidation();
 
                     if (validate) {
                         app.dialog.create({
@@ -362,6 +354,10 @@ var itemPage = {
 
                 });
 
+                $clearButton.on('click', function (e){
+                    context.forms.item.setValues([]);
+                });
+
                 // remover loader
                 mths.removePageLoader();
             }
@@ -373,22 +369,22 @@ var itemPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.listaItemVariable && loaded.ItemVariable) {
+                    if (loaded.listaPeriodo && loaded.Periodo) {
                         initForm();
                     }
                 };
 
                 // Obtener información de lista
-                spo.getListInfo('ItemVariable',
+                spo.getListInfo(mths.getListTitle(),
                     function (response) {
-                        context.items.ItemVariable = [];
-                        context.lists.ItemVariable = response;
-                        loaded.listaItemVariable = true;
+                        context.items.Periodo = [];
+                        context.lists.Periodo = response;
+                        loaded.listaPeriodo = true;
                         
                         // Si existe el id de algún item a obtener
                         if (listItemId) {
 
-                            var query = spo.encodeUrlListQuery(context.lists.ItemVariable, {
+                            var query = spo.encodeUrlListQuery(context.lists.Periodo, {
                                 view: 'Todos los elementos',
                                 odata: {
                                     'filter': '(Id eq ' + listItemId + ')',
@@ -397,10 +393,10 @@ var itemPage = {
                                 }
                             });
 
-                            spo.getListItems(spo.getSiteUrl(), 'ItemVariable', query,
+                            spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
                                 function (response) {
-                                    context.items.ItemVariable = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.ItemVariable = true;
+                                    context.items.Periodo = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    loaded.Periodo = true;
                                     shouldInitForms();
 
 
@@ -411,7 +407,7 @@ var itemPage = {
                                 }
                             );
                         } else {
-                            loaded.ItemVariable = true;
+                            loaded.Periodo = true;
                             shouldInitForms();
                         }
 

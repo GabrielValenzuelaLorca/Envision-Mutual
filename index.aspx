@@ -139,11 +139,9 @@
 				link = document.createElement('link');
 				link.type = 'text/css';
 				link.rel = 'stylesheet';
-				console.log(localStorage.globalTheme)
 				if(typeof localStorage.globalTheme != 'undefined'){
 					global.theme = localStorage.globalTheme
 				}
-				console.log(global.theme)
 				link.href = "https://publiccdn.sharepointonline.com/grupoenvision.sharepoint.com/CDN/EFW/themes/" + global.theme + "/" + global.theme + ".css";
 				//document.getElementsByTagName('head')[0].appendChild(link);
 				global["currentThemeCSS"] = document.getElementsByTagName('head')[0].appendChild(link);

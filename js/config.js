@@ -11,6 +11,8 @@ var AppScriptsArray = [
     "js/routers/HomePage.js",
     "js/routers/ItemPage.js",
     "js/routers/LeftPage.js",
+    "js/routers/UploadPlantaPage.js",
+    "js/routers/PeriodoPage.js",
     "js/routes.js", // routes.js siempre al penúltimo
     "js/app.js" // app.js siempre al último
 ];
