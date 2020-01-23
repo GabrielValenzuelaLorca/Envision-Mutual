@@ -37,7 +37,7 @@ var itemPage = {
                         '</a>' +
                         '<a href="#" class="link send ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Send"></i>' +
-                            '<span class="ios-only">Enviar</span>' +
+                            '<span class="ios-only">Guardar</span>' +
                         '</a>' +
                         '<a href="#" class="link associate-proyect ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--IDBadge"></i>' +
@@ -51,7 +51,27 @@ var itemPage = {
                 '</div>' +
             '</div>' +
             '<div class="page-content">' +
-                '<div class="form-container"></div>' +
+            '<div id="tituloFormularioMuestra" class="ms-font-xl ms-slideRightIn10" style="padding: 20px 20px 0 20px;">Formulario Registro Items Variables</div>' +
+            '<div class="list accordion-list">' +
+                "<ul>" +
+                    '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
+                        '<div class="item-inner">' +
+                          '<div class="item-title">Datos del Trabajador</div>' +
+                        '</div></a>' +
+                      '<div class="accordion-item-content">' +
+                        '<div class="form-persona"></div>' +
+                      '</div>' +
+                    '</li>' +
+                    '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
+                        '<div class="item-inner">' +
+                          '<div class="item-title">Datos Item Variable</div>' +
+                        '</div></a>' +
+                      '<div class="accordion-item-content">' +
+                      '<div class="form-item"></div>' +
+                      '</div>' +
+                    '</li>' +
+                '</ul>' +
+            '</div>' +
             '</div>' +
             
             '<div class="content-loader">' +
@@ -178,56 +198,149 @@ var itemPage = {
 
             function initForm() {
 
+                var current = null;
                 // containers
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
                     $sendButton = $navbar.find('.link.send'),
                     $generatePDFButton = $navbar.find('.link.generate-PDF'),
-                    $updateButton = $navbar.find('.link.update'),
                     $clearButton = $navbar.find('.link.clear');
 
-                // formulario de registro
-                context.forms.item = new EFWForm({
-                    container: $container.find('.form-container'),
-                    title: 'Item Variable',
-                    editable: listItemId ? false : true,
+                // formulario de registro Datos persona
+                context.forms.person = new EFWForm({
+                    container: $container.find('.form-persona'),
+                    title: '',
+                    editable: false,
                     // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
-                    fields: spo.getViewFields(context.lists.ItemVariable, 'Todos los elementos')
+                    fields: spo.getViewFields(context.lists.ItemVariable, 'FormularioPersona'),
                 });
+                context.forms.person.inputs['Nombre'].setEditable(true);
 
-                if (listItemId) {
-                    
-                    context.forms.item.setValues(context.items.ItemVariable);
-                    context.forms.item.setEditable(true);
+                // formulario de registro Item Variable
+                context.forms.item = new EFWForm({
+                    container: $container.find('.form-item'),
+                    title: '',
+                    editable: false,
+                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                    fields: spo.getViewFields(context.lists.ItemVariable, 'FormularioItem')
+                });
+                //Ocultar campos que son personalizados.
+                context.forms.item.inputs['CantidadMonto'].hide();
+                context.forms.item.inputs['Justificacion'].hide();
 
-                    //context.forms.item.inputs.horas.setDisabled(true);
-                    console.log(context.forms.item);
+                //Establecer Valores de persona con el nombre
+                context.forms.person.inputs['Nombre'].params.onChange = function(comp, input, state, values){
+                    if(current != null){
+                        return;
+                    }
+                    current = context.forms.item.inputs['Nombre'];
+                    if (values.length == 0){
+                        //Restaura los valores a vacio.
+                        context.forms.person.inputs['Rut'].resetValue();
+                        context.forms.person.inputs['CodigoPayroll'].resetValue();
+                        context.forms.person.inputs['TipoContrato'].resetValue();
+                        context.forms.person.inputs['Categoria'].resetValue();
+                        context.forms.item.inputs['Haber'].resetValue();
+                        context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
+                        current = null;
+                        return;
+                    }
+                
+                    var availiable = [];
+                    console.log('Listado items', context.items.ListadoItemVariable);
 
-                    $updateButton.removeClass('hide');
+                    //Validacion de tipo de contrato.
 
-                } else {
+                    //Validacion de contrato colectivo
 
-                    $sendButton.removeClass('hide');
-                    $clearButton.removeClass('hide');
+                    //Validacion Capex
 
+                    //Validacion Excepto Art 22
+
+                    //Validacion dependencia GP
+
+                    //Validacion GP Correspondiente.
+
+                    //Carga los datos automaticaente Al alegir el Rut
+                    context.forms.person.inputs['CodigoPayroll'].setValue(values[0].item.Title);
+                    context.forms.person.inputs['Rut'].setValue(values[0].item.Rut);
+                    context.forms.person.inputs['TipoContrato'].setValue(values[0].item.TipoContrato);
+
+                    var categoriaActual = context.items.Categorias.filter(function(x){
+                        return x.ID == values[0].item.CategoriaId;
+                    })[0];
+
+                    context.forms.person.inputs['Categoria'].setValue([{key: values[0].item.CategoriaId, text: categoriaActual.Sigla}]);
+
+                    context.forms.item.inputs['Haber'].setEditable(true);
+                    context.forms.item.inputs['Haber_x003a_Codigo'].setEditable(true);
+                    context.forms.item.inputs['CantidadMonto'].hide();
+                    context.forms.item.inputs['Justificacion'].hide();
+                    current = null;
                 }
 
-                $generatePDFButton.removeClass('hide');
-                console.log('context', context);
+                //Establecer Valores de Item segun el nombre del haber
+                context.forms.item.inputs['Haber'].params.onChange = function(comp, input, state, values){
+                    if(current != null){
+                        return;
+                    }
+                    current = context.forms.item.inputs['Haber'];
+                    if (values.length == 0){
+                        context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
+                        context.forms.item.inputs['CantidadMonto'].hide();
+                        context.forms.item.inputs['Justificacion'].hide();
+                        current = null;
+                        return;
+                    }
 
-                $generatePDFButton.on('click', function(e){
-                    exportPdf('.view-main .page-current .page-content', 'minuta.pdf', true, null)
-                    return;
-                });
+                    context.forms.item.inputs['Haber_x003a_Codigo'].setValue([{key: values[0].item.Title, text: values[0].item.Title}])
+                    context.forms.item.inputs['CantidadMonto'].setLabel(values[0].item.TipoIngreso == 'Cantidad' ? 'Cantidad' : 'Monto');
+                    context.forms.item.inputs['CantidadMonto'].setEditable(true);
+                    context.forms.item.inputs['Justificacion'].setEditable(true);
+
+                    context.forms.item.inputs['CantidadMonto'].show();
+                    context.forms.item.inputs['Justificacion'].show();
+                    current = null;
+                }
+
+                context.forms.item.inputs['Haber_x003a_Codigo'].params.onChange = function(comp, input, state, values){
+                    if(current != null){
+                        return;
+                    }
+                    current = context.forms.item.inputs['Haber_x003a_Codigo'];
+                    if (values.length == 0){
+                        context.forms.item.inputs['Haber'].resetValue();
+                        context.forms.item.inputs['CantidadMonto'].hide();
+                        context.forms.item.inputs['Justificacion'].hide();
+                        current = null;
+                        return;
+                    }
+
+                    context.forms.item.inputs['Haber'].setValue([{key: values[0].item.NombreItem, text: values[0].item.NombreItem}])
+                    context.forms.item.inputs['CantidadMonto'].setLabel(values[0].item.TipoIngreso == 'Cantidad' ? 'Cantidad' : 'Monto');
+                    context.forms.item.inputs['CantidadMonto'].setEditable(true);
+                    context.forms.item.inputs['Justificacion'].setEditable(true);
+
+                    context.forms.item.inputs['CantidadMonto'].show();
+                    context.forms.item.inputs['Justificacion'].show();
+                    current = null;
+                }
+                    
+                $sendButton.removeClass('hide');
+                $clearButton.removeClass('hide');
 
                 $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Nuevo elemento';
+                    var dialogTitle = 'Nuevo Item';
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.item.getMetadata();
+                        var metadataItem = context.forms.item.getMetadata();
+                        var metadataPerson = context.forms.person.getMetadata();
 
-                        console.log('metadata',metadata);
+                        var myJSON = JSON.stringify(metadataPerson);
+
+                        myJSON = myJSON.replace('}',JSON.stringify(metadataItem).replace('{',','));
+                        var metadata = JSON.parse(myJSON);
 
                         spo.saveListItem(spo.getSiteUrl(), 'ItemVariable', metadata, function (response) {
                             var formularioId = response.d.Id;
@@ -235,7 +348,7 @@ var itemPage = {
 
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Creado con éxito',
+                                text: 'Item creado con éxito',
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
@@ -247,7 +360,6 @@ var itemPage = {
 
                         }, function (response) {
                             var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
 
                             dialog.close();
                             app.dialog.create({
@@ -261,13 +373,25 @@ var itemPage = {
                         });
                     }
 
+                    context.forms.person.checkFieldsRequired();
                     context.forms.item.checkFieldsRequired();
-                    var validate =  context.forms.item.getValidation();
+                    
+                    var validatePerson =  context.forms.person.getValidation();
+                    var validateItem =  context.forms.item.getValidation();
 
-                    if (validate) {
+                    if(context.forms.item.inputs['Justificacion'].value.length< 10){
+                        app.dialog.create({
+                            title: 'Datos mal ingresados',
+                            text: 'La justificación debe tener un largo de al menos 10 caracteres.',
+                            buttons: [{
+                                text: 'Aceptar'
+                            }],
+                            verticalButtons: false
+                        }).open();
+                    }else if (validateItem && validatePerson) {
                         app.dialog.create({
                             title: dialogTitle,
-                            text: 'Se creará una nuevo registro.',
+                            text: 'Se creará una nuevo item.',
                             buttons: [{
                                 text: 'Cancelar'
                             }, {
@@ -281,7 +405,7 @@ var itemPage = {
                     } else {
                         app.dialog.create({
                             title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
+                            text: 'Para crear un nuevo item debe completar todos los campos obligatorios.',
                             buttons: [{
                                 text: 'Aceptar'
                             }],
@@ -291,75 +415,9 @@ var itemPage = {
 
                 });
 
-                $updateButton.on('click', function (e) {
-                    var dialogTitle = 'Editando elemento';
-
-                    function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.tarea.getMetadata();
-
-                        console.log('metadata', metadata);
-                        spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
-                            dialog.close();
-
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Elemento actualizado con éxito',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.refreshPage();
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-
-
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
-
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        });
-                    }
-
-                    context.forms.tarea.checkFieldsRequired();
-
-                    var validate = context.forms.tarea.getValidation();
-
-                    if (validate) {
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se actualizará el elemento.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    }
-
+                $clearButton.on('click', function (e){
+                    context.forms.item.setValues([]);
+                    context.forms.person.setValues([]);
                 });
 
                 // remover loader
@@ -373,7 +431,8 @@ var itemPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.listaItemVariable && loaded.ItemVariable) {
+                    if (loaded.ItemVariable && loaded.Categorias && loaded.ListadoItemVariable) {
+                        console.log('Context', context);
                         initForm();
                     }
                 };
@@ -383,7 +442,7 @@ var itemPage = {
                     function (response) {
                         context.items.ItemVariable = [];
                         context.lists.ItemVariable = response;
-                        loaded.listaItemVariable = true;
+                        //loaded.listaItemVariable = true;
                         
                         // Si existe el id de algún item a obtener
                         if (listItemId) {
@@ -399,7 +458,7 @@ var itemPage = {
 
                             spo.getListItems(spo.getSiteUrl(), 'ItemVariable', query,
                                 function (response) {
-                                    context.items.ItemVariable = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    context.items.ItemVariable = response.d.results.length > 0 ? response.d.results : null;
                                     loaded.ItemVariable = true;
                                     shouldInitForms();
 
@@ -414,6 +473,71 @@ var itemPage = {
                             loaded.ItemVariable = true;
                             shouldInitForms();
                         }
+
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+                // Obtengo el listado de categorias completa
+                spo.getListInfo('Categoria',
+                    function (response) {
+                        context.items.Categorias = [];
+                        context.lists.Categorias = response;
+                        //loaded.listaItemVariable = true;
+
+                            var query = spo.encodeUrlListQuery(context.lists.Categorias, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'select': '*'
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), 'Categoria', query,
+                                function (response) {
+                                    context.items.Categorias = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.Categorias = true;
+                                    shouldInitForms();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+
+                //Obtengo el listado de haberes para ser filtrados
+                spo.getListInfo('ListadoItemVariable',
+                    function (response) {
+                        context.items.ListadoItemVariable = [];
+                        context.lists.ListadoItemVariable = response;
+                        //loaded.listaItemVariable = true;
+
+                            var query = spo.encodeUrlListQuery(context.lists.ListadoItemVariable, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'select': '*'
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), 'ListadoItemVariable', query,
+                                function (response) {
+                                    context.items.ListadoItemVariable = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.ListadoItemVariable = true;
+                                    shouldInitForms();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
 
                     },
                     function (response) {

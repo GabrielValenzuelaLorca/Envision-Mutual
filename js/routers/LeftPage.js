@@ -8,7 +8,7 @@ menuPage.methods.getListBlocksData = function(){
     // configuración de menú
     var settings = []
     
-    if (admin == "Coordinador" || admin == "Administrador"){
+    if (onPeriod && (admin == "Coordinador" || admin == "Administrador")){
 
         settings.push({
             inset: true,
@@ -39,7 +39,15 @@ menuPage.methods.getListBlocksData = function(){
                 }
             ]
         });
+    } else {
+        settings.push({
+            inset: true,
+            header: 'Coordinación',
+            footer: 'No hay un periodo vigente para añadir items',
+            options: []
+        });
     }
+
 
     if (admin == "Administrador"){
         settings.push({
