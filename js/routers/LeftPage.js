@@ -8,7 +8,7 @@ menuPage.methods.getListBlocksData = function(){
     // configuración de menú
     var settings = []
     
-    if (true){
+    if (admin == "Coordinador" || admin == "Administrador"){
 
         settings.push({
             inset: true,
@@ -41,7 +41,7 @@ menuPage.methods.getListBlocksData = function(){
         });
     }
 
-    if (true){
+    if (admin == "Administrador"){
         settings.push({
             inset: true,
             header: 'Administración',
@@ -74,6 +74,7 @@ menuPage.methods.getListBlocksData = function(){
             ]
         });
     }
+    
 
     /*
     if (consultant['Roles'] == 'Project manager' || consultant['Roles'] == 'General project manager' || consultant['Roles'] == 'Business Developer'){
