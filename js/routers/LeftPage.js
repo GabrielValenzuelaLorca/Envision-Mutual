@@ -58,7 +58,7 @@ menuPage.methods.getListBlocksData = function(){
             collapsed: true,
             options: [
                 {
-                    href: '/liststream?title=Planta&listtitle=Planta&listview=Todos los elementos&panel=filter-open&template=list-row&context=',
+                    href: '/liststream?title=Planta&listtitle=Planta&listview=No Capex&panel=filter-open&template=list-row&context=',
                     title: 'Planta',
                     after: '',
                     header: '',
