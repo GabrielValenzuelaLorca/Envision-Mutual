@@ -233,6 +233,7 @@ var periodoPage = {
                                     text: 'Aceptar',
                                     onClick: function () {
                                         mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                        location.reload(true);
                                     }
                                 }],
                                 verticalButtons: false

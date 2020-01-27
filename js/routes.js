@@ -181,13 +181,17 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
         buttons.push(context.navbar.deleteButton);
     }
 
-    if (item.Activo == "Sí"){
-        buttons.push(desactivatePeriodoButton)
-    } else {
-        buttons.push(activatePeriodoButton)
+    switch (page.route.query.title){
+        case 'Periodos':
+            if (item.Activo == "Sí"){
+                buttons.push(desactivatePeriodoButton)
+            } else {
+                buttons.push(activatePeriodoButton)
+            }
+            break;
     }
-
     return buttons;
+
 }
 
 // sobre escribiendo el metodo

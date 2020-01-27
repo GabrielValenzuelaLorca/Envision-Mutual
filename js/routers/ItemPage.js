@@ -245,23 +245,7 @@ var itemPage = {
                         current = null;
                         return;
                     }
-                
-                    var availiable = [];
-                    console.log('Listado items', context.items.ListadoItemVariable);
 
-                    //Validacion de tipo de contrato.
-
-                    //Validacion de contrato colectivo
-
-                    //Validacion Capex
-
-                    //Validacion Excepto Art 22
-
-                    //Validacion dependencia GP
-
-                    //Validacion GP Correspondiente.
-
-                    //Carga los datos automaticaente Al alegir el Rut
                     context.forms.person.inputs['CodigoPayroll'].setValue(values[0].item.Title);
                     context.forms.person.inputs['Rut'].setValue(values[0].item.Rut);
                     context.forms.person.inputs['TipoContrato'].setValue(values[0].item.TipoContrato);
@@ -285,6 +269,8 @@ var itemPage = {
                         return;
                     }
                     current = context.forms.item.inputs['Haber'];
+
+                    console.log('Values', values);
                     if (values.length == 0){
                         context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
                         context.forms.item.inputs['CantidadMonto'].hide();
@@ -307,6 +293,7 @@ var itemPage = {
                     if(current != null){
                         return;
                     }
+                    console.log('Values', values);
                     current = context.forms.item.inputs['Haber_x003a_Codigo'];
                     if (values.length == 0){
                         context.forms.item.inputs['Haber'].resetValue();
@@ -316,7 +303,7 @@ var itemPage = {
                         return;
                     }
 
-                    context.forms.item.inputs['Haber'].setValue([{key: values[0].item.NombreItem, text: values[0].item.NombreItem}])
+                    context.forms.item.inputs['Haber'].setValue([{key: values[0].item.ID, text: values[0].item.NombreItem}])
                     context.forms.item.inputs['CantidadMonto'].setLabel(values[0].item.TipoIngreso == 'Cantidad' ? 'Cantidad' : 'Monto');
                     context.forms.item.inputs['CantidadMonto'].setEditable(true);
                     context.forms.item.inputs['Justificacion'].setEditable(true);
