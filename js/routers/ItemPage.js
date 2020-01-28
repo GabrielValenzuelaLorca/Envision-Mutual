@@ -326,12 +326,10 @@ var itemPage = {
                             }
                         }
 
-                        
                         if(haber['GP']){
                             //Valida si el campo no esta vacio.
                             if(haber['CampoGPId'] != null){
 
-                                console.log('Valor de las Categorias permitidas', haber['CampoGPId'])
                                 //Obtengo todos los valores de las categorias y las guardo en GPS
                                 var gps = [];
                                 haber['CampoGPId'].map(function(y){
@@ -345,22 +343,16 @@ var itemPage = {
                                     return x.ID == persona[0].item.CategoriaId;
                                 })[0];
 
-                                console.log('Nombres GP : ', gps);
-                                console.log('Nombre Actual de la GP', categoriaActual);
-
                                 var aprobado = false;
 
                                 //Recorrimos el listado de elementos para encontrar coincidencias en la categoria.
                                 gps.map(function(x){
-                                    console.log('Largo de la categoria', x.Title.length);
                                     if(x.Title.length > 1){
-                                        console.log('Resultado de la validacion 1', x.Title === categoriaActual.Title);
                                         if(x.Title === categoriaActual.Title){
                                             aprobado = true;
                                         }
                                     }
                                     if(x.Title.length == 1){
-                                        console.log('Resultado de la validacion 2', categoriaActual.Title.includes(x.Title));
                                         if(!categoriaActual.Title.includes(x.Title)){
                                             aprobado = true;
                                         }
