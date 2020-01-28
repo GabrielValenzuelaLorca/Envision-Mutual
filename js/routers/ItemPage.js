@@ -198,12 +198,14 @@ var itemPage = {
 
             function initForm() {
 
+                var persona = null;
+
                 var current = null;
                 // containers
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
                     $sendButton = $navbar.find('.link.send'),
-                    $generatePDFButton = $navbar.find('.link.generate-PDF'),
+                    $updateButton = $navbar.find('.link.update'),
                     $clearButton = $navbar.find('.link.clear');
 
                 // formulario de registro Datos persona
@@ -224,9 +226,10 @@ var itemPage = {
                     // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
                     fields: spo.getViewFields(context.lists.ItemVariable, 'FormularioItem')
                 });
-                //Ocultar campos que son personalizados.
                 context.forms.item.inputs['CantidadMonto'].hide();
                 context.forms.item.inputs['Justificacion'].hide();
+                //Ocultar campos que son personalizados.
+                
 
                 //Establecer Valores de persona con el nombre
                 context.forms.person.inputs['Nombre'].params.onChange = function(comp, input, state, values){
@@ -234,6 +237,7 @@ var itemPage = {
                         return;
                     }
                     current = context.forms.item.inputs['Nombre'];
+                    persona = values;
                     if (values.length == 0){
                         //Restaura los valores a vacio.
                         context.forms.person.inputs['Rut'].resetValue();
@@ -246,6 +250,7 @@ var itemPage = {
                         return;
                     }
 
+                    //Carga los datos automaticaente Al alegir el Rut
                     context.forms.person.inputs['CodigoPayroll'].setValue(values[0].item.Title);
                     context.forms.person.inputs['Rut'].setValue(values[0].item.Rut);
                     context.forms.person.inputs['TipoContrato'].setValue(values[0].item.TipoContrato);
@@ -254,7 +259,8 @@ var itemPage = {
                         return x.ID == values[0].item.CategoriaId;
                     })[0];
 
-                    context.forms.person.inputs['Categoria'].setValue([{key: values[0].item.CategoriaId, text: categoriaActual.Sigla}]);
+
+                    context.forms.person.inputs['Categoria'].setValue([{key: values[0].item.CategoriaId, text: categoriaActual ? categoriaActual.Title: 'No se cargo el String'}]);
 
                     context.forms.item.inputs['Haber'].setEditable(true);
                     context.forms.item.inputs['Haber_x003a_Codigo'].setEditable(true);
@@ -269,8 +275,6 @@ var itemPage = {
                         return;
                     }
                     current = context.forms.item.inputs['Haber'];
-
-                    console.log('Values', values);
                     if (values.length == 0){
                         context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
                         context.forms.item.inputs['CantidadMonto'].hide();
@@ -289,11 +293,99 @@ var itemPage = {
                     current = null;
                 }
 
+                context.forms.item.inputs['Haber'].params.beforeRenderSuggestions = function (items) {
+                    
+                    var resultado = [];
+
+                    items.map(function(haber){
+                        if(haber['TipoItem'] != 'Haber'){
+                            return;
+                        }
+
+                        //Contrato Indefinido
+                        if(haber['ContratoIndefinido']){
+                            //que tipo de contrato tiene?
+                            if(persona[0].item.TipoContrato != 'Indefinido'){
+                                return;
+                            }
+                        }
+                        
+                        //Validacion Capex
+                        if(haber['Capex']){
+                            //que tipo de contrato tiene?
+                            if(!persona[0].item.Capex){
+                                return;
+                            }
+                        }
+                        //Trabajadores Excepto Art 22
+                        if(haber['AplicaArt22']){
+                            if(persona[0].item.Jornada == 'Art. 22'){
+                                return;
+                            }
+                        }
+
+                        
+                        if(haber['GP']){
+                            //Valida si el campo no esta vacio.
+                            if(haber['CampoGPId'] != null){
+
+                                console.log('Valor de las Categorias permitidas', haber['CampoGPId'])
+                                //Obtengo todos los valores de las categorias y las guardo en GPS
+                                var gps = [];
+                                haber['CampoGPId'].map(function(y){
+                                    gps.push(context.items.Categorias.filter(function(x){
+                                        return x.ID == y
+                                    })[0]);
+                                });
+
+                                //Obtengo la categoria de la persona seleccionada y la guardo en categoria Actual
+                                var categoriaActual = context.items.Categorias.filter(function(x){
+                                    return x.ID == persona[0].item.CategoriaId;
+                                })[0];
+
+                                console.log('Nombres GP : ', gps);
+                                console.log('Nombre Actual de la GP', categoriaActual);
+
+                                var aprobado = false;
+
+                                //Recorrimos el listado de elementos para encontrar coincidencias en la categoria.
+                                gps.map(function(x){
+                                    console.log('Largo de la categoria', x.Title.length);
+                                    if(x.Title.length > 1){
+                                        console.log('Resultado de la validacion 1', x.Title === categoriaActual.Title);
+                                        if(x.Title === categoriaActual.Title){
+                                            aprobado = true;
+                                        }
+                                    }
+                                    if(x.Title.length == 1){
+                                        console.log('Resultado de la validacion 2', categoriaActual.Title.includes(x.Title));
+                                        if(!categoriaActual.Title.includes(x.Title)){
+                                            aprobado = true;
+                                        }
+                                    }
+                                });
+                                //Si la categoria no aparece en el listado no se considerara para agregarla al listado
+                                if(!aprobado){
+                                    return;
+                                }
+                            }else{
+                                console.log('El campoGP esta vacio y tiene habilitada las GP');
+                            }
+                        }
+
+                        resultado.push(haber);
+                    });
+
+                    console.log('Cantidad Haberes', resultado.length);
+                    console.log('Total Haberes', items.length);
+
+                    return resultado;
+                }
+
                 context.forms.item.inputs['Haber_x003a_Codigo'].params.onChange = function(comp, input, state, values){
                     if(current != null){
                         return;
                     }
-                    console.log('Values', values);
                     current = context.forms.item.inputs['Haber_x003a_Codigo'];
                     if (values.length == 0){
                         context.forms.item.inputs['Haber'].resetValue();
@@ -303,7 +395,7 @@ var itemPage = {
                         return;
                     }
 
-                    context.forms.item.inputs['Haber'].setValue([{key: values[0].item.ID, text: values[0].item.NombreItem}])
+                    context.forms.item.inputs['Haber'].setValue([{key: values[0].item.NombreItem, text: values[0].item.NombreItem}])
                     context.forms.item.inputs['CantidadMonto'].setLabel(values[0].item.TipoIngreso == 'Cantidad' ? 'Cantidad' : 'Monto');
                     context.forms.item.inputs['CantidadMonto'].setEditable(true);
                     context.forms.item.inputs['Justificacion'].setEditable(true);
@@ -402,6 +494,82 @@ var itemPage = {
 
                 });
 
+                $updateButton.on('click', function (e) {
+                    var dialogTitle = 'Editando Item';
+
+                    function save() {
+                        var dialog = app.dialog.progress(dialogTitle);
+                        var metadataItem = context.forms.item.getMetadata();
+                        var metadataPerson = context.forms.person.getMetadata();
+
+                        var myJSON = JSON.stringify(metadataPerson);
+
+                        myJSON = myJSON.replace('}',JSON.stringify(metadataItem).replace('{',','));
+                        var metadata = JSON.parse(myJSON);
+
+                        spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
+                            dialog.close();
+
+                            app.dialog.create({
+                                title: dialogTitle,
+                                text: 'Item actualizado con éxito',
+                                buttons: [{
+                                    text: 'Aceptar',
+                                    onClick: function () {
+                                        mainView.router.refreshPage();
+                                    }
+                                }],
+                                verticalButtons: false
+                            }).open();
+
+                        }, function (response) {
+                            var responseText = JSON.parse(response.responseText);
+
+                            dialog.close();
+                            app.dialog.create({
+                                title: 'Error al guardar en lista ' + mths.getListTitle(),
+                                text: responseText.error.message.value,
+                                buttons: [{
+                                    text: 'Aceptar'
+                                }],
+                                verticalButtons: false
+                            }).open();
+                        });
+                    }
+
+                    context.forms.person.checkFieldsRequired();
+                    context.forms.item.checkFieldsRequired();
+
+                    var validatePerson =  context.forms.item.getValidation();
+                    var validateItem =  context.forms.item.getValidation();
+
+                    if (validateItem && validatePerson) {
+                        app.dialog.create({
+                            title: dialogTitle,
+                            text: 'Se actualizará el Item.',
+                            buttons: [{
+                                text: 'Cancelar'
+                            }, {
+                                text: 'Aceptar',
+                                onClick: function onClick() {
+                                    save();
+                                }
+                            }],
+                            verticalButtons: false
+                        }).open();
+                    } else {
+                        app.dialog.create({
+                            title: 'Datos insuficientes',
+                            text: 'Para crear un nuevo item debe completar todos los campos obligatorios.',
+                            buttons: [{
+                                text: 'Aceptar'
+                            }],
+                            verticalButtons: false
+                        }).open();
+                    }
+
+                });
+
                 $clearButton.on('click', function (e){
                     context.forms.item.setValues([]);
                     context.forms.person.setValues([]);
@@ -419,7 +587,6 @@ var itemPage = {
 
                 var shouldInitForms = function () {
                     if (loaded.ItemVariable && loaded.Categorias && loaded.ListadoItemVariable) {
-                        console.log('Context', context);
                         initForm();
                     }
                 };
@@ -477,7 +644,8 @@ var itemPage = {
                             var query = spo.encodeUrlListQuery(context.lists.Categorias, {
                                 view: 'Todos los elementos',
                                 odata: {
-                                    'select': '*'
+                                    'select': '*',
+                                    'top': 5000
                                 }
                             });
 
