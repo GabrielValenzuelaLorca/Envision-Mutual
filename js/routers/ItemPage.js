@@ -259,6 +259,7 @@ var itemPage = {
                         return x.ID == values[0].item.CategoriaId;
                     })[0];
 
+                    context.forms.person.inputs['Categoria'].setValue([{key: values[0].item.CategoriaId, text: categoriaActual.Title}]);
 
                     context.forms.person.inputs['Categoria'].setValue([{key: values[0].item.CategoriaId, text: categoriaActual ? categoriaActual.Title: 'No se cargo el String'}]);
 
@@ -275,6 +276,7 @@ var itemPage = {
                         return;
                     }
                     current = context.forms.item.inputs['Haber'];
+
                     if (values.length == 0){
                         context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
                         context.forms.item.inputs['CantidadMonto'].hide();
@@ -645,7 +647,7 @@ var itemPage = {
                                 view: 'Todos los elementos',
                                 odata: {
                                     'select': '*',
-                                    'top': 5000
+                                    'top' : 5000
                                 }
                             });
 
