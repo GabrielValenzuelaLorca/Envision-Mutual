@@ -200,58 +200,13 @@ listStreamPage.methods.getNoItemsSelectedButtons = function(){
         page = self._getPage(),
         context = self._getPageContext(),
         buttons = [];
-
-    // Button template
-    var fileButton = {
-        text: 'Cargar Planta',
-        class: 'uploadPlanta',
-        icon: 'ExcelLogo',
-        onClick: function(component, item){
-            mainView.router.navigate(encodeURI('/uploadPlanta'));
-        }
-    }
-
-    var addPeriodButton = {
-        text: 'Añadir Periodo',
-        class: 'addPeriodo',
-        icon: 'Add',
-        onClick: function(component, item){
-            var query = spo.encodeUrlListQuery(context.list, {
-                view: 'Todos los elementos',
-                odata: {
-                    'filter': '(Activo eq 1)'
-                }
-            });
-            spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
-                function (response) {
-                    if (response.d.results.length>0){
-                        app.dialog.create({
-                            title: 'No se puede añadir un nuevo periodo',
-                            text: "Hay otro periodo activo",
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    } else {
-                        mainView.router.navigate(encodeURI('/periodo'));        
-                    }
-                },
-                function (response) {
-                    var responseText = JSON.parse(response.responseText);
-                    console.log(responseText.error.message.value);
-                }
-            );
-        }
-    }
-
     
     switch (page.route.query.title){
         case 'Planta':
-            buttons.push(fileButton);    
+            buttons.push(localButtons.fileButton());    
             break;
         case 'Periodos':
-            buttons.push(addPeriodButton);
+            buttons.push(localButtons.addPeriodButton(context));
             break;
     }
     return buttons;

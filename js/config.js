@@ -8,6 +8,7 @@ global.showUserMenu = true;
 global.tenantUrl = 'https://grupoenvision.sharepoint.com/';
 global.siteUrl = 'https://grupoenvision.sharepoint.com/sites/testMutual/';
 var AppScriptsArray = [
+    "js/utils/buttons.js",
     "js/routers/HomePage.js",
     "js/routers/ItemPage.js",
     "js/routers/LeftPage.js",
