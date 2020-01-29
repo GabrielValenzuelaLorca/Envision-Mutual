@@ -296,10 +296,18 @@ var itemPage = {
                 }
 
                 context.forms.item.inputs['Haber'].params.beforeRenderSuggestions = function (items) {
-                    
+
+                    console.log('Correo del coordinador Actual', context.items.Coordinador);
+
+                    var arregloDatos = context.items.Coordinador[0].HaberesId.results;
+
+                    var dato = items.filter(function(item){
+                        return arregloDatos.includes(item.ID);
+                    });
+
                     var resultado = [];
 
-                    items.map(function(haber){
+                    dato.map(function(haber){
                         if(haber['TipoItem'] != 'Haber'){
                             return;
                         }
@@ -344,8 +352,6 @@ var itemPage = {
                                     return x.ID == persona[0].item.CategoriaId;
                                 })[0];
 
-                                console.log('Nombres GP : ', gps);
-                                console.log('Nombre Actual de la GP', categoriaActual);
                                 context.aprobado = false;
 
                                 //Recorrimos el listado de elementos para encontrar coincidencias en la categoria.
@@ -586,7 +592,7 @@ var itemPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.ItemVariable && loaded.Categorias && loaded.ListadoItemVariable) {
+                    if (loaded.ItemVariable && loaded.Categorias && loaded.ListadoItemVariable && loaded.Coordinador) {
                         initForm();
                     }
                 };
@@ -628,6 +634,41 @@ var itemPage = {
                             shouldInitForms();
                         }
 
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+
+                // Obtener información de lista 
+                spo.getListInfo('Coordinador',
+                    function (response) {
+                        context.items.Coordinador = [];
+                        context.lists.Coordinador = response;                        
+
+                        var query = spo.encodeUrlListQuery(context.lists.Coordinador, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'filter': '(Usuario/Email eq \'' + spo.getCurrentUser()['EMail'] + '\')',
+                                'select': '*',
+                                'top': 5000,
+
+                    
+                            }
+                        });
+
+                        spo.getListItems(spo.getSiteUrl(), 'Coordinador', query,
+                            function (response) {
+                                context.items.Coordinador = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.Coordinador = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);
