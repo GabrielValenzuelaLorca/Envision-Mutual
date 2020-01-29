@@ -29,14 +29,10 @@ localButtons.addPeriodButton = function(context){
             spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
                 function (response) {
                     if (response.d.results.length>0){
-                        app.dialog.create({
-                            title: 'No se puede añadir un nuevo periodo',
-                            text: "Hay otro periodo activo",
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
+                        dialogs.infoDialog(
+                            'No se puede añadir un nuevo periodo',
+                            'Hay otro periodo activo'
+                        )
                     } else {
                         mainView.router.navigate(encodeURI('/periodo'));        
                     }
@@ -73,49 +69,30 @@ localButtons.desactivatePeriodoButton = function(){
                 var dialog = app.dialog.progress(dialogTitle);
 
                 spo.updateListItem(spo.getSiteUrl(), "Periodo", item.ID, {"Activo":false}, function (response) {
-                    dialog.close();
-
-                    app.dialog.create({
-                        title: dialogTitle,
-                        text: 'Desactivado con éxito',
-                        buttons: [{
-                            text: 'Aceptar',
-                            onClick: function () {
-                                location.reload(true);
-                            }
-                        }],
-                        verticalButtons: false
-                    }).open();
-
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Desactivado con éxito',
+                        'refresh',
+                        false
+                    )
 
                 }, function (response) {
                     var responseText = JSON.parse(response.responseText);
                     console.log('responseText', responseText);
 
                     dialog.close();
-                    app.dialog.create({
-                        title: 'Error al guardar el periodo',
-                        text: responseText.error.message.value,
-                        buttons: [{
-                            text: 'Aceptar'
-                        }],
-                        verticalButtons: false
-                    }).open();
+                    dialogs.infoDialog(
+                        'Error al guardar el periodo',
+                        responseText.error.message.value,
+                    )
                 });
             }
-            app.dialog.create({
-                title: dialogTitle,
-                text: 'Se desactivará el periodo seleccionado.',
-                buttons: [{
-                    text: 'Cancelar'
-                }, {
-                    text: 'Aceptar',
-                    onClick: function onClick() {
-                        save();
-                    }
-                }],
-                verticalButtons: false
-            }).open();
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se desactivará el periodo seleccionado.',
+                save
+            )
         }
     }
     return button
@@ -136,14 +113,10 @@ localButtons.activatePeriodoButton = function(context){
             spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
                 function (response) {
                     if (response.d.results.length>0){
-                        app.dialog.create({
-                            title: 'No se puede activar este periodo',
-                            text: "Hay otro periodo activo",
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
+                        dialogs.infoDialog(
+                            'No se puede activar este periodo',
+                            "Hay otro periodo activo"
+                        )
                     } else {
                         var dialogTitle = 'Activando periodo';
                         function save() {
@@ -151,51 +124,30 @@ localButtons.activatePeriodoButton = function(context){
 
                             spo.updateListItem(spo.getSiteUrl(), "Periodo", item.ID, {"Activo":true}, function (response) {
                                 dialog.close();
-
-                                app.dialog.create({
-                                    title: dialogTitle,
-                                    text: 'Activado con éxito',
-                                    buttons: [{
-                                        text: 'Aceptar',
-                                        onClick: function () {
-                                            location.reload(true);
-                                        }
-                                    }],
-                                    verticalButtons: false
-                                }).open();
-
+                                dialogs.confirmDialog(
+                                    dialogTitle,
+                                    'Activado con éxito',
+                                    'refresh',
+                                    false
+                                )
 
                             }, function (response) {
                                 var responseText = JSON.parse(response.responseText);
                                 console.log('responseText', responseText);
 
                                 dialog.close();
-                                app.dialog.create({
-                                    title: 'Error al guardar el periodo',
-                                    text: responseText.error.message.value,
-                                    buttons: [{
-                                        text: 'Aceptar'
-                                    }],
-                                    verticalButtons: false
-                                }).open();
+                                dialogs.infoDialog(
+                                    'Error al guardar el periodo',
+                                    responseText.error.message.value
+                                )
                             });
                         }
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se activará el periodo seleccionado.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
+                        dialogs.confirmDialog(
+                            dialogTitle,
+                            'Se activará el periodo seleccionado.',
+                            save
+                        )
                     }
-
-
                 },
                 function (response) {
                     var responseText = JSON.parse(response.responseText);
