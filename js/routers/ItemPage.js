@@ -319,6 +319,7 @@ var itemPage = {
                                 return;
                             }
                         }
+                       
                         //Trabajadores Excepto Art 22
                         if(haber['AplicaArt22']){
                             if(persona[0].item.Jornada == 'Art. 22'){
@@ -343,23 +344,28 @@ var itemPage = {
                                     return x.ID == persona[0].item.CategoriaId;
                                 })[0];
 
-                                var aprobado = false;
+                                console.log('Nombres GP : ', gps);
+                                console.log('Nombre Actual de la GP', categoriaActual);
+                                context.aprobado = false;
 
                                 //Recorrimos el listado de elementos para encontrar coincidencias en la categoria.
                                 gps.map(function(x){
+                                    if(context.aprobado){
+                                        return;
+                                    }
                                     if(x.Title.length > 1){
                                         if(x.Title === categoriaActual.Title){
-                                            aprobado = true;
+                                            context.aprobado = true;
                                         }
-                                    }
-                                    if(x.Title.length == 1){
-                                        if(!categoriaActual.Title.includes(x.Title)){
-                                            aprobado = true;
+                                    }else if(x.Title.length == 1){
+                                        haber['NombreItem'] == 'BONO EVENTO De 0 hasta 4 Horas' ? console.log('Resultado de la validacion =1', categoriaActual.Title.includes(x.Title)) : '';
+                                        if(categoriaActual.Title.includes(x.Title)){
+                                            context.aprobado = true;
                                         }
                                     }
                                 });
                                 //Si la categoria no aparece en el listado no se considerara para agregarla al listado
-                                if(!aprobado){
+                                if(!context.aprobado){
                                     return;
                                 }
                             }else{
