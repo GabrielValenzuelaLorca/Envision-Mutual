@@ -230,6 +230,16 @@ var itemPage = {
                 context.forms.item.inputs['Justificacion'].hide();
                 //Ocultar campos que son personalizados.
                 
+                // Filtrar trabajadores segun asignacion del coordinador
+                context.forms.person.inputs['Nombre'].params.beforeRenderSuggestions = function (persons) {
+                    var arregloDatos = context.items.Coordinador[0].TrabajadoresId.results;
+
+                    var selectedPersons = persons.filter(function(person){
+                        return arregloDatos.includes(person.Id);
+                    });
+                    return selectedPersons 
+
+                }
 
                 //Establecer Valores de persona con el nombre
                 context.forms.person.inputs['Nombre'].params.onChange = function(comp, input, state, values){
@@ -296,9 +306,6 @@ var itemPage = {
                 }
 
                 context.forms.item.inputs['Haber'].params.beforeRenderSuggestions = function (items) {
-
-                    console.log('Correo del coordinador Actual', context.items.Coordinador);
-
                     var arregloDatos = context.items.Coordinador[0].HaberesId.results;
 
                     var dato = items.filter(function(item){
