@@ -17,11 +17,7 @@ dialogs.confirmDialog = function(title, text, fun, cancel=true){
         {
             text: 'Aceptar',
             onClick: function onClick(){
-                if (fun == 'refresh'){
-                    location.reload(true)
-                }else{
-                    fun()
-                }
+                fun()
             }
         }
     ) 
