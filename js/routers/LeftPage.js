@@ -130,11 +130,11 @@ menuPage.methods.renderFooter = function ($header) {
     var self = this,
         page = self._getPage(),
         context = self._getPageContext();
-        var $html = `<div class="theme-switcher"><a onclick="efwSwapTheme('envisionLight')">Claro</a> | <a onclick="efwSwapTheme('envisionDark')">Oscuro</a></div>`
-    $header.html($html);
+        //var $html = `<div class="theme-switcher"><a onclick="efwSwapTheme('envisionLight')">Claro</a> | <a onclick="efwSwapTheme('envisionDark')">Oscuro</a></div>`
+    //$header.html($html);
 };
 
 // {string} logo de empresa
-/*menuPage.methods.getPageComponentImage = function(){
-    return "https://publiccdn.sharepointonline.com/grupoenvision.sharepoint.com/CDN/EFW/themes/" + global.theme + "/" + global.theme + ".png";
-};*/
+menuPage.methods.getPageComponentImage = function(){
+    return "https://grupoenvision.sharepoint.com/CDN/EFW/themes/" + global.theme + "/" + global.theme + ".png";
+};

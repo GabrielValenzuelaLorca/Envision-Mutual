@@ -1,7 +1,7 @@
 // <CONFIG>
 var global = {};
 global.appName = 'Mutual - Item variable'
-global.theme = 'envisionLight';
+global.theme = 'mutual';
 global.efwVersion = '3.0.8';
 global.efwDev = true;
 global.showUserMenu = true;
