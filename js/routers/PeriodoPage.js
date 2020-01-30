@@ -291,6 +291,7 @@ var periodoPage = {
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
                         var metadata = context.forms.item.getMetadata();
+                        metadata.Activo = context.items.Periodo.Activo;
 
                         spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
                             dialog.close();

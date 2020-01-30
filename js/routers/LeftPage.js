@@ -82,31 +82,6 @@ menuPage.methods.getListBlocksData = function(){
             ]
         });
     }
-    
-
-    /*
-    if (consultant['Roles'] == 'Project manager' || consultant['Roles'] == 'General project manager' || consultant['Roles'] == 'Business Developer'){
-        settings.push({
-            inset: true,
-            header: '',
-            footer: '',
-            collapsable: true,
-            collapsed: true,
-            options: [
-                {
-                    href: '/liststream?nopen=true&title=Client&listtitle=Client&listview=Todos los elementos&template=list-row',
-                    title: 'Clientes',
-                    after: '',
-                    header: '',
-                    footer: '',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--CheckList"></i>',
-                },
-            ]
-        });
-    }*/
 
     return settings;
 };
