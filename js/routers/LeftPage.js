@@ -1,14 +1,46 @@
 var menuPage = $.extend(true, {}, indexPage);
 
+menuPage.methods.beforeStartComponent = function(success, failure){
+    var context = this._getPageContext();
+
+    spo.getListInfo('Periodo',
+        function (response) {
+            var query = spo.encodeUrlListQuery(response, {
+                view: 'Todos los elementos',
+                odata: {
+                    'filter': '(Activo eq 1)'
+                }
+            });
+            spo.getListItems(spo.getSiteUrl(), "Periodo", query,
+                function (response) {
+                    context.onPeriod = response.d.results.length>0 ? true : false;
+                    if (success) success();
+                },
+                function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                    if (failure) failure();
+                }
+            );
+        },
+        function(response){
+            var responseText = JSON.parse(response.responseText);
+            console.log(responseText.error.message.value);
+            resolve(failCond);
+            if (failure) failure();
+        }
+    );
+}
+
 // {array} obtiene las optiones de configuración para el menú
 menuPage.methods.getListBlocksData = function(){
     var page = this._getPage();
     var app = page.app;
+    var context = this._getPageContext();
 
     // configuración de menú
     var settings = []
-    
-    if (onPeriod && (admin == "Coordinador" || admin == "Administrador")){
+    if (context.onPeriod && (admin == "Coordinador" || admin == "Administrador")){
 
         settings.push({
             inset: true,
@@ -84,29 +116,6 @@ menuPage.methods.getListBlocksData = function(){
     }
 
     return settings;
-};
-
-menuPage.methods.getDescription = function () {
-    return 'holi';
-};
-
-/* menuPage.methods.renderHeader = function ($header) {
-    var self = this,
-        page = self._getPage(),
-        context = self._getPageContext();
-
-    var header = '' + 
-        '<div>'
-        '<div class="ms-font-xl" style="padding:20px 20px 0 20px;">' + context.title + '</div>';
-    $header.html(header);
-}; */
-
-menuPage.methods.renderFooter = function ($header) {
-    var self = this,
-        page = self._getPage(),
-        context = self._getPageContext();
-        //var $html = `<div class="theme-switcher"><a onclick="efwSwapTheme('envisionLight')">Claro</a> | <a onclick="efwSwapTheme('envisionDark')">Oscuro</a></div>`
-    //$header.html($html);
 };
 
 // {string} logo de empresa

@@ -65,6 +65,10 @@ localButtons.desactivatePeriodoButton = function(){
         icon: 'PowerButton',
         onClick: function(component, item){
             var dialogTitle = 'Desactivando periodo';
+            function refresh(){
+                mainView.router.refreshPage();
+                leftView.router.refreshPage();
+            }
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
 
@@ -73,7 +77,7 @@ localButtons.desactivatePeriodoButton = function(){
                     dialogs.confirmDialog(
                         dialogTitle,
                         'Desactivado con éxito',
-                        'refresh',
+                        refresh,
                         false
                     )
 
@@ -119,6 +123,10 @@ localButtons.activatePeriodoButton = function(context){
                         )
                     } else {
                         var dialogTitle = 'Activando periodo';
+                        function refresh(){
+                            mainView.router.refreshPage();
+                            leftView.router.refreshPage();
+                        }
                         function save() {
                             var dialog = app.dialog.progress(dialogTitle);
 
@@ -127,7 +135,7 @@ localButtons.activatePeriodoButton = function(context){
                                 dialogs.confirmDialog(
                                     dialogTitle,
                                     'Activado con éxito',
-                                    'refresh',
+                                    refresh,
                                     false
                                 )
 
@@ -157,4 +165,9 @@ localButtons.activatePeriodoButton = function(context){
         }
     }
     return button
+}
+
+// Item Variable buttons
+localButtons.sendButton = function(){
+    
 }
