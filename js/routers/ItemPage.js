@@ -67,7 +67,7 @@ var itemPage = {
                           '<div class="item-title">Datos Item Variable</div>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
-                      '<div class="form-item"></div>' +
+                        '<div class="form-item"></div>' +
                       '</div>' +
                     '</li>' +
                 '</ul>' +
@@ -269,8 +269,6 @@ var itemPage = {
                         return x.ID == values[0].item.CategoriaId;
                     })[0];
 
-                    context.forms.person.inputs['Categoria'].setValue([{key: values[0].item.CategoriaId, text: categoriaActual.Title}]);
-
                     context.forms.person.inputs['Categoria'].setValue([{key: values[0].item.CategoriaId, text: categoriaActual ? categoriaActual.Title: 'No se cargo el String'}]);
 
                     context.forms.item.inputs['Haber'].setEditable(true);
@@ -300,6 +298,11 @@ var itemPage = {
                     context.forms.item.inputs['CantidadMonto'].setEditable(true);
                     context.forms.item.inputs['Justificacion'].setEditable(true);
 
+                    if(values[0].item.ValorDefecto != null ){
+                        context.forms.item.inputs['CantidadMonto'].setValue(values[0].item.ValorDefecto);
+                        context.forms.item.inputs['CantidadMonto'].setEditable(true);                        
+                    }
+
                     context.forms.item.inputs['CantidadMonto'].show();
                     context.forms.item.inputs['Justificacion'].show();
                     current = null;
@@ -311,6 +314,8 @@ var itemPage = {
                     var dato = items.filter(function(item){
                         return arregloDatos.includes(item.ID);
                     });
+
+                    console.log('Periodo Actual', context.items.Periodo);
 
                     var resultado = [];
 
@@ -342,6 +347,34 @@ var itemPage = {
                             }
                         }
 
+                        //Validamos las fechas especificas
+                        if(haber['FechasExcepcionales'] != null ){
+                            context.pertenece = false;
+                            let fechas = haber['FechasExcepcionales'].split(',');
+                            fechas.map(function(x){
+
+                                if(context.pertenece){
+                                    return;
+                                }                                
+                                let nombreMes = moment(x, 'DD/MM/YYYY').format("MMMM");
+                                nombreMes = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+                                if(context.items.Periodo[0].Mes == nombreMes){
+                                    context.pertenece = true;
+                                    return;
+                                }
+                            });
+                            if(!context.pertenece){
+                                return;
+                            }
+                        }
+
+                        if(haber['Pabellon']){
+                            if(!persona[0].item.Pabellon){
+                                return;
+                            }
+                        }
+
+                        //Validamos la GP y subGP correspondiente
                         if(haber['GP']){
                             //Valida si el campo no esta vacio.
                             if(haber['CampoGPId'] != null){
@@ -371,7 +404,6 @@ var itemPage = {
                                             context.aprobado = true;
                                         }
                                     }else if(x.Title.length == 1){
-                                        haber['NombreItem'] == 'BONO EVENTO De 0 hasta 4 Horas' ? console.log('Resultado de la validacion =1', categoriaActual.Title.includes(x.Title)) : '';
                                         if(categoriaActual.Title.includes(x.Title)){
                                             context.aprobado = true;
                                         }
@@ -384,6 +416,8 @@ var itemPage = {
                             }else{
                                 console.log('El campoGP esta vacio y tiene habilitada las GP');
                             }
+
+                            
                         }
 
                         resultado.push(haber);
@@ -416,6 +450,127 @@ var itemPage = {
                     context.forms.item.inputs['CantidadMonto'].show();
                     context.forms.item.inputs['Justificacion'].show();
                     current = null;
+                }
+
+                context.forms.item.inputs['Haber_x003a_Codigo'].params.beforeRenderSuggestions = function (items) {
+                    var arregloDatos = context.items.Coordinador[0].HaberesId.results;
+
+                    var dato = items.filter(function(item){
+                        return arregloDatos.includes(item.ID);
+                    });
+
+                    console.log('Periodo Actual', context.items.Periodo);
+
+                    var resultado = [];
+
+                    dato.map(function(haber){
+                        if(haber['TipoItem'] != 'Haber'){
+                            return;
+                        }
+
+                        //Contrato Indefinido
+                        if(haber['ContratoIndefinido']){
+                            //que tipo de contrato tiene?
+                            if(persona[0].item.TipoContrato != 'Indefinido'){
+                                return;
+                            }
+                        }
+                        
+                        //Validacion Capex
+                        if(haber['Capex']){
+                            //que tipo de contrato tiene?
+                            if(!persona[0].item.Capex){
+                                return;
+                            }
+                        }
+                       
+                        //Trabajadores Excepto Art 22
+                        if(haber['AplicaArt22']){
+                            if(persona[0].item.Jornada == 'Art. 22'){
+                                return;
+                            }
+                        }
+
+                        //Validamos las fechas especificas
+                        if(haber['FechasExcepcionales'] != null ){
+                            context.pertenece = false;
+                            let fechas = haber['FechasExcepcionales'].split(',');
+                            fechas.map(function(x){
+
+                                if(context.pertenece){
+                                    return;
+                                }                                
+                                let nombreMes = moment(x, 'DD/MM/YYYY').format("MMMM");
+                                nombreMes = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+                                if(context.items.Periodo[0].Mes == nombreMes){
+                                    context.pertenece = true;
+                                    return;
+                                }
+                            });
+                            if(!context.pertenece){
+                                return;
+                            }
+                        }
+
+                        if(haber['Pabellon']){
+                            if(!persona[0].item.Pabellon){
+                                return;
+                            }
+                        }
+
+                        //Validamos la GP y subGP correspondiente
+                        if(haber['GP']){
+                            //Valida si el campo no esta vacio.
+                            if(haber['CampoGPId'] != null){
+
+                                //Obtengo todos los valores de las categorias y las guardo en GPS
+                                var gps = [];
+                                haber['CampoGPId'].map(function(y){
+                                    gps.push(context.items.Categorias.filter(function(x){
+                                        return x.ID == y
+                                    })[0]);
+                                });
+
+                                //Obtengo la categoria de la persona seleccionada y la guardo en categoria Actual
+                                var categoriaActual = context.items.Categorias.filter(function(x){
+                                    return x.ID == persona[0].item.CategoriaId;
+                                })[0];
+
+                                context.aprobado = false;
+
+                                //Recorrimos el listado de elementos para encontrar coincidencias en la categoria.
+                                gps.map(function(x){
+                                    if(context.aprobado){
+                                        return;
+                                    }
+                                    if(x.Title.length > 1){
+                                        if(x.Title === categoriaActual.Title){
+                                            context.aprobado = true;
+                                        }
+                                    }else if(x.Title.length == 1){
+                                        if(categoriaActual.Title.includes(x.Title)){
+                                            context.aprobado = true;
+                                        }
+                                    }
+                                });
+                                //Si la categoria no aparece en el listado no se considerara para agregarla al listado
+                                if(!context.aprobado){
+                                    return;
+                                }
+                            }else{
+                                console.log('El campoGP esta vacio y tiene habilitada las GP');
+                            }
+
+                            
+                        }
+
+                        resultado.push(haber);
+                    });
+
+                    console.log('Cantidad Haberes', resultado.length);
+                    console.log('Total Haberes', items.length);
+
+                    return resultado;
                 }
                     
                 $sendButton.removeClass('hide');
@@ -599,7 +754,7 @@ var itemPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.ItemVariable && loaded.Categorias && loaded.ListadoItemVariable && loaded.Coordinador) {
+                    if (loaded.ItemVariable && loaded.Categorias && loaded.ListadoItemVariable && loaded.Coordinador && loaded.Periodo) {
                         initForm();
                     }
                 };
@@ -734,6 +889,40 @@ var itemPage = {
                                 function (response) {
                                     context.items.ListadoItemVariable = response.d.results.length > 0 ? response.d.results : null;
                                     loaded.ListadoItemVariable = true;
+                                    shouldInitForms();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+
+                //Obtengo el periodo actual para imputar
+                spo.getListInfo('Periodo',
+                    function (response) {
+                        context.items.Periodo = [];
+                        context.lists.Periodo = response;
+                        //loaded.listaItemVariable = true;
+
+                            var query = spo.encodeUrlListQuery(context.lists.Periodo, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'filter': '(Activo eq 1)',
+                                    'select': '*'
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), 'Periodo', query,
+                                function (response) {
+                                    context.items.Periodo = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.Periodo = true;
                                     shouldInitForms();
                                 },
                                 function (response) {
