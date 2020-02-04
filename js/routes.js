@@ -16,6 +16,9 @@ listStreamPage.methods.onItemDblClick = function(item){
         case 'Periodos':
             mainView.router.navigate('/periodo?listItemId='+item.ID);        
             break;
+        case 'ItemsVariables':
+            mainView.router.navigate('/itemVariable?listItemId='+item.ID);
+            break;
     }
 }
 
@@ -102,6 +105,10 @@ function getRoutes(){
         {
             path: '/periodo',
             component: periodoPage
+        },
+        {
+            path: '/itemVariable',
+            component: itemVariablePage
         },
         {
             path: '/uploadPlanta',
