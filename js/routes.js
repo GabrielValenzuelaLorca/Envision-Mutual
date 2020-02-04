@@ -7,7 +7,6 @@ l = function() {
     } catch(e){}
 }
 
-// sobre escribiendo el metodo
 listStreamPage.methods.onItemDblClick = function(item){
     var page = this._getPage();
     var self = this, buttons = [],
@@ -20,26 +19,29 @@ listStreamPage.methods.onItemDblClick = function(item){
     }
 }
 
-// sobre escribiendo el metodo
 listStreamPage.methods.getOneItemSelectedButtons = function(item){
     var page = this._getPage();
     var self = this, buttons = [],
         context = self._getPageContext();
-    
-    if (self.allowUpdateItem()){
-        buttons.push(localButtons.editPeriodButton());
-    }
-    
+
     if (self.allowDeleteItem()){
         buttons.push(context.navbar.deleteButton);
     }
 
     switch (page.route.query.title){
         case 'Periodos':
+            if (self.allowUpdateItem()){
+                buttons.push(localButtons.editPeriodButton());
+            }
             if (item.Activo == "Sí"){
-                buttons.push(localButtons.desactivatePeriodoButton())
+                buttons.push(localButtons.desactivatePeriodoButton());
             } else {
-                buttons.push(localButtons.activatePeriodoButton(context))
+                buttons.push(localButtons.activatePeriodoButton(context));
+            }
+            break;
+        default:
+            if (self.allowUpdateItem()){
+                buttons.push(context.navbar.updateButton);
             }
             break;
     }
@@ -47,7 +49,6 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
 
 }
 
-// sobre escribiendo el metodo
 listStreamPage.methods.getNoItemsSelectedButtons = function(){
     var self = this,
         page = self._getPage(),
@@ -61,28 +62,23 @@ listStreamPage.methods.getNoItemsSelectedButtons = function(){
         case 'Periodos':
             buttons.push(localButtons.addPeriodButton(context));
             break;
+        case 'Items variables':
+            buttons.push(localButtons.sendButton(context));
+            break;
     }
     return buttons;
 }
 
-// sobre escribiendo el metodo (IMPORTANTE)
 listStreamPage.methods.getCamlQueryConditions = function(){
     var page = this._getPage();
     var context = this._getPageContext();
     var urlQuery = page.route.query;
     var currentUserId = spo.getCurrentUserId();
 
-    console.log('context', context);
-
-    if (page.route.query.context == 'tareas'){
-        var cond = '<Eq><FieldRef Name="Encargado" LookupId="TRUE" /><Value Type="Lookup">' +
-            usuarioId + '</Value></Eq>';
-        return cond;
-    } else if (page.route.query.context == 'usuarios'){
-        return ''
-    } else {
-        return ''
-   }
+    switch (urlQuery.title){
+        case 'Items variables':
+            return '<Eq><FieldRef Name="Author" LookupId="TRUE"/><Value Type="Lookup">'+currentUserId+'</Value></Eq>';
+    }
 }
 
 function getRoutes(){

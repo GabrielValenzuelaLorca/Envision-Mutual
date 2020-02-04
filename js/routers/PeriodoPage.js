@@ -190,7 +190,6 @@ var periodoPage = {
                     container: $container.find('.form-container'),
                     title: mths.getListTitle(),
                     editable: true,
-                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
                     fields: spo.getViewFields(context.lists.Periodo, 'Todos los elementos')
                 });
 

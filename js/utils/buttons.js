@@ -1,5 +1,8 @@
 localButtons = {}
-
+function refresh(){
+    mainView.router.refreshPage();
+    leftView.router.refreshPage();
+}
 // Planta buttons
 localButtons.fileButton = function(){
     button = {
@@ -65,10 +68,6 @@ localButtons.desactivatePeriodoButton = function(){
         icon: 'PowerButton',
         onClick: function(component, item){
             var dialogTitle = 'Desactivando periodo';
-            function refresh(){
-                mainView.router.refreshPage();
-                leftView.router.refreshPage();
-            }
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
 
@@ -123,10 +122,6 @@ localButtons.activatePeriodoButton = function(context){
                         )
                     } else {
                         var dialogTitle = 'Activando periodo';
-                        function refresh(){
-                            mainView.router.refreshPage();
-                            leftView.router.refreshPage();
-                        }
                         function save() {
                             var dialog = app.dialog.progress(dialogTitle);
 
@@ -168,6 +163,52 @@ localButtons.activatePeriodoButton = function(context){
 }
 
 // Item Variable buttons
-localButtons.sendButton = function(){
-    
+localButtons.sendButton = function(context){
+    button = {
+        text: 'Enviar Items',
+        class: 'sendItems',
+        icon: 'MailForward',
+        onClick: function(component, item){
+            var dialogTitle = 'Enviando informe de items';
+            function save(){
+                var dialog = app.dialog.progress(dialogTitle);
+                var query = spo.encodeUrlListQuery(context.list, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(AuthorId eq '+ spo.getCurrentUserId() +')',
+                        'top': 1000
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), 'ItemVariable', query,
+                    function (response) {
+                        // Aqui va el resto de la operacion
+                        alert("Se estra creando la wew")
+                        dialog.close()
+                        dialogs.confirmDialog(
+                            dialogTitle,
+                            'Informe envíado con éxito',
+                            refresh,
+                            false
+                        )
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        dialog.close();
+
+                        dialogs.infoDialog(
+                            'Hubo un error al enviar el informe',
+                            responseText.error.message.value,
+                        )
+                    }
+                );
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                '¿Está seguro de enviar el informe de items? Luego no podrá editar este informe',
+                save
+            )
+        }
+    }
+    return button
 }
