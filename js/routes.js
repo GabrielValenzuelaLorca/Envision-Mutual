@@ -7,6 +7,41 @@ l = function() {
     } catch(e){}
 }
 
+listStreamPage.methods.beforeStartComponent = function(success,failure){
+    var context = this._getPageContext();
+    switch (context.title){
+        case 'Items variables':
+            spo.getListInfo('Periodo',
+                function (response) {
+                    var query = spo.encodeUrlListQuery(response, {
+                        view: 'Todos los elementos',
+                        odata: {
+                            'filter': '(Activo eq 1)'
+                        }
+                    });
+                    spo.getListItems(spo.getSiteUrl(), "Periodo", query,
+                        function (response) {
+                            context.onPeriod = response.d.results.length>0 ? response.d.results[0].ID : null;
+                            if (success) success();
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                            if (failure) failure();
+                        }
+                    );
+                },
+                function(response){
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                    resolve(failCond);
+                    if (failure) failure();
+                }
+            );
+            break;
+    }
+}
+
 listStreamPage.methods.onItemDblClick = function(item){
     var page = this._getPage();
     var self = this, buttons = [],
@@ -80,7 +115,7 @@ listStreamPage.methods.getCamlQueryConditions = function(){
 
     switch (urlQuery.title){
         case 'Items variables':
-            return '<Eq><FieldRef Name="Author" LookupId="TRUE"/><Value Type="Lookup">'+currentUserId+'</Value></Eq>';
+            return '<And><Eq><FieldRef Name="Author" LookupId="TRUE"/><Value Type="Lookup">12</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.onPeriod+'</Value></Eq></And>'
     }
 }
 
