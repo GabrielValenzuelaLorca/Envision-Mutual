@@ -1,4 +1,4 @@
-var periodoPage = {
+var itemVariablePage = {
     template: '' +
         '<div class="page" data-page="FormPage">' +
             '<div class="navbar">' +
@@ -51,7 +51,37 @@ var periodoPage = {
                 '</div>' +
             '</div>' +
             '<div class="page-content">' +
-                '<div class="form-container"></div>' +
+
+
+            '<div id="tituloFormularioMuestra" class="ms-font-xl ms-slideRightIn10" style="padding: 20px 20px 0 20px;">Detalle Item Variable</div>' +
+            '<div class="list accordion-list">' +
+                '<ul>' +
+                    '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
+                        '<div class="item-inner">' +
+                          '<div class="item-title">Datos principales item variable</div>' +
+                        '</div></a>' +
+                      '<div class="accordion-item-content">' +
+                        '<div class="form-container"></div>' +
+                      '</div>' +
+                    '</li>' +
+                    '<li class="accordion-item check"><a href="#" class="item-content item-link">' +
+                        '<div class="item-inner">' +
+                          '<div class="item-title">Tipo de análisis a realizar</div>' +
+                        '</div></a>' +
+                      '<div class="accordion-item-content">' +
+                        '<div class="form2"></div>' +
+                      '</div>' +
+                    '</li>' +
+                    '<li class="accordion-item germinacion"><a href="#" class="item-content item-link">' +
+                        '<div class="item-inner">' +
+                          '<div class="item-title">Análisis: Germinación</div>' +
+                        '</div></a>' +
+                      '<div class="accordion-item-content">' +
+                        '<div class="block form-germinacion">' +
+                        '</div>' +
+                      '</div>' +
+                    '</li>' +
+                '</ul>' +
             '</div>' +
             
             '<div class="content-loader">' +
@@ -104,7 +134,7 @@ var periodoPage = {
 
         // obtener título de la lista de inspección
         getListTitle: function () {
-            return 'Periodo';
+            return 'ListadoItemVariable';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -188,32 +218,41 @@ var periodoPage = {
                 // formulario de registro
                 context.forms.item = new EFWForm({
                     container: $container.find('.form-container'),
-                    title: mths.getListTitle(),
+                    title: 'Listado Items Variables',
                     editable: true,
-                    fields: spo.getViewFields(context.lists.Periodo, 'Todos los elementos')
+                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                    fields: spo.getViewFields(context.lists.ListadoItemVariable, 'Todos los elementos')
                 });
+
+                context.forms.dateForms = new EFWForms({
+                    container: $container.find('.form2'),
+                    title: '',
+                    editable: true,
+                    fields: [{ 
+                        Id: generateUUID(),
+                        Title: 'Campo fecha',
+                        InternalName: 'CampoFecha',
+                        TypeAsString: 'Text'
+                    }]
+                });
+
+                context.forms.item.inputs['GP'].params.onChange = function(comp, input, state, values){
+                    values ? '' : context.forms.item.inputs['CampoGP'].setValue([]);
+                    values ? context.forms.item.inputs['CampoGP'].show() : context.forms.item.inputs['CampoGP'].hide()
+                }
 
 
                 if (listItemId) {
-                    context.forms.item.setValues(context.items.Periodo);
-                    context.forms.item.inputs['Activo'].hide();
-                    context.forms.item.inputs['Modified'].setEditable(false);
-                    context.forms.item.inputs['Editor'].setEditable(false);
-                    context.forms.item.inputs['Author'].setEditable(false);
+                    context.forms.item.setValues(context.items.ListadoItemVariable);
 
                     $updateButton.removeClass('hide');
 
                 } else {
-                    context.forms.item.inputs['Activo'].hide();
-                    context.forms.item.inputs['Modified'].hide();
-                    context.forms.item.inputs['Editor'].hide();
-                    context.forms.item.inputs['Author'].hide();
-
                     $sendButton.removeClass('hide');
                     $clearButton.removeClass('hide');
 
                 }
-
+                console.log('context form', context)
                 $sendButton.on('click', function (e) {
                     var dialogTitle = 'Nuevo elemento';
 
@@ -231,7 +270,7 @@ var periodoPage = {
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
-                                        mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                        mainView.router.navigate('/liststream?title=ListadoItemVariable&listtitle=ListadoItemVariable&listview=Todos los elementos&panel=filter-close&template=list-row&context=');
                                         location.reload(true);
                                     }
                                 }],
@@ -290,7 +329,6 @@ var periodoPage = {
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
                         var metadata = context.forms.item.getMetadata();
-                        metadata.Activo = context.items.Periodo.Activo;
 
                         spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
                             dialog.close();
@@ -301,7 +339,7 @@ var periodoPage = {
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
-                                        mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                        //mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
                                     }
                                 }],
                                 verticalButtons: false
@@ -370,34 +408,34 @@ var periodoPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.listaPeriodo && loaded.Periodo) {
+                    if (loaded.ListadoItemVariable) {
                         initForm();
                     }
                 };
 
                 // Obtener información de lista
-                spo.getListInfo(mths.getListTitle(),
+                spo.getListInfo('ListadoItemVariable',
                     function (response) {
-                        context.items.Periodo = [];
-                        context.lists.Periodo = response;
-                        loaded.listaPeriodo = true;
+                        console.log('Valor de mths.getListTitle()', mths.getListTitle());
+                        context.items.ListadoItemVariable = [];
+                        context.lists.ListadoItemVariable = response;
+                        loaded.ListadoItemVariable = true;
                         
                         // Si existe el id de algún item a obtener
                         if (listItemId) {
 
-                            var query = spo.encodeUrlListQuery(context.lists.Periodo, {
+                            var query = spo.encodeUrlListQuery(context.lists.ListadoItemVariable, {
                                 view: 'Todos los elementos',
                                 odata: {
                                     'filter': '(Id eq ' + listItemId + ')',
-                                    'select': '*,AttachmentFiles',
-                                    'expand': 'AttachmentFiles'
+                                    'select': '*',
                                 }
                             });
 
-                            spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
+                            spo.getListItems(spo.getSiteUrl(), 'ListadoItemVariable', query,
                                 function (response) {
-                                    context.items.Periodo = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.Periodo = true;
+                                    context.items.ListadoItemVariable = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    loaded.ListadoItemVariable = true;
                                     shouldInitForms();
 
 
@@ -408,9 +446,43 @@ var periodoPage = {
                                 }
                             );
                         } else {
-                            loaded.Periodo = true;
+                            loaded.ListadoItemVariable = true;
                             shouldInitForms();
                         }
+
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+
+                // Obtengo el listado de categorias completa
+                spo.getListInfo('Categoria',
+                    function (response) {
+                        context.items.Categorias = [];
+                        context.lists.Categorias = response;
+                        //loaded.listaItemVariable = true;
+
+                            var query = spo.encodeUrlListQuery(context.lists.Categorias, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'select': '*',
+                                    'top' : 5000
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), 'Categoria', query,
+                                function (response) {
+                                    context.items.Categorias = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.Categorias = true;
+                                    shouldInitForms();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
 
                     },
                     function (response) {

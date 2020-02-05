@@ -319,6 +319,8 @@ var itemPage = {
 
                     //console.log('Periodo Actual', context.items.Periodo);
 
+                    console.log('Periodo Actual', context.items.Periodo);
+
                     var resultado = [];
 
                     dato.map(function(haber){
@@ -569,8 +571,8 @@ var itemPage = {
                         resultado.push(haber);
                     });
 
-                    console.log('Cantidad Haberes disponibles', resultado.length);
-                    console.log('Cantidad Total Haberes', items.length);
+                    console.log('Cantidad Haberes', resultado.length);
+                    console.log('Total Haberes', items.length);
 
                     return resultado;
                 }
@@ -590,6 +592,8 @@ var itemPage = {
 
                         myJSON = myJSON.replace('}',JSON.stringify(metadataItem).replace('{',','));
                         var metadata = JSON.parse(myJSON);
+                        metadata.PeriodoId = context.items.Periodo[0].Id;
+                        metadata.CoordinadorId = context.items.Coordinador[0].Id;
 
                         spo.saveListItem(spo.getSiteUrl(), 'ItemVariable', metadata, function (response) {
                             var formularioId = response.d.Id;

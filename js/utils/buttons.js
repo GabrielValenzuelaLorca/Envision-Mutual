@@ -1,5 +1,8 @@
 localButtons = {}
-
+function refresh(){
+    mainView.router.refreshPage();
+    leftView.router.refreshPage();
+}
 // Planta buttons
 localButtons.fileButton = function(){
     button = {
@@ -65,10 +68,6 @@ localButtons.desactivatePeriodoButton = function(){
         icon: 'PowerButton',
         onClick: function(component, item){
             var dialogTitle = 'Desactivando periodo';
-            function refresh(){
-                mainView.router.refreshPage();
-                leftView.router.refreshPage();
-            }
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
 
@@ -123,10 +122,6 @@ localButtons.activatePeriodoButton = function(context){
                         )
                     } else {
                         var dialogTitle = 'Activando periodo';
-                        function refresh(){
-                            mainView.router.refreshPage();
-                            leftView.router.refreshPage();
-                        }
                         function save() {
                             var dialog = app.dialog.progress(dialogTitle);
 
@@ -168,6 +163,78 @@ localButtons.activatePeriodoButton = function(context){
 }
 
 // Item Variable buttons
-localButtons.sendButton = function(){
-    
+localButtons.sendButton = function(context){
+    button = {
+        text: 'Enviar Items',
+        class: 'sendItems',
+        icon: 'MailForward',
+        onClick: function(component, item){
+            var dialogTitle = 'Enviando informe de items';
+            function save(){
+                var dialog = app.dialog.progress(dialogTitle);
+                var query = spo.encodeUrlListQuery(context.list, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(CoordinadorId eq '+ context.coorId +' and PeriodoId eq '+ context.periodId +')',
+                        'top': 5000
+                    }
+                });
+                // Se seleccionan los items asociado al coordinador en el periodo
+                spo.getListItems(spo.getSiteUrl(), 'ItemVariable', query,
+                    function (response) {
+                        // Creación Json de haberes
+                        JsonHaberes = JSON.stringify(response);
+                        // Se crea un nuevo informe
+                        metadata = {
+                            PeriodoId: context.periodId,
+                            CoordinadorId: context.coorId,
+                            Estado: "Enviado para aprobar",
+                            Haberes: JsonHaberes
+                        }
+                        spo.saveListItem(spo.getSiteUrl(), "Informe Haberes", metadata, 
+                            function (response){
+                                dialog.close();
+                                dialogs.infoDialog(
+                                    dialogTitle,
+                                    'Informe enviado con éxito'
+                                )
+                            },
+                            function(){
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                                dialog.close();
+                                dialogs.infoDialog(
+                                    'Hubo un error al enviar el informe',
+                                    responseText.error.message.value,
+                                )
+                            }
+                        );
+                        
+                        dialog.close()
+                        dialogs.confirmDialog(
+                            dialogTitle,
+                            'Informe envíado con éxito',
+                            refresh,
+                            false
+                        )
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        dialog.close();
+                        dialogs.infoDialog(
+                            'Hubo un error al enviar el informe',
+                            responseText.error.message.value,
+                        )
+                    }
+                );
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                '¿Está seguro de enviar el informe de items? Luego no podrá editar este informe',
+                save
+            )
+        }
+    }
+    return button
 }
