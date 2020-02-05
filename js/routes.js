@@ -39,6 +39,9 @@ listStreamPage.methods.beforeStartComponent = function(success,failure){
                 }
             );
             break;
+        default:
+            if (success) success();
+            break;
     }
 }
 
