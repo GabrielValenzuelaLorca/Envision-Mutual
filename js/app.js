@@ -33,7 +33,7 @@ spo.getCurrentUserInformation().done(function(){
 
                 spo.getListItems(spo.getSiteUrl(), 'Planta', query2,
                     function (response2) {
-                        plantaId = response2.d.results.length > 0 ? response2.d.results[0].Title : 0;
+                        plantaId = response2.d.results.length > 0 ? response2.d.results[0].ID : 0;
                         planta = response2.d.results.length > 0 ? response2.d.results[0] : null;
 
                         spo.getListInfo('Administrador',

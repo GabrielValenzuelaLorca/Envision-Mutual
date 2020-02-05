@@ -11,6 +11,12 @@ listStreamPage.methods.beforeStartComponent = function(success,failure){
     var context = this._getPageContext();
     switch (context.title){
         case 'Items variables':
+            loaded = {}
+            function startComponent(){
+                if (loaded.Coordinador && loaded.Periodo){
+                    if (success) success();
+                }
+            }
             spo.getListInfo('Periodo',
                 function (response) {
                     var query = spo.encodeUrlListQuery(response, {
@@ -21,8 +27,39 @@ listStreamPage.methods.beforeStartComponent = function(success,failure){
                     });
                     spo.getListItems(spo.getSiteUrl(), "Periodo", query,
                         function (response) {
-                            context.onPeriod = response.d.results.length>0 ? response.d.results[0].ID : null;
-                            if (success) success();
+                            context.periodId = response.d.results.length>0 ? response.d.results[0].ID : null;
+                            loaded.Periodo = true;
+                            startComponent()
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                            if (failure) failure();
+                        }
+                    );
+                },
+                function(response){
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                    resolve(failCond);
+                    if (failure) failure();
+                }
+            );
+            spo.getListInfo('Coordinador',
+                function (response) {
+                    var query = spo.encodeUrlListQuery(response, {
+                        view: 'Todos los elementos',
+                        odata: {
+                            'filter': '(UsuarioId eq '+ plantaId +')',
+                            'select': '*,AttachmentFiles',
+                            'expand': 'AttachmentFiles'
+                        }
+                    });
+                    spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                        function (response) {
+                            context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
+                            loaded.Coordinador = true;
+                            startComponent()
                         },
                         function (response) {
                             var responseText = JSON.parse(response.responseText);
@@ -114,11 +151,10 @@ listStreamPage.methods.getCamlQueryConditions = function(){
     var page = this._getPage();
     var context = this._getPageContext();
     var urlQuery = page.route.query;
-    var currentUserId = spo.getCurrentUserId();
 
     switch (urlQuery.title){
         case 'Items variables':
-            return '<And><Eq><FieldRef Name="Author" LookupId="TRUE"/><Value Type="Lookup">12</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.onPeriod+'</Value></Eq></And>'
+            return '<And><Eq><FieldRef Name="Coordinador" LookupId="TRUE"/><Value Type="Lookup">'+context.coorId+'</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
     }
 }
 

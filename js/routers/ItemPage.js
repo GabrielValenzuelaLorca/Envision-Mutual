@@ -588,6 +588,8 @@ var itemPage = {
 
                         myJSON = myJSON.replace('}',JSON.stringify(metadataItem).replace('{',','));
                         var metadata = JSON.parse(myJSON);
+                        metadata.PeriodoId = context.items.Periodo[0].Id;
+                        metadata.CoordinadorId = context.items.Coordinador[0].Id;
 
                         spo.saveListItem(spo.getSiteUrl(), 'ItemVariable', metadata, function (response) {
                             var formularioId = response.d.Id;
