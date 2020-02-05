@@ -50,7 +50,7 @@ listStreamPage.methods.beforeStartComponent = function(success,failure){
                     var query = spo.encodeUrlListQuery(response, {
                         view: 'Todos los elementos',
                         odata: {
-                            'filter': '(UsuarioId eq '+ plantaId +')',
+                            'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')',
                             'select': '*,AttachmentFiles',
                             'expand': 'AttachmentFiles'
                         }
