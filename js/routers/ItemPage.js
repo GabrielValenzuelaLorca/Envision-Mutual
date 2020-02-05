@@ -818,7 +818,7 @@ var itemPage = {
                         var query = spo.encodeUrlListQuery(context.lists.Coordinador, {
                             view: 'Todos los elementos',
                             odata: {
-                                'filter': '(Usuario/Email eq \'' + spo.getCurrentUser()['EMail'] + '\')',
+                                'filter': '(UsuarioId eq \'' + spo.getCurrentUserId() + '\')',
                                 'select': '*',
                                 'top': 5000,
 
