@@ -216,6 +216,9 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
             break;
         case 'Informes':
             buttons.push(localButtons.disableItemSended(context));
+            if (admin == "Aprobador"){
+                buttons.push(localButtons.approveItemSended(context));
+            }
             break;
         default:
             if (self.allowUpdateItem()){
@@ -276,11 +279,10 @@ listStreamPage.methods.getCamlQueryConditions = function(){
                     '</Eq></And><Eq>'+
                         '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
                             '<Value Type="Lookup">'+context.periodId+'</Value>'+
-                    '</Eq></And>'
-            }    
-        //     } else if (admin == "Administrador"){
-        //         l("soy un administrador")
-        //     }
+                    '</Eq></And>'  
+            } else if (admin == "Administrador"){
+                return '<And><Eq><FieldRef Name="Estado" LookupId="TRUE"/><Value Type="Lookup">Aprobado y enviado a administración</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
+            }
     }
 }
 

@@ -278,3 +278,43 @@ localButtons.disableItemSended = function(context){
     }
     return button
 }
+
+localButtons.approveItemSended = function(context){
+    button = {
+        text: 'Aprobar',
+        class: 'aprobarPeriodo',
+        icon: 'Accept',
+        onClick: function(component, item){
+            var dialogTitle = 'Aprobando periodo';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, {"Estado":"Aprobado y enviado a administración"}, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Informe aprobado con éxito',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al aprobar el informe.',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se aprobará el informe seleccionado.',
+                save
+            )
+        }
+    }
+    return button
+}
