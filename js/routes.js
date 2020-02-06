@@ -199,9 +199,9 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
     var self = this, buttons = [],
         context = self._getPageContext();
 
-    if (self.allowDeleteItem()){
-        buttons.push(context.navbar.deleteButton);
-    }
+    // if (self.allowDeleteItem()){
+    //     buttons.push(context.navbar.deleteButton);
+    // }
 
     switch (page.route.query.title){
         case 'Periodos':
@@ -213,6 +213,9 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
             } else {
                 buttons.push(localButtons.activatePeriodoButton(context));
             }
+            break;
+        case 'Informes':
+            buttons.push(localButtons.disableItemSended(context));
             break;
         default:
             if (self.allowUpdateItem()){
