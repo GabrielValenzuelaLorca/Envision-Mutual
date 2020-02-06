@@ -216,6 +216,9 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
             break;
         case 'Informes':
             buttons.push(localButtons.disableItemSended(context));
+            if (admin == "Aprobador"){
+                buttons.push(localButtons.approveItemSended(context));
+            }
             break;
         default:
             if (self.allowUpdateItem()){
