@@ -238,3 +238,43 @@ localButtons.sendButton = function(context){
     }
     return button
 }
+
+localButtons.disableItemSended = function(context){
+    button = {
+        text: 'Desaprobar',
+        class: 'desaprobarPeriodo',
+        icon: 'Delete',
+        onClick: function(component, item){
+            var dialogTitle = 'Desaprobando periodo';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, {"Estado":"Desaprobado"}, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Informe desaprobado con éxito',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desaprobar el informe.',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se desaprobará el informe seleccionado.',
+                save
+            )
+        }
+    }
+    return button
+}

@@ -231,13 +231,7 @@ var itemPage = {
                 
                 // Filtrar trabajadores segun asignacion del coordinador
                 context.forms.person.inputs['Nombre'].params.beforeRenderSuggestions = function (persons) {
-                    var arregloDatos = context.items.Coordinador[0].TrabajadoresId.results;
-
-                    var selectedPersons = persons.filter(function(person){
-                        return arregloDatos.includes(person.Id);
-                    });
-                    return selectedPersons 
-
+                    return context.items.Planta
                 }
 
                 //Establecer Valores de persona con el nombre
@@ -821,16 +815,44 @@ var itemPage = {
                                 'filter': '(UsuarioId eq \'' + spo.getCurrentUserId() + '\')',
                                 'select': '*',
                                 'top': 5000,
-
-                    
                             }
                         });
 
                         spo.getListItems(spo.getSiteUrl(), 'Coordinador', query,
                             function (response) {
                                 context.items.Coordinador = response.d.results.length > 0 ? response.d.results : null;
-                                loaded.Coordinador = true;
-                                shouldInitForms();
+                                // Obtengo los trabajadores asociados al coordinador
+                                spo.getListInfo('Planta',
+                                    function (response) {
+                                        context.items.Planta = [];
+                                        context.lists.Planta = response;                        
+
+                                        var query = spo.encodeUrlListQuery(context.lists.Planta, {
+                                            view: 'Todos los elementos',
+                                            odata: {
+                                                'filter': '(CoordinadorId eq \'' + context.items.Coordinador[0].ID + '\')',
+                                                'select': '*',
+                                                'top': 5000,
+                                            }
+                                        });
+
+                                        spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                                            function (response) {
+                                                context.items.Planta = response.d.results.length > 0 ? response.d.results : null;
+                                                loaded.Coordinador = true;
+                                                shouldInitForms();
+                                            },
+                                            function (response) {
+                                                var responseText = JSON.parse(response.responseText);
+                                                console.log(responseText.error.message.value);
+                                            }
+                                        );
+                                    },
+                                    function (response) {
+                                        var responseText = JSON.parse(response.responseText);
+                                        console.log(responseText.error.message.value);
+                                    }
+                                );
                             },
                             function (response) {
                                 var responseText = JSON.parse(response.responseText);

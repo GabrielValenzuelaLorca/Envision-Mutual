@@ -202,7 +202,8 @@ var uploadPlantaPage = {
                         handleExcelFromInput(files, 
                             function(response){
                                 // Do something with the json response
-                                console.log(response)
+
+                                console.log('Valores Obtenidos de excel', JSON.stringify(response));
                                 dialog.close();
 
                                 app.dialog.create({

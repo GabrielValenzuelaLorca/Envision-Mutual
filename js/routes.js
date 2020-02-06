@@ -76,6 +76,103 @@ listStreamPage.methods.beforeStartComponent = function(success,failure){
                 }
             );
             break;
+        case 'Informes':
+            loaded = {}
+            function startComponent(){
+                if ((loaded.Aprobador || admin == "Administrador") && loaded.Periodo){
+                    if (success) success();
+                }
+            }
+            spo.getListInfo('Periodo',
+                function (response) {
+                    var query = spo.encodeUrlListQuery(response, {
+                        view: 'Todos los elementos',
+                        odata: {
+                            'filter': '(Activo eq 1)'
+                        }
+                    });
+                    spo.getListItems(spo.getSiteUrl(), "Periodo", query,
+                        function (response) {
+                            context.periodId = response.d.results.length>0 ? response.d.results[0].ID : null;
+                            loaded.Periodo = true;
+                            startComponent()
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                            if (failure) failure();
+                        }
+                    );
+                },
+                function(response){
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                    resolve(failCond);
+                    if (failure) failure();
+                }
+            );
+            if (admin == "Aprobador"){
+                spo.getListInfo('Aprobador',
+                    function (response) {
+                        var query = spo.encodeUrlListQuery(response, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')',
+                                'select': '*,AttachmentFiles',
+                                'expand': 'AttachmentFiles'
+                            }
+                        });
+                        spo.getListItems(spo.getSiteUrl(), "Aprobador", query,
+                            function (response) {
+                                context.aprobadorId = response.d.results.length>0 ? response.d.results[0].ID : null;
+                                // Busco a los coordinadores que me envían haberes
+                                spo.getListInfo('Coordinador',
+                                    function (response) {
+                                        var query = spo.encodeUrlListQuery(response, {
+                                            view: 'Todos los elementos',
+                                            odata: {
+                                                'filter': '(AprobadorId eq '+ context.aprobadorId +')'
+                                            }
+                                        });
+                                        spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                                            function (response) {
+                                                context.coordinadoresId = response.d.results.map(function(coord){
+                                                    return coord.ID
+                                                })
+                                                loaded.Aprobador = true;
+                                                startComponent()
+                                            },
+                                            function (response) {
+                                                var responseText = JSON.parse(response.responseText);
+                                                console.log(responseText.error.message.value);
+                                                if (failure) failure();
+                                            }
+                                        );
+                                    },
+                                    function(response){
+                                        var responseText = JSON.parse(response.responseText);
+                                        console.log(responseText.error.message.value);
+                                        resolve(failCond);
+                                        if (failure) failure();
+                                    }
+                                );
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                                if (failure) failure();
+                            }
+                        );
+                    },
+                    function(response){
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        resolve(failCond);
+                        if (failure) failure();
+                    }
+                );
+            } 
+            break;
         default:
             if (success) success();
             break;
@@ -102,9 +199,9 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
     var self = this, buttons = [],
         context = self._getPageContext();
 
-    if (self.allowDeleteItem()){
-        buttons.push(context.navbar.deleteButton);
-    }
+    // if (self.allowDeleteItem()){
+    //     buttons.push(context.navbar.deleteButton);
+    // }
 
     switch (page.route.query.title){
         case 'Periodos':
@@ -116,6 +213,9 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
             } else {
                 buttons.push(localButtons.activatePeriodoButton(context));
             }
+            break;
+        case 'Informes':
+            buttons.push(localButtons.disableItemSended(context));
             break;
         default:
             if (self.allowUpdateItem()){
@@ -152,9 +252,35 @@ listStreamPage.methods.getCamlQueryConditions = function(){
     var context = this._getPageContext();
     var urlQuery = page.route.query;
 
+    function buildInCaml(array, type){
+        var query = '';
+        array.forEach(function(element) {
+            var value = '<Value Type="'+ type +'">'+ element +'</Value>'
+            query = query + value;
+        });
+        return query;
+    }
+
     switch (urlQuery.title){
         case 'Items variables':
             return '<And><Eq><FieldRef Name="Coordinador" LookupId="TRUE"/><Value Type="Lookup">'+context.coorId+'</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
+        case 'Informes':
+            if (admin=="Aprobador"){
+                return ''+
+                    '<And><And><In>'+
+                        '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
+                            '<Values>'+buildInCaml(context.coordinadoresId,'LookUp')+'</Values>'+
+                    '</In><Eq>'+
+                        '<FieldRef Name="Estado" />'+
+                            '<Value Type="Choice">Enviado para aprobar</Value>'+
+                    '</Eq></And><Eq>'+
+                        '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
+                            '<Value Type="Lookup">'+context.periodId+'</Value>'+
+                    '</Eq></And>'
+            }    
+        //     } else if (admin == "Administrador"){
+        //         l("soy un administrador")
+        //     }
     }
 }
 

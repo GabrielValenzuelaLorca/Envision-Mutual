@@ -117,7 +117,7 @@ menuPage.methods.getListBlocksData = function(){
             options.push( 
                 {
                     href: '/liststream?title=Informes&listtitle=Informe Haberes&listview=Todos los elementos&panel=filter-close&template=list-row&context=',
-                    title: 'Informes',
+                    title: 'Informes Pendientes',
                     after: '',
                     header: '',
                     footer: 'Items Variables',
@@ -131,7 +131,7 @@ menuPage.methods.getListBlocksData = function(){
             options.push( 
                 {
                     href: '#',
-                    title: 'Informes',
+                    title: 'Informes Pendientes',
                     after: '',
                     header: 'Sin periodo vigente',
                     footer: 'Items Variables',
