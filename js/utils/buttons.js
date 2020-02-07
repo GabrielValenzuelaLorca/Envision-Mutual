@@ -248,7 +248,7 @@ localButtons.disableItemSended = function(context){
         class: 'desaprobarPeriodo',
         icon: 'Delete',
         onClick: function(component, item){
-            var dialogTitle = 'Desaprobando periodo';
+            var dialogTitle = 'Desaprobando informe';
             abrirPopup();
             function save(comment) {
                 var dialog = app.dialog.progress(dialogTitle);
@@ -364,7 +364,7 @@ localButtons.approveItemSended = function(context){
         class: 'aprobarPeriodo',
         icon: 'Accept',
         onClick: function(component, item){
-            var dialogTitle = 'Aprobando periodo';
+            var dialogTitle = 'Aprobando informe';
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
 
@@ -404,7 +404,7 @@ localButtons.approveAdminItemSended = function(context){
         class: 'aprobarPeriodo',
         icon: 'Accept',
         onClick: function(component, item){
-            var dialogTitle = 'Aprobando periodo';
+            var dialogTitle = 'Aprobando informe';
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
 
