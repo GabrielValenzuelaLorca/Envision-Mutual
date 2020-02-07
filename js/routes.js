@@ -84,6 +84,7 @@ listStreamPage.methods.beforeStartComponent = function(success,failure){
                     spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
                         function (response) {
                             context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
+                            context.Aprobador = response.d.results[0].Aprobador.Title;
                             loaded.Coordinador = true;
                             startItemComponent()
                         },

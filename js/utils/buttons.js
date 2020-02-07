@@ -197,7 +197,7 @@ localButtons.sendButton = function(context){
                                     dialog.close();
                                     dialogs.infoDialog(
                                         dialogTitle,
-                                        'Informe enviado con éxito'
+                                        'Informe enviado con éxito a ' + context.Aprobador
                                     )
                                 },
                                 function(){
@@ -210,14 +210,6 @@ localButtons.sendButton = function(context){
                                     )
                                 }
                             );
-                            
-                            dialog.close()
-                            dialogs.confirmDialog(
-                                dialogTitle,
-                                'Informe envíado con éxito',
-                                refresh,
-                                false
-                            )
                         } else {
                             dialog.close();
                             dialogs.infoDialog(
