@@ -195,10 +195,12 @@ localButtons.sendButton = function(context){
                             spo.saveListItem(spo.getSiteUrl(), "Informe Haberes", metadata, 
                                 function (response){
                                     dialog.close();
-                                    dialogs.infoDialog(
+                                    dialogs.confirmDialog(
                                         dialogTitle,
-                                        'Informe enviado con éxito a ' + context.Aprobador
-                                    )
+                                        'Informe enviado con éxito a ' + context.Aprobador,
+                                        refresh,
+                                        false
+                                    );
                                 },
                                 function(){
                                     var responseText = JSON.parse(response.responseText);
@@ -250,8 +252,14 @@ localButtons.disableItemSended = function(context){
             abrirPopup();
             function save(comment) {
                 var dialog = app.dialog.progress(dialogTitle);
+                var metadata = {Estado: "Desaprobado"};
+                if (admin == "Aprobador"){
+                    metadata.Comentario = comment;
+                } else if (admin == "Administrador"){
+                    metadata.ComentarioAdmin = comment;
+                }
 
-                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, { Estado: "Desaprobado", Comentario: comment }, function (response) {
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, metadata, function (response) {
                     dialog.close()
                     dialogs.confirmDialog(
                         'Informe Desaprobado',
