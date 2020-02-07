@@ -136,7 +136,7 @@ menuPage.methods.getListBlocksData = function(){
                         media: '<i class="ms-Icon ms-Icon--CheckList"></i>',
                     },
                     {
-                        href: '/liststream?title=Informes Pendientes&listtitle=Informe Haberes&listview=Pendientes&panel=filter-close&template=list-row&context=',
+                        href: '/liststream?title=Informes Desaprobados&listtitle=Informe Haberes&listview=Pendientes&panel=filter-close&template=list-row&context=',
                         title: 'Informes',
                         after: '',
                         header: '',
@@ -163,7 +163,7 @@ menuPage.methods.getListBlocksData = function(){
                 footer: 'Tu informe ya ha sido enviado',
                 options: [
                     {
-                        href: '/liststream?title=Informes Pendientes&listtitle=Informe Haberes&listview=Pendientes&panel=filter-close&template=list-row&context=',
+                        href: '/liststream?title=Informes Desaprobados&listtitle=Informe Haberes&listview=Pendientes&panel=filter-close&template=list-row&context=',
                         title: 'Informes',
                         after: '',
                         header: '',
@@ -214,7 +214,7 @@ menuPage.methods.getListBlocksData = function(){
         if (context.onPeriod){
             options.push( 
                 {
-                    href: '/liststream?title=Informes&listtitle=Informe Haberes&listview=Todos los elementos&panel=filter-close&template=list-row&context=',
+                    href: '/liststream?title=Informes&listtitle=Informe Haberes&listview=Administrador&panel=filter-close&template=list-row&context=',
                     title: 'Informes Pendientes',
                     after: '',
                     header: '',

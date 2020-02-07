@@ -199,7 +199,7 @@ listStreamPage.methods.beforeStartComponent = function(success,failure){
                 );
             } 
             break;
-        case 'Informes Pendientes':
+        case 'Informes Desaprobados':
             loaded = {}
             function startPendingComponent(){
                 if (loaded.Coordinador && loaded.Periodo){
@@ -291,10 +291,6 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
     var self = this, buttons = [],
         context = self._getPageContext();
 
-    // if (self.allowDeleteItem()){
-    //     buttons.push(context.navbar.deleteButton);
-    // }
-
     switch (page.route.query.title){
         case 'Periodos':
             if (self.allowUpdateItem()){
@@ -312,12 +308,14 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
                 buttons.push(localButtons.approveItemSended(context));
             } else if (admin == "Administrador"){
                 buttons.push(localButtons.approveAdminItemSended(context));
+                buttons.push(localButtons.requireJustificationItem(context));
             }
             break;
-        default:
-            if (self.allowUpdateItem()){
-                buttons.push(context.navbar.updateButton);
+        case 'Informes Desaprobados':
+            if (item.Estado == "En espera de justificación") {
+                buttons.push(localButtons.sendJustification(context));
             }
+        default:
             break;
     }
     return buttons;
@@ -409,18 +407,12 @@ listStreamPage.methods.getCamlQueryConditions = function(){
             } else if (admin == "Administrador"){
                 return '<And><Eq><FieldRef Name="Estado" LookupId="TRUE"/><Value Type="Lookup">Aprobado y enviado a administración</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
             }
-        case 'Informes Pendientes':
+        case 'Informes Desaprobados':
             return ''+
-                    '<And><And><In>'+
-                        '<FieldRef Name="Estado" />'+
-                            '<Values>'+
-                                '<Value Type="Choice">Desaprobado</Value>'+
-                                '<Value Type="Choice">En espera de justificación</Value>'+
-                            '</Values>'+
-                    '</In><Eq>'+
+                    '<And><Eq>'+
                         '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
                             '<Value Type="Lookup">'+context.coorId+'</Value>'+
-                    '</Eq></And><Eq>'+
+                    '</Eq><Eq>'+
                         '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
                             '<Value Type="Lookup">'+context.periodId+'</Value>'+
                     '</Eq></And>'  

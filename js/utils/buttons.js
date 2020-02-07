@@ -316,7 +316,7 @@ localButtons.disableItemSended = function(context){
                             // formulario de actualización
                             form = new EFWForm({
                                 container: $container.find('.update-form'),
-                                title: 'Justificación de desaprovación'.bold(),
+                                title: 'Justificación de desaprobación'.bold(),
                                 editable: true,
                                 description: 'Ingrese la razón de desaprobación.',
                                 fields: campos
@@ -433,6 +433,156 @@ localButtons.approveAdminItemSended = function(context){
                 'Se aprobará el informe seleccionado.',
                 save
             )
+        }
+    }
+    return button
+}
+
+localButtons.requireJustificationItem = function(context){ 
+    button = {
+        text: 'Solicitar Justificación',
+        class: 'requireJustification',
+        icon: 'CannedChat',
+        onClick: function(component, item){
+            var dialogTitle = 'Solicitando Justificación';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, {"Estado":"En espera de justificación"}, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Solicitud enviada con éxito',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al solicitar justificación',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se solicitará una justificación al informe',
+                save
+            )
+        }
+    }
+    return button
+}
+
+localButtons.sendJustification = function(context){
+    button = {
+        text: 'Enviar Justificación',
+        class: 'sendJustification',
+        icon: 'ActivityFeed',
+        onClick: function(component, item){
+            var dialogTitle = 'Enviando Justificación';
+            abrirPopup();
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, { Estado: "Aprobado y enviado a administración", Justificaci_x00f3_n: comment }, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Justificación enviada con éxito',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al enviar justificación',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Cancelar</button>
+                                    <button class="button button-fill send">Enviar</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Justificación',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                                Required: true,
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Justificación'.bold(),
+                                editable: true,
+                                description: 'Ingrese su justificación.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                form.checkFieldsRequired();
+                                if(form.getValidation()){
+                                    var justificacion = form.getMetadata();
+
+                                    console.log(form.getMetadata().ComentarioVirtual);
+                                                                    
+                                    // cerrar popover
+                                    popup.close();
+    
+                                    save(justificacion.ComentarioVirtual);
+                                }
+                                
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
+
+                dynamicPopup.open();
+            }
         }
     }
     return button
