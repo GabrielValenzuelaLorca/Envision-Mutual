@@ -199,7 +199,6 @@ var itemPage = {
             function initForm() {
 
                 var persona = null;
-
                 var current = null;
                 // containers
                 var $container = $(page.$el),
@@ -417,8 +416,8 @@ var itemPage = {
                         resultado.push(haber);
                     });
 
-                    console.log('Cantidad Haberes', resultado.length);
-                    console.log('Total Haberes', items.length);
+                    console.log('Cantidad Haberes disponibles', resultado.length);
+                    console.log('Cantidad Total Haberes', items.length);
 
                     return resultado;
                 }

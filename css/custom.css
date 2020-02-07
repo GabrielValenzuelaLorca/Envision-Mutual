@@ -64,7 +64,7 @@
 
 .popup .ms-FormField.editable {
     float: left !important;
-    width: 45% !important;
+    width: 95% !important;
  }
 
 [data-internalname="Functional"] { /* datatable width */
@@ -129,3 +129,49 @@
         width: 127%;
     }
 }
+
+.button.button-fill.close-popup{
+    color: #fff;
+    background: #9E9E9E;
+    border: 1px solid #9E9E9E;
+    border-color: transparent;
+    margin-left: 10px !important;
+}
+
+ .ios .send-email-popup .close-button{
+     width: 40px;
+     height: 40px;
+     position: absolute;
+     right: 0px;
+     text-align: center;
+     z-index: 2;
+     line-height: 40px;
+     cursor: pointer;
+ }
+ 
+.buttons-container .button{
+     width: 280px;
+     display: inline-block;
+ }
+
+.button.button-fill.send {
+    margin-right: 10px !important;
+    margin-left: 10px;
+}
+
+.popup.send-email-popup.modal-in {
+    height: 400px ;
+}
+
+.popup.send-email-popup.modal-in.approval {
+    height: 3 !important;
+    max-width: 70% !important;
+    width: 50px;
+}
+
+.popup .send-email-popup .modal-in {
+    height: 3 !important;
+    max-width: 70% !important;
+    width: 50px;
+}
+

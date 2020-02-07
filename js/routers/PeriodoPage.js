@@ -224,20 +224,16 @@ var periodoPage = {
 
                         spo.saveListItem(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {
                             dialog.close();
-
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Creado con éxito',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
-                                        location.reload(true);
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-
+                            
+                            dialogs.confirmDialog(
+                                dialogTitle,
+                                'Creado con éxito',
+                                function(component, item){
+                                    leftView.router.refreshPage();
+                                    mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                },
+                                false
+                            )
                         }, function (response) {
                             var responseText = JSON.parse(response.responseText);
                             console.log('responseText', responseText);
