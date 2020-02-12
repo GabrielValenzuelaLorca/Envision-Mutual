@@ -187,7 +187,7 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: [ 
                     {
-                        href: '/liststream?title=Informes&listtitle=Informe Haberes&listview=Todos los elementos&panel=filter-close&template=list-row&context=',
+                        href: '/liststream?title=Informes&listtitle=Informe Haberes&listview=Aprobador&panel=filter-close&template=list-row&context=',
                         title: 'Informes',
                         after: '',
                         header: '',
@@ -243,7 +243,7 @@ menuPage.methods.getListBlocksData = function(){
 
         commonOptions = [
             {
-                href: '/liststream?title=Planta&listtitle=Planta&listview=No Capex&panel=filter-open&template=list-row&context=',
+                href: '/liststream?title=Planta&listtitle=Planta&listview=Planta Usuario&panel=filter-open&template=list-row&context=',
                 title: 'Planta',
                 after: '',
                 header: '',
@@ -274,6 +274,17 @@ menuPage.methods.getListBlocksData = function(){
                 externalLink: false,
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+            },
+            {
+                href: '/liststream?title=Informes Históricos&listtitle=Informe Haberes&listview=Historico&panel=filter-close&template=list-row&context=',
+                title: 'Informes',
+                after: '',
+                header: '',
+                footer: 'Históricos',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--AnalyticsReport"></i>',
             }
         ]
 

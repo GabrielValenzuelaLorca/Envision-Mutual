@@ -284,6 +284,9 @@ listStreamPage.methods.onItemDblClick = function(item){
         case 'ItemsVariables':
             mainView.router.navigate('/itemVariable?listItemId='+item.ID);
             break;
+        case 'Informes Históricos':
+            mainView.router.navigate('/informe?listItemId='+item.ID);
+            break;
     }
 }
 
@@ -400,23 +403,29 @@ listStreamPage.methods.getCamlQueryConditions = function(){
                     '</Eq></And>'  
                 } else {
                     return ''+
-                    '<Eq>'+
-                        '<FieldRef Name="Estado" />'+
-                            '<Value Type="Choice">Nono</Value>'+
-                    '</Eq>'  
+                        '<Eq>'+
+                            '<FieldRef Name="Estado" />'+
+                                '<Value Type="Choice">Nono</Value>'+
+                        '</Eq>'  
                 }
             } else if (admin == "Administrador"){
                 return '<And><Eq><FieldRef Name="Estado" LookupId="TRUE"/><Value Type="Lookup">Aprobado y enviado a administración</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
             }
         case 'Informes Desaprobados':
             return ''+
-                    '<And><Eq>'+
-                        '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
-                            '<Value Type="Lookup">'+context.coorId+'</Value>'+
-                    '</Eq><Eq>'+
-                        '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
-                            '<Value Type="Lookup">'+context.periodId+'</Value>'+
-                    '</Eq></And>'  
+                '<And><Eq>'+
+                    '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
+                        '<Value Type="Lookup">'+context.coorId+'</Value>'+
+                '</Eq><Eq>'+
+                    '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
+                        '<Value Type="Lookup">'+context.periodId+'</Value>'+
+                '</Eq></And>'  
+        case 'Informes Históricos':
+            return ''+ 
+                '<Eq>'+
+                    '<FieldRef Name="Estado" />'+
+                        '<Value Type="Choice">Aprobado por administración</Value>'+
+                '</Eq>'
     }
 }
 
@@ -449,6 +458,10 @@ function getRoutes(){
         {
             path: '/uploadPlanta',
             component: uploadPlantaPage
+        },
+        {
+            path: '/informe',
+            component: informePage
         },
         // Default route (404 page). MUST BE THE LAST
         {
