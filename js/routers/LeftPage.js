@@ -113,7 +113,7 @@ menuPage.methods.getListBlocksData = function(){
             canSendInform = false;    
         }
         
-        if (context.onPeriod && canSendInform){
+        if (canSendInform && context.onPeriod) {
             coorSection.options = coorSection.options.concat([ 
                 {
                     href: '/item',
@@ -136,36 +136,26 @@ menuPage.methods.getListBlocksData = function(){
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--CheckList"></i>',
-                },
-                {
-                    href: '/liststream?title=Informes Desaprobados&listtitle=Informe Haberes&listview=Pendientes&panel=filter-close&template=list-row&context=',
-                    title: 'Informes',
-                    after: '',
-                    header: '',
-                    footer: 'Desaprobados',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--Blocked"></i>',
                 }
             ]);
-        } else if (!context.onPeriod) {
-
-            coorSection.footer = 'No hay un periodo vigente para añadir items';
-
-        } else if (!context.canSendInform) {
+        } else if(!canSendInform) {
             coorSection.footer = 'Tu informe ya ha sido enviado';
-            coorSection.options = coorSection.options.concat([
+        } else if(!context.onPeriod){
+            coorSection.footer = 'No hay un periodo vigente para añadir items';
+        }
+
+        if (context.onPeriod) {
+            coorSection.options = coorSection.options.concat([ 
                 {
                     href: '/liststream?title=Informes Desaprobados&listtitle=Informe Haberes&listview=Pendientes&panel=filter-close&template=list-row&context=',
                     title: 'Informes',
                     after: '',
                     header: '',
-                    footer: 'Desaprobados',
+                    footer: 'En periodo',
                     panelClose: true,
                     externalLink: false,
                     f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--Blocked"></i>',
+                    media: '<i class="ms-Icon ms-Icon--TimeEntry"></i>',
                 }
             ]);
         }
@@ -180,7 +170,7 @@ menuPage.methods.getListBlocksData = function(){
                 panelClose: true,
                 externalLink: false,
                 f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--AnalyticsReport"></i>',
+                media: '<i class="ms-Icon ms-Icon--ActivateOrders"></i>',
             }
         ]);
 
@@ -205,7 +195,7 @@ menuPage.methods.getListBlocksData = function(){
                     panelClose: true,
                     externalLink: false,
                     f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--Documentation"></i>',
+                    media: '<i class="ms-Icon ms-Icon--TimeEntry"></i>',
                 }
             ])
         } else {
@@ -235,7 +225,7 @@ menuPage.methods.getListBlocksData = function(){
                     panelClose: true,
                     externalLink: false,
                     f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--Documentation"></i>',
+                    media: '<i class="ms-Icon ms-Icon--TimeEntry"></i>',
                 }
             ]);
         } else {
@@ -287,7 +277,7 @@ menuPage.methods.getListBlocksData = function(){
                 panelClose: true,
                 externalLink: false,
                 f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--AnalyticsReport"></i>',
+                media: '<i class="ms-Icon ms-Icon--ActivateOrders"></i>',
             }
         ]);
         settings.push(admSection);
