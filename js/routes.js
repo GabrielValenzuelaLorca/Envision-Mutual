@@ -266,6 +266,35 @@ listStreamPage.methods.beforeStartComponent = function(success,failure){
                 }
             );
             break;
+        case "Informes Históricos":
+            spo.getListInfo('Coordinador',
+                function (response) {
+                    var query = spo.encodeUrlListQuery(response, {
+                        view: 'Todos los elementos',
+                        odata: {
+                            'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')'
+                        }
+                    });
+                    spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                        function (response) {
+                            context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
+                            if (success) success();
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                            if (failure) failure();
+                        }
+                    );
+                },
+                function(response){
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                    resolve(failCond);
+                    if (failure) failure();
+                }
+            );
+            break;
         default:
             if (success) success();
             break;
@@ -421,11 +450,22 @@ listStreamPage.methods.getCamlQueryConditions = function(){
                         '<Value Type="Lookup">'+context.periodId+'</Value>'+
                 '</Eq></And>'  
         case 'Informes Históricos':
-            return ''+ 
-                '<Eq>'+
-                    '<FieldRef Name="Estado" />'+
-                        '<Value Type="Choice">Aprobado por administración</Value>'+
-                '</Eq>'
+            if (admin == "Administrador") {
+                return ''+ 
+                    '<Eq>'+
+                        '<FieldRef Name="Estado" />'+
+                            '<Value Type="Choice">Aprobado por administración</Value>'+
+                    '</Eq>'    
+            } else if (admin == "Coordinador") {
+                return ''+
+                    '<And><Eq>'+
+                        '<FieldRef Name="Estado" />'+
+                            '<Value Type="Choice">Aprobado por administración</Value>'+
+                    '</Eq><Eq>'+
+                        '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
+                            '<Value Type="Lookup">'+context.coorId+'</Value>'+
+                    '</Eq></And>'
+            }
     }
 }
 
