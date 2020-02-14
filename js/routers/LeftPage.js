@@ -236,7 +236,7 @@ menuPage.methods.getListBlocksData = function(){
 
         admSection.options = admSection.options.concat([
             {
-                href: '/liststream?title=Planta&listtitle=Planta&listview=Planta Usuario&panel=filter-open&template=list-row&context=',
+                href: '/liststream?title=Planta&listtitle=Planta&listview=Planta Usuario&panel=filter-close&template=list-row&context=',
                 title: 'Planta',
                 after: '',
                 header: '',

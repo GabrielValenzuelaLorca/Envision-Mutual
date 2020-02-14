@@ -52,6 +52,7 @@ var uploadPlantaPage = {
             '</div>' +
             '<div class="page-content">' +
                 '<div class="form-container"></div>' +
+                '<div class="container" />' +
             '<div class="content-loader">' +
                 '<div class="content-loader-inner">' +
                     '<div class="image-logo lazy lazy-fadein" data-background="{{loader.image}}"></div>' +
@@ -195,20 +196,58 @@ var uploadPlantaPage = {
                     var dialogTitle = 'Nueva carga de planta';
                     file = $container.find('.attachmentInput')[0]
 
+                    //Convierte la fecha excel a fecha
+                    function numeroAFecha(numeroDeDias, esExcel = true) {
+                        var diasDesde1900 = esExcel ? 25567 + 1 : 25567;
+                      
+                        // 86400 es el número de segundos en un día, luego multiplicamos por 1000 para obtener milisegundos.
+                        return new Date((numeroDeDias - diasDesde1900) * 86400 * 1000);
+                      }
+                      
+                      var fecha = numeroAFecha(16218, true);
+                      console.log(fecha);
+
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
 
                         files = file.files
                         handleExcelFromInput(files, 
                             function(response){
-                                // Do something with the json response
 
-                                console.log('Valores Obtenidos de excel', JSON.stringify(response));
+                                response[0].map(function(x){
+                                    x.fecha_nac = numeroAFecha(x.fecha_nac);
+                                    x.fecha_ing = numeroAFecha(x.fecha_ing);
+                                    x.fecha_ret = numeroAFecha(x.fecha_ret);
+                                });
+
+                                response[1] = [{'Email': spo.getCurrentUser()['EMail']}];
+                                
+                                fetch('https://prod-100.westus.logic.azure.com:443/workflows/f4f1efc2b0904335bdb56c045a116877/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=FzbpRC4_RIFJLIQkMJsarz3gVubRgyXSvOROor4B2lA', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(response)
+                                })
+                                .then(function(response) {
+                                    if (response.status === 401) {
+                                        app.dialog.create({
+                                            title: 'Error al Iniciar Proceso',
+                                            text: 'Error al iniciar proceso de Carga Masiva (Flow)',
+                                            buttons: [{
+                                                text: 'Aceptar'
+                                            }],
+                                            verticalButtons: false
+                                        }).open();
+                                    }
+                                })
+
                                 dialog.close();
 
                                 app.dialog.create({
                                     title: dialogTitle,
-                                    text: 'Cargado con éxito',
+                                    text: 'Iniciando proceso de carga masiva de planta.',
                                     buttons: [{
                                         text: 'Aceptar',
                                         onClick: function () {
@@ -233,7 +272,38 @@ var uploadPlantaPage = {
                             }
                         );
 
-                    }
+                        let metadata = context.items.globalState.filter(function(x){
+                            return x.Title == 'ActualizandoPlanta'
+                        });
+                        
+                        var formTemp = new EFWForm({
+                            container: $container.find('.container'),
+                            title: '',
+                            editable: false,
+                            // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                            fields: spo.getViewFields(context.lists.globalState, 'Todos los elementos')
+                        });
+                        formTemp.hide();
+                        
+                        formTemp.inputs['LinkTitle'].setValue(metadata[0]['Title']);
+                        formTemp.inputs['Value'].setValue([{key: 'SI', text: 'SI'}]);
+    
+                            spo.updateListItem(spo.getSiteUrl(), 'EstadosGlobales', 1, formTemp.getMetadata(), function (response) {    
+                            }, function (response) {
+                                var responseText = JSON.parse(response.responseText);
+    
+                                dialog.close();
+                                app.dialog.create({
+                                    title: 'Error al guardar en lista EstadoGlobal',
+                                    text: responseText.error.message.value,
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            });
+
+                    }//Fin save()
 
                     switch(file.files.length) {
                         case 1:
@@ -286,7 +356,7 @@ var uploadPlantaPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.lista) {
+                    if (loaded.lista && loaded.globalState) {
                         initForm();
                     }
                 };
@@ -303,6 +373,42 @@ var uploadPlantaPage = {
                         var responseText = JSON.parse(response.responseText);
                         console.log(responseText.error.message.value);
                     }
+                );
+
+                // Obtener información de lista
+                spo.getListInfo('EstadosGlobales',
+                function (response) {
+                    context.items.globalState = [];
+                    context.lists.globalState = response;
+                    //loaded.listaItemVariable = true;
+                    
+                    // Si existe el id de algún item a obtener
+
+                        var query = spo.encodeUrlListQuery(context.lists.globalState, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'select': '*',
+                                'top': 5000
+                            }
+                        });
+
+                        spo.getListItems(spo.getSiteUrl(), 'EstadosGlobales', query,
+                            function (response) {
+                                context.items.globalState = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.globalState = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+
+                },
+                function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                }
                 );
             }
 
