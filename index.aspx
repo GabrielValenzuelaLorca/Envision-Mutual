@@ -39,7 +39,7 @@
     	background-size: 100px !important;
 	}</style>
 </head>
-	<body class="color-theme-pink" style="">
+	<body class="color-theme-green" style="">
 		<div id="app">
 			<!-- Status bar overlay for fullscreen mode-->
 			<div class="statusbar"></div>

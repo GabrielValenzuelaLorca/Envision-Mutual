@@ -9,7 +9,75 @@ l = function() {
 
 listStreamPage.methods.beforeStartComponent = function(success,failure){
     var context = this._getPageContext();
+
     switch (context.title){
+        case 'Planta':
+            loaded = {};
+            function startItemComponent2(){
+                if (loaded.globalState){
+                    spo.getListInfo('EstadosGlobales',
+                        function (response) {
+                            var query = spo.encodeUrlListQuery(response, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'select' : '*',
+                                    'top': 5000
+                                }
+                            });
+                            spo.getListItems(spo.getSiteUrl(), "EstadosGlobales", query,
+                                function (response) {
+                                    context.estadosGlobales = response.d.results;
+                                    if (success) success();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                    if (failure) failure();
+                                }
+                            );
+                        },
+                        function(response){
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                            resolve(failCond);
+                            if (failure) failure();
+                        }
+                    );
+                }
+            }
+            spo.getListInfo('EstadosGlobales',
+                function (response) {
+                    var query = spo.encodeUrlListQuery(response, {
+                        view: 'Todos los elementos',
+                        odata: {
+                            'select' : '*',
+                            'top': 5000
+                        }
+                    });
+
+                    spo.getListItems(spo.getSiteUrl(), "EstadosGlobales", query,
+                        function (response) {
+                            context.globalState = response.d.results.length>0 ? response.d.results : null;
+                            loaded.globalState = true;
+                            startItemComponent2();
+                            console.log('Datos cargados');
+                        },
+                        function (response) {
+                            console.log('Datos no Cargados');
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                            if (failure) failure();
+                        }
+                    );
+                },
+                function(response){
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                    resolve(failCond);
+                    if (failure) failure();
+                }
+            );
+            break;
         case 'Items variables':
             loaded = {}
             function startItemComponent(){
@@ -266,6 +334,35 @@ listStreamPage.methods.beforeStartComponent = function(success,failure){
                 }
             );
             break;
+        case "Informes Históricos":
+            spo.getListInfo('Coordinador',
+                function (response) {
+                    var query = spo.encodeUrlListQuery(response, {
+                        view: 'Todos los elementos',
+                        odata: {
+                            'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')'
+                        }
+                    });
+                    spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                        function (response) {
+                            context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
+                            if (success) success();
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                            if (failure) failure();
+                        }
+                    );
+                },
+                function(response){
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                    resolve(failCond);
+                    if (failure) failure();
+                }
+            );
+            break;
         default:
             if (success) success();
             break;
@@ -284,13 +381,18 @@ listStreamPage.methods.onItemDblClick = function(item){
         case 'ItemsVariables':
             mainView.router.navigate('/itemVariable?listItemId='+item.ID);
             break;
+        case 'Informes Desaprobados':
+        case 'Informes':
+        case 'Informes Históricos':
+            mainView.router.navigate('/informe?listItemId='+item.ID);
+            break;
     }
 }
 
 listStreamPage.methods.getOneItemSelectedButtons = function(item){
     var page = this._getPage();
     var self = this, buttons = [],
-        context = self._getPageContext();
+    context = self._getPageContext();
 
     switch (page.route.query.title){
         case 'Periodos':
@@ -339,7 +441,22 @@ listStreamPage.methods.getNoItemsSelectedButtons = function(){
     
     switch (page.route.query.title){
         case 'Planta':
-            buttons.push(localButtons.fileButton());    
+            let cargandoPlanta = context.globalState.filter(function(x){
+                return x.Title == 'ActualizandoPlanta'
+            });
+            if(cargandoPlanta[0].Value == 'NO'){
+                buttons.push(localButtons.fileButton());
+                
+            }else{
+                app.dialog.create({
+                    title: 'Atención',
+                    text: 'En estos momentos se está realizando una carga masiva de planta. Usted sera notificado via email cuando el proceso termine.',
+                    buttons: [{
+                        text: 'Aceptar'
+                    }],
+                    verticalButtons: false
+                }).open();
+            } 
             break;
         case 'Periodos':
             buttons.push(localButtons.addPeriodButton(context));
@@ -400,23 +517,42 @@ listStreamPage.methods.getCamlQueryConditions = function(){
                     '</Eq></And>'  
                 } else {
                     return ''+
-                    '<Eq>'+
-                        '<FieldRef Name="Estado" />'+
-                            '<Value Type="Choice">Nono</Value>'+
-                    '</Eq>'  
+                        '<Eq>'+
+                            '<FieldRef Name="Estado" />'+
+                                '<Value Type="Choice">Nono</Value>'+
+                        '</Eq>'  
                 }
             } else if (admin == "Administrador"){
                 return '<And><Eq><FieldRef Name="Estado" LookupId="TRUE"/><Value Type="Lookup">Aprobado y enviado a administración</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
             }
         case 'Informes Desaprobados':
             return ''+
+                '<And><Eq>'+
+                    '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
+                        '<Value Type="Lookup">'+context.coorId+'</Value>'+
+                '</Eq><Eq>'+
+                    '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
+                        '<Value Type="Lookup">'+context.periodId+'</Value>'+
+                '</Eq></And>'  
+        case 'Informes Históricos':
+            if (admin == "Administrador") {
+                return ''+ 
+                    '<Eq>'+
+                        '<FieldRef Name="Estado" />'+
+                            '<Value Type="Choice">Aprobado por administración</Value>'+
+                    '</Eq>'    
+            } else if (admin == "Coordinador") {
+                return ''+
                     '<And><Eq>'+
+                        '<FieldRef Name="Estado" />'+
+                            '<Value Type="Choice">Aprobado por administración</Value>'+
+                    '</Eq><Eq>'+
                         '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
                             '<Value Type="Lookup">'+context.coorId+'</Value>'+
-                    '</Eq><Eq>'+
-                        '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
-                            '<Value Type="Lookup">'+context.periodId+'</Value>'+
-                    '</Eq></And>'  
+                    '</Eq></And>'
+            }
+        case 'Planta':
+            return '<Or><Eq><FieldRef Name="EstadoContrato" /><Value Type="Choice">Activo</Value></Eq><Eq><FieldRef Name="EstadoContrato" /><Value Type="Choice">Pendiente</Value></Eq></Or>'
     }
 }
 
@@ -449,6 +585,10 @@ function getRoutes(){
         {
             path: '/uploadPlanta',
             component: uploadPlantaPage
+        },
+        {
+            path: '/informe',
+            component: informePage
         },
         // Default route (404 page). MUST BE THE LAST
         {

@@ -190,7 +190,8 @@ localButtons.sendButton = function(context){
                                 PeriodoId: context.periodId,
                                 CoordinadorId: context.coorId,
                                 Estado: "Enviado para aprobar",
-                                Haberes: JsonHaberes
+                                Haberes: JsonHaberes,
+                                Cantidad: response.d.results.length
                             }
                             spo.saveListItem(spo.getSiteUrl(), "Informe Haberes", metadata, 
                                 function (response){

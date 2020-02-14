@@ -225,13 +225,16 @@ var itemPage = {
                     // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
                     fields: spo.getViewFields(context.lists.ItemVariable, 'FormularioItem')
                 });
+
                 context.forms.item.inputs['CantidadMonto'].hide();
                 context.forms.item.inputs['Justificacion'].hide();
                 //Ocultar campos que son personalizados.
                 
                 // Filtrar trabajadores segun asignacion del coordinador
-                context.forms.person.inputs['Nombre'].params.beforeRenderSuggestions = function (persons) {
-                    return context.items.Planta
+                context.forms.person.inputs['Nombre'].params.beforeRenderSuggestions = function (persons) {                   
+                    return context.items.Planta.filter(function(x){
+                        return x.EstadoContrato != 'Suspendido'
+                    });
                 }
 
                 //Establecer Valores de persona con el nombre
