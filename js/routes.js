@@ -313,6 +313,8 @@ listStreamPage.methods.onItemDblClick = function(item){
         case 'ItemsVariables':
             mainView.router.navigate('/itemVariable?listItemId='+item.ID);
             break;
+        case 'Informes Desaprobados':
+        case 'Informes':
         case 'Informes Históricos':
             mainView.router.navigate('/informe?listItemId='+item.ID);
             break;
@@ -322,7 +324,7 @@ listStreamPage.methods.onItemDblClick = function(item){
 listStreamPage.methods.getOneItemSelectedButtons = function(item){
     var page = this._getPage();
     var self = this, buttons = [],
-        context = self._getPageContext();
+    context = self._getPageContext();
 
     switch (page.route.query.title){
         case 'Periodos':
