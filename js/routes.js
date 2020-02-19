@@ -418,6 +418,10 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
             if (item.Estado == "En espera de justificación") {
                 buttons.push(localButtons.sendJustification(context));
             }
+        case 'Informes Históricos':
+            if (admin=="Coordinador") {
+                buttons.push(localButtons.downloadInformeCoord(context));    
+            }
         default:
             break;
     }
@@ -473,6 +477,11 @@ listStreamPage.methods.getNoItemsSelectedButtons = function(){
             break;
     }
     return buttons;
+}
+
+//quita de listStreamPage las miniaturas
+listStreamPage.methods.allowChangeTemplate = function(){
+    return false;
 }
 
 listStreamPage.methods.getCamlQueryConditions = function(){
@@ -552,7 +561,21 @@ listStreamPage.methods.getCamlQueryConditions = function(){
                     '</Eq></And>'
             }
         case 'Planta':
-            return '<Or><Eq><FieldRef Name="EstadoContrato" /><Value Type="Choice">Activo</Value></Eq><Eq><FieldRef Name="EstadoContrato" /><Value Type="Choice">Pendiente</Value></Eq></Or>'
+            return `
+                <And><Or><Eq>
+                    <FieldRef Name="EstadoContrato" />
+                        <Value Type="Choice">Activo</Value>
+                </Eq><Eq>
+                    <FieldRef Name="EstadoContrato" />
+                        <Value Type="Choice">Pendiente</Value>
+                </Eq></Or><Or><Eq>
+                    <FieldRef Name="EstadoContrato" />
+                        <Value Type="Choice">Activo</Value>
+                </Eq><Eq>
+                    <FieldRef Name="EstadoContrato" />
+                        <Value Type="Choice">Pendiente</Value>
+                </Eq></Or></And>
+            `
     }
 }
 

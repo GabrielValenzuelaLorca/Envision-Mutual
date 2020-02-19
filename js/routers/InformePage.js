@@ -47,6 +47,10 @@ var informePage = {
                             '<i class="ms-Icon ms-Icon--CheckMark"></i>' +
                             '<span class="ios-only">Cerrar ticket</span>' +
                         '</a>' +
+                        '<a href="#" class="link download-excel ms-fadeIn100 hide">' +
+                            '<i class="ms-Icon ms-Icon--ExcelLogo"></i>' +
+                            '<span class="ios-only">Descargar Informe</span>' +
+                        '</a>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -164,7 +168,8 @@ var informePage = {
             // variables
             var context = this.$options.data(),
                 mths = this.$options.methods,
-                listItemId = page.route.query.listItemId
+                listItemId = page.route.query.listItemId,
+                viewName = "";
 
             context.methods = mths;
 
@@ -182,171 +187,81 @@ var informePage = {
                 // containers
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
-                    $sendButton = $navbar.find('.link.send'),
-                    $updateButton = $navbar.find('.link.update'),
-                    $clearButton = $navbar.find('.link.clear');
+                    $dowloadButton = $navbar.find('.link.download-excel');
+
+                if (admin == "Coordinador") {
+                    viewName = "Coordinador"
+                } else if (admin == "Administrador"){
+                    viewName = "Todos los elementos"
+                }
 
                 // formulario de registro
                 context.forms.item = new EFWForm({
                     container: $container.find('.form-container'),
                     title: mths.getListTitle(),
                     editable: false,
-                    fields: spo.getViewFields(context.lists.Informe, 'Todos los elementos')
+                    fields: spo.getViewFields(context.lists.Informe, "Todos los elementos")
                 });
 
                 context.forms.haberes = new EFWListTable({
                     container: $container.find('.sent-haberes-container'),
                     title: 'Haberes',
                     editable: false,
-                    listFields: spo.getViewFields(context.lists.Item, "Todos los elementos"),
+                    listFields: spo.getViewFields(context.lists.Item, viewName),
                     items: JSON.parse(context.items.Informe.Haberes).d.results,
                     disabled: true
                 });
 
                 if (listItemId) {
                     context.forms.item.setValues(context.items.Informe);
-                    // context.forms.item.inputs['Activo'].hide();
+                    $dowloadButton.removeClass('hide');
                 } 
 
-                $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Nuevo elemento';
-
+                $dowloadButton.on('click', function (e) {
+                    var dialogTitle = 'Descargando informe';
                     function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.item.getMetadata();
-                        metadata.Activo = true;
-
-                        spo.saveListItem(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {
-                            dialog.close();
+                        var dialog = app.dialog;
                             
-                            dialogs.confirmDialog(
-                                dialogTitle,
-                                'Creado con éxito',
-                                function(component, item){
-                                    leftView.router.refreshPage();
-                                    mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
-                                },
-                                false
-                            )
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
-
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
+                        let haberes = JSON.parse(context.items.Informe.Haberes);
+                        let periodoName = "Periodo_"+context.items.Informe.Periodo.MesCalculado+"_"+context.items.Informe.Periodo.AnioCalculado;
+                        let arrayHaberes = haberes.d.results.map(function(haber){
+                            return {
+                                "Item Variable": haber.Haber.NombreItem,
+                                "Cantidad/Monto": haber.CantidadMonto,
+                                "Nombre": haber.Nombre.NombreCompleto,
+                                "Rut": haber.Rut,
+                                "Contrato": haber.TipoContrato,
+                                "Centro Costo": "Por Defecto",
+                                "Justificación":haber.Justificacion
+                            };
                         });
+                        let colSizes = [{"width":50},{"width":15},{"width":30},{"width":10},{"width":10},{"width":15},{"width":100}];
+
+                        // Bookname como el periodo
+                        generateXLSX(["Items Variables"], periodoName, [arrayHaberes], false, colSizes,  
+                            function(response){
+                                dialog.close()
+                                dialogs.infoDialog(
+                                    dialogTitle,
+                                    'Su informe se ha descargado exitosamente',
+                                );
+                            },
+                            function(response){
+                                var responseText = JSON.parse(response.Error);
+                                console.log('responseText', responseText);
+
+                                dialog.close();
+                                dialogs.infoDialog(
+                                    'Error al descargar el archivo',
+                                    responseText
+                                );
+                            });
                     }
-
-                    context.forms.item.checkFieldsRequired();
-                    var validate =  context.forms.item.getValidation();
-
-                    if (validate) {
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se creará una nuevo registro.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    }
-
-                });
-
-                $updateButton.on('click', function (e) {
-                    var dialogTitle = 'Editando elemento';
-
-                    function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.item.getMetadata();
-                        metadata.Activo = context.items.Periodo.Activo;
-
-                        spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
-                            dialog.close();
-
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Elemento actualizado con éxito',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-
-
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
-
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        });
-                    }
-                    
-                    context.forms.item.checkFieldsRequired();
-
-                    var validate = context.forms.item.getValidation();
-
-                    if (validate) {
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se actualizará el elemento.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    }
-
-                });
-
-                $clearButton.on('click', function (e){
-                    context.forms.item.setValues([]);
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Se descargará un documento Excel con la información en pantalla',
+                        save
+                    )
                 });
 
                 // remover loader

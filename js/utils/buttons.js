@@ -3,6 +3,60 @@ function refresh(){
     mainView.router.refreshPage();
     leftView.router.refreshPage();
 }
+
+// var array = [[
+//     {"Header1": 23,
+//     "Header2": 25,
+//     "Header3:": 69},
+//     {"Header1": 24,
+//     "Header2": 26,
+//     "Header3:": 70},
+//     {"Header1": 26,
+//     "Header2": 29,
+//     "Header3:": 20},
+//     {"Header1": 23,
+//     "Header2": 25,
+//     "Header3:": 69}],[
+//         {"Header1": 23,
+//     "Header2": 25,
+//     "Header3:": 69},
+//     {"Header1": 24,
+//     "Header2": 26,
+//     "Header3:": 70},
+//     {"Header1": 26,
+//     "Header2": 29,
+//     "Header3:": 20},
+//     {"Header1": 23,
+//     "Header2": 25,
+//     "Header3:": 69}
+//     ]
+// ]
+// generateXLSX(["Hoja 1", "Hoja 2"], "Nombre archivo excel", array)
+
+function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, failure){
+    var wb = XLSX.utils.book_new();
+
+    if (sheetnames.length == aoa.length){
+        aoa.forEach(element => {
+            let ws = XLSX.utils.json_to_sheet(element);
+            let sheetname = sheetnames[aoa.indexOf(element)];
+            if (protected) ws['!protect'] = {objects:true, scenarios: true}
+            if (colSizes) ws["!cols"] = colSizes
+
+            XLSX.utils.book_append_sheet(wb, ws, sheetname);
+        });
+
+        if (filename){
+            XLSX.writeFile(wb, filename +'.xlsx');
+        } else {
+            XLSX.writeFile(wb, "Excel" +'.xlsx');
+        }
+        success();
+
+    } else {
+        failure(JSON.stringify({"Error": "El numero de hojas es diferente al entregado"}));
+    }
+}
 // Planta buttons
 localButtons.fileButton = function(){
     button = {
@@ -180,7 +234,7 @@ localButtons.sendButton = function(context){
                     }
                 });
                 // Se seleccionan los items asociado al coordinador en el periodo
-                spo.getListItems(spo.getSiteUrl(), 'ItemVariable', query,
+                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
                     function (response) {
                         if (response.d.results.length > 0){
                             // Creación Json de haberes
@@ -584,6 +638,73 @@ localButtons.sendJustification = function(context){
 
                 dynamicPopup.open();
             }
+        }
+    }
+    return button
+}
+
+localButtons.downloadInformeCoord = function(context){
+    button = {
+        text: 'Descargar Informe',
+        class: 'informeDownload',
+        icon: 'ExcelLogo',
+        onClick: function(component, item){
+            var dialogTitle = 'Descargando informe';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var query = spo.encodeUrlListQuery(context.list, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(ID eq '+ item.ID +')'
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
+                    function (response) {
+                        let haberes = JSON.parse(response.d.results[0].Haberes);
+                        let periodoName = "Periodo_"+response.d.results[0].Periodo.MesCalculado+"_"+response.d.results[0].Periodo.AnioCalculado;
+                        let arrayHaberes = haberes.d.results.map(function(haber){
+                            return {
+                                "Item Variable": haber.Haber.NombreItem,
+                                "Cantidad/Monto": haber.CantidadMonto,
+                                "Nombre": haber.Nombre.NombreCompleto,
+                                "Rut": haber.Rut,
+                                "Contrato": haber.TipoContrato,
+                                "Centro Costo": "Por Defecto",
+                                "Justificación":haber.Justificacion
+                            };
+                        });
+                        let colSizes = [{"width":50},{"width":15},{"width":30},{"width":10},{"width":10},{"width":15},{"width":100}];
+
+                        generateXLSX(["Items Variables"], periodoName, [arrayHaberes], false, colSizes, 
+                            function(response){
+                                dialog.close()
+                                dialogs.infoDialog(
+                                    dialogTitle,
+                                    'Su informe se ha descargado exitosamente',
+                                );
+                            },
+                            function(response){
+                                var responseText = JSON.parse(response.Error);
+                                console.log('responseText', responseText);
+
+                                dialog.close();
+                                dialogs.infoDialog(
+                                    'Error al descargar el archivo',
+                                    responseText
+                                );
+                            });
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se descargará un documento Excel con la información del informe seleccionado',
+                save
+            )
         }
     }
     return button
