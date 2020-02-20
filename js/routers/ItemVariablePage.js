@@ -101,7 +101,7 @@ var itemVariablePage = {
             tables: {},
             loader: {
                 text: 'Espere un momento por favor',
-                //image: './assets/img/logo_envision_min1.png'
+                image: './assets/img/mutual.png'
             }
         };
     },
