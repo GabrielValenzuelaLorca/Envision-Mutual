@@ -4,35 +4,6 @@ function refresh(){
     leftView.router.refreshPage();
 }
 
-// var array = [[
-//     {"Header1": 23,
-//     "Header2": 25,
-//     "Header3:": 69},
-//     {"Header1": 24,
-//     "Header2": 26,
-//     "Header3:": 70},
-//     {"Header1": 26,
-//     "Header2": 29,
-//     "Header3:": 20},
-//     {"Header1": 23,
-//     "Header2": 25,
-//     "Header3:": 69}],[
-//         {"Header1": 23,
-//     "Header2": 25,
-//     "Header3:": 69},
-//     {"Header1": 24,
-//     "Header2": 26,
-//     "Header3:": 70},
-//     {"Header1": 26,
-//     "Header2": 29,
-//     "Header3:": 20},
-//     {"Header1": 23,
-//     "Header2": 25,
-//     "Header3:": 69}
-//     ]
-// ]
-// generateXLSX(["Hoja 1", "Hoja 2"], "Nombre archivo excel", array)
-
 function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, failure){
     var wb = XLSX.utils.book_new();
 
@@ -40,8 +11,16 @@ function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, f
         aoa.forEach(element => {
             let ws = XLSX.utils.json_to_sheet(element);
             let sheetname = sheetnames[aoa.indexOf(element)];
-            if (protected) ws['!protect'] = {objects:true, scenarios: true}
-            if (colSizes) ws["!cols"] = colSizes
+
+            if (colSizes) {
+                if(colSizes.length == aoa.length){
+                    let colSize = colSizes[aoa.indexOf(element)];
+                    ws["!cols"] = colSize;
+                } else {
+                    failure(JSON.stringify({"Error": "El numero de formato de hojas no es compatible"}));
+                }
+            }
+            if (protected) ws['!protect'] = {objects:true, scenarios: true}            
 
             XLSX.utils.book_append_sheet(wb, ws, sheetname);
         });
@@ -253,7 +232,10 @@ localButtons.sendButton = function(context){
                                     dialogs.confirmDialog(
                                         dialogTitle,
                                         'Informe enviado con éxito a ' + context.Aprobador,
-                                        refresh,
+                                        function(){
+                                            mainView.router.navigate(encodeURI('/liststream?title=Informes Desaprobados&listtitle=Informe Haberes&listview=Pendientes&panel=filter-close&template=list-row&context='));
+                                            leftView.router.refreshPage();
+                                        },
                                         false
                                     );
                                 },
@@ -673,7 +655,7 @@ localButtons.downloadInformeCoord = function(context){
                                 "Justificación":haber.Justificacion
                             };
                         });
-                        let colSizes = [{"width":50},{"width":15},{"width":30},{"width":10},{"width":10},{"width":15},{"width":100}];
+                        let colSizes = [[{"width":50},{"width":15},{"width":30},{"width":10},{"width":10},{"width":15},{"width":100}]];
 
                         generateXLSX(["Items Variables"], periodoName, [arrayHaberes], false, colSizes, 
                             function(response){

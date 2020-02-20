@@ -32,14 +32,14 @@
 	</mso:CustomDocumentProperties>
 	</xml></SharePoint:CTFieldRefs><![endif]-->
 	<style>body {
-		background-image: url("assets/img/env.gif") !important;
+		background-image: url("assets/img/gifmutual.gif") !important;
 	    background-position: center !important;
     	background-repeat: no-repeat !important;
-    	background-color: #2f2f2f !important;
-    	background-size: 100px !important;
+    	background-color: #FFFFFF !important;
+    	background-size: 500px !important;
 	}</style>
 </head>
-	<body class="color-theme-green" style="">
+	<body class="color-theme-green">
 		<div id="app">
 			<!-- Status bar overlay for fullscreen mode-->
 			<div class="statusbar"></div>

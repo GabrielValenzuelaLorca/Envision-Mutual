@@ -76,7 +76,7 @@ var informePage = {
             tables: {},
             loader: {
                 text: 'Espere un momento por favor',
-                //image: './assets/img/logo_envision_min1.png'
+                image: './assets/img/mutual.png'
             }
         };
     },
@@ -235,7 +235,7 @@ var informePage = {
                                 "Justificación":haber.Justificacion
                             };
                         });
-                        let colSizes = [{"width":50},{"width":15},{"width":30},{"width":10},{"width":10},{"width":15},{"width":100}];
+                        let colSizes = [[{"width":50},{"width":15},{"width":30},{"width":10},{"width":10},{"width":15},{"width":100}]];
 
                         // Bookname como el periodo
                         generateXLSX(["Items Variables"], periodoName, [arrayHaberes], false, colSizes,  

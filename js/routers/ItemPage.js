@@ -59,7 +59,7 @@ var itemPage = {
                           '<div class="item-title">Datos del Trabajador</div>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
-                        '<div class="form-persona"></div>' +
+                        '<div class="container form-persona"></div>' +
                       '</div>' +
                     '</li>' +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
@@ -67,7 +67,7 @@ var itemPage = {
                           '<div class="item-title">Datos Item Variable</div>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
-                        '<div class="form-item"></div>' +
+                        '<div class="container form-item"></div>' +
                       '</div>' +
                     '</li>' +
                 '</ul>' +
@@ -91,7 +91,7 @@ var itemPage = {
             tables: {},
             loader: {
                 text: 'Espere un momento por favor',
-                //image: './assets/img/logo_envision_min1.png'
+                image: './assets/img/gifmutual.gif'
             }
         };
     },
@@ -231,14 +231,32 @@ var itemPage = {
                 //Ocultar campos que son personalizados.
                 
                 // Filtrar trabajadores segun asignacion del coordinador
-                context.forms.person.inputs['Nombre'].params.beforeRenderSuggestions = function (persons) {                   
-                    return context.items.Planta.filter(function(x){
-                        return x.EstadoContrato != 'Suspendido'
-                    });
-                }
+                context.forms.person.inputs['Nombre'].params.source = function(dropdown, query, render){
+
+                    let data = [];
+                    if(context.items.Planta){
+                        context.items.Planta.map(function(array){
+                            data.push({
+                                "key": array.ID,
+                                "text": array.NombreCompleto,
+                                "item": array
+                            });
+                        })
+                    }else{
+                        data.push({
+                            "key": 0,
+                            "text": 'No dispone de trabajadores',
+                            "item": null
+                        });
+                    }
+                    render(data);
+                }                
 
                 //Establecer Valores de persona con el nombre
                 context.forms.person.inputs['Nombre'].params.onChange = function(comp, input, state, values){
+                    if(values[0].item == null){
+                        return;
+                    }
                     if(current != null){
                         return;
                     }
@@ -252,6 +270,7 @@ var itemPage = {
                         context.forms.person.inputs['Categoria'].resetValue();
                         context.forms.item.inputs['Haber'].resetValue();
                         context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
+                        context.forms.person.inputs['CentroCosto'].resetValue();
                         current = null;
                         return;
                     }
@@ -261,11 +280,18 @@ var itemPage = {
                     context.forms.person.inputs['Rut'].setValue(values[0].item.Rut);
                     context.forms.person.inputs['TipoContrato'].setValue(values[0].item.TipoContrato);
 
+                    var CCActual = context.items.CentroCosto.filter(function(x){
+                        return x.ID == values[0].item.CentroCostoId;
+                    })[0];
+
+                    console.log('Centro de costo Actual', CCActual)
+
                     var categoriaActual = context.items.Categorias.filter(function(x){
                         return x.ID == values[0].item.CategoriaId;
                     })[0];
 
-                    context.forms.person.inputs['Categoria'].setValue([{key: values[0].item.CategoriaId, text: categoriaActual ? categoriaActual.Title: 'No se cargo el String'}]);
+                    context.forms.person.inputs['CentroCosto'].setValue([{key: values[0].item.CentroCostoId, text: CCActual ? CCActual.CodigoCC : 'El trabajador no posee centro de costo asignado'}]);
+                    context.forms.person.inputs['Categoria'].setValue([{key: values[0].item.CategoriaId, text: categoriaActual ? categoriaActual.Categoria : 'No se cargo el String'}]);
 
                     context.forms.item.inputs['Haber'].setEditable(true);
                     context.forms.item.inputs['Haber_x003a_Codigo'].setEditable(true);
@@ -589,12 +615,16 @@ var itemPage = {
 
                         myJSON = myJSON.replace('}',JSON.stringify(metadataItem).replace('{',','));
                         var metadata = JSON.parse(myJSON);
+
                         metadata.PeriodoId = context.items.Periodo[0].Id;
                         metadata.CoordinadorId = context.items.Coordinador[0].Id;
 
                         spo.saveListItem(spo.getSiteUrl(), 'ItemVariable', metadata, function (response) {
                             var formularioId = response.d.Id;
                             dialog.close();
+
+                            
+                            console.log('Metadata', metadata);
 
                             app.dialog.create({
                                 title: dialogTitle,
@@ -757,7 +787,7 @@ var itemPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.ItemVariable && loaded.Categorias && loaded.ListadoItemVariable && loaded.Coordinador && loaded.Periodo) {
+                    if (loaded.ItemVariable && loaded.Categorias && loaded.ListadoItemVariable && loaded.Coordinador && loaded.Periodo && loaded.CentroCosto) {
                         initForm();
                     }
                 };
@@ -833,8 +863,7 @@ var itemPage = {
                                         var query = spo.encodeUrlListQuery(context.lists.Planta, {
                                             view: 'Todos los elementos',
                                             odata: {
-                                                'filter': '(CoordinadorId eq \'' + context.items.Coordinador[0].ID + '\')',
-                                                'select': '*',
+                                                'filter': '(EstadoContrato ne \'Suspendido\' and CoordinadorId eq \'' + context.items.Coordinador[0].ID + '\')',
                                                 'top': 5000,
                                             }
                                         });
@@ -843,6 +872,7 @@ var itemPage = {
                                             function (response) {
                                                 context.items.Planta = response.d.results.length > 0 ? response.d.results : null;
                                                 loaded.Coordinador = true;
+                                                console.log('Planta', context.items.Planta);
                                                 shouldInitForms();
                                             },
                                             function (response) {
@@ -954,6 +984,40 @@ var itemPage = {
                                 function (response) {
                                     context.items.Periodo = response.d.results.length > 0 ? response.d.results : null;
                                     loaded.Periodo = true;
+                                    shouldInitForms();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+
+                //Obtengo el periodo actual para imputar
+                spo.getListInfo('CentroCosto',
+                    function (response) {
+                        context.items.Periodo = [];
+                        context.lists.Periodo = response;
+                        //loaded.listaItemVariable = true;
+
+                            var query = spo.encodeUrlListQuery(context.lists.Periodo, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'select': '*',
+                                    'top': 5000
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), 'CentroCosto', query,
+                                function (response) {
+                                    context.items.CentroCosto = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.CentroCosto = true;
                                     shouldInitForms();
                                 },
                                 function (response) {
