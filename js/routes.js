@@ -60,10 +60,8 @@ listStreamPage.methods.beforeStartComponent = function(success,failure){
                             context.globalState = response.d.results.length>0 ? response.d.results : null;
                             loaded.globalState = true;
                             startItemComponent2();
-                            console.log('Datos cargados');
                         },
                         function (response) {
-                            console.log('Datos no Cargados');
                             var responseText = JSON.parse(response.responseText);
                             console.log(responseText.error.message.value);
                             if (failure) failure();
@@ -335,33 +333,64 @@ listStreamPage.methods.beforeStartComponent = function(success,failure){
             );
             break;
         case "Informes Históricos":
-            spo.getListInfo('Coordinador',
-                function (response) {
-                    var query = spo.encodeUrlListQuery(response, {
-                        view: 'Todos los elementos',
-                        odata: {
-                            'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')'
-                        }
-                    });
-                    spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
-                        function (response) {
-                            context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
-                            if (success) success();
-                        },
-                        function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log(responseText.error.message.value);
-                            if (failure) failure();
-                        }
-                    );
-                },
-                function(response){
-                    var responseText = JSON.parse(response.responseText);
-                    console.log(responseText.error.message.value);
-                    resolve(failCond);
-                    if (failure) failure();
-                }
-            );
+            if (admin=="Coordinador"){
+                spo.getListInfo('Coordinador',
+                    function (response) {
+                        var query = spo.encodeUrlListQuery(response, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')'
+                            }
+                        });
+                        spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                            function (response) {
+                                context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
+                                if (success) success();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                                if (failure) failure();
+                            }
+                        );
+                    },
+                    function(response){
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        resolve(failCond);
+                        if (failure) failure();
+                    }
+                );
+            } else if (admin == "Administrador"){
+                spo.getListInfo('Informe Haberes',
+                    function (response) {
+                        var query = spo.encodeUrlListQuery(response, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'filter': '(Estado eq \'Aprobado por administración\')',
+                                'top': 1
+                            }
+                        });
+                        spo.getListItems(spo.getSiteUrl(), "Informe Haberes", query,
+                            function (response) {
+                                context.lastInforme = response.d.results.length>0 ? response.d.results[0] : null;
+                                if (success) success();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                                if (failure) failure();
+                            }
+                        );
+                    },
+                    function(response){
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        resolve(failCond);
+                        if (failure) failure();
+                    }
+                );
+            }
             break;
         default:
             if (success) success();
@@ -421,6 +450,8 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
         case 'Informes Históricos':
             if (admin=="Coordinador") {
                 buttons.push(localButtons.downloadInformeCoord(context));    
+            } else if(admin=="Administrador"){
+                buttons.push(localButtons.downloadInformeAdmin(context));    
             }
         default:
             break;
@@ -475,6 +506,10 @@ listStreamPage.methods.getNoItemsSelectedButtons = function(){
             }
             
             break;
+        case 'Informes Históricos':
+            if (admin=="Administrador"){
+                buttons.push(localButtons.downloadInformeComplete(context));
+            }
     }
     return buttons;
 }
@@ -482,6 +517,23 @@ listStreamPage.methods.getNoItemsSelectedButtons = function(){
 //quita de listStreamPage las miniaturas
 listStreamPage.methods.allowChangeTemplate = function(){
     return false;
+}
+
+listStreamPage.methods.afterFilterComponentInitializated = function () {
+    var self = this;
+    var context = self._getPageContext();
+    var page = self._getPage();
+    switch (page.route.query.title){
+        case "Informes Históricos":
+            if (context.lastInforme){
+                let anio = context.lastInforme.Periodo.AnioCalculado
+                let mes = context.lastInforme.Periodo.MesCalculado
+                context.components.itemsFilter.inputs.Periodo_x003a_AnioCalculado.setValue([{text: anio}]);
+                context.components.itemsFilter.inputs.Periodo_x003a_MesCalculado.setValue([{text: mes}]);
+            }
+            $(page.navbarEl).find('a.filter').click();
+            break;
+    }
 }
 
 listStreamPage.methods.getCamlQueryConditions = function(){

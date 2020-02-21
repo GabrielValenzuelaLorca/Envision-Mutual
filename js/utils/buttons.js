@@ -10,6 +10,7 @@ function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, f
     if (sheetnames.length == aoa.length){
         aoa.forEach(element => {
             let ws = XLSX.utils.json_to_sheet(element);
+            
             let sheetname = sheetnames[aoa.indexOf(element)];
 
             if (colSizes) {
@@ -405,7 +406,7 @@ localButtons.approveItemSended = function(context){
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
 
-                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, {"Estado":"Aprobado y enviado a administración"}, function (response) {
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, {"Estado":"Aprobado y enviado a administración", "FechaAprobacion":"lafecha"}, function (response) {
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
@@ -685,6 +686,206 @@ localButtons.downloadInformeCoord = function(context){
             dialogs.confirmDialog(
                 dialogTitle,
                 'Se descargará un documento Excel con la información del informe seleccionado',
+                save
+            )
+        }
+    }
+    return button
+}
+
+localButtons.downloadInformeAdmin = function(context){
+    button = {
+        text: 'Descargar Informe',
+        class: 'informeDownload',
+        icon: 'ExcelLogo',
+        onClick: function(component, item){
+            var dialogTitle = 'Descargando informe';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var query = spo.encodeUrlListQuery(context.list, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(ID eq '+ item.ID +')'
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
+                    function (response) {
+                        var informe = response.d.results[0];
+                        spo.getListInfo('Coordinador',
+                            function (response) {
+                                var query = spo.encodeUrlListQuery(response, {
+                                    view: 'Todos los elementos',
+                                    odata: {
+                                        'filter': '(ID eq '+ informe.CoordinadorId +')'
+                                    }
+                                });
+                                spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                                    function (response) {
+                                        // Crear Book y sheets
+                                        var wb = XLSX.utils.book_new();
+                                        var coordinador = response.d.results[0];
+                                        
+                                        let headersItems = [["COD_PAYROLL","RUT","ITEM VARIABLE","CANT_$MONTO","NOMBRE","CONTRATO","CARGO","CCOSTO","OBSERVACIÓN/JUSTIFICACIÓN"]]
+                
+                                        // Se extrae la informacion
+                                        let haberes = JSON.parse(informe.Haberes);
+                                        let periodoName = "Coordinador_"+informe.Coordinador.Title+"_"
+                                        periodoName+="Periodo_"+informe.Periodo.MesCalculado+"_"+informe.Periodo.AnioCalculado;
+                                        let arrayHaberes = haberes.d.results.map(function(haber){
+                                            return [
+                                                haber.Haber.Title,
+                                                haber.Rut,
+                                                haber.Haber.NombreItem,
+                                                haber.CantidadMonto,
+                                                haber.Nombre.NombreCompleto,
+                                                haber.TipoContrato,
+                                                haber.Nombre.cargo,
+                                                haber.CentroCosto.CodigoCC,
+                                                haber.Justificacion
+                                            ];
+                                        });
+
+                                        // Se crea la hoja
+                                        let ws = XLSX.utils.aoa_to_sheet(headersItems.concat(arrayHaberes));
+                                        
+                                       // Se asigna tamaño a las columnas
+                                        let colSize = [{"width":13},{"width":10},{"width":35},{"width":14},{"width":35},{"width":15},{"width":20},{"width":8},{"width":100}];
+                                        ws["!cols"] = colSize;
+                
+                                        // Se crea la primera hoja
+                                        XLSX.utils.book_append_sheet(wb, ws, "Items Variables");
+                                        let coorData = [
+                                            ["Información del Coordinador"],
+                                            ["Nombre del coordinador", coordinador.Title],
+                                            ["Codigo payroll", coordinador.Planta.Title],
+                                            ["Centro costo", coordinador.CentroCosto.CodigoCC],
+                                            ["Jefe Aprobador", coordinador.Aprobador.Nombre],
+                                            ["Correo Jefe Aprobador", coordinador.Aprobador.Title],
+                                            ["Fecha de envío de informe",moment(informe.Created).format("DD/MM/YYYY hh:mm")],
+                                            ["Fecha de aprobación",moment(informe.FechaAprobacion).format("DD/MM/YYYY hh:mm")],
+                                            ["Número de items", informe.Cantidad.toString()],
+                                        ]
+
+                                        ws = XLSX.utils.aoa_to_sheet(coorData);
+                                        colSize = [{"width":25},{"width":30}];
+                                        ws["!cols"] = colSize;
+                                        XLSX.utils.book_append_sheet(wb, ws, "Información Coordinador");
+
+                                        XLSX.writeFile(wb, periodoName +'.xlsx');
+                                        
+                                        dialog.close()
+                                        dialogs.infoDialog(
+                                            dialogTitle,
+                                            'Su informe se ha descargado exitosamente',
+                                        );
+                
+                                    },
+                                    function (response) {
+                                        var responseText = JSON.parse(response.responseText);
+                                        console.log(responseText.error.message.value);
+                                    }
+                                );
+                            },
+                            function(response){
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se descargará un documento Excel con la información del informe seleccionado',
+                save
+            )
+        }
+    }
+    return button
+}
+
+localButtons.downloadInformeComplete = function(context){
+    button = {
+        text: 'Descargar Informe Completo',
+        class: 'informeDownload',
+        icon: 'ExcelLogo',
+        onClick: function(component, item){
+            var dialogTitle = 'Descargando informe';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var query = spo.encodeUrlListQuery(context.list, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(Estado eq \'Aprobado por administración\')'
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
+                    function (response) {
+                        var informes = response.d.results;
+                       
+                        // Crear Book y sheets
+                        var wb = XLSX.utils.book_new();
+                        // var coordinador = response.d.results[0];
+                        
+                        let items = [["COD_PAYROLL","ITEM VARIABLE","CANT_$MONTO","NOMBRE","RUT","CONTRATO","CARGO","CCOSTO","OBSERVACIÓN/JUSTIFICACIÓN","AÑO PERIODO","MES PERIODO","COORDINADOR","FECHA ENVÍO","FECHA APROBACIÓN","JEFE APROBADOR","CORREO JEFE APROBADOR"]]
+
+                        // Se extrae la informacion
+                        informes.forEach(informe => {
+                            console.log("El informe", informe)
+                            let haberes = JSON.parse(informe.Haberes);
+                            let arrayHaberes = haberes.d.results.map(function(haber){
+                                return [
+                                    haber.Haber.Title,
+                                    haber.Haber.NombreItem,
+                                    haber.CantidadMonto,
+                                    haber.Nombre.NombreCompleto,
+                                    haber.Rut,
+                                    haber.TipoContrato,
+                                    haber.Nombre.cargo,
+                                    haber.CentroCosto.CodigoCC,
+                                    haber.Justificacion,
+                                    informe.Periodo.AnioCalculado,
+                                    informe.Periodo.MesCalculado,
+                                    informe.Coordinador.Title,
+                                    moment(informe.Created).format("DD/MM/YYYY hh:mm"),
+                                    moment(informe.FechaAprobacion).format("DD/MM/YYYY hh:mm"),
+                                    informe.Aprobador.Nombre,
+                                    informe.Aprobador.Title,
+                                ];
+                            });
+                            items = items.concat(arrayHaberes)
+                        })
+
+                        // Se crea la hoja
+                        let ws = XLSX.utils.aoa_to_sheet(items);
+                        
+                        // Se asigna tamaño a las columnas
+                        let colSize = [{"width":13},{"width":35},{"width":14},{"width":35},{"width":10},{"width":15},{"width":20},{"width":8},{"width":100},{"width":13},{"width":13},{"width":25},{"width":16},{"width":18},{"width":25},{"width":30}];
+                        ws["!cols"] = colSize;
+
+                        // Se crea la primera hoja
+                        XLSX.utils.book_append_sheet(wb, ws, "Items Variables");
+                        XLSX.writeFile(wb, 'Items Variables Completo.xlsx');
+                        
+                        dialog.close()
+                        dialogs.infoDialog(
+                            dialogTitle,
+                            'Su informe se ha descargado exitosamente',
+                        );
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se descargará un documento Excel con la información de todos los informes',
                 save
             )
         }

@@ -385,8 +385,6 @@ var uploadPlantaPage = {
                                                 SinCambios.push(existe[0]);
                                                 return;
                                             }
-
-                                            console.log(`Se Actualiza? , existe[0] ${existe[0].TipoContrato.charAt(0).toLowerCase()} fila tipCon ${fila.tipcon.trim().charAt(0).toLowerCase()}`)
                                             fila.ID = existe[0].ID;
 
                                             //Si no existe se procede a crear el nuevo trabajador
