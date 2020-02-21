@@ -189,28 +189,32 @@ var informePage = {
                     $navbar = $(page.navbarEl),
                     $dowloadButton = $navbar.find('.link.download-excel');
 
-                if (admin == "Coordinador") {
-                    viewName = "Coordinador"
-                } else if (admin == "Administrador"){
-                    viewName = "Todos los elementos"
-                }
-
                 // formulario de registro
-                context.forms.item = new EFWForm({
+                let form = {
                     container: $container.find('.form-container'),
                     title: mths.getListTitle(),
                     editable: false,
-                    fields: spo.getViewFields(context.lists.Informe, "Todos los elementos")
-                });
+                }
+                if (admin == "Coordinador"){
+                    form.fields = spo.getViewFields(context.lists.Informe, "Informe Coord Page");
+                } else if (admin == "Administrador"){
+                    form.fields = spo.getViewFields(context.lists.Informe, "Informe Admin Page");
+                }
+                context.forms.item = new EFWForm(form);
 
-                context.forms.haberes = new EFWListTable({
+                let tableForm = {
                     container: $container.find('.sent-haberes-container'),
                     title: 'Haberes',
                     editable: false,
-                    listFields: spo.getViewFields(context.lists.Item, viewName),
                     items: JSON.parse(context.items.Informe.Haberes).d.results,
                     disabled: true
-                });
+                }
+                if (admin == "Coordinador"){
+                    tableForm.listFields = spo.getViewFields(context.lists.Item, "Coordinador");
+                } else if (admin == "Administrador"){
+                    tableForm.listFields = spo.getViewFields(context.lists.Item, "Administrador");
+                }
+                context.forms.haberes = new EFWListTable(tableForm);
 
                 if (listItemId) {
                     context.forms.item.setValues(context.items.Informe);
@@ -219,7 +223,7 @@ var informePage = {
 
                 $dowloadButton.on('click', function (e) {
                     var dialogTitle = 'Descargando informe';
-                    function save() {
+                    function coorSave() {
                         var dialog = app.dialog;
                             
                         let haberes = JSON.parse(context.items.Informe.Haberes);
@@ -257,11 +261,81 @@ var informePage = {
                                 );
                             });
                     }
-                    dialogs.confirmDialog(
-                        dialogTitle,
-                        'Se descargará un documento Excel con la información en pantalla',
-                        save
-                    )
+                    function adminSave(){
+                        var dialogTitle = 'Descargando informe';
+                        var dialog = app.dialog;
+
+                        // Crear Book y sheets
+                        var wb = XLSX.utils.book_new();
+                        
+                        let headersItems = [["COD_PAYROLL","RUT","ITEM VARIABLE","CANT_$MONTO","NOMBRE","CONTRATO","CARGO","CCOSTO","OBSERVACIÓN/JUSTIFICACIÓN"]]
+
+                        // Se extrae la informacion
+                        let haberes = JSON.parse(context.items.Informe.Haberes);
+                        let periodoName = "Coordinador_"+context.items.Informe.Coordinador.Title+"_"
+                        periodoName+="Periodo_"+context.items.Informe.Periodo.MesCalculado+"_"+context.items.Informe.Periodo.AnioCalculado;
+                        let arrayHaberes = haberes.d.results.map(function(haber){
+                            return [
+                                haber.Haber.Title,
+                                haber.Rut,
+                                haber.Haber.NombreItem,
+                                haber.CantidadMonto,
+                                haber.Nombre.NombreCompleto,
+                                haber.TipoContrato,
+                                haber.Nombre.cargo,
+                                haber.CentroCosto.CodigoCC,
+                                haber.Justificacion
+                            ];
+                        });
+
+                        // Se crea la hoja
+                        let ws = XLSX.utils.aoa_to_sheet(headersItems.concat(arrayHaberes));
+                        
+                        // Se asigna tamaño a las columnas
+                        let colSize = [{"width":13},{"width":10},{"width":35},{"width":14},{"width":35},{"width":15},{"width":20},{"width":8},{"width":100}];
+                        ws["!cols"] = colSize;
+
+                        // Se crea la primera hoja
+                        XLSX.utils.book_append_sheet(wb, ws, "Items Variables");
+                        let coorData = [
+                            ["Información del Coordinador"],
+                            ["Nombre del coordinador", context.items.Coord.Title],
+                            ["Codigo payroll", context.items.Coord.Planta.Title],
+                            ["Centro costo", context.items.Coord.CentroCosto.CodigoCC],
+                            ["Jefe Aprobador", context.items.Coord.Aprobador.Nombre],
+                            ["Correo Jefe Aprobador", context.items.Coord.Aprobador.Title],
+                            ["Fecha de envío de informe",moment(context.items.Informe.Created).format("DD/MM/YYYY hh:mm")],
+                            ["Fecha de aprobación",moment(context.items.Informe.FechaAprobacion).format("DD/MM/YYYY hh:mm")],
+                            ["Número de items", context.items.Informe.Cantidad.toString()],
+                        ]
+
+                        ws = XLSX.utils.aoa_to_sheet(coorData);
+                        colSize = [{"width":25},{"width":30}];
+                        ws["!cols"] = colSize;
+                        XLSX.utils.book_append_sheet(wb, ws, "Información Coordinador");
+
+                        XLSX.writeFile(wb, periodoName +'.xlsx');
+                        
+                        dialog.close()
+                        dialogs.infoDialog(
+                            dialogTitle,
+                            'Su informe se ha descargado exitosamente',
+                        );
+                        
+                    }
+                    if (admin=="Coordinador"){
+                        dialogs.confirmDialog(
+                            dialogTitle,
+                            'Se descargará un documento Excel con la información en pantalla',
+                            coorSave
+                        )
+                    } else if (admin=="Administrador"){
+                        dialogs.confirmDialog(
+                            dialogTitle,
+                            'Se descargará un documento Excel con la información en pantalla',
+                            adminSave
+                        )
+                    }
                 });
 
                 // remover loader
@@ -275,7 +349,7 @@ var informePage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.listaInforme && loaded.Informe && loaded.listaItem) {
+                    if (loaded.listaItem && loaded.listaCoord && loaded.Coord) {
                         initForm();
                     }
                 };
@@ -285,7 +359,6 @@ var informePage = {
                     function (response) {
                         context.items.Informe = [];
                         context.lists.Informe = response;
-                        loaded.listaInforme = true;
                         
                         // Si existe el id de algún item a obtener
                         if (listItemId) {
@@ -300,10 +373,36 @@ var informePage = {
                             spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
                                 function (response) {
                                     context.items.Informe = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.Informe = true;
-                                    shouldInitForms();
+                                    spo.getListInfo("Coordinador",
+                                        function (response) {
+                                            context.items.Coord = [];
+                                            context.lists.Coord = response;
+                                            loaded.listaCoord = true;
 
+                                            var query = spo.encodeUrlListQuery(context.lists.Coord, {
+                                                view: 'Todos los elementos',
+                                                odata: {
+                                                    'filter': '(Id eq ' + context.items.Informe.CoordinadorId + ')'
+                                                }
+                                            });
 
+                                            spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                                                function (response) {
+                                                    context.items.Coord = response.d.results.length > 0 ? response.d.results[0] : null;
+                                                    loaded.Coord = true;
+                                                    shouldInitForms();
+                                                },
+                                                function (response) {
+                                                    var responseText = JSON.parse(response.responseText);
+                                                    console.log(responseText.error.message.value);
+                                                }
+                                            );
+                                        },
+                                        function (response) {
+                                            var responseText = JSON.parse(response.responseText);
+                                            console.log(responseText.error.message.value);
+                                        }
+                                    );
                                 },
                                 function (response) {
                                     var responseText = JSON.parse(response.responseText);
