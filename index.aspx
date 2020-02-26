@@ -110,8 +110,10 @@
 		<!-- Moment library -->
 		<script src="https://publiccdn.sharepointonline.com/grupoenvision.sharepoint.com/CDN/EFW/libs/moment.min.js"></script>
         <script src="https://publiccdn.sharepointonline.com/grupoenvision.sharepoint.com/CDN/EFW/libs/es.js"></script>
-        <!-- XLSX Js library -->
-        <script src="https://publiccdn.sharepointonline.com/grupoenvision.sharepoint.com/CDN/EFW/libs/xlsx.full.min.js"></script>
+		<!-- XLSX Js library -->
+		<script src="js/xlsx-style.js"></script>
+		
+		<!--<script src="https://publiccdn.sharepointonline.com/grupoenvision.sharepoint.com/CDN/EFW/libs/xlsx.full.min.js"></script>-->
 		<!-- FileSaver library -->
         <script src="https://publiccdn.sharepointonline.com/grupoenvision.sharepoint.com/CDN/EFW/libs/FileSaver.min.js"></script>
         <!-- jsPDFs library -->
@@ -163,7 +165,7 @@
 						s.src = urlAux;
 						s.onload = function () {
 							loaded[script] = true;
-							//console.log("Loaded: " + this.src);
+							// console.log("Loaded: " + this.src);
 							if (isLastScript) {
 								if (scriptsArray == EFWScriptsArray)
 									loadScripts(AppScriptsArray);
@@ -202,7 +204,7 @@
 				efwLoad();
 			};
 			document.getElementsByTagName('body')[0].appendChild(s);
-        </script>
-    
+		</script>
+   
 	</body>
 </html>

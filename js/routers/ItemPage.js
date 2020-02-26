@@ -59,7 +59,7 @@ var itemPage = {
                           '<div class="item-title">Datos del Trabajador</div>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
-                        '<div class="container form-persona"></div>' +
+                        '<div class="form-container form-persona"></div>' +
                       '</div>' +
                     '</li>' +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
@@ -67,7 +67,7 @@ var itemPage = {
                           '<div class="item-title">Datos Item Variable</div>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
-                        '<div class="container form-item"></div>' +
+                        '<div class="form-container form-item"></div>' +
                       '</div>' +
                     '</li>' +
                 '</ul>' +
@@ -291,8 +291,6 @@ var itemPage = {
                     })[0];
 
                     context.forms.person.inputs['CentroCosto'].setValue([{key: values[0].item.CentroCostoId, text: CCActual ? CCActual.CodigoCC : 'El trabajador no posee centro de costo asignado'}]);
-                    context.forms.person.inputs['Categoria'].setValue([{key: values[0].item.CategoriaId, text: categoriaActual ? categoriaActual.Categoria : 'No se cargo el String'}]);
-
                     context.forms.item.inputs['Haber'].setEditable(true);
                     context.forms.item.inputs['Haber_x003a_Codigo'].setEditable(true);
                     context.forms.item.inputs['CantidadMonto'].hide();
@@ -306,8 +304,6 @@ var itemPage = {
                         return;
                     }
                     current = context.forms.item.inputs['Haber'];
-
-                    //console.log(context.forms.item.inputs['Haber']);
 
                     if (values.length == 0){
                         context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
@@ -330,7 +326,6 @@ var itemPage = {
                     context.forms.item.inputs['CantidadMonto'].show();
                     context.forms.item.inputs['Justificacion'].show();
                     current = null;
-
                 }
 
                 context.forms.item.inputs['Haber'].params.beforeRenderSuggestions = function (items) {
@@ -339,8 +334,6 @@ var itemPage = {
                     var dato = items.filter(function(item){
                         return arregloDatos.includes(item.ID);
                     });
-
-                    //console.log('Periodo Actual', context.items.Periodo);
 
                     console.log('Periodo Actual', context.items.Periodo);
 
@@ -403,12 +396,14 @@ var itemPage = {
 
                         //Validamos la GP y subGP correspondiente
                         if(haber['GP']){
+
+                            console.log('Datos de Haber', haber);
                             //Valida si el campo no esta vacio.
-                            if(haber['CampoGPId'] != null){
+                            if(haber['CategoriaId'] != null){
 
                                 //Obtengo todos los valores de las categorias y las guardo en GPS
                                 var gps = [];
-                                haber['CampoGPId'].map(function(y){
+                                haber['CategoriaId'].map(function(y){
                                     gps.push(context.items.Categorias.filter(function(x){
                                         return x.ID == y
                                     })[0]);
@@ -426,12 +421,12 @@ var itemPage = {
                                     if(context.aprobado){
                                         return;
                                     }
-                                    if(x.Title.length > 1){
-                                        if(x.Title === categoriaActual.Title){
+                                    if(x.Categoria.trim().length > 1){
+                                        if(x.Categoria.trim() === categoriaActual.Categoria.trim()){
                                             context.aprobado = true;
                                         }
-                                    }else if(x.Title.length == 1){
-                                        if(categoriaActual.Title.includes(x.Title)){
+                                    }else if(x.Categoria.trim().length == 1){
+                                        if(categoriaActual.Categoria.trim() == x.Categoria.trim()){
                                             context.aprobado = true;
                                         }
                                     }
@@ -872,7 +867,6 @@ var itemPage = {
                                             function (response) {
                                                 context.items.Planta = response.d.results.length > 0 ? response.d.results : null;
                                                 loaded.Coordinador = true;
-                                                console.log('Planta', context.items.Planta);
                                                 shouldInitForms();
                                             },
                                             function (response) {
