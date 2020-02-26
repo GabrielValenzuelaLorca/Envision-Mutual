@@ -237,8 +237,8 @@ var itemVariablePage = {
                 });
 
                 context.forms.item.inputs['GP'].params.onChange = function(comp, input, state, values){
-                    values ? '' : context.forms.item.inputs['CampoGP'].setValue([]);
-                    values ? context.forms.item.inputs['CampoGP'].show() : context.forms.item.inputs['CampoGP'].hide()
+                    values ? '' : context.forms.item.inputs['Categoria'].setValue([]);
+                    values ? context.forms.item.inputs['Categoria'].show() : context.forms.item.inputs['Categoria'].hide()
                 }
 
 
