@@ -9,7 +9,73 @@ l = function() {
 
 listStreamPage.methods.beforeStartComponent = function(success,failure){
     var context = this._getPageContext();
+
     switch (context.title){
+        case 'Planta':
+            loaded = {};
+            function startItemComponent2(){
+                if (loaded.globalState){
+                    spo.getListInfo('EstadosGlobales',
+                        function (response) {
+                            var query = spo.encodeUrlListQuery(response, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'select' : '*',
+                                    'top': 5000
+                                }
+                            });
+                            spo.getListItems(spo.getSiteUrl(), "EstadosGlobales", query,
+                                function (response) {
+                                    context.estadosGlobales = response.d.results;
+                                    if (success) success();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                    if (failure) failure();
+                                }
+                            );
+                        },
+                        function(response){
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                            resolve(failCond);
+                            if (failure) failure();
+                        }
+                    );
+                }
+            }
+            spo.getListInfo('EstadosGlobales',
+                function (response) {
+                    var query = spo.encodeUrlListQuery(response, {
+                        view: 'Todos los elementos',
+                        odata: {
+                            'select' : '*',
+                            'top': 5000
+                        }
+                    });
+
+                    spo.getListItems(spo.getSiteUrl(), "EstadosGlobales", query,
+                        function (response) {
+                            context.globalState = response.d.results.length>0 ? response.d.results : null;
+                            loaded.globalState = true;
+                            startItemComponent2();
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                            if (failure) failure();
+                        }
+                    );
+                },
+                function(response){
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                    resolve(failCond);
+                    if (failure) failure();
+                }
+            );
+            break;
         case 'Items variables':
             loaded = {}
             function startItemComponent(){
@@ -266,6 +332,66 @@ listStreamPage.methods.beforeStartComponent = function(success,failure){
                 }
             );
             break;
+        case "Informes Históricos":
+            if (admin=="Coordinador"){
+                spo.getListInfo('Coordinador',
+                    function (response) {
+                        var query = spo.encodeUrlListQuery(response, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')'
+                            }
+                        });
+                        spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                            function (response) {
+                                context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
+                                if (success) success();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                                if (failure) failure();
+                            }
+                        );
+                    },
+                    function(response){
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        resolve(failCond);
+                        if (failure) failure();
+                    }
+                );
+            } else if (admin == "Administrador"){
+                spo.getListInfo('Informe Haberes',
+                    function (response) {
+                        var query = spo.encodeUrlListQuery(response, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'filter': '(Estado eq \'Aprobado por administración\')',
+                                'top': 1
+                            }
+                        });
+                        spo.getListItems(spo.getSiteUrl(), "Informe Haberes", query,
+                            function (response) {
+                                context.lastInforme = response.d.results.length>0 ? response.d.results[0] : null;
+                                if (success) success();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                                if (failure) failure();
+                            }
+                        );
+                    },
+                    function(response){
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        resolve(failCond);
+                        if (failure) failure();
+                    }
+                );
+            }
+            break;
         default:
             if (success) success();
             break;
@@ -284,13 +410,18 @@ listStreamPage.methods.onItemDblClick = function(item){
         case 'ItemsVariables':
             mainView.router.navigate('/itemVariable?listItemId='+item.ID);
             break;
+        case 'Informes Desaprobados':
+        case 'Informes':
+        case 'Informes Históricos':
+            mainView.router.navigate('/informe?listItemId='+item.ID);
+            break;
     }
 }
 
 listStreamPage.methods.getOneItemSelectedButtons = function(item){
     var page = this._getPage();
     var self = this, buttons = [],
-        context = self._getPageContext();
+    context = self._getPageContext();
 
     switch (page.route.query.title){
         case 'Periodos':
@@ -316,6 +447,12 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
             if (item.Estado == "En espera de justificación") {
                 buttons.push(localButtons.sendJustification(context));
             }
+        case 'Informes Históricos':
+            if (admin=="Coordinador") {
+                buttons.push(localButtons.downloadInformeCoord(context));    
+            } else if(admin=="Administrador"){
+                buttons.push(localButtons.downloadInformeAdmin(context));    
+            }
         default:
             break;
     }
@@ -339,7 +476,22 @@ listStreamPage.methods.getNoItemsSelectedButtons = function(){
     
     switch (page.route.query.title){
         case 'Planta':
-            buttons.push(localButtons.fileButton());    
+            let cargandoPlanta = context.globalState.filter(function(x){
+                return x.Title == 'ActualizandoPlanta'
+            });
+            if(cargandoPlanta[0].Value == 'NO'){
+                buttons.push(localButtons.fileButton());
+                
+            }else{
+                app.dialog.create({
+                    title: 'Atención',
+                    text: 'En estos momentos se está realizando una carga masiva de planta. Usted sera notificado via email cuando el proceso termine.',
+                    buttons: [{
+                        text: 'Aceptar'
+                    }],
+                    verticalButtons: false
+                }).open();
+            } 
             break;
         case 'Periodos':
             buttons.push(localButtons.addPeriodButton(context));
@@ -354,8 +506,34 @@ listStreamPage.methods.getNoItemsSelectedButtons = function(){
             }
             
             break;
+        case 'Informes Históricos':
+            if (admin=="Administrador"){
+                buttons.push(localButtons.downloadInformeComplete(context));
+            }
     }
     return buttons;
+}
+
+//quita de listStreamPage las miniaturas
+listStreamPage.methods.allowChangeTemplate = function(){
+    return false;
+}
+
+listStreamPage.methods.afterFilterComponentInitializated = function () {
+    var self = this;
+    var context = self._getPageContext();
+    var page = self._getPage();
+    switch (page.route.query.title){
+        case "Informes Históricos":
+            if (context.lastInforme){
+                let anio = context.lastInforme.Periodo.AnioCalculado
+                let mes = context.lastInforme.Periodo.MesCalculado
+                context.components.itemsFilter.inputs.Periodo_x003a_AnioCalculado.setValue([{text: anio}]);
+                context.components.itemsFilter.inputs.Periodo_x003a_MesCalculado.setValue([{text: mes}]);
+            }
+            $(page.navbarEl).find('a.filter').click();
+            break;
+    }
 }
 
 listStreamPage.methods.getCamlQueryConditions = function(){
@@ -400,23 +578,56 @@ listStreamPage.methods.getCamlQueryConditions = function(){
                     '</Eq></And>'  
                 } else {
                     return ''+
-                    '<Eq>'+
-                        '<FieldRef Name="Estado" />'+
-                            '<Value Type="Choice">Nono</Value>'+
-                    '</Eq>'  
+                        '<Eq>'+
+                            '<FieldRef Name="Estado" />'+
+                                '<Value Type="Choice">Nono</Value>'+
+                        '</Eq>'  
                 }
             } else if (admin == "Administrador"){
                 return '<And><Eq><FieldRef Name="Estado" LookupId="TRUE"/><Value Type="Lookup">Aprobado y enviado a administración</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
             }
         case 'Informes Desaprobados':
             return ''+
+                '<And><Eq>'+
+                    '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
+                        '<Value Type="Lookup">'+context.coorId+'</Value>'+
+                '</Eq><Eq>'+
+                    '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
+                        '<Value Type="Lookup">'+context.periodId+'</Value>'+
+                '</Eq></And>'  
+        case 'Informes Históricos':
+            if (admin == "Administrador") {
+                return ''+ 
+                    '<Eq>'+
+                        '<FieldRef Name="Estado" />'+
+                            '<Value Type="Choice">Aprobado por administración</Value>'+
+                    '</Eq>'    
+            } else if (admin == "Coordinador") {
+                return ''+
                     '<And><Eq>'+
+                        '<FieldRef Name="Estado" />'+
+                            '<Value Type="Choice">Aprobado por administración</Value>'+
+                    '</Eq><Eq>'+
                         '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
                             '<Value Type="Lookup">'+context.coorId+'</Value>'+
-                    '</Eq><Eq>'+
-                        '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
-                            '<Value Type="Lookup">'+context.periodId+'</Value>'+
-                    '</Eq></And>'  
+                    '</Eq></And>'
+            }
+        case 'Planta':
+            return `
+                <And><Or><Eq>
+                    <FieldRef Name="EstadoContrato" />
+                        <Value Type="Choice">Activo</Value>
+                </Eq><Eq>
+                    <FieldRef Name="EstadoContrato" />
+                        <Value Type="Choice">Pendiente</Value>
+                </Eq></Or><Or><Eq>
+                    <FieldRef Name="EstadoContrato" />
+                        <Value Type="Choice">Activo</Value>
+                </Eq><Eq>
+                    <FieldRef Name="EstadoContrato" />
+                        <Value Type="Choice">Pendiente</Value>
+                </Eq></Or></And>
+            `
     }
 }
 
@@ -449,6 +660,10 @@ function getRoutes(){
         {
             path: '/uploadPlanta',
             component: uploadPlantaPage
+        },
+        {
+            path: '/informe',
+            component: informePage
         },
         // Default route (404 page). MUST BE THE LAST
         {

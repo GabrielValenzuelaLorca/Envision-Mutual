@@ -175,3 +175,15 @@
     width: 50px;
 }
 
+.page[data-page="indexPage"] .promo-image {
+    width: 200px !important;
+    height: 150px !important;
+}
+
+.ios .list .item-media {
+    color:#8EBD00 !important;
+}
+
+.dialog-button{
+    background-color: #8EBD00 !important;
+}

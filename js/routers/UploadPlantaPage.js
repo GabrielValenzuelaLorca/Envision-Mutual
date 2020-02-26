@@ -52,6 +52,7 @@ var uploadPlantaPage = {
             '</div>' +
             '<div class="page-content">' +
                 '<div class="form-container"></div>' +
+                '<div class="container" />' +
             '<div class="content-loader">' +
                 '<div class="content-loader-inner">' +
                     '<div class="image-logo lazy lazy-fadein" data-background="{{loader.image}}"></div>' +
@@ -69,7 +70,7 @@ var uploadPlantaPage = {
             tables: {},
             loader: {
                 text: 'Espere un momento por favor',
-                // image: './assets/img/logo_envision_min1.png'
+                image: './assets/img/mutual.png'
             }
         };
     },
@@ -195,28 +196,425 @@ var uploadPlantaPage = {
                     var dialogTitle = 'Nueva carga de planta';
                     file = $container.find('.attachmentInput')[0]
 
+                    //Convierte la fecha excel a fecha
+                    function numeroAFecha(numeroDeDias, esExcel = true) {
+                        var diasDesde1900 = esExcel ? 25567 + 1 : 25567;
+                      
+                        // 86400 es el número de segundos en un día, luego multiplicamos por 1000 para obtener milisegundos.
+                        return new Date((numeroDeDias - diasDesde1900) * 86400 * 1000);
+                    }
+                    //Limpia un String permitiendo solo los char seleccionados
+                    function limpiarString(string){
+                        let allow = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ1234567890"
+                        let salida = "";
+
+                        for(var i = 0; i < string.length; i++){
+                            if(allow.includes(string.charAt(i))){
+                                salida += string.charAt(i);
+                            }
+                        }
+
+                        return salida;
+                    }
+
+                    function activarCargaPendiente(){
+
+                        let metadata = context.items.globalState.filter(function(x){
+                            return x.Title == 'ActualizandoPlanta'
+                        });
+                        var formTemp = new EFWForm({
+                            container: $container.find('.container'),
+                            title: '',
+                            editable: false,
+                            // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                            fields: spo.getViewFields(context.lists.globalState, 'Todos los elementos')
+                        });
+                        formTemp.hide();
+                        
+                        formTemp.inputs['LinkTitle'].setValue(metadata[0]['Title']);
+                        formTemp.inputs['Value'].setValue([{key: 'SI', text: 'SI'}]);
+    
+                        spo.updateListItem(spo.getSiteUrl(), 'EstadosGlobales', 1, formTemp.getMetadata(), function (response) {    
+                        }, function (response) {
+                                var responseText = JSON.parse(response.responseText);
+    
+                                dialog.close();
+                                app.dialog.create({
+                                    title: 'Error al guardar en lista EstadoGlobal',
+                                    text: responseText.error.message.value,
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                        });
+                    }
+
+                    function PrepareToSend(item){
+                        return {
+                            "ID": item.ID ? item.ID : '0',
+                            "Title": item.codigo.trim(),
+                            "Rut": item.rut1.trim(),
+                            "Nombre": item.nombre.trim(),
+                            "ApellidoPaterno": item.paterno.trim(),
+                            "ApellidoMaterno": item.materno.trim(),
+                            "Email": item['Correo Mutual'],
+                            "FechaNacimiento": numeroAFecha(item.fecha_nac),
+                            "Sexo": item.sexo.trim().toUpperCase(),
+                            "Direccion": item.direccion,
+                            "Telefono": item.celular,
+                            "EstadoContrato": "Activo",
+                            "InicioContrato": numeroAFecha(item.fecha_ing),
+                            "FinContrato": numeroAFecha(item.fecha_ret),
+                            "MotivoRetiro": item.d_moti_ret.trim(),
+                            "HorasContrato": item.horas,
+                            "EstadoCivil": item.est_civil,
+                            "AFPId": item.cod_afp,
+                            "IsapreId": item.cod_isa,
+                            "TipoContrato": item.tipcon.toUpperCase() == 'I' ? 'Indefinido' : 'Reemplazo',
+                            "Nacionalidad": item.sa,
+                            "CategoriaId": item.catego,
+                            "Jornada": item.Jornada,
+                            "Sindicato": item.d_cod_sin,
+                            "ClaseRol": item.d_rol,
+                            "Nivel_Org_1": item.Nivel_Org_1,
+                            "Nivel_Org_2": item.Nivel_Org_2,
+                            "Nivel_Org_3": item.Nivel_Org_3,
+                            "AreaUnidad": item.area_unida,
+                            "LPago": item.lpago,
+                            "d_subdivis": item.d_subdivis,
+                            "unidad": item.unidad,
+                            "d_unidad": item.d_unidad,
+                            "cencos": item.cencos,
+                            "cencos1": item.cencos1,
+                            "d_centro_d": item.d_centro_d,
+                            "posicion": item.posicion,
+                            "cargo": item.cargo,
+                            "d_cargo": item.d_cargo,
+                            "seccion": item.seccion,
+                            "d_seccion": item.d_seccion,
+                            "grado": item.grado,
+                            "d_bienesta": item.d_bienesta,
+                            "gradoc": item.gradoc,
+                            "d_serv_med": item.d_serv_med,
+                            "codocupa": item.codocupa,
+                            "d_btc": item.d_btc,
+                            "d_seg_cesa": item.d_seg_cesa,
+                            "ames": item.ames,
+                            "peri": item.peri,
+                            "rentao_i": item.rentao_i,
+                            "subase_i": item.subase_i,
+                            "Aprobador1": item.Aprobador1,
+                            "Aprobador2": item.Aprobador2,
+                            "Aprobador3": item.Aprobador3,
+                            "Aprobador4": item.Aprobador4,
+                            "Aprobador5": item.Aprobador5,
+                            "Aprobador6": item.Aprobador6,
+                            "Aprobador7": item.Aprobador7,
+                            "Aprobador8": item.Aprobador8,
+                            "CentroCostoId": item.d_nro_cenc
+                        }
+                    }
+
+                    function callServiceCargaMasivaPlanta(body){
+
+                        fetch('https://prod-09.westus.logic.azure.com:443/workflows/ebee079485634fdeb4f5cd060b424663/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=2bv590n5l4kP0RSXvGeOtuqx3Gfvm5NnNk1Rmwt3g34', {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(body)
+                        })
+                        .then(function(response) {
+                            if (response.status >= 300) {
+                                    app.dialog.create({
+                                        title: 'Error al Iniciar Proceso',
+                                        text: 'Error al iniciar proceso de Carga Masiva (Flow)',
+                                        buttons: [{
+                                            text: 'Aceptar'
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
+                                
+                            }
+                        });
+                    }
+
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
 
                         files = file.files
                         handleExcelFromInput(files, 
                             function(response){
-                                // Do something with the json response
 
-                                console.log('Valores Obtenidos de excel', JSON.stringify(response));
-                                dialog.close();
+                                //Iniciamos el contador de tiempo de ejecucion
+                                var start = Date.now();
 
-                                app.dialog.create({
-                                    title: dialogTitle,
-                                    text: 'Cargado con éxito',
-                                    buttons: [{
-                                        text: 'Aceptar',
-                                        onClick: function () {
-                                            mainView.router.navigate('/liststream?title=Planta&listtitle=Planta&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                //Datos provenientes de excel
+                                console.log('Planta Cargada Excel',response[0]);
+
+                                //Definicion de contadores y arreglos para guardar datos
+
+                                //contadores y linea actual del prosesamiento
+                                var linea = 1;
+
+                                //Arreglos donde quedaran los datos
+                                var Agregar = [];
+                                var Actualizar = [];
+                                var Quitar = [];
+                                var SinCambios = [];
+
+                                //Variable donde se guardan los errores
+                                var errores = [];
+
+                                //     --------- Inicio de proceso de filtrado----------- // 
+
+                                //Filtramos los que no existen en sharepoint y si en Excel
+                                response[0].map(function(fila){
+                                    let existe = context.items.Planta.filter(planta => planta.Title.trim() == fila.codigo.trim());
+                                    
+                                    //Validamos si se encontro la fila en la planta segun el codigo ingresado
+                                    if(existe.length > 0){
+                                        //Valida si existen cambios en el contrato. Si hay cambios actualiza los datos de la fila.
+
+                                        
+                                        if(existe[0].TipoContrato.charAt(0).toLowerCase() != fila.tipcon.trim().charAt(0).toLowerCase()){
+                                            //Validacion del bug de Reemplazo que en excel se trata como F
+                                            if((existe[0].TipoContrato.charAt(0).toLowerCase() == 'r') && (fila.tipcon.trim().charAt(0).toLowerCase() == 'f') ){
+                                                SinCambios.push(existe[0]);
+                                                return;
+                                            }
+                                            fila.ID = existe[0].ID;
+
+                                            //Si no existe se procede a crear el nuevo trabajador
+
+                                            //Obtenemos el ID de la categoria con el nombre completo de esta.
+                                            var categoria = context.items.Categoria.filter(function(c){
+                                                return c.Categoria.replace(' ','').replace('-','') == limpiarString(fila.d_catego);                                            
+                                            });
+
+                                            //Obtenemos el ID interno de la afp.
+                                            var AFP = context.items.AFP.filter(function(c){
+                                                return c.Title == fila.cod_afp;                                            
+                                            });
+
+                                            //Obtenemos el ID interno de Isapre
+                                            var Isapre = context.items.Isapre.filter(function(c){
+                                                return c.Title == fila.cod_isa;                                            
+                                            });
+
+                                            //Obtenemos el ID interno de Centro Costo
+                                            var CC = context.items.CentroCosto.filter(function(c){
+                                                return c.CodigoCC == fila.d_nro_cenc;                                            
+                                            });
+
+                                            //Validamos si se encontro. Si no se encontro se almacena la linea del error y el detalle
+
+                                            //Validacion Para Categoria
+                                            if(categoria.length == 0){
+                                                errores.push([{
+                                                    "Linea" : linea++, 
+                                                    "error": "No se encontro la categoria en los registros de sharepoint. Categoria" + fila.d_catego
+                                                }]);
+                                                return;
+                                            }else{
+                                                fila.catego = categoria[0].ID;
+                                            }
+
+                                            //Validacion PAra AFP
+                                            if(AFP.length == 0){
+                                                errores.push([{
+                                                    "Linea" : linea++, 
+                                                    "error": "No se encontro la AFP en los registros de sharepoint"
+                                                }]);
+                                                return;
+                                            }else{
+                                                fila.cod_afp = AFP[0].ID;
+                                            }
+
+                                            //Validacion PAra Isapre
+                                            if(Isapre.length == 0){
+                                                errores.push([{
+                                                    "Linea" : linea,
+                                                    "error": "No se encontro la Isapre en los registros de sharepoint"
+                                                }]);
+                                                return;
+                                            }else{
+                                                fila.cod_isa = Isapre[0].ID;
+                                            }
+
+                                            if(CC.length == 0){
+                                                errores.push([{
+                                                    "Linea" : linea,
+                                                    "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_nro_cenc
+                                                }]);
+                                                return;
+                                            }else{
+                                                fila.d_nro_cenc = CC[0].ID;
+                                            }
+
+                                            Actualizar.push(PrepareToSend(fila));
+                                        }else{
+                                            SinCambios.push(existe[0]);
+                                            return;
                                         }
-                                    }],
-                                    verticalButtons: false
-                                }).open();
+                                    }else{
+                                        //Si no existe se procede a crear el nuevo trabajador
+
+                                        //Obtenemos el ID de la categoria con el nombre completo de esta.
+                                        var categoria = context.items.Categoria.filter(function(c){
+                                            return c.Categoria.replace(' ','').replace('-','') == limpiarString(fila.d_catego);                                            
+                                        });
+
+                                        //Obtenemos el ID interno de la afp.
+                                        var AFP = context.items.AFP.filter(function(c){
+                                            return c.Title == fila.cod_afp;                                            
+                                        });
+
+                                        //Obtenemos el ID interno de Isapre
+                                        var Isapre = context.items.Isapre.filter(function(c){
+                                            return c.Title == fila.cod_isa;                                            
+                                        });
+
+                                        //Obtenemos el ID interno de Centro Costo
+                                        var CC = context.items.CentroCosto.filter(function(c){
+                                            return c.CodigoCC == fila.d_nro_cenc;                                            
+                                        });
+
+                                        //Validamos si se encontro. Si no se encontro se almacena la linea del error y el detalle
+
+                                        //Validacion Para Categoria
+                                        if(categoria.length == 0){
+                                            errores.push([{
+                                                "Linea" : linea++, 
+                                                "error": "No se encontro la categoria en los registros de sharepoint. Categoria" + fila.d_catego
+                                            }]);
+                                            return;
+                                        }else{
+                                            fila.catego = categoria[0].ID;
+                                        }
+
+                                        //Validacion PAra AFP
+                                        if(AFP.length == 0){
+                                            errores.push([{
+                                                "Linea" : linea++, 
+                                                "error": "No se encontro la AFP en los registros de sharepoint"
+                                            }]);
+                                            return;
+                                        }else{
+                                            fila.cod_afp = AFP[0].ID;
+                                        }
+
+                                         //Validacion PAra Isapre
+                                        if(Isapre.length == 0){
+                                            errores.push([{
+                                                "Linea" : linea,
+                                                "error": "No se encontro la Isapre en los registros de sharepoint"
+                                            }]);
+                                            return;
+                                        }else{
+                                            fila.cod_isa = Isapre[0].ID;
+                                        }
+
+                                        if(CC.length == 0){
+                                            errores.push([{
+                                                "Linea" : linea,
+                                                "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_nro_cenc
+                                            }]);
+                                            return;
+                                        }else{
+                                            fila.d_nro_cenc = CC[0].ID;
+                                        }
+
+                                
+                                        //Agregamos la fila al arreglo de creacion
+                                        Agregar.push(PrepareToSend(fila));
+                                        linea++;
+                                    }
+                                });
+
+
+                                //Filtramos los que no estan en excel y si en sharepoint
+                                context.items.Planta.map(function(item){
+                                    let existe = response[0].filter(fila => item.Title == fila.codigo.trim());
+
+                                    console.log('Modificado fecha', item.EstadoContrato)
+
+                                    //Si no hay coincidencias se agrega el ID para actualizar el registro a suspendido.0
+                                    if(existe.length == 0 && item.EstadoContrato == 'Activo'){        
+                                        Quitar.push(item.ID);
+                                    }
+                                });
+
+                                console.log('Agregar', Agregar);
+                                console.log('Actualizar', Actualizar);
+                                console.log('Sin Cambios', SinCambios);
+                                console.log('Quitar', Quitar);
+
+                                console.log('Errores', errores);
+
+                                let resultado = [];
+
+                                resultado[0] = Agregar;
+                                resultado[1] = Quitar;
+                                resultado[2] = Actualizar;
+                                resultado[3] = {'Email': spo.getCurrentUser()['EMail']};
+
+                                if(resultado[0].length == 0 && resultado[1].length == 0 && resultado[2].length == 0){
+                                    dialog.close();
+                                    app.dialog.create({
+                                        title: 'Completado',
+                                        text: 'No se encontraron cambios entre la planta actual y la cargada via Excel.',
+                                        buttons: [{
+                                            text: 'Aceptar',
+                                            onClick: function () {
+                                                mainView.router.navigate('/liststream?title=Planta&listtitle=Planta&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                                return;
+                                            }
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
+                                }else{
+                                    //Si hay errores se muestra Alert
+                                    if( errores.length > 0){
+                                        dialog.close();
+                                        app.dialog.create({
+                                            title: 'Error',
+                                            text: 'Se Encontraron errores',
+                                            buttons: [{
+                                                text: 'Aceptar',
+                                                onClick: function () {
+                                                    console.log('Errores', JSON.stringify(errores))
+                                                    return;
+                                                }
+                                            }],
+                                            verticalButtons: false
+                                        }).open();
+                                    }else{
+                                        callServiceCargaMasivaPlanta(resultado);
+                                        //Activamos el estado global de carga de planta
+                                        activarCargaPendiente();
+                                        dialog.close();
+                                        app.dialog.create({
+                                            title: dialogTitle,
+                                            text: 'En estos momentos se esta procesando su planta. Cuando finalice el proceso sera notificado via email',
+                                            buttons: [{
+                                                text: 'Aceptar',
+                                                onClick: function () {
+                                                    mainView.router.navigate('/liststream?title=Planta&listtitle=Planta&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                                }
+                                            }],
+                                            verticalButtons: false
+                                        }).open();
+                                    }
+                                }
+
+                                //Fin calculo del tiempo de ejecucion
+                                var end = Date.now();
+ 
+                                console.log('Tiempo de Ejecucion ',end - start);
+    
                             }, 
                             function (response) {
                                 var responseText = JSON.parse(response.responseText);
@@ -232,24 +630,35 @@ var uploadPlantaPage = {
                                 }).open();
                             }
                         );
-
-                    }
+                    }//Fin save()
 
                     switch(file.files.length) {
                         case 1:
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: '¿Está seguro de cargar el archivo? '+ file.files[0].name,
-                                buttons: [{
-                                    text: 'No'
-                                }, {
-                                    text: 'Sí',
-                                    onClick: function onClick() {
-                                        save();
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
+                            let type = file.files[0].name.split('.').pop();
+                            if(type == 'xlsx'){
+                                app.dialog.create({
+                                    title: dialogTitle,
+                                    text: '¿Está seguro de cargar el archivo? '+ file.files[0].name,
+                                    buttons: [{
+                                        text: 'No'
+                                    }, {
+                                        text: 'Sí',
+                                        onClick: function onClick() {
+                                            save();
+                                        }
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            }else{
+                                app.dialog.create({
+                                    title: 'Atención',
+                                    text: `Formato invalido, asegure que su archivo sea de tipo excel(.xlsx)`,
+                                    buttons: [{
+                                        text: 'Ok'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            }
                             break;
                         case 0:
                             app.dialog.create({
@@ -286,7 +695,7 @@ var uploadPlantaPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.lista) {
+                    if (loaded.lista && loaded.globalState && loaded.Planta && loaded.Isapre && loaded.AFP && loaded.Categoria && loaded.CentroCosto) {
                         initForm();
                     }
                 };
@@ -303,6 +712,223 @@ var uploadPlantaPage = {
                         var responseText = JSON.parse(response.responseText);
                         console.log(responseText.error.message.value);
                     }
+                );
+
+                // Obtener información de lista
+                spo.getListInfo('EstadosGlobales',
+                function (response) {
+                    context.items.globalState = [];
+                    context.lists.globalState = response;
+                    //loaded.listaItemVariable = true;
+                    
+                    // Si existe el id de algún item a obtener
+
+                        var query = spo.encodeUrlListQuery(context.lists.globalState, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'select': '*',
+                                'top': 5000
+                            }
+                        });
+
+                        spo.getListItems(spo.getSiteUrl(), 'EstadosGlobales', query,
+                            function (response) {
+                                context.items.globalState = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.globalState = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+
+                },
+                function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                }
+                );
+
+                // Obtener información de lista
+                spo.getListInfo('Planta',
+                function (response) {
+                    context.items.Planta = [];
+                    context.lists.Planta = response;
+                    //loaded.listaItemVariable = true;
+                    
+                    // Si existe el id de algún item a obtener
+
+                        var query = spo.encodeUrlListQuery(context.lists.Planta, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'filter': '(EstadoContrato ne \'Suspendido\')',
+                                'select': '*',
+                                'top': 5000
+                            }
+                        });
+
+                        spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                            function (response) {
+                                context.items.Planta = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.Planta = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+
+                },
+                function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                }
+                );
+
+                // Obtener información de lista
+                spo.getListInfo('Categoria',
+                function (response) {
+                    context.items.Categoria = [];
+                    context.lists.Categoria = response;
+                    //loaded.listaItemVariable = true;
+                    
+                    // Si existe el id de algún item a obtener
+
+                        var query = spo.encodeUrlListQuery(context.lists.Categoria, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'select': '*',
+                                'top': 5000
+                            }
+                        });
+
+                        spo.getListItems(spo.getSiteUrl(), 'Categoria', query,
+                            function (response) {
+                                context.items.Categoria = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.Categoria = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+
+                },
+                function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                }
+                );
+
+                // Obtener información de lista
+                spo.getListInfo('CentroCosto',
+                function (response) {
+                    context.items.CentroCosto = [];
+                    context.lists.CentroCosto = response;
+                    //loaded.listaItemVariable = true;
+                    
+                    // Si existe el id de algún item a obtener
+
+                        var query = spo.encodeUrlListQuery(context.lists.CentroCosto, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'select': '*',
+                                'top': 5000
+                            }
+                        });
+
+                        spo.getListItems(spo.getSiteUrl(), 'CentroCosto', query,
+                            function (response) {
+                                context.items.CentroCosto = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.CentroCosto = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+
+                },
+                function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                }
+                );
+
+                // Obtener información de lista
+                spo.getListInfo('AFP',
+                function (response) {
+                    context.items.AFP = [];
+                    context.lists.AFP = response;
+                    //loaded.listaItemVariable = true;
+                    
+                    // Si existe el id de algún item a obtener
+
+                        var query = spo.encodeUrlListQuery(context.lists.AFP, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'select': '*',
+                                'top': 5000
+                            }
+                        });
+
+                        spo.getListItems(spo.getSiteUrl(), 'AFP', query,
+                            function (response) {
+                                context.items.AFP = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.AFP = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+
+                },
+                function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                }
+                );
+
+                // Obtener información de lista
+                spo.getListInfo('Isapre',
+                function (response) {
+                    context.items.Isapre = [];
+                    context.lists.Isapre = response;
+                    //loaded.listaItemVariable = true;
+                    
+                    // Si existe el id de algún item a obtener
+
+                        var query = spo.encodeUrlListQuery(context.lists.Isapre, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'select': '*',
+                                'top': 5000
+                            }
+                        });
+
+                        spo.getListItems(spo.getSiteUrl(), 'Isapre', query,
+                            function (response) {
+                                context.items.Isapre = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.Isapre = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+
+                },
+                function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                }
                 );
             }
 
