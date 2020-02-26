@@ -307,8 +307,6 @@ var itemPage = {
                     }
                     current = context.forms.item.inputs['Haber'];
 
-                    //console.log(context.forms.item.inputs['Haber']);
-
                     if (values.length == 0){
                         context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
                         context.forms.item.inputs['CantidadMonto'].hide();
@@ -330,7 +328,6 @@ var itemPage = {
                     context.forms.item.inputs['CantidadMonto'].show();
                     context.forms.item.inputs['Justificacion'].show();
                     current = null;
-
                 }
 
                 context.forms.item.inputs['Haber'].params.beforeRenderSuggestions = function (items) {
@@ -339,8 +336,6 @@ var itemPage = {
                     var dato = items.filter(function(item){
                         return arregloDatos.includes(item.ID);
                     });
-
-                    //console.log('Periodo Actual', context.items.Periodo);
 
                     console.log('Periodo Actual', context.items.Periodo);
 
