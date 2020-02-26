@@ -2,6 +2,14 @@ var menuPage = $.extend(true, {}, indexPage);
 
 menuPage.methods.beforeStartComponent = function(success, failure){
     var context = this._getPageContext();
+    loaded = {}
+
+    function shouldStart(){
+        if (loaded.Informe && loaded.Planta && loaded.Categoria && loaded.Item) {
+            if (success) success();   
+        }
+    }
+
     function informesCoordinador(){
         spo.getListInfo('Coordinador',
             function (response) {
@@ -27,7 +35,8 @@ menuPage.methods.beforeStartComponent = function(success, failure){
                                 spo.getListItems(spo.getSiteUrl(), "Informe Haberes", query,
                                     function (response) {
                                         context.informes = response.d.results;
-                                        if (success) success();                                   
+                                        loaded.Informe = true;
+                                        shouldStart();
                                     },
                                     function (response) {
                                         var responseText = JSON.parse(response.responseText);
@@ -58,7 +67,8 @@ menuPage.methods.beforeStartComponent = function(success, failure){
                                 spo.getListItems(spo.getSiteUrl(), "Planta", query,
                                     function (response) {
                                         context.planta = response.d.results;
-                                        if (success) success();                                   
+                                        loaded.Planta = true;
+                                        shouldStart();                                 
                                     },
                                     function (response) {
                                         var responseText = JSON.parse(response.responseText);
@@ -88,7 +98,8 @@ menuPage.methods.beforeStartComponent = function(success, failure){
                                 spo.getListItems(spo.getSiteUrl(), "Categoria", query,
                                     function (response) {
                                         context.Categoria = response.d.results;
-                                        if (success) success();                                   
+                                        loaded.Categoria = true;
+                                        shouldStart();                                  
                                     },
                                     function (response) {
                                         var responseText = JSON.parse(response.responseText);
@@ -118,7 +129,8 @@ menuPage.methods.beforeStartComponent = function(success, failure){
                                 spo.getListItems(spo.getSiteUrl(), "ListadoItemVariable", query,
                                     function (response) {
                                         context.haber = response.d.results;
-                                        if (success) success();                                   
+                                        loaded.Item = true;
+                                        shouldStart();                      
                                     },
                                     function (response) {
                                         var responseText = JSON.parse(response.responseText);
@@ -185,7 +197,7 @@ menuPage.methods.beforeStartComponent = function(success, failure){
     );
 }
 
-// {array} obtiene las optiones de configuración para el menú
+// {array} obtiene las opciones de configuración para el menú
 menuPage.methods.getListBlocksData = function(){
     var page = this._getPage();
     var app = page.app;
@@ -227,7 +239,7 @@ menuPage.methods.getListBlocksData = function(){
                     media: '<i class="ms-Icon ms-Icon--BoxAdditionSolid"></i>',
                 },
                 {
-                    href: '/liststream?title=Items variables&listtitle=ItemVariable&listview=Coordinador&panel=filter-close&template=list-row&context=',
+                    href: '/itemVariableStream',
                     title: 'Items Variables',
                     after: '',
                     header: '',
@@ -236,6 +248,17 @@ menuPage.methods.getListBlocksData = function(){
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--CheckList"></i>',
+                },
+                {
+                    href: '/uploadItems',
+                    title: 'Carga Masiva Items',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--ExcelLogo"></i>',
                 }
             ]);
         } else if(!canSendInform) {
@@ -247,7 +270,7 @@ menuPage.methods.getListBlocksData = function(){
         if (context.onPeriod) {
             coorSection.options = coorSection.options.concat([ 
                 {
-                    href: '/liststream?title=Informes Desaprobados&listtitle=Informe Haberes&listview=Pendientes&panel=filter-close&template=list-row&context=',
+                    href: '/informeDesaprobado',
                     title: 'Informes',
                     after: '',
                     header: '',
@@ -262,7 +285,7 @@ menuPage.methods.getListBlocksData = function(){
 
         coorSection.options = coorSection.options.concat([
             {
-                href: '/liststream?title=Informes Históricos&listtitle=Informe Haberes&listview=Historico Coordinador&panel=filter-close&template=list-row&context=',
+                href: '/informeHistorico',
                 title: 'Informes',
                 after: '',
                 header: '',
@@ -314,11 +337,15 @@ menuPage.methods.getListBlocksData = function(){
                     });
                     let selfJobs = context.planta.map(function(x){
                         let categoria = context.Categoria.filter(c => c.ID == x.CategoriaId)[0];
+                        console.log("Sindicato", x.Sindicato)
                         return {
                             "Rut": x.Rut,
                             "Codigo Payroll": x.Title,
                             "Nombre Completo": x.NombreCompleto,
                             "Tipo Contrato": x.TipoContrato,
+                            "Sindicato": x.Sindicato,
+                            "Capex": x.Capex,
+                            "Jornada": x.Jornada,
                             "Categoria": categoria.Categoria,
                             "Cargo": x.d_cargo
                         }
@@ -357,7 +384,7 @@ menuPage.methods.getListBlocksData = function(){
         if (context.onPeriod){
             aprobSection.options = aprobSection.options.concat([ 
                 {
-                    href: '/liststream?title=Informes&listtitle=Informe Haberes&listview=Aprobador&panel=filter-close&template=list-row&context=',
+                    href: '/informePeriodo',
                     title: 'Informes',
                     after: '',
                     header: '',
@@ -387,7 +414,7 @@ menuPage.methods.getListBlocksData = function(){
         if (context.onPeriod){
             admSection.options = admSection.options.concat([
                 {
-                    href: '/liststream?title=Informes&listtitle=Informe Haberes&listview=Administrador&panel=filter-close&template=list-row&context=',
+                    href: '/informePeriodo',
                     title: 'Informes Pendientes',
                     after: '',
                     header: '',
@@ -406,7 +433,7 @@ menuPage.methods.getListBlocksData = function(){
 
         admSection.options = admSection.options.concat([
             {
-                href: '/liststream?title=Planta&listtitle=Planta&listview=Planta Usuario&panel=filter-close&template=list-row&context=',
+                href: '/plantaStream',
                 title: 'Planta',
                 after: '',
                 header: '',
@@ -417,7 +444,7 @@ menuPage.methods.getListBlocksData = function(){
                 media: '<i class="ms-Icon ms-Icon--People"></i>',
             },
             {
-                href: '/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=',
+                href: '/periodoStream',
                 title: 'Periodos',
                 after: '',
                 header: '',
@@ -439,7 +466,7 @@ menuPage.methods.getListBlocksData = function(){
                 media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
             },
             {
-                href: '/liststream?title=Informes Históricos&listtitle=Informe Haberes&listview=Historico&panel=filter-open&template=list-row&context=&',
+                href: '/informeHistorico?&panel=filter-open',
                 title: 'Informes',
                 after: '',
                 header: '',
@@ -448,7 +475,7 @@ menuPage.methods.getListBlocksData = function(){
                 externalLink: false,
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--ActivateOrders"></i>',
-            }
+            },
         ]);
         settings.push(admSection);
     }

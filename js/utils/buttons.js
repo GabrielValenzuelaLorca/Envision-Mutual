@@ -4,6 +4,15 @@ function refresh(){
     leftView.router.refreshPage();
 }
 
+function buildInCaml(array, type){
+    var query = '';
+    array.forEach(function(element) {
+        var value = '<Value Type="'+ type +'">'+ element +'</Value>'
+        query = query + value;
+    });
+    return query;
+}
+
 function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, failure){
     var wb = XLSX.utils.book_new();
 
