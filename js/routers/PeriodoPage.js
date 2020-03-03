@@ -211,7 +211,6 @@ var periodoPage = {
 
                     $sendButton.removeClass('hide');
                     $clearButton.removeClass('hide');
-
                 }
 
                 $sendButton.on('click', function (e) {

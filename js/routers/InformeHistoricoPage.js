@@ -104,6 +104,7 @@ informeHistoricoPage.methods.getOneItemSelectedButtons = function(item){
         buttons.push(localButtons.downloadInformeCoord(context));    
     } else if(admin=="Administrador"){
         buttons.push(localButtons.downloadInformeAdmin(context));    
+        buttons.push(localButtons.downloadInformePDF(context)); 
     }
     
     return buttons;
@@ -130,7 +131,6 @@ informeHistoricoPage.methods.afterFilterComponentInitializated = function () {
     if (context.lastInforme){
         let anio = context.lastInforme.Periodo.AnioCalculado
         let mes = context.lastInforme.Periodo.MesCalculado
-        console.log("El año y la fecha son", anio, mes)
         context.components.itemsFilter.inputs.Periodo_x003a_AnioCalculado.setValue([{text: anio}]);
         context.components.itemsFilter.inputs.Periodo_x003a_MesCalculado.setValue([{text: mes}]);
     }
