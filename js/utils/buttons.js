@@ -30,7 +30,20 @@ function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, f
                     failure(JSON.stringify({"Error": "El numero de formato de hojas no es compatible"}));
                 }
             }
-            if (protected) ws['!protect'] = {objects:true, scenarios: true}            
+            if (protected) ws['!protect'] = {objects:true, scenarios: true}
+            
+            let letras = ['A','B','C','D','E','F','G','H','I','J','K','L','M'];
+
+            for(var i = 0; i < letras.length; i++){
+                if(ws[letras[i]+"1"] != null){
+                    ws[letras[i]+"1"].s =   {   fgColor: { rgb: '9ED2E0' },
+                                                bgColor: { rgb: '9ED2E0' } 
+                                            }
+                }
+            }
+
+            console.log('WS', ws);
+            console.log('WS c1', ws["A1"].v)
 
             XLSX.utils.book_append_sheet(wb, ws, sheetname);
         });

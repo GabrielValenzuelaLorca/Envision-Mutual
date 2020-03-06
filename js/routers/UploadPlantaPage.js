@@ -347,15 +347,6 @@ var uploadPlantaPage = {
                         files = file.files
                         handleExcelFromInput(files, 
                             function(response){
-
-                                //Iniciamos el contador de tiempo de ejecucion
-                                var start = Date.now();
-
-                                //Datos provenientes de excel
-                                console.log('Planta Cargada Excel',response[0]);
-
-                                //Definicion de contadores y arreglos para guardar datos
-
                                 //contadores y linea actual del prosesamiento
                                 var linea = 1;
 
@@ -546,13 +537,6 @@ var uploadPlantaPage = {
                                         Quitar.push(item.ID);
                                     }
                                 });
-
-                                console.log('Agregar', Agregar);
-                                console.log('Actualizar', Actualizar);
-                                console.log('Sin Cambios', SinCambios);
-                                console.log('Quitar', Quitar);
-
-                                console.log('Errores', errores);
 
                                 let resultado = [];
 

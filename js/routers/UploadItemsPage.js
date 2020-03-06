@@ -181,6 +181,7 @@ var uploadItemsPage = {
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
                     $sendButton = $navbar.find('.link.send')
+                    $clearButton = $navbar.find('.link.clear')
 
                 // formulario de registro
                 context.forms.item = new EFWForm({
@@ -212,7 +213,7 @@ var uploadItemsPage = {
                 });                
 
                 context.forms.errorsList.hide();
-
+                $clearButton.removeClass('hide');
                 $sendButton.removeClass('hide');
                 $sendButton.on('click', function (e) {
                     var dialogTitle = 'Nueva carga Masiva de items';
@@ -224,15 +225,12 @@ var uploadItemsPage = {
                         files = file.files
                         handleExcelFromInput(files, 
                             function(response){
-                                //Iniciamos el contador de tiempo de ejecucion
-                                var start = Date.now();
+                                //Reseteamos los errores
                                 context.forms.errorsList.setValues([]);
+                                console.log('Datos de response', response[0]);
 
                                 //Funcion que valida si el item puede ser imputado por el trabajador
                                 function validateItem(trabajador, item){
-                                    console.log('Datos de Item',item);
-                                    console.log('Datos de trabajador',trabajador)
-
                                     //Valida si es un Haber o descuento
                                     if(item.TipoItem != 'Haber'){
                                         return {
@@ -247,18 +245,29 @@ var uploadItemsPage = {
                                         if(trabajador.TipoContrato != 'Indefinido'){
                                             return {
                                                 "Error": true,
-                                                "Message": "El item requiere un tranajador con contrato indefinido"
+                                                "Message": "No corresponde personal a plazo fijo."
                                             }
                                         }
                                     }
-                                    
+
+                                    //Sindicalizado
+                                    if(item.Sindicalizado){
+                                        //que tipo de contrato tiene?
+                                        if(trabajador.Sindicato == 'NO SINDICALIZADOS'){
+                                            return {
+                                                "Error": true,
+                                                "Message": "Personal no sindicalizado."
+                                            }
+                                        }
+                                    }
+
                                     //Validacion Capex
                                     if(item.Capex){
                                         //que tipo de contrato tiene?
                                         if(!trabajador.Capex){
                                             return {
                                                 "Error": true,
-                                                "Message": "El item requiere que el trabajador pertenezca a CAPEX."
+                                                "Message": "El item requiere que el trabajador pertenezca a convenio CAPEX."
                                             }
                                         }
                                     }
@@ -268,7 +277,7 @@ var uploadItemsPage = {
                                         if(trabajador.Jornada == 'Art. 22'){
                                             return {
                                                 "Error": true,
-                                                "Message": "El item no se puede imputar para trabajadores con ART. 22"
+                                                "Message": "Personal cuenta con ART.22."
                                             }
                                         }
                                     }
@@ -346,7 +355,7 @@ var uploadItemsPage = {
                                             if(!context.aprobado){
                                                 return {
                                                     "Error": true,
-                                                    "Message": "La categoria del trabajador no permite la inputacion de este haber."
+                                                    "Message": "La categoria del trabajador no corresponde."
                                                 }
                                             }
                                         }else{
@@ -359,9 +368,7 @@ var uploadItemsPage = {
                                 }
 
                                 function callServiceCargaMasivaItems(body){
-                                    console.log('Response JSON', body)
-
-                                    fetch('', {
+                                    fetch('https://prod-41.westus.logic.azure.com:443/workflows/7936281e1e9642b7bce907f3b5c79f98/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=M0U07-7TKCCEM1d_uwLaTyhGKUGed1dqJAwpJp-mBJg', {
                                         method: 'POST',
                                         headers: {
                                             'Accept': 'application/json',
@@ -383,35 +390,39 @@ var uploadItemsPage = {
                                     });
                                 }
 
+                                function PrepareToSend(fila, trabajador, item){
+                                    return {
+                                        "CantidadMonto": fila.CANT_$MONTO,
+                                        "Rut": trabajador.ID,
+                                        "TipoContrato": trabajador.TipoContrato,
+                                        "Justificacion": fila.JUSTIFICACIÓN,
+                                        "Codigo": fila.COD_PAYROLL,
+                                        "Item": item.ID,
+                                        "Nombre": trabajador.Rut,
+                                        "CentroCosto": trabajador.CentroCostoId                                        
+                                    }
+                                }
+
                                 //Obtenemos todos los datos de los item que puede acceder el coordinador
                                 var ItemPorCoo = context.items.ListadoItemVariable.filter( x => 
                                     context.items.Coordinador[0].HaberesId.results.includes(x.ID)
                                 );
-
-                                //Datos de las listas
-                                console.log('Trabajadores del coordinador', context.items.Planta);
-                                console.log('Haberes disponibles para el coordinador', ItemPorCoo);
-                                console.log('Listado Categorias', context.items.Categoria);
-                                console.log('Listado Item V', context.items.ListadoItemVariable);
-                                
-
-                                //Datos provenientes de excel
-                                console.log('Items Cargados Excel', JSON.stringify(response[0]));
 
                                 //Arreglos donde quedaran los datos
                                 var Errores = [];
                                 var OK = [];
 
                                 //contadores y linea actual del prosesamiento
-                                var linea = 1;
+                                var linea = 2;
 
                                 //     --------- Inicio de proceso de filtrado----------- // 
                                 response[0].map(function(fila){
+
                                     let jobs = context.items.Planta.filter( x => x.Title == fila.COD_PAYROLL);
                                     if(jobs.length == 0){
                                         Errores.push({
                                             "Linea": linea,
-                                            "Message": `El codigo payroll ingresado  no corresponde uno de sus trabajadores.`
+                                            "Message": `El codigo Payroll del trabajador ingresado no corresponde a su planta.`
                                         });
                                         linea++
                                         return;
@@ -419,16 +430,53 @@ var uploadItemsPage = {
 
                                     let cat = ItemPorCoo.filter( x => 
                                         x.NombreItem.toLowerCase().trim() == fila.NOM_HABER.toLowerCase().trim()
-                                        && x.Title.toLowerCase().trim() == fila.COD_HABER.toLowerCase().trim()
+                                        || x.Title.toLowerCase().trim() == fila.COD_HABER.toLowerCase().trim()
                                     )
 
                                     if(cat.length == 0){
                                         Errores.push({
                                             "Linea": linea,
-                                            "Message": `El item ingresado no le pertenece a su coordinacion.`
+                                            "Message": `El item ingresado contiene datos erroneos, Revise que el código y el nombre del item sean los correctos..`
                                         });
                                         linea++
                                         return;
+                                    }else{
+                                        if(cat.NombreItem == fila.NOM_HABER
+                                            && cat.Title == fila.COD_HABER){
+                                                Errores.push({
+                                                    "Linea": linea,
+                                                    "Message": `El item ingresado contiene datos erroneos en el nombre o codigo del haber.`
+                                                });
+                                        }
+                                    }
+                                    
+                                    //Errores de Cantidad y monto
+                                    if(!fila.CANT_$MONTO){
+                                        Errores.push({
+                                            "Linea": linea,
+                                            "Message": `El ingreso de Cantidad o monto es obligatorio.`
+                                        });
+                                        linea++
+                                        return;
+                                    }
+
+                                    //Errores de justificacion
+                                    if(!fila.JUSTIFICACIÓN){
+                                        Errores.push({
+                                            "Linea": linea,
+                                            "Message": `La justificacion es obligatoria y no puede ir vacia.`
+                                        });
+                                        linea++
+                                        return;
+                                    }else{
+                                        if(fila.JUSTIFICACIÓN.length <= 10){
+                                            Errores.push({
+                                                "Linea": linea,
+                                                "Message": `La justificacion debe contener al menos 10 caracteres.`
+                                            });
+                                            linea++
+                                            return;
+                                        }
                                     }
 
                                     let res = validateItem(jobs[0], cat[0]);
@@ -441,18 +489,14 @@ var uploadItemsPage = {
                                         linea++
                                         return;
                                     }else{
-                                        OK.push(fila);
+                                        OK.push(PrepareToSend(fila, jobs[0], cat[0]));
                                     }
-
-
-
                                     linea++
                                 });
 
-                                context.forms.errorsList.setValues(Errores);
-
                                 //Si hay errores se muestra Alert
                                 if( Errores.length > 0){
+                                    context.forms.errorsList.setValues(Errores);
                                     dialog.close();
                                     app.dialog.create({
                                         title: 'Error',
@@ -460,6 +504,9 @@ var uploadItemsPage = {
                                         buttons: [{
                                             text: 'Ver',
                                             onClick: function () {
+                                                $container.find('.card-header').addClass('hide');
+                                                $container.find('.card-content thead tr th:nth-child(1)').addClass('hide');
+                                                $container.find('.card-content tbody tr td.checkbox-cell').addClass('hide');
                                                 context.forms.errorsList.show()
                                                 return;
                                             }
@@ -467,7 +514,12 @@ var uploadItemsPage = {
                                         verticalButtons: false
                                     }).open();
                                 }else{
-                                    callServiceCargaMasivaItems(OK);
+                                    var body = [];
+                                    body[0] = context.items.Coordinador[0].ID;
+                                    body[1] = context.items.Periodo[0].ID;
+                                    body[2] = spo.getCurrentUser()['EMail'];
+                                    body[3] = OK;
+                                    callServiceCargaMasivaItems(body);
                                     dialog.close();
                                     app.dialog.create({
                                         title: dialogTitle,
@@ -475,7 +527,7 @@ var uploadItemsPage = {
                                         buttons: [{
                                             text: 'Aceptar',
                                             onClick: function () {
-                                                //mainView.router.navigate('/liststream?title=Planta&listtitle=Planta&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                                mainView.router.navigate('/itemVariableStream');
                                             }
                                         }],
                                         verticalButtons: false
@@ -483,10 +535,7 @@ var uploadItemsPage = {
                                 
                                 }
 
-                                //Fin calculo del tiempo de ejecucion
-                                var end = Date.now();
- 
-                                console.log('Tiempo de Ejecucion ', end - start);
+                                $container.find('.card-header').addClass('hide');
     
                             }, 
                             function (response) {
@@ -553,6 +602,12 @@ var uploadItemsPage = {
                                 verticalButtons: false
                             }).open();
                     }
+                });
+
+                $clearButton.on('click', function (e){
+                    context.forms.errorsList.removeAllRows();
+                    context.forms.errorsList.hide();
+                    context.forms.item.inputs.Attachments.resetValue();
                 });
 
                 // remover loader

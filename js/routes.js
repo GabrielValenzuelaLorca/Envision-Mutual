@@ -65,6 +65,14 @@ function getRoutes(){
             path: '/plantaStream',
             component: plantaStreamPage
         },
+        {
+            path: '/sendStatusStream',
+            component: sendStatusPage
+        },
+        {
+            path: '/MItemVariable',
+            component: MItemVariableStreamPage
+        },
         // Default route (404 page). MUST BE THE LAST
         {
             path: '(.*)',
