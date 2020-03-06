@@ -901,3 +901,134 @@ localButtons.downloadInformeComplete = function(context){
     }
     return button
 }
+
+// Mantenedor Coordinador
+
+localButtons.addTrabajadorButton = function(context, id){
+    button = {
+        text: 'Afiliar Trabajador',
+        class: 'addTranbajador',
+        icon: 'Add',
+        onClick: function(component, item){
+            mainView.router.navigate(encodeURI('/trabajadorTemporal?listItemId='+id));
+           
+        }
+    }
+    return button
+}
+
+localButtons.addListTrabajadoresButton = function(context,coordinador){
+    button = {
+        text:'Asignar Trabajadores',
+        class:'addTrabajadores',
+        icon:'AddGroup',
+        onClick: function(component, item){
+
+            var dialogTitle = 'Solicitando Justificación';
+
+            //Ejecuta toda la funcion despues de la validacion de la alerta
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                console.log('Datos obtenidos', item)
+
+                var data = [];
+
+                item.map(function(x){
+                    data.push({
+                        "ID": x.ID,
+                        "CoordinadorId": coordinador
+                    });
+                })
+
+                spo.updateListItems(spo.getSiteUrl(), "Planta", data, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Trabajadores asignados con exito!! jujui!!!',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Pucha la cuestion, no funciono :C',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            /* Alerta que se ejecuta al presionar el boton.
+            -   Si se presiona OK o aceptar se ejecuta el metodo save
+            -   Al cancelar no se ejecuta nada
+            */
+
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Esta seguro que quiere hacer esta vaina?',
+                save
+            )
+
+            
+        }
+
+    }
+    return button
+}
+
+localButtons.addListTrabajadorButton = function(context, Javiera){
+    button = {
+        text:'Asignar Trabajador',
+        class:'addTrabajador',
+        icon:'AddFriend',
+        onClick: function(component, item){
+            console.log('Valor seleccionado', item)
+
+            var dialogTitle = 'Solicitando Justificación';
+
+            //Ejecuta toda la funcion despues de la validacion de la alerta
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, {"CoordinadorId":Javiera}, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Trabajador asignado con exito!! jujui!!!',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Pucha la cuestion, no funciono :C',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            /* Alerta que se ejecuta al presionar el boton.
+            -   Si se presiona OK o aceptar se ejecuta el metodo save
+            -   Al cancelar no se ejecuta nada
+            */
+
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Esta seguro que quiere hacer esta vaina?',
+                save
+            )
+
+            //mainView.router.navigate(encodeURI(''));
+        }
+
+    }
+    return button
+}

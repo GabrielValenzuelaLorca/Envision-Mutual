@@ -203,6 +203,7 @@ var informePage = {
                 context.forms.item = new EFWForm(form);
 
                 let tableForm = {
+                    // listFields: spo.getViewFields(context.lists.Item, "Nombre vista"),
                     container: $container.find('.sent-haberes-container'),
                     title: 'Haberes',
                     editable: false,
