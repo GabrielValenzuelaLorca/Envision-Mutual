@@ -38,6 +38,15 @@ periodoStreamPage.methods.getOneItemSelectedButtons = function(item){
     return buttons;
 }
 
+periodoStreamPage.methods.getMultiItemsSelectedButtons = function(items){
+    var page = this._getPage();
+    var self = this, buttons = [],
+    context = self._getPageContext(),
+    buttons = [];
+
+    return buttons;
+}
+
 periodoStreamPage.methods.getNoItemsSelectedButtons = function(item){
     var self = this,
         page = self._getPage(),

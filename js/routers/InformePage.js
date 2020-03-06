@@ -202,6 +202,8 @@ var informePage = {
                 }
                 if (admin == "Coordinador"){
                     form.fields = spo.getViewFields(context.lists.Informe, "Informe Coord Page");
+                } else if (admin == "Aprobador"){
+                    form.fields = spo.getViewFields(context.lists.Informe, "Informe Admin Page");
                 } else if (admin == "Administrador"){
                     form.fields = spo.getViewFields(context.lists.Informe, "Informe Admin Page");
                 }
@@ -211,11 +213,19 @@ var informePage = {
                     container: $container.find('.sent-haberes-container'),
                     title: 'Haberes',
                     editable: false,
-                    items: JSON.parse(context.items.Informe.Haberes).d.results,
-                    disabled: true
+                    items: JSON.parse(context.items.Informe.Haberes).d.results.map(function(haber){
+                        if (haber.Nombre.d_cargo == null){
+                            haber.Nombre.d_cargo = ""
+                        }
+                        return haber
+                    }),
+                    disabled: true,
+                    sortable: false,
                 }
                 if (admin == "Coordinador"){
                     tableForm.listFields = spo.getViewFields(context.lists.Item, "Coordinador");
+                } else if (admin == "Aprobador"){
+                    tableForm.listFields = spo.getViewFields(context.lists.Item, "Administrador");
                 } else if (admin == "Administrador"){
                     tableForm.listFields = spo.getViewFields(context.lists.Item, "Administrador");
                     $pdfButton.removeClass('hide');
@@ -225,6 +235,8 @@ var informePage = {
                 if (listItemId) {
                     context.forms.item.setValues(context.items.Informe);
                     $dowloadButton.removeClass('hide');
+                    $container.find('.checkbox-cell').addClass('hide');
+                    $container.find('.card-header').addClass('hide');
                 } 
 
                 $dowloadButton.on('click', function (e) {

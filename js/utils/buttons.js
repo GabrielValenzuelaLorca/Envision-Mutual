@@ -231,7 +231,8 @@ localButtons.sendButton = function(context){
                                 CoordinadorId: context.coorId,
                                 Estado: "Enviado para aprobar",
                                 Haberes: JsonHaberes,
-                                Cantidad: response.d.results.length
+                                Cantidad: response.d.results.length,
+                                AprobadorId: context.AprobadorId
                             }
                             spo.saveListItem(spo.getSiteUrl(), "Informe Haberes", metadata, 
                                 function (response){
@@ -240,7 +241,7 @@ localButtons.sendButton = function(context){
                                         dialogTitle,
                                         'Informe enviado con éxito a ' + context.Aprobador,
                                         function(){
-                                            mainView.router.navigate(encodeURI('/liststream?title=Informes Desaprobados&listtitle=Informe Haberes&listview=Pendientes&panel=filter-close&template=list-row&context='));
+                                            mainView.router.navigate(encodeURI('/informeDesaprobado'));
                                             leftView.router.refreshPage();
                                         },
                                         false
@@ -291,6 +292,14 @@ localButtons.disableItemSended = function(context){
         class: 'desaprobarPeriodo',
         icon: 'Delete',
         onClick: function(component, item){
+            if(!item.ID){
+                dialogs.confirmDialog(
+                    'Informe Desaprobado',
+                    'El informe seleccionado no se puede desaprobar.',
+                    false
+                )
+                return;
+            }
             var dialogTitle = 'Desaprobando informe';
             abrirPopup();
             function save(comment) {
@@ -334,8 +343,8 @@ localButtons.disableItemSended = function(context){
                             <div class="block">
                                 <div class="update-form" style="margin-top: 10px !important;"></div>
                                 <div class="buttons-container ms-slideLeftIn10 hide">
-                                    <button class="button button-fill close-popup">Cancelar</button>
-                                    <button class="button button-fill send">Rechazar</button>
+                                    <button class="button button-fill close-popup">Volver</button>
+                                    <button class="button button-fill send">Desaprobar</button>
                                 </div>
                             </div>
                         </div>
@@ -376,10 +385,149 @@ localButtons.disableItemSended = function(context){
                             $sendButton.on('click', function(e){
                                 form.checkFieldsRequired();
                                 if(form.getValidation()){
-                                    var comentarioRechazo = form.getMetadata();
+                                    var comentarioRechazo = form.getMetadata();                                                                    
+                                    // cerrar popover
+                                    popup.close();
+    
+                                    save(comentarioRechazo.ComentarioVirtual);
+                                }
+                                
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
 
-                                    console.log(form.getMetadata().ComentarioVirtual);
-                                                                    
+                dynamicPopup.open();
+            }
+        }
+    }
+    return button
+}
+
+// Informe buttons
+localButtons.disableItemSendedAdmin = function(context, item){
+    button = {
+        text: 'Desaprobar',
+        class: 'desaprobarPeriodo',
+        icon: 'Delete',
+        onClick: function(component){
+            if(!item.ID){
+                app.dialog.create({
+                    title: 'Operación inválida',
+                    text:   'El informe seleccionado no se puede desaprobar.',
+                    buttons: [{
+                        text: 'Aceptar',
+                        onClick: function onClick(){
+                            return
+                        }
+                    }],
+                    verticalButtons: false
+                }).open();
+                return;
+            }
+            if(item.Status == "Desaprobado"){
+                app.dialog.create({
+                    title: 'Operación inválida',
+                    text:   'El informe ya se encuentra desaprobado',
+                    buttons: [{
+                        text: 'Aceptar',
+                        onClick: function onClick(){
+                            return
+                        }
+                    }],
+                    verticalButtons: false
+                }).open();
+                return;
+            }
+            var dialogTitle = 'Desaprobando informe';
+            abrirPopup();
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+                var metadata = {Estado: "Desaprobado"};
+                if (admin == "Aprobador"){
+                    metadata.Comentario = comment;
+                } else if (admin == "Administrador"){
+                    metadata.ComentarioAdmin = comment;
+                }
+
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, metadata, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        'Informe Desaprobado',
+                        'Informe desaprobado con éxito',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desaprobar el informe.',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Volver</button>
+                                    <button class="button button-fill send">Desaprobar</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Justificación',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                                Required: true,
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Justificación de desaprobación'.bold(),
+                                editable: true,
+                                description: 'Ingrese la razón de desaprobación.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                form.checkFieldsRequired();
+                                if(form.getValidation()){
+                                    var comentarioRechazo = form.getMetadata();                                                                    
                                     // cerrar popover
                                     popup.close();
     
@@ -410,8 +558,12 @@ localButtons.approveItemSended = function(context){
             var dialogTitle = 'Aprobando informe';
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
+                var metadata = {
+                    "Estado": "Aprobado", 
+                    "FechaAprobacion": new Date().toISOString()
+                }
 
-                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, {"Estado":"Aprobado y enviado a administración", "FechaAprobacion":"lafecha"}, function (response) {
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, metadata, function (response) {
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
@@ -441,57 +593,37 @@ localButtons.approveItemSended = function(context){
     return button
 }
 
-localButtons.approveAdminItemSended = function(context){
-    button = {
-        text: 'Aprobar',
-        class: 'aprobarPeriodo',
-        icon: 'Accept',
-        onClick: function(component, item){
-            var dialogTitle = 'Aprobando informe';
-            function save() {
-                var dialog = app.dialog.progress(dialogTitle);
-
-                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, {"Estado":"Aprobado por administración"}, function (response) {
-                    dialog.close()
-                    dialogs.confirmDialog(
-                        dialogTitle,
-                        'Informe aprobado con éxito',
-                        refresh,
-                        false
-                    )
-
-                }, function (response) {
-                    var responseText = JSON.parse(response.responseText);
-                    console.log('responseText', responseText);
-
-                    dialog.close();
-                    dialogs.infoDialog(
-                        'Error al aprobar el informe.',
-                        responseText.error.message.value,
-                    )
-                });
-            }
-            dialogs.confirmDialog(
-                dialogTitle,
-                'Se aprobará el informe seleccionado.',
-                save
-            )
-        }
-    }
-    return button
-}
-
-localButtons.requireJustificationItem = function(context){ 
+localButtons.requireJustificationItem = function(context){
     button = {
         text: 'Solicitar Justificación',
         class: 'requireJustification',
         icon: 'CannedChat',
         onClick: function(component, item){
+            if(!item.ID){
+                app.dialog.create({
+                    title: 'Operación inválida',
+                    text:   'No se puede solicitar justificación a este informe',
+                    buttons: [{
+                        text: 'Aceptar',
+                        onClick: function onClick(){
+                            return
+                        }
+                    }],
+                    verticalButtons: false
+                }).open();
+                return;
+            }
             var dialogTitle = 'Solicitando Justificación';
-            function save() {
-                var dialog = app.dialog.progress(dialogTitle);
 
-                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, {"Estado":"En espera de justificación"}, function (response) {
+            abrirPopup();
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+                var metadata = {
+                    Estado: "En espera de justificación",
+                    ComentarioJustificacion: comment
+                };
+
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, metadata, function (response) {
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
@@ -506,16 +638,82 @@ localButtons.requireJustificationItem = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al solicitar justificación',
+                        'Error al solicitar justificación.',
                         responseText.error.message.value,
                     )
                 });
             }
-            dialogs.confirmDialog(
-                dialogTitle,
-                'Se solicitará una justificación al informe',
-                save
-            )
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Volver</button>
+                                    <button class="button button-fill send">Solicitar</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Justificación',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                                Required: true,
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Solicitud de Justificación'.bold(),
+                                editable: true,
+                                description: 'Ingrese la razón para pedir justificación.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                form.checkFieldsRequired();
+                                if(form.getValidation()){
+                                    var comentarioRechazo = form.getMetadata();                                                                    
+                                    // cerrar popover
+                                    popup.close();
+    
+                                    save(comentarioRechazo.ComentarioVirtual);
+                                }
+                                
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
+
+                dynamicPopup.open();
+            }
         }
     }
     return button
@@ -532,7 +730,7 @@ localButtons.sendJustification = function(context){
             function save(comment) {
                 var dialog = app.dialog.progress(dialogTitle);
 
-                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, { Estado: "Aprobado y enviado a administración", Justificaci_x00f3_n: comment }, function (response) {
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, { Estado: "Enviado para aprobar", Justificaci_x00f3_n: comment }, function (response) {
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
@@ -825,7 +1023,7 @@ localButtons.downloadInformeComplete = function(context){
                 var query = spo.encodeUrlListQuery(context.list, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(Estado eq \'Aprobado por administración\')'
+                        'filter': '(Estado eq \'Aprobado\')'
                     }
                 });
                 spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
@@ -981,7 +1179,6 @@ localButtons.downloadInformePDF = function(context){
                         haber.Justificacion
                     ];
                 });
-                arrayHaberes = arrayHaberes.concat(arrayHaberes.concat(arrayHaberes.concat(arrayHaberes)))
 
                 doc.autoTable({
                     head: [["N°", "COD_PAYROLL", "RUT", "ITEM VARIABLE", "CANT_$MONTO", "NOMBRE", "CONTRATO", "CARGO", "CCOSTO", "JUSTIFICACIÓN"]],
@@ -1120,6 +1317,18 @@ localButtons.downloadInformePDF = function(context){
                 'Se descargará un PDF con la información del informe',
                 save
             )
+        }
+    }
+    return button
+}
+
+localButtons.openInforme = function(item){
+    button = {
+        text: 'Ver Informe',
+        class: 'openInforme',
+        icon: 'OpenInNewWindow',
+        onClick: function(component){
+            mainView.router.navigate('/informe?listItemId='+item.ID);
         }
     }
     return button

@@ -27,6 +27,15 @@ informePendientePage.methods.onItemDblClick = function(item){
         mainView.router.navigate('/informe?listItemId='+item.ID);
 }
 
+informePendientePage.methods.getNoItemsSelectedButtons = function(){
+    var self = this,
+        page = self._getPage(),
+        context = self._getPageContext(),
+        buttons = [];
+
+    return buttons;
+}
+
 informePendientePage.methods.beforeStartComponent = function(success,failure){
     var context = this._getPageContext();
     loaded = {}
@@ -104,6 +113,15 @@ informePendientePage.methods.getOneItemSelectedButtons = function(item){
     if (item.Estado == "En espera de justificación") {
         buttons.push(localButtons.sendJustification(context));
     }
+
+    return buttons;
+}
+
+informePendientePage.methods.getMultiItemsSelectedButtons = function(items){
+    var page = this._getPage();
+    var self = this, buttons = [],
+    context = self._getPageContext(),
+    buttons = [];
 
     return buttons;
 }

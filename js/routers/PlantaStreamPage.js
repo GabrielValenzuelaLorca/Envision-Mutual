@@ -21,34 +21,9 @@ plantaStreamPage.methods.beforeStartComponent = function(success,failure){
     loaded = {};
     function startItemComponent2(){
         if (loaded.globalState){
-            spo.getListInfo('EstadosGlobales',
-                function (response) {
-                    var query = spo.encodeUrlListQuery(response, {
-                        view: 'Todos los elementos',
-                        odata: {
-                            'select' : '*',
-                            'top': 5000
-                        }
-                    });
-                    spo.getListItems(spo.getSiteUrl(), "EstadosGlobales", query,
-                        function (response) {
-                            context.estadosGlobales = response.d.results;
-                            if (success) success();
-                        },
-                        function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log(responseText.error.message.value);
-                            if (failure) failure();
-                        }
-                    );
-                },
-                function(response){
-                    var responseText = JSON.parse(response.responseText);
-                    console.log(responseText.error.message.value);
-                    resolve(failCond);
-                    if (failure) failure();
-                }
-            );
+            success();
+        }else{
+            failure();
         }
     }
     spo.getListInfo('EstadosGlobales',
@@ -83,6 +58,17 @@ plantaStreamPage.methods.beforeStartComponent = function(success,failure){
     );
 }
 
+plantaStreamPage.methods.onItemDblClick = function(item){
+    var page = this._getPage();
+    var self = this, buttons = [],
+        context = self._getPageContext();
+    
+        // case 'Informes Desaprobados':
+        // // case 'Informes':
+        // // case 'Informes Históricos':
+        // mainView.router.navigate('/informe?listItemId='+item.ID);
+}
+
 plantaStreamPage.methods.getNoItemsSelectedButtons = function(){
     var self = this,
         page = self._getPage(),
@@ -109,23 +95,36 @@ plantaStreamPage.methods.getNoItemsSelectedButtons = function(){
     return buttons;
 }
 
+plantaStreamPage.methods.getOneItemSelectedButtons = function(item){
+    var page = this._getPage();
+    var self = this, buttons = [],
+    context = self._getPageContext(),
+    buttons = [];
+    
+    return buttons;
+}
+
+plantaStreamPage.methods.getMultiItemsSelectedButtons = function(items){
+    var page = this._getPage();
+    var self = this, buttons = [],
+    context = self._getPageContext(),
+    buttons = [];
+
+    return buttons;
+}
+
 plantaStreamPage.methods.getCamlQueryConditions = function(){
     var page = this._getPage();
     var context = this._getPageContext();
 
     return `
-        <And><Or><Eq>
-            <FieldRef Name="EstadoContrato" />
-                <Value Type="Choice">Activo</Value>
-        </Eq><Eq>
-            <FieldRef Name="EstadoContrato" />
-                <Value Type="Choice">Pendiente</Value>
-        </Eq></Or><Or><Eq>
-            <FieldRef Name="EstadoContrato" />
-                <Value Type="Choice">Activo</Value>
-        </Eq><Eq>
-            <FieldRef Name="EstadoContrato" />
-                <Value Type="Choice">Pendiente</Value>
-        </Eq></Or></And>
+        <Or>
+            <Eq>
+                <FieldRef Name="EstadoContrato" /><Value Type="Choice">Activo</Value>
+            </Eq>
+            <Eq>
+                <FieldRef Name="EstadoContrato" /><Value Type="Choice">Pendiente</Value>
+            </Eq>
+        </Or>
     `
 }

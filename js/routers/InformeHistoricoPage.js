@@ -68,7 +68,7 @@ informeHistoricoPage.methods.beforeStartComponent = function(success,failure){
                 var query = spo.encodeUrlListQuery(response, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(Estado eq \'Aprobado por administración\')',
+                        'filter': '(Estado eq \'Aprobado\')',
                         'top': 1
                     }
                 });
@@ -123,6 +123,15 @@ informeHistoricoPage.methods.getNoItemsSelectedButtons = function(){
     return buttons;
 }
 
+informeHistoricoPage.methods.getMultiItemsSelectedButtons = function(items){
+    var page = this._getPage();
+    var self = this, buttons = [],
+    context = self._getPageContext(),
+    buttons = [];
+
+    return buttons;
+}
+
 informeHistoricoPage.methods.afterFilterComponentInitializated = function () {
     var self = this;
     var context = self._getPageContext();
@@ -133,9 +142,22 @@ informeHistoricoPage.methods.afterFilterComponentInitializated = function () {
         let mes = context.lastInforme.Periodo.MesCalculado
         context.components.itemsFilter.inputs.Periodo_x003a_AnioCalculado.setValue([{text: anio}]);
         context.components.itemsFilter.inputs.Periodo_x003a_MesCalculado.setValue([{text: mes}]);
+
+        var element = "<div class='added-filter' style='padding: 10px 0px 0px 20px; margin-top:0px;'><h4 style='margin-top:0px; margin-bottom:0px;'>Se están mostrando los informes del último periodo registrado</h4>"
+        element += "<p style='margin-top: 0px; margin-bottom: 5px;'>"+ mes +" - "+ anio +"</p>"
+        element += "</div>"
+        $(page.pageEl).find('.liststreampage-page-content-header').last().parent().last().append(element)
     }
     $(page.navbarEl).find('a.filter').click();
 }
+
+// informeHistoricoPage.methods.onFilterCallback = function(filters){
+//     var self = this;
+//     var page = self._getPage();
+
+//     $(page.pageEl).find('.added-filter').remove();
+//     informeHistoricoPage.methods.onFilterCallback = listStreamPage.methods.onFilterCallback;
+// }
 
 informeHistoricoPage.methods.getCamlQueryConditions = function(){
     var page = this._getPage();
@@ -145,13 +167,13 @@ informeHistoricoPage.methods.getCamlQueryConditions = function(){
         return ''+ 
             '<Eq>'+
                 '<FieldRef Name="Estado" />'+
-                    '<Value Type="Choice">Aprobado por administración</Value>'+
+                    '<Value Type="Choice">Aprobado</Value>'+
             '</Eq>'    
     } else if (admin == "Coordinador") {
         return ''+
             '<And><Eq>'+
                 '<FieldRef Name="Estado" />'+
-                    '<Value Type="Choice">Aprobado por administración</Value>'+
+                    '<Value Type="Choice">Aprobado</Value>'+
             '</Eq><Eq>'+
                 '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
                     '<Value Type="Lookup">'+context.coorId+'</Value>'+

@@ -163,7 +163,7 @@
     height: 400px ;
 }
 
-.popup.send-email-popup.modal-in.approval {
+/* .popup.send-email-popup.modal-in.approval {
     height: 3 !important;
     max-width: 70% !important;
     width: 50px;
@@ -186,4 +186,36 @@
 
 .dialog-button{
     background-color: #8EBD00 !important;
+} */
+
+
+/* Resize logo */
+.page[data-page="indexPage"] .promo-image {
+    height: 100px !important;
+    width: 170px !important;
+    margin: 20px auto 16px !important;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+    cursor: pointer !important;
+}
+
+/* Colores definitivos*/ 
+.ios .ms-Icon {
+    color: #8EBD00 !important;
+}
+
+.ios .color-theme-red label.item-checkbox input[type="checkbox"]:checked ~ .icon-checkbox,
+.ios .color-theme-red .checkbox input[type="checkbox"]:checked ~ i {
+  background: #8EBD00 !important;
+}
+
+.ios .color-theme-red .button.button-fill,
+.ios .color-theme-red .button.button-fill-ios {
+  background: #8EBD00 !important;
+  border-color: transparent;
+}
+
+.ios .dialog-button{
+    background-color:#8EBD00 !important;
 }
