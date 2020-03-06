@@ -30,7 +30,20 @@ function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, f
                     failure(JSON.stringify({"Error": "El numero de formato de hojas no es compatible"}));
                 }
             }
-            if (protected) ws['!protect'] = {objects:true, scenarios: true}            
+            if (protected) ws['!protect'] = {objects:true, scenarios: true}
+            
+            let letras = ['A','B','C','D','E','F','G','H','I','J','K','L','M'];
+
+            for(var i = 0; i < letras.length; i++){
+                if(ws[letras[i]+"1"] != null){
+                    ws[letras[i]+"1"].s =   {   fgColor: { rgb: '9ED2E0' },
+                                                bgColor: { rgb: '9ED2E0' } 
+                                            }
+                }
+            }
+
+            console.log('WS', ws);
+            console.log('WS c1', ws["A1"].v)
 
             XLSX.utils.book_append_sheet(wb, ws, sheetname);
         });
@@ -58,7 +71,6 @@ localButtons.fileButton = function(){
     }
     return button
 }
-
 // Periodo buttons
 localButtons.addPeriodButton = function(context){
     button = {
@@ -92,7 +104,6 @@ localButtons.addPeriodButton = function(context){
     }
     return button
 }
-
 localButtons.editPeriodButton = function(){
     button = {
         text: 'Editar',
@@ -204,7 +215,6 @@ localButtons.activatePeriodoButton = function(context){
     }
     return button
 }
-
 // Item Variable buttons
 localButtons.sendButton = function(context){
     button = {
@@ -234,7 +244,8 @@ localButtons.sendButton = function(context){
                                 CoordinadorId: context.coorId,
                                 Estado: "Enviado para aprobar",
                                 Haberes: JsonHaberes,
-                                Cantidad: response.d.results.length
+                                Cantidad: response.d.results.length,
+                                AprobadorId: context.AprobadorId
                             }
                             spo.saveListItem(spo.getSiteUrl(), "Informe Haberes", metadata, 
                                 function (response){
@@ -243,7 +254,7 @@ localButtons.sendButton = function(context){
                                         dialogTitle,
                                         'Informe enviado con éxito a ' + context.Aprobador,
                                         function(){
-                                            mainView.router.navigate(encodeURI('/liststream?title=Informes Desaprobados&listtitle=Informe Haberes&listview=Pendientes&panel=filter-close&template=list-row&context='));
+                                            mainView.router.navigate(encodeURI('/informeDesaprobado'));
                                             leftView.router.refreshPage();
                                         },
                                         false
@@ -287,7 +298,6 @@ localButtons.sendButton = function(context){
     }
     return button
 }
-
 // Informe buttons
 localButtons.disableItemSended = function(context){
     button = {
@@ -295,6 +305,14 @@ localButtons.disableItemSended = function(context){
         class: 'desaprobarPeriodo',
         icon: 'Delete',
         onClick: function(component, item){
+            if(!item.ID){
+                dialogs.confirmDialog(
+                    'Informe Desaprobado',
+                    'El informe seleccionado no se puede desaprobar.',
+                    false
+                )
+                return;
+            }
             var dialogTitle = 'Desaprobando informe';
             abrirPopup();
             function save(comment) {
@@ -338,8 +356,8 @@ localButtons.disableItemSended = function(context){
                             <div class="block">
                                 <div class="update-form" style="margin-top: 10px !important;"></div>
                                 <div class="buttons-container ms-slideLeftIn10 hide">
-                                    <button class="button button-fill close-popup">Cancelar</button>
-                                    <button class="button button-fill send">Rechazar</button>
+                                    <button class="button button-fill close-popup">Volver</button>
+                                    <button class="button button-fill send">Desaprobar</button>
                                 </div>
                             </div>
                         </div>
@@ -380,10 +398,149 @@ localButtons.disableItemSended = function(context){
                             $sendButton.on('click', function(e){
                                 form.checkFieldsRequired();
                                 if(form.getValidation()){
-                                    var comentarioRechazo = form.getMetadata();
+                                    var comentarioRechazo = form.getMetadata();                                                                    
+                                    // cerrar popover
+                                    popup.close();
+    
+                                    save(comentarioRechazo.ComentarioVirtual);
+                                }
+                                
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
 
-                                    console.log(form.getMetadata().ComentarioVirtual);
-                                                                    
+                dynamicPopup.open();
+            }
+        }
+    }
+    return button
+}
+
+// Informe buttons
+localButtons.disableItemSendedAdmin = function(context, item){
+    button = {
+        text: 'Desaprobar',
+        class: 'desaprobarPeriodo',
+        icon: 'Delete',
+        onClick: function(component){
+            if(!item.ID){
+                app.dialog.create({
+                    title: 'Operación inválida',
+                    text:   'El informe seleccionado no se puede desaprobar.',
+                    buttons: [{
+                        text: 'Aceptar',
+                        onClick: function onClick(){
+                            return
+                        }
+                    }],
+                    verticalButtons: false
+                }).open();
+                return;
+            }
+            if(item.Status == "Desaprobado"){
+                app.dialog.create({
+                    title: 'Operación inválida',
+                    text:   'El informe ya se encuentra desaprobado',
+                    buttons: [{
+                        text: 'Aceptar',
+                        onClick: function onClick(){
+                            return
+                        }
+                    }],
+                    verticalButtons: false
+                }).open();
+                return;
+            }
+            var dialogTitle = 'Desaprobando informe';
+            abrirPopup();
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+                var metadata = {Estado: "Desaprobado"};
+                if (admin == "Aprobador"){
+                    metadata.Comentario = comment;
+                } else if (admin == "Administrador"){
+                    metadata.ComentarioAdmin = comment;
+                }
+
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, metadata, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        'Informe Desaprobado',
+                        'Informe desaprobado con éxito',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desaprobar el informe.',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Volver</button>
+                                    <button class="button button-fill send">Desaprobar</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Justificación',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                                Required: true,
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Justificación de desaprobación'.bold(),
+                                editable: true,
+                                description: 'Ingrese la razón de desaprobación.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                form.checkFieldsRequired();
+                                if(form.getValidation()){
+                                    var comentarioRechazo = form.getMetadata();                                                                    
                                     // cerrar popover
                                     popup.close();
     
@@ -414,8 +571,12 @@ localButtons.approveItemSended = function(context){
             var dialogTitle = 'Aprobando informe';
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
+                var metadata = {
+                    "Estado": "Aprobado", 
+                    "FechaAprobacion": new Date().toISOString()
+                }
 
-                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, {"Estado":"Aprobado y enviado a administración", "FechaAprobacion":"lafecha"}, function (response) {
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, metadata, function (response) {
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
@@ -445,57 +606,37 @@ localButtons.approveItemSended = function(context){
     return button
 }
 
-localButtons.approveAdminItemSended = function(context){
-    button = {
-        text: 'Aprobar',
-        class: 'aprobarPeriodo',
-        icon: 'Accept',
-        onClick: function(component, item){
-            var dialogTitle = 'Aprobando informe';
-            function save() {
-                var dialog = app.dialog.progress(dialogTitle);
-
-                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, {"Estado":"Aprobado por administración"}, function (response) {
-                    dialog.close()
-                    dialogs.confirmDialog(
-                        dialogTitle,
-                        'Informe aprobado con éxito',
-                        refresh,
-                        false
-                    )
-
-                }, function (response) {
-                    var responseText = JSON.parse(response.responseText);
-                    console.log('responseText', responseText);
-
-                    dialog.close();
-                    dialogs.infoDialog(
-                        'Error al aprobar el informe.',
-                        responseText.error.message.value,
-                    )
-                });
-            }
-            dialogs.confirmDialog(
-                dialogTitle,
-                'Se aprobará el informe seleccionado.',
-                save
-            )
-        }
-    }
-    return button
-}
-
-localButtons.requireJustificationItem = function(context){ 
+localButtons.requireJustificationItem = function(context){
     button = {
         text: 'Solicitar Justificación',
         class: 'requireJustification',
         icon: 'CannedChat',
         onClick: function(component, item){
+            if(!item.ID){
+                app.dialog.create({
+                    title: 'Operación inválida',
+                    text:   'No se puede solicitar justificación a este informe',
+                    buttons: [{
+                        text: 'Aceptar',
+                        onClick: function onClick(){
+                            return
+                        }
+                    }],
+                    verticalButtons: false
+                }).open();
+                return;
+            }
             var dialogTitle = 'Solicitando Justificación';
-            function save() {
-                var dialog = app.dialog.progress(dialogTitle);
 
-                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, {"Estado":"En espera de justificación"}, function (response) {
+            abrirPopup();
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+                var metadata = {
+                    Estado: "En espera de justificación",
+                    ComentarioJustificacion: comment
+                };
+
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, metadata, function (response) {
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
@@ -510,16 +651,82 @@ localButtons.requireJustificationItem = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al solicitar justificación',
+                        'Error al solicitar justificación.',
                         responseText.error.message.value,
                     )
                 });
             }
-            dialogs.confirmDialog(
-                dialogTitle,
-                'Se solicitará una justificación al informe',
-                save
-            )
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Volver</button>
+                                    <button class="button button-fill send">Solicitar</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Justificación',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                                Required: true,
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Solicitud de Justificación'.bold(),
+                                editable: true,
+                                description: 'Ingrese la razón para pedir justificación.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                form.checkFieldsRequired();
+                                if(form.getValidation()){
+                                    var comentarioRechazo = form.getMetadata();                                                                    
+                                    // cerrar popover
+                                    popup.close();
+    
+                                    save(comentarioRechazo.ComentarioVirtual);
+                                }
+                                
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
+
+                dynamicPopup.open();
+            }
         }
     }
     return button
@@ -536,7 +743,7 @@ localButtons.sendJustification = function(context){
             function save(comment) {
                 var dialog = app.dialog.progress(dialogTitle);
 
-                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, { Estado: "Aprobado y enviado a administración", Justificaci_x00f3_n: comment }, function (response) {
+                spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, { Estado: "Enviado para aprobar", Justificaci_x00f3_n: comment }, function (response) {
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
@@ -704,7 +911,7 @@ localButtons.downloadInformeCoord = function(context){
 
 localButtons.downloadInformeAdmin = function(context){
     button = {
-        text: 'Descargar Informe',
+        text: 'Descargar en Excel',
         class: 'informeDownload',
         icon: 'ExcelLogo',
         onClick: function(component, item){
@@ -748,7 +955,7 @@ localButtons.downloadInformeAdmin = function(context){
                                                 haber.CantidadMonto,
                                                 haber.Nombre.NombreCompleto,
                                                 haber.TipoContrato,
-                                                haber.Nombre.cargo,
+                                                haber.Nombre.d_cargo,
                                                 haber.CentroCosto.CodigoCC,
                                                 haber.Justificacion
                                             ];
@@ -819,7 +1026,7 @@ localButtons.downloadInformeAdmin = function(context){
 
 localButtons.downloadInformeComplete = function(context){
     button = {
-        text: 'Descargar Informe Completo',
+        text: 'Descargar Excel Completo',
         class: 'informeDownload',
         icon: 'ExcelLogo',
         onClick: function(component, item){
@@ -829,7 +1036,7 @@ localButtons.downloadInformeComplete = function(context){
                 var query = spo.encodeUrlListQuery(context.list, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(Estado eq \'Aprobado por administración\')'
+                        'filter': '(Estado eq \'Aprobado\')'
                     }
                 });
                 spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
@@ -844,7 +1051,6 @@ localButtons.downloadInformeComplete = function(context){
 
                         // Se extrae la informacion
                         informes.forEach(informe => {
-                            console.log("El informe", informe)
                             let haberes = JSON.parse(informe.Haberes);
                             let arrayHaberes = haberes.d.results.map(function(haber){
                                 return [
@@ -854,7 +1060,7 @@ localButtons.downloadInformeComplete = function(context){
                                     haber.Nombre.NombreCompleto,
                                     haber.Rut,
                                     haber.TipoContrato,
-                                    haber.Nombre.cargo,
+                                    haber.Nombre.d_cargo,
                                     haber.CentroCosto.CodigoCC,
                                     haber.Justificacion,
                                     informe.Periodo.AnioCalculado,
@@ -897,6 +1103,245 @@ localButtons.downloadInformeComplete = function(context){
                 'Se descargará un documento Excel con la información de todos los informes',
                 save
             )
+        }
+    }
+    return button
+}
+
+localButtons.downloadInformePDF = function(context){
+    button = {
+        text: 'Descargar en PDF',
+        class: 'informePDFDownload',
+        icon: 'PDF',
+        onClick: function(component, item){
+            var dialogTitle = 'Descargando informe';
+            var dialog = app.dialog
+            var loaded = {};
+            context.items = {};
+            function createPDF(){
+                // Crear PDF
+                var doc = new jsPDF({
+                    orientation: 'l',
+                    format: "legal"
+                  })
+
+                // Formato Texto General
+                doc.setFontStyle("bold");
+                doc.setFont("helvetica");
+                
+                // Header
+                doc.setFontSize(10);
+                doc.setTextColor(100);
+                doc.text("LISTADO ITEMS VARIABLES", 155, 15);
+                
+                // Logo
+                doc.addImage(mutualLogo, "JPEG", 169, 20, 20, 13);
+                
+                // Barras verdes 
+                doc.setDrawColor(0);
+                doc.setFillColor(76, 147, 27);
+                doc.rect(10, 35, 336, 4, "F");
+                doc.rect(10, 62, 336, 4, "F");
+                
+                doc.setFontStyle("normal");
+                doc.setTextColor(255,255,255);
+                doc.setFontSize(10);
+                doc.text("Información del coordinador", 11, 38);
+                doc.text("Ítems Variables Registrados ("+ context.items.informe.Cantidad +" items)", 11, 65);
+                
+                // Lines
+                doc.line(10, 41, 346, 41);
+                doc.line(10, 47, 346, 47);
+                doc.line(10, 53, 346, 53);
+                doc.line(10, 59, 346, 59);
+                
+                // Green letters
+                doc.setTextColor(76, 147, 27);
+                doc.setFontSize(8);
+                doc.text("Nombre del Coordinador", 11, 45);
+                doc.text("Centro de costo a cargo", 11, 51);
+                doc.text("Fecha de envío del informe", 11, 57);
+                doc.text("Código Payroll Coordinador", 170, 45);
+                doc.text("Jefe Aprobador", 170, 51);
+                doc.text("Fecha de aprobación", 170, 57);
+                
+                // Answers to green letters
+                doc.setTextColor(0);
+                doc.text(context.items.coordinador.Title, 65, 45);
+                doc.text(context.items.coordinador.CentroCosto.CodigoCC, 65, 51);
+                doc.text(moment(context.items.informe.Created).format("DD/MM/YYYY hh:mm"), 65, 57);
+                doc.text(context.items.coordinador.Planta.Title, 225, 45);
+                doc.text(context.items.coordinador.Aprobador.Nombre, 225, 51);
+                doc.text(moment(context.items.informe.FechaAprobacion).format("DD/MM/YYYY hh:mm"), 225, 57);
+        
+                // Table
+                let haberes = JSON.parse(context.items.informe.Haberes);
+                let n = 0;
+                let arrayHaberes = haberes.d.results.map(function(haber){
+                    n += 1;
+                    return [
+                        n,
+                        haber.Haber.Title,
+                        haber.Rut,
+                        haber.Haber.NombreItem,
+                        haber.CantidadMonto,
+                        haber.Nombre.NombreCompleto,
+                        haber.TipoContrato,
+                        haber.Nombre.d_cargo,
+                        haber.CentroCosto.CodigoCC,
+                        haber.Justificacion
+                    ];
+                });
+
+                doc.autoTable({
+                    head: [["N°", "COD_PAYROLL", "RUT", "ITEM VARIABLE", "CANT_$MONTO", "NOMBRE", "CONTRATO", "CARGO", "CCOSTO", "JUSTIFICACIÓN"]],
+                    body: arrayHaberes,
+                    theme: "grid",
+                    startY: 68,
+                    margin: {left: 10, bottom: 55},
+                    rowPageBreak: "avoid",
+                    tableWidth: 336,
+                    headStyles: {
+                        fontStyle:"bold",
+                        fillColor: null,
+                        textColor: [76, 147, 27],
+                        halign: 'center',
+                        fontSize: 8,
+                        lineColor: 1,
+                        lineWidth: 0.1
+                    },
+                    bodyStyles:{
+                        fontSize:7,
+                        overflow: 'ellipsize'
+                    },
+                    columnStyles: {
+                        0: {cellWidth: 10},// N°
+                        1: {cellWidth: 25},// COD_PAYROLL
+                        2: {cellWidth: 19},// RUT
+                        3: {cellWidth: 50},// ITEM VARIABLE
+                        4: {cellWidth: 20},// CANT_$MONTO
+                        5: {cellWidth: 50},// NOMBRE
+                        6: {cellWidth: 20},// CONTRATO
+                        7: {cellWidth: 20},// CARGO
+                        8: {cellWidth: 15},// CCOSTO
+                        9: {cellWidth: 50},// JUSTIFICACIÓN
+                    },
+                    didDrawPage: data => {
+                        data.doc.text("Página " + data.pageNumber, 330, 200, "right");
+                    },
+                })
+        
+                // Aprobado
+                doc.addImage(approved, "JPEG", 195, 160, 50, 40);
+                doc.setFontStyle("bold");
+                doc.setFontSize(10);
+                doc.text("RESPONSABLE", 140, 175, "center");
+                doc.setFontStyle("normal");
+                doc.text(context.items.coordinador.Aprobador.Nombre, 140, 180, "center");
+                doc.text(context.items.aprobador.Planta.d_cargo, 140, 185, "center");
+                doc.text("Mutual de Seguridad C.HC.C.", 140, 190, "center");
+        
+                // Download
+                let periodoName = "Coordinador_"+context.items.informe.Coordinador.Title+"_"
+                periodoName+="Periodo_"+context.items.informe.Periodo.MesCalculado+"_"+context.items.informe.Periodo.AnioCalculado;
+                doc.save(periodoName)
+                
+                dialog.close()
+                dialogs.infoDialog(
+                    dialogTitle,
+                    'Su informe se ha descargado exitosamente',
+                );
+            }
+            function shouldCreatePDF(){
+                if (loaded.Coordinador && loaded.Aprobador){
+                    createPDF();
+                }
+            }
+            function save() {
+                dialog.progress(dialogTitle);
+                var query = spo.encodeUrlListQuery(context.list, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(ID eq '+ item.ID +')'
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
+                    function (response) {
+                        context.items.informe = response.d.results[0];
+                        spo.getListInfo('Coordinador',
+                            function (response) {
+                                var query = spo.encodeUrlListQuery(response, {
+                                    view: 'Todos los elementos',
+                                    odata: {
+                                        'filter': '(ID eq '+ context.items.informe.CoordinadorId +')'
+                                    }
+                                });
+                                spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                                    function (response) {
+                                        context.items.coordinador = response.d.results[0];
+                                        loaded.Coordinador = true;
+                                        shouldCreatePDF();
+                                    },
+                                    function (response) {
+                                        var responseText = JSON.parse(response.responseText);
+                                        console.log(responseText.error.message.value);
+                                    }
+                                );
+                            },
+                            function(response){
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+                        spo.getListInfo('Aprobador',
+                            function (response) {
+                                var query = spo.encodeUrlListQuery(response, {
+                                    view: 'Todos los elementos',
+                                    odata: {
+                                        'filter': '(ID eq '+ context.items.informe.AprobadorId +')'
+                                    }
+                                });
+                                spo.getListItems(spo.getSiteUrl(), "Aprobador", query,
+                                    function (response) {
+                                        context.items.aprobador = response.d.results[0];
+                                        loaded.Aprobador = true;
+                                        shouldCreatePDF();
+                                    },
+                                    function (response) {
+                                        var responseText = JSON.parse(response.responseText);
+                                        console.log(responseText.error.message.value);
+                                    }
+                                );
+                            },
+                            function(response){
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se descargará un PDF con la información del informe',
+                save
+            )
+        }
+    }
+    return button
+}
+
+localButtons.openInforme = function(item){
+    button = {
+        text: 'Ver Informe',
+        class: 'openInforme',
+        icon: 'OpenInNewWindow',
+        onClick: function(component){
+            mainView.router.navigate('/informe?listItemId='+item.ID);
         }
     }
     return button

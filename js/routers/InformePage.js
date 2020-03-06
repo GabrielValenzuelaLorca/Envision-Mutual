@@ -49,7 +49,11 @@ var informePage = {
                         '</a>' +
                         '<a href="#" class="link download-excel ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--ExcelLogo"></i>' +
-                            '<span class="ios-only">Descargar Informe</span>' +
+                            '<span class="ios-only">Descargar Excel</span>' +
+                        '</a>' +
+                        '<a href="#" class="link download-pdf ms-fadeIn100 hide">' +
+                            '<i class="ms-Icon ms-Icon--PDF"></i>' +
+                            '<span class="ios-only">Descargar PDF</span>' +
                         '</a>' +
                     '</div>' +
                 '</div>' +
@@ -188,6 +192,7 @@ var informePage = {
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
                     $dowloadButton = $navbar.find('.link.download-excel');
+                    $pdfButton = $navbar.find('.link.download-pdf');
 
                 // formulario de registro
                 let form = {
@@ -197,6 +202,8 @@ var informePage = {
                 }
                 if (admin == "Coordinador"){
                     form.fields = spo.getViewFields(context.lists.Informe, "Informe Coord Page");
+                } else if (admin == "Aprobador"){
+                    form.fields = spo.getViewFields(context.lists.Informe, "Informe Admin Page");
                 } else if (admin == "Administrador"){
                     form.fields = spo.getViewFields(context.lists.Informe, "Informe Admin Page");
                 }
@@ -206,19 +213,30 @@ var informePage = {
                     container: $container.find('.sent-haberes-container'),
                     title: 'Haberes',
                     editable: false,
-                    items: JSON.parse(context.items.Informe.Haberes).d.results,
-                    disabled: true
+                    items: JSON.parse(context.items.Informe.Haberes).d.results.map(function(haber){
+                        if (haber.Nombre.d_cargo == null){
+                            haber.Nombre.d_cargo = ""
+                        }
+                        return haber
+                    }),
+                    disabled: true,
+                    sortable: false,
                 }
                 if (admin == "Coordinador"){
                     tableForm.listFields = spo.getViewFields(context.lists.Item, "Coordinador");
+                } else if (admin == "Aprobador"){
+                    tableForm.listFields = spo.getViewFields(context.lists.Item, "Administrador");
                 } else if (admin == "Administrador"){
                     tableForm.listFields = spo.getViewFields(context.lists.Item, "Administrador");
+                    $pdfButton.removeClass('hide');
                 }
                 context.forms.haberes = new EFWListTable(tableForm);
 
                 if (listItemId) {
                     context.forms.item.setValues(context.items.Informe);
                     $dowloadButton.removeClass('hide');
+                    $container.find('.checkbox-cell').addClass('hide');
+                    $container.find('.card-header').addClass('hide');
                 } 
 
                 $dowloadButton.on('click', function (e) {
@@ -282,7 +300,7 @@ var informePage = {
                                 haber.CantidadMonto,
                                 haber.Nombre.NombreCompleto,
                                 haber.TipoContrato,
-                                haber.Nombre.cargo,
+                                haber.Nombre.d_cargo,
                                 haber.CentroCosto.CodigoCC,
                                 haber.Justificacion
                             ];
@@ -336,6 +354,185 @@ var informePage = {
                             adminSave
                         )
                     }
+                });
+
+                $pdfButton.on('click', function (e) {
+                    var dialogTitle = 'Descargando informe';
+                    var dialog = app.dialog
+                    var loaded = {};
+                    function createPDF(){
+                        // Crear PDF
+                        var doc = new jsPDF({
+                            orientation: 'l',
+                            format: "legal"
+                        })
+
+                        // Formato Texto General
+                        doc.setFontStyle("bold");
+                        doc.setFont("helvetica");
+                        
+                        // Header
+                        doc.setFontSize(10);
+                        doc.setTextColor(100);
+                        doc.text("LISTADO ITEMS VARIABLES", 155, 15);
+                        
+                        // Logo
+                        doc.addImage(mutualLogo, "JPEG", 169, 20, 20, 13);
+                        
+                        // Barras verdes 
+                        doc.setDrawColor(0);
+                        doc.setFillColor(76, 147, 27);
+                        doc.rect(10, 35, 336, 4, "F");
+                        doc.rect(10, 62, 336, 4, "F");
+                        
+                        doc.setFontStyle("normal");
+                        doc.setTextColor(255,255,255);
+                        doc.setFontSize(10);
+                        doc.text("Información del coordinador", 11, 38);
+                        doc.text("Ítems Variables Registrados ("+ context.items.Informe.Cantidad +" items)", 11, 65);
+                        
+                        // Lines
+                        doc.line(10, 41, 346, 41);
+                        doc.line(10, 47, 346, 47);
+                        doc.line(10, 53, 346, 53);
+                        doc.line(10, 59, 346, 59);
+                        
+                        // Green letters
+                        doc.setTextColor(76, 147, 27);
+                        doc.setFontSize(8);
+                        doc.text("Nombre del Coordinador", 11, 45);
+                        doc.text("Centro de costo a cargo", 11, 51);
+                        doc.text("Fecha de envío del informe", 11, 57);
+                        doc.text("Código Payroll Coordinador", 170, 45);
+                        doc.text("Jefe Aprobador", 170, 51);
+                        doc.text("Fecha de aprobación", 170, 57);
+                        
+                        // Answers to green letters
+                        doc.setTextColor(0);
+                        doc.text(context.items.Coord.Title, 65, 45);
+                        doc.text(context.items.Coord.CentroCosto.CodigoCC, 65, 51);
+                        doc.text(moment(context.items.Informe.Created).format("DD/MM/YYYY hh:mm"), 65, 57);
+                        doc.text(context.items.Coord.Planta.Title, 225, 45);
+                        doc.text(context.items.Coord.Aprobador.Nombre, 225, 51);
+                        doc.text(moment(context.items.Informe.FechaAprobacion).format("DD/MM/YYYY hh:mm"), 225, 57);
+                
+                        // Table
+                        let haberes = JSON.parse(context.items.Informe.Haberes);
+                        let n = 0;
+                        let arrayHaberes = haberes.d.results.map(function(haber){
+                            n += 1;
+                            return [
+                                n,
+                                haber.Haber.Title,
+                                haber.Rut,
+                                haber.Haber.NombreItem,
+                                haber.CantidadMonto,
+                                haber.Nombre.NombreCompleto,
+                                haber.TipoContrato,
+                                haber.Nombre.d_cargo,
+                                haber.CentroCosto.CodigoCC,
+                                haber.Justificacion
+                            ];
+                        });
+
+                        doc.autoTable({
+                            head: [["N°", "COD_PAYROLL", "RUT", "ITEM VARIABLE", "CANT_$MONTO", "NOMBRE", "CONTRATO", "CARGO", "CCOSTO", "JUSTIFICACIÓN"]],
+                            body: arrayHaberes,
+                            theme: "grid",
+                            startY: 68,
+                            margin: {left: 10, bottom: 55},
+                            rowPageBreak: "avoid",
+                            tableWidth: 336,
+                            headStyles: {
+                                fontStyle:"bold",
+                                fillColor: null,
+                                textColor: [76, 147, 27],
+                                halign: 'center',
+                                fontSize: 8,
+                                lineColor: 1,
+                                lineWidth: 0.1
+                            },
+                            bodyStyles:{
+                                fontSize:7,
+                                overflow: 'ellipsize'
+                            },
+                            columnStyles: {
+                                0: {cellWidth: 10},// N°
+                                1: {cellWidth: 25},// COD_PAYROLL
+                                2: {cellWidth: 19},// RUT
+                                3: {cellWidth: 50},// ITEM VARIABLE
+                                4: {cellWidth: 20},// CANT_$MONTO
+                                5: {cellWidth: 50},// NOMBRE
+                                6: {cellWidth: 20},// CONTRATO
+                                7: {cellWidth: 20},// CARGO
+                                8: {cellWidth: 15},// CCOSTO
+                                9: {cellWidth: 50},// JUSTIFICACIÓN
+                            },
+                            didDrawPage: data => {
+                                data.doc.text("Página " + data.pageNumber, 330, 200, "right");
+                            },
+                        })
+                
+                        // Aprobado
+                        doc.addImage(approved, "JPEG", 195, 160, 50, 40);
+                        doc.setFontStyle("bold");
+                        doc.setFontSize(10);
+                        doc.text("RESPONSABLE", 140, 175, "center");
+                        doc.setFontStyle("normal");
+                        doc.text(context.items.Coord.Aprobador.Nombre, 140, 180, "center");
+                        doc.text(context.items.aprobador.Planta.d_cargo, 140, 185, "center");
+                        doc.text("Mutual de Seguridad C.HC.C.", 140, 190, "center");
+                
+                        // Download
+                        let periodoName = "Coordinador_"+context.items.Informe.Coordinador.Title+"_"
+                        periodoName+="Periodo_"+context.items.Informe.Periodo.MesCalculado+"_"+context.items.Informe.Periodo.AnioCalculado;
+                        doc.save(periodoName)
+                        
+                        dialog.close()
+                        dialogs.infoDialog(
+                            dialogTitle,
+                            'Su informe se ha descargado exitosamente',
+                        );
+                    }
+                    function shouldCreatePDF(){
+                        if (loaded.Aprobador){
+                            createPDF();
+                        }
+                    }
+                    function save() {
+                        dialog.progress(dialogTitle);
+                        spo.getListInfo('Aprobador',
+                            function (response) {
+                                console.log("El informe", context.items.Informe)
+                                var query = spo.encodeUrlListQuery(response, {
+                                    view: 'Todos los elementos',
+                                    odata: {
+                                        'filter': '(ID eq '+ context.items.Informe.AprobadorId +')'
+                                    }
+                                });
+                                spo.getListItems(spo.getSiteUrl(), "Aprobador", query,
+                                    function (response) {
+                                        context.items.aprobador = response.d.results[0];
+                                        loaded.Aprobador = true;
+                                        shouldCreatePDF();
+                                    },
+                                    function (response) {
+                                        var responseText = JSON.parse(response.responseText);
+                                        console.log(responseText.error.message.value);
+                                    }
+                                );
+                            },
+                            function(response){
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+                    }
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Se descargará un PDF con la información del informe',
+                        save
+                    )
                 });
 
                 // remover loader

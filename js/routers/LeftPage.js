@@ -337,16 +337,12 @@ menuPage.methods.getListBlocksData = function(){
                     });
                     let selfJobs = context.planta.map(function(x){
                         let categoria = context.Categoria.filter(c => c.ID == x.CategoriaId)[0];
-                        console.log("Sindicato", x.Sindicato)
                         return {
                             "Rut": x.Rut,
                             "Codigo Payroll": x.Title,
                             "Nombre Completo": x.NombreCompleto,
                             "Tipo Contrato": x.TipoContrato,
-                            "Sindicato": x.Sindicato,
-                            "Capex": x.Capex,
-                            "Jornada": x.Jornada,
-                            "Categoria": categoria.Categoria,
+                            "Categoria": categoria.Categoria.charAt(0),
                             "Cargo": x.d_cargo
                         }
                     });
@@ -414,8 +410,8 @@ menuPage.methods.getListBlocksData = function(){
         if (context.onPeriod){
             admSection.options = admSection.options.concat([
                 {
-                    href: '/informePeriodo',
-                    title: 'Informes Pendientes',
+                    href: '/sendStatusStream',
+                    title: 'Estados de envio',
                     after: '',
                     header: '',
                     footer: 'Items Variables',
@@ -426,9 +422,7 @@ menuPage.methods.getListBlocksData = function(){
                 }
             ]);
         } else {
-
             admSection.footer = 'No hay un periodo vigente para mostrar informes por aprobar';
-
         }
 
         admSection.options = admSection.options.concat([
@@ -455,7 +449,7 @@ menuPage.methods.getListBlocksData = function(){
                 media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
             },
             {
-                href: '/liststream?title=ItemsVariables&listtitle=ListadoItemVariable&listview=Todos los elementos&panel=filter-close&template=list-row&context=',
+                href: '/MItemVariable',
                 title: 'Mantenedor Haberes',
                 after: '',
                 header: '',

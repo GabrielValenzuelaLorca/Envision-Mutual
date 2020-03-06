@@ -17,7 +17,7 @@ itemVariableStreamPage.methods.getListTitle = function(){
 }
 
 itemVariableStreamPage.methods.onItemDblClick = function(item){
-    //mainView.router.navigate('/itemVariable?listItemId='+item.ID);
+    // mainView.router.navigate('/itemVariable?listItemId='+item.ID);
 }
 
 itemVariableStreamPage.methods.beforeStartComponent = function(success,failure){
@@ -96,6 +96,7 @@ itemVariableStreamPage.methods.beforeStartComponent = function(success,failure){
                 function (response) {
                     context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
                     context.Aprobador = response.d.results[0].Aprobador.Title;
+                    context.AprobadorId = response.d.results[0].AprobadorId;
                     loaded.Coordinador = true;
                     startItemComponent()
                 },
@@ -128,6 +129,24 @@ itemVariableStreamPage.methods.getNoItemsSelectedButtons = function(){
             buttons.push(localButtons.sendButton(context));
         }
     }
+    return buttons;
+}
+
+itemVariableStreamPage.methods.getOneItemSelectedButtons = function(item){
+    var page = this._getPage();
+    var self = this, buttons = [],
+    context = self._getPageContext(),
+    buttons = [];
+    
+    return buttons;
+}
+
+itemVariableStreamPage.methods.getMultiItemsSelectedButtons = function(items){
+    var page = this._getPage();
+    var self = this, buttons = [],
+    context = self._getPageContext(),
+    buttons = [];
+
     return buttons;
 }
 

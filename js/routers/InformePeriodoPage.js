@@ -137,42 +137,51 @@ informePeriodoPage.methods.getOneItemSelectedButtons = function(item){
     buttons = [];
 
     buttons.push(localButtons.disableItemSended(context));
-    if (admin == "Aprobador"){
-        buttons.push(localButtons.approveItemSended(context));
-    } else if (admin == "Administrador"){
-        buttons.push(localButtons.approveAdminItemSended(context));
-        buttons.push(localButtons.requireJustificationItem(context));
-    }
+    buttons.push(localButtons.approveItemSended(context));
+    buttons.push(localButtons.requireJustificationItem(context));
     
+    return buttons;
+}
+
+informePeriodoPage.methods.getMultiItemsSelectedButtons = function(items){
+    var page = this._getPage();
+    var self = this, buttons = [],
+    context = self._getPageContext(),
+    buttons = [];
+
+    return buttons;
+}
+
+informePeriodoPage.methods.getNoItemsSelectedButtons = function(){
+    var self = this,
+        page = self._getPage(),
+        context = self._getPageContext(),
+        buttons = [];
+
     return buttons;
 }
 
 informePeriodoPage.methods.getCamlQueryConditions = function(){
     var page = this._getPage();
     var context = this._getPageContext();
-    var urlQuery = page.route.query;
-    
-    if (admin=="Aprobador"){
-        if (context.coordinadoresId.length > 0){
-            return ''+
-            '<And><And><In>'+
-                '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
-                    '<Values>'+buildInCaml(context.coordinadoresId,'LookUp')+'</Values>'+
-            '</In><Eq>'+
+
+    if (context.coordinadoresId.length > 0){
+        return ''+
+        '<And><And><In>'+
+            '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
+                '<Values>'+buildInCaml(context.coordinadoresId,'LookUp')+'</Values>'+
+        '</In><Eq>'+
+            '<FieldRef Name="Estado" />'+
+                '<Value Type="Choice">Enviado para aprobar</Value>'+
+        '</Eq></And><Eq>'+
+            '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
+                '<Value Type="Lookup">'+context.periodId+'</Value>'+
+        '</Eq></And>'  
+    } else {
+        return ''+
+            '<Eq>'+
                 '<FieldRef Name="Estado" />'+
-                    '<Value Type="Choice">Enviado para aprobar</Value>'+
-            '</Eq></And><Eq>'+
-                '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
-                    '<Value Type="Lookup">'+context.periodId+'</Value>'+
-            '</Eq></And>'  
-        } else {
-            return ''+
-                '<Eq>'+
-                    '<FieldRef Name="Estado" />'+
-                        '<Value Type="Choice">Nono</Value>'+
-                '</Eq>'  
-        }
-    } else if (admin == "Administrador"){
-        return '<And><Eq><FieldRef Name="Estado" LookupId="TRUE"/><Value Type="Lookup">Aprobado y enviado a administración</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
+                    '<Value Type="Choice">Nono</Value>'+
+            '</Eq>'  
     }
 }

@@ -59,7 +59,7 @@ var itemPage = {
                           '<div class="item-title">Datos del Trabajador</div>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
-                        '<div class="form-container form-persona"></div>' +
+                        '<div class="form-persona"></div>' +
                       '</div>' +
                     '</li>' +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
@@ -67,7 +67,7 @@ var itemPage = {
                           '<div class="item-title">Datos Item Variable</div>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
-                        '<div class="form-container form-item"></div>' +
+                        '<div class="form-item"></div>' +
                       '</div>' +
                     '</li>' +
                 '</ul>' +
@@ -254,9 +254,8 @@ var itemPage = {
 
                 //Establecer Valores de persona con el nombre
                 context.forms.person.inputs['Nombre'].params.onChange = function(comp, input, state, values){
-                    if(values[0].item == null){
-                        return;
-                    }
+                    console.log('Values', values)
+
                     if(current != null){
                         return;
                     }
@@ -267,7 +266,6 @@ var itemPage = {
                         context.forms.person.inputs['Rut'].resetValue();
                         context.forms.person.inputs['CodigoPayroll'].resetValue();
                         context.forms.person.inputs['TipoContrato'].resetValue();
-                        context.forms.person.inputs['Categoria'].resetValue();
                         context.forms.item.inputs['Haber'].resetValue();
                         context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
                         context.forms.person.inputs['CentroCosto'].resetValue();
