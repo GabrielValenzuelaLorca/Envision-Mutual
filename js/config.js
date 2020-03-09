@@ -21,10 +21,9 @@ var AppScriptsArray = [
     "js/routers/ItemPage.js",
     "js/routers/UploadPlantaPage.js",
     "js/routers/PeriodoPage.js",
-    "js/routers/ItemVariablePage.js",
     "js/routers/InformePage.js",
+    "js/routers/ItemVariablePage.js",
     "js/routers/UploadItemsPage.js",
-    "js/routers/MItemVariableStreamPage.js",
     "js/routers/SendStatusPage.js",
     "js/routers/LeftPage.js",
     "js/routes.js", // routes.js si,empre al penúltimo

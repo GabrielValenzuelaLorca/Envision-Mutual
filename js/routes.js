@@ -26,10 +26,6 @@ function getRoutes(){
             component: periodoPage
         },
         {
-            path: '/itemVariable',
-            component: itemVariablePage
-        },
-        {
             path: '/uploadPlanta',
             component: uploadPlantaPage
         },
@@ -70,8 +66,8 @@ function getRoutes(){
             component: sendStatusPage
         },
         {
-            path: '/MItemVariable',
-            component: MItemVariableStreamPage
+            path: '/itemVariable',
+            component: ItemVariablePage
         },
         // Default route (404 page). MUST BE THE LAST
         {

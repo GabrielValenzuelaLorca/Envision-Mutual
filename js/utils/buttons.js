@@ -12,7 +12,6 @@ function buildInCaml(array, type){
     });
     return query;
 }
-
 function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, failure){
     var wb = XLSX.utils.book_new();
 
@@ -1226,20 +1225,24 @@ localButtons.downloadInformePDF = function(context){
                         8: {cellWidth: 15},// CCOSTO
                         9: {cellWidth: 50},// JUSTIFICACIÓN
                     },
-                    didDrawPage: data => {
-                        data.doc.text("Página " + data.pageNumber, 330, 200, "right");
-                    },
                 })
-        
-                // Aprobado
-                doc.addImage(approved, "JPEG", 195, 160, 50, 40);
-                doc.setFontStyle("bold");
-                doc.setFontSize(10);
-                doc.text("RESPONSABLE", 140, 175, "center");
-                doc.setFontStyle("normal");
-                doc.text(context.items.coordinador.Aprobador.Nombre, 140, 180, "center");
-                doc.text(context.items.aprobador.Planta.d_cargo, 140, 185, "center");
-                doc.text("Mutual de Seguridad C.HC.C.", 140, 190, "center");
+
+                let pageCount = doc.internal.getNumberOfPages();
+                for(i = 1; i < pageCount + 1; i++) { 
+                    // Pagination
+                    doc.setPage(i); 
+                    doc.text("Página " + i + " de " + doc.internal.getNumberOfPages(), 180, 200, "center");
+
+                    // Aprobado
+                    doc.addImage(approved, "JPEG", 280, 160, 50, 40);
+                    doc.setFontStyle("bold");
+                    doc.setFontSize(10);
+                    doc.text("RESPONSABLE", 225, 175, "center");
+                    doc.setFontStyle("normal");
+                    doc.text(context.items.coordinador.Aprobador.Nombre, 225, 180, "center");
+                    doc.text(context.items.aprobador.Planta.d_cargo, 225, 185, "center");
+                    doc.text("Mutual de Seguridad C.HC.C.", 225, 190, "center");
+                }
         
                 // Download
                 let periodoName = "Coordinador_"+context.items.informe.Coordinador.Title+"_"
