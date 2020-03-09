@@ -482,7 +482,7 @@ var informePage = {
                             doc.setFontSize(10);
                             doc.text("RESPONSABLE", 225, 175, "center");
                             doc.setFontStyle("normal");
-                            doc.text(context.items.coordinador.Aprobador.Nombre, 225, 180, "center");
+                            doc.text(context.items.Coord.Aprobador.Nombre, 225, 180, "center");
                             doc.text(context.items.aprobador.Planta.d_cargo, 225, 185, "center");
                             doc.text("Mutual de Seguridad C.HC.C.", 225, 190, "center");
                         }
