@@ -69,13 +69,29 @@ function getRoutes(){
             path: '/itemVariable',
             component: ItemVariablePage
         },
+        {
+            path: '/coordinadorStream',
+            component: coordinadorStreamPage
+        },
+        {
+            path: '/coordinador',
+            component: coordinadorPage
+        },
+        {
+            path: '/trabajadorPorCoordinador',
+            component: trabajadoresStreamPage
+        },
+        {
+            path: '/trabajadorTemporal',
+            component: trabajadoresPage
+        },
         // Default route (404 page). MUST BE THE LAST
         {
             path: '(.*)',
             url: './pages/404.html',
         },
     ];
-
+    // For test
 }
 
 // cambiar los colores :D
