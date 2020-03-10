@@ -87,7 +87,7 @@ function getRoutes(){
             url: './pages/404.html',
         },
     ];
-
+    // For test
 }
 
 // cambiar los colores :D
