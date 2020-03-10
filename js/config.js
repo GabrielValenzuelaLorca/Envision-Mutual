@@ -15,6 +15,8 @@ var AppScriptsArray = [
     "js/routers/InformeDesaprobadoPage.js",
     "js/routers/InformePeriodoPage.js",
     "js/routers/ItemVariableStreamPage.js",
+    "js/routers/SolicitudesStreamPage.js",
+    "js/routers/SolicitudesPage.js",
     "js/routers/PeriodoStreamPage.js",
     "js/routers/PlantaStreamPage.js",
     "js/routers/CoordinadorStreamPage.js",

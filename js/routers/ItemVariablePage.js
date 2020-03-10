@@ -1,4 +1,4 @@
-var itemVariablePage = {
+var ItemVariablePage = {
     template: '' +
         '<div class="page" data-page="FormPage">' +
             '<div class="navbar">' +
@@ -51,37 +51,36 @@ var itemVariablePage = {
                 '</div>' +
             '</div>' +
             '<div class="page-content">' +
-
-
-            '<div id="tituloFormularioMuestra" class="ms-font-xl ms-slideRightIn10" style="padding: 20px 20px 0 20px;">Detalle Item Variable</div>' +
-            '<div class="list accordion-list">' +
-                '<ul>' +
-                    '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
-                        '<div class="item-inner">' +
-                          '<div class="item-title">Datos principales item variable</div>' +
-                        '</div></a>' +
-                      '<div class="accordion-item-content">' +
-                        '<div class="form-container"></div>' +
-                      '</div>' +
-                    '</li>' +
-                    '<li class="accordion-item check"><a href="#" class="item-content item-link">' +
-                        '<div class="item-inner">' +
-                          '<div class="item-title">Tipo de análisis a realizar</div>' +
-                        '</div></a>' +
-                      '<div class="accordion-item-content">' +
-                        '<div class="form2"></div>' +
-                      '</div>' +
-                    '</li>' +
-                    '<li class="accordion-item germinacion"><a href="#" class="item-content item-link">' +
-                        '<div class="item-inner">' +
-                          '<div class="item-title">Análisis: Germinación</div>' +
-                        '</div></a>' +
-                      '<div class="accordion-item-content">' +
-                        '<div class="block form-germinacion">' +
-                        '</div>' +
-                      '</div>' +
-                    '</li>' +
-                '</ul>' +
+                '<div class="form-container main"></div>' +
+                '<div class="list accordion-list">' +
+                    '<ul>'+
+                        '<li class="accordion-item accordion-item-opened categoria hide"><a href="#" class="item-content item-link">'+
+                            '<div class="item-inner">'+
+                                '<div class="item-title">Categorias permitidas</div>'+
+                            '</div></a>'+
+                            '<div class="accordion-item-content">'+
+                                '<div class="form-container form1"></div>'+
+                            '</div>'+
+                        '</li>'+
+                        '<li class="accordion-item accordion-item-opened minmax hide"><a href="#" class="item-content item-link">'+
+                            '<div class="item-inner">'+
+                                '<div class="item-title">Valores minimos y maximos</div>'+
+                            '</div></a>'+
+                        '<div class="accordion-item-content">'+
+                            '<div class="form-container form2"></div>'+
+                        '</div>'+
+                        '</li>'+
+                        '<li class="accordion-item accordion-item-opened fechas hide"><a href="#" class="item-content item-link">'+
+                            '<div class="item-inner">'+
+                            '<div class="item-title">Fechas Excepcionales</div>'+
+                            '</div></a>'+
+                        '<div class="accordion-item-content">'+
+                            '<div class="form-container form3">'+
+                            '</div>'+
+                        '</div>'+
+                        '</li>'+
+                    '</ul>'+
+                '</div>'+
             '</div>' +
             
             '<div class="content-loader">' +
@@ -193,7 +192,8 @@ var itemVariablePage = {
             // variables
             var context = this.$options.data(),
                 mths = this.$options.methods,
-                listItemId = page.route.query.listItemId
+                listItemId = page.route.query.listItemId,
+                editable = page.route.query.editable
 
             context.methods = mths;
 
@@ -215,122 +215,194 @@ var itemVariablePage = {
                     $updateButton = $navbar.find('.link.update'),
                     $clearButton = $navbar.find('.link.clear');
 
-                // formulario de registro
-                context.forms.item = new EFWForm({
-                    container: $container.find('.form-container'),
-                    title: 'Listado Items Variables',
-                    editable: true,
-                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
-                    fields: spo.getViewFields(context.lists.ListadoItemVariable, 'Todos los elementos')
+
+                //prepare custom inputs
+                var inputs = spo.getViewFields(context.lists.ListadoItems, 'Vista general')
+
+                //Se genera el nuevo elemento y se agrega al arreglo de items
+                inputs.push({
+                    Id: generateUUID(),
+                    Title: '¿Requiere aplicar para fechas especiales?',
+                    InternalName: 'FechasEspeciales',
+                    TypeAsString: 'Boolean'
+                },{
+                    Id: generateUUID(),
+                    Title: '¿Tiene valores minimos y maximos?',
+                    InternalName: 'MinMax',
+                    TypeAsString: 'Boolean'
                 });
 
-                context.forms.dateForms = new EFWForms({
+                // formulario de datos generales
+                context.forms.main = new EFWForm({
+                    container: $container.find('.main'),
+                    title: 'Formulario item Variable',
+                    editable: editable ? true : false,
+                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                    fields: inputs,
+                });
+
+                //Formulario de categorias custom
+                context.forms.categoria = new EFWForm({
+                    container: $container.find('.form1'),
+                    title: '',
+                    editable: editable ? true : false,
+                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                    fields: spo.getViewFields(context.lists.ListadoItems, 'Categoria'),
+                });
+
+                //Formulario de minimo y maximo
+                context.forms.MinMax = new EFWForm({
                     container: $container.find('.form2'),
                     title: '',
-                    editable: true,
-                    fields: [{ 
-                        Id: generateUUID(),
-                        Title: 'Campo fecha',
-                        InternalName: 'CampoFecha',
-                        TypeAsString: 'Text'
-                    }]
+                    editable: editable ? true : false,
+                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                    fields: spo.getViewFields(context.lists.ListadoItems, 'MinimoMaximo'),
                 });
 
-                context.forms.item.inputs['GP'].params.onChange = function(comp, input, state, values){
-                    values ? '' : context.forms.item.inputs['Categoria'].setValue([]);
-                    values ? context.forms.item.inputs['Categoria'].show() : context.forms.item.inputs['Categoria'].hide()
-                }
+                //Formulario Fechas excepcionales
+                var inputs2 = [{
+                    Id: generateUUID(),
+                    Title: 'Día',
+                    InternalName: 'Day',
+                    TypeAsString: 'Choice',
+                    Choices: [ "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]
+                },{
+                    Id: generateUUID(),
+                    Title: 'Mes',
+                    InternalName: 'Month',
+                    TypeAsString: 'Choice',
+                    Choices: [ "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
 
+                }]
+
+                context.forms.fechas = new EFWForms({
+                    container: $container.find('.form3'),
+                    title: '',
+                    editable: editable ? true : false,
+                    disable: editable ? true : false,
+                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                    fields: inputs2,
+                });
+
+                $container.find('.form3').addClass('.table-compact-row');
 
                 if (listItemId) {
-                    context.forms.item.setValues(context.items.ListadoItemVariable);
+                    context.forms.main.setValues(context.items.ListadoItems);
 
-                    $updateButton.removeClass('hide');
+                    if(context.items.ListadoItems.GP){
+                        context.forms.categoria.setValues(context.items.ListadoItems);
+                        $('.accordion-item.categoria').removeClass('hide')
+                        if(editable){
+                            $('.accordion-item.categoria').removeClass('accordion-item-opened')
+                        }
+                    }
+                    if(context.items.ListadoItems.Maximo && context.items.ListadoItems.Minimo){
+                        context.forms.main.inputs.MinMax.setValue(true);
+                        context.forms.MinMax.setValues(context.items.ListadoItems);
+                        $('.accordion-item.minmax').removeClass('hide')
+                        if(editable){
+                            $('.accordion-item.minmax').removeClass('accordion-item-opened')
+                        }
+                    }
+                    if(context.items.ListadoItems.FechasExcepcionales){
+                        context.forms.main.inputs.FechasEspeciales.setValue(true);
 
-                } else {
-                    $sendButton.removeClass('hide');
-                    $clearButton.removeClass('hide');
+                        let fechas = context.items.ListadoItems.FechasExcepcionales.split(',')
 
+                        data = [];
+
+                        
+                        fechas.map(function(x){
+                            let d = x.split('/');
+                            data.push({
+                                Day: d[0],
+                                Month: d[1]
+                            });
+                        })
+                        console.log('Data', data);
+                        context.forms.fechas.setValues(data);
+
+                        console.log('Fechas especiales', fechas);
+
+                        $('.accordion-item.fechas').removeClass('hide')
+                        if(editable){
+                            $('.accordion-item.fechas').removeClass('accordion-item-opened')
+                        }
+                        if(!editable){
+                            $('.accordion-item.fecha').removeClass('hide')
+                        }
+                    }
+
+                    if(editable){
+                        $updateButton.removeClass('hide');
+                    }
                 }
-                console.log('context form', context)
-                $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Nuevo elemento';
 
-                    function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.item.getMetadata();
-                        metadata.Activo = true;
-
-                        spo.saveListItem(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {
-                            dialog.close();
-
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Creado con éxito',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.navigate('/liststream?title=ListadoItemVariable&listtitle=ListadoItemVariable&listview=Todos los elementos&panel=filter-close&template=list-row&context=');
-                                        location.reload(true);
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
-
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        });
+                context.forms.main.inputs.GP.params.onChange = function (self, input, state, value) {
+                    if(value){
+                        $('.accordion-item.categoria').removeClass('hide');
+                    }else{
+                        $('.accordion-item.categoria').addClass('hide');
+                        context.forms.categoria.setValues([]);
                     }
+                }
 
-                    context.forms.item.checkFieldsRequired();
-                    var validate =  context.forms.item.getValidation();
-
-                    if (validate) {
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se creará una nuevo registro.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
+                context.forms.main.inputs.MinMax.params.onChange = function (self, input, state, value) {
+                    if(value){
+                        $('.accordion-item.minmax').removeClass('hide');
+                    }else{
+                        $('.accordion-item.minmax').addClass('hide');
+                        context.forms.MinMax.setValues([]);
                     }
+                }
 
-                });
+                context.forms.main.inputs.FechasEspeciales.params.onChange = function (self, input, state, value) {
+                    if(value){
+                        $('.accordion-item.fechas').removeClass('hide');
+                    }else{
+                        $('.accordion-item.fechas').addClass('hide');
+                        context.forms.fechas.setValues([]);
+                    }
+                }
 
-                $updateButton.on('click', function (e) {
+                $updateButton.on('click', function (e){
                     var dialogTitle = 'Editando elemento';
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.item.getMetadata();
 
-                        spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
+                        var metadata = context.forms.main.getMetadata(),
+                        categoria = context.forms.categoria.getMetadata(),
+                        MinMax = context.forms.MinMax.getMetadata(),
+                        fechas = context.forms.fechas.getMetadata();
+
+                        if(metadata.GP){
+                            //Concatenamos el metadata de categorias
+                            metadata['CategoriaId'] = categoria.CategoriaId;
+                        }
+                        if(metadata.MinMax){
+                            //Concatenamos minmax
+                            metadata['Minimo'] = MinMax.Minimo;
+                            metadata['Maximo'] = MinMax.Maximo;
+                        }
+                        if(metadata.FechasEspeciales){
+                            //Concatenamos fechas especiales
+                            var valor = "";
+
+                            for(var i = 0; i< fechas.length; i++){
+                                if(i == (fechas.length-1)){
+                                    valor+= fechas[i].Day+'/'+fechas[i].Month+'/2000';
+                                }else{
+                                    valor+= fechas[i].Day+'/'+fechas[i].Month+'/2000,';
+                                }
+                            }
+                            metadata['FechasExcepcionales'] = valor;
+                        }
+
+                        delete metadata['FechasEspeciales'];
+                        delete metadata['MinMax'];
+
+                        spo.updateListItem(spo.getSiteUrl(), 'ListadoItemVariable', listItemId, metadata, function (response) {
                             dialog.close();
 
                             app.dialog.create({
@@ -339,13 +411,11 @@ var itemVariablePage = {
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
-                                        //mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                        mainView.router.navigate('/liststream?title=Mantenedor%20Items%20Variables&listtitle=ListadoItemVariable&listview=Todos%20los%20elementos&template=list-row&panel=filter-close');
                                     }
                                 }],
                                 verticalButtons: false
                             }).open();
-
-
                         }, function (response) {
                             var responseText = JSON.parse(response.responseText);
                             console.log('responseText', responseText);
@@ -361,40 +431,28 @@ var itemVariablePage = {
                             }).open();
                         });
                     }
-                    
-                    context.forms.item.checkFieldsRequired();
 
-                    var validate = context.forms.item.getValidation();
-
-                    if (validate) {
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se actualizará el elemento.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    }
-
+                    app.dialog.create({
+                        title: dialogTitle,
+                        text: 'Se actualizará el elemento.',
+                        buttons: [{
+                            text: 'Cancelar'
+                        }, {
+                            text: 'Aceptar',
+                            onClick: function onClick() {
+                                save();
+                            }
+                        }],
+                        verticalButtons: false
+                    }).open();
                 });
 
+
                 $clearButton.on('click', function (e){
-                    context.forms.item.setValues([]);
+                    context.forms.main.setValues([]);
+                    context.forms.categoria.setValues([]);
+                    context.forms.MinMax.setValues([]);
+                    context.forms.fechas.setValues([]);
                 });
 
                 // remover loader
@@ -408,34 +466,33 @@ var itemVariablePage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.ListadoItemVariable) {
+                    if (loaded.ListadoItems) {
                         initForm();
                     }
                 };
 
                 // Obtener información de lista
-                spo.getListInfo('ListadoItemVariable',
+                spo.getListInfo(mths.getListTitle(),
                     function (response) {
-                        console.log('Valor de mths.getListTitle()', mths.getListTitle());
-                        context.items.ListadoItemVariable = [];
-                        context.lists.ListadoItemVariable = response;
-                        loaded.ListadoItemVariable = true;
+                        context.items.ListadoItems = [];
+                        context.lists.ListadoItems = response;
                         
                         // Si existe el id de algún item a obtener
                         if (listItemId) {
 
-                            var query = spo.encodeUrlListQuery(context.lists.ListadoItemVariable, {
+                            var query = spo.encodeUrlListQuery(context.lists.ListadoItems, {
                                 view: 'Todos los elementos',
                                 odata: {
                                     'filter': '(Id eq ' + listItemId + ')',
-                                    'select': '*',
+                                    'select': '*,AttachmentFiles',
+                                    'expand': 'AttachmentFiles'
                                 }
                             });
 
-                            spo.getListItems(spo.getSiteUrl(), 'ListadoItemVariable', query,
+                            spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
                                 function (response) {
-                                    context.items.ListadoItemVariable = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.ListadoItemVariable = true;
+                                    context.items.ListadoItems = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    loaded.ListadoItems = true;
                                     shouldInitForms();
 
 
@@ -446,43 +503,9 @@ var itemVariablePage = {
                                 }
                             );
                         } else {
-                            loaded.ListadoItemVariable = true;
+                            loaded.Periodo = true;
                             shouldInitForms();
                         }
-
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                    }
-                );
-
-                // Obtengo el listado de categorias completa
-                spo.getListInfo('Categoria',
-                    function (response) {
-                        context.items.Categorias = [];
-                        context.lists.Categorias = response;
-                        //loaded.listaItemVariable = true;
-
-                            var query = spo.encodeUrlListQuery(context.lists.Categorias, {
-                                view: 'Todos los elementos',
-                                odata: {
-                                    'select': '*',
-                                    'top' : 5000
-                                }
-                            });
-
-                            spo.getListItems(spo.getSiteUrl(), 'Categoria', query,
-                                function (response) {
-                                    context.items.Categorias = response.d.results.length > 0 ? response.d.results : null;
-                                    loaded.Categorias = true;
-                                    shouldInitForms();
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
 
                     },
                     function (response) {

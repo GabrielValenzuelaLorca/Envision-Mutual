@@ -243,7 +243,6 @@ var sendStatusPage = {
                 if(!context.items.InformeHaberes){
                     context.items.Coordinador.map(function(x){
                         let apr = context.items.Aprobador.filter(a => a.ID == x.AprobadorId)
-                        console.log('APR', apr)
                         data.push({
                             "Coordinador": x.Planta.NombreCompleto,
                             "Correo": x.Usuario.UserName,
@@ -258,7 +257,6 @@ var sendStatusPage = {
                     context.items.Coordinador.map(function(x){
                         let coo = context.items.InformeHaberes.filter(i => i.CoordinadorId == x.ID)[0];
                         let apr = context.items.Aprobador.filter(a => a.ID == x.AprobadorId)[0]
-                        console.log('APR', apr)
                         if(coo){
                             data.push({
                                 "Coordinador": x.Planta.NombreCompleto,

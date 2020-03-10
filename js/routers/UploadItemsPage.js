@@ -403,6 +403,29 @@ var uploadItemsPage = {
                                     }
                                 }
 
+                                function validateMINMAX(value, codItem){
+                                    let item = context.items.ListadoItemVariable.filter(x => x.Title == codItem)[0];
+                                    value = parseInt(value);
+            
+                                    if(item.Minino && item.Maximo){
+                                        if(item.Minimo > value && item.Maximo < value){
+                                            return false;
+                                        }
+                                    }
+                                    if(item.Minimo){
+                                        if(item.Minimo > value){
+                                            return false;
+                                        }
+                                    }
+                                    if(item.Maximo){
+                                        if (item.Maximo < value){
+                                            return false;
+                                        }
+                                    }
+            
+                                    return true;
+                                }
+
                                 //Obtenemos todos los datos de los item que puede acceder el coordinador
                                 var ItemPorCoo = context.items.ListadoItemVariable.filter( x => 
                                     context.items.Coordinador[0].HaberesId.results.includes(x.ID)
@@ -458,6 +481,23 @@ var uploadItemsPage = {
                                         });
                                         linea++
                                         return;
+                                    }else{
+                                        if(!Number.isInteger(fila.CANT_$MONTO)){
+                                            Errores.push({
+                                                "Linea": linea,
+                                                "Message": `En el campo cantidad o monto solo se permiten numeros.`
+                                            });
+                                            linea++
+                                            return;
+                                        }
+                                        if(!validateMINMAX(fila.CANT_$MONTO, fila.COD_HABER)){
+                                            Errores.push({
+                                                "Linea": linea,
+                                                "Message": `La cantidad o monto ingresado excede los limites establecidos para el item.`
+                                            });
+                                            linea++
+                                            return;
+                                        }
                                     }
 
                                     //Errores de justificacion

@@ -91,7 +91,7 @@ var itemPage = {
             tables: {},
             loader: {
                 text: 'Espere un momento por favor',
-                image: './assets/img/gifmutual.gif'
+                image: './assets/img/mutual.png'
             }
         };
     },
@@ -204,7 +204,6 @@ var itemPage = {
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
                     $sendButton = $navbar.find('.link.send'),
-                    $updateButton = $navbar.find('.link.update'),
                     $clearButton = $navbar.find('.link.clear');
 
                 // formulario de registro Datos persona
@@ -254,8 +253,6 @@ var itemPage = {
 
                 //Establecer Valores de persona con el nombre
                 context.forms.person.inputs['Nombre'].params.onChange = function(comp, input, state, values){
-                    console.log('Values', values)
-
                     if(current != null){
                         return;
                     }
@@ -281,8 +278,6 @@ var itemPage = {
                     var CCActual = context.items.CentroCosto.filter(function(x){
                         return x.ID == values[0].item.CentroCostoId;
                     })[0];
-
-                    console.log('Centro de costo Actual', CCActual)
 
                     var categoriaActual = context.items.Categorias.filter(function(x){
                         return x.ID == values[0].item.CategoriaId;
@@ -332,8 +327,6 @@ var itemPage = {
                     var dato = items.filter(function(item){
                         return arregloDatos.includes(item.ID);
                     });
-
-                    console.log('Periodo Actual', context.items.Periodo);
 
                     var resultado = [];
 
@@ -395,7 +388,7 @@ var itemPage = {
                         //Validamos la GP y subGP correspondiente
                         if(haber['GP']){
 
-                            console.log('Datos de Haber', haber);
+
                             //Valida si el campo no esta vacio.
                             if(haber['CategoriaId'] != null){
 
@@ -646,6 +639,29 @@ var itemPage = {
                         });
                     }
 
+                    function validateMINMAX(value){
+                        let item = context.items.ListadoItemVariable.filter(x => x.Title == context.forms.item.inputs['Haber_x003a_Codigo'].values[0].text)[0];
+                        value = parseInt(value);
+
+                        if(item.Minino && item.Maximo){
+                            if(item.Minimo > value && item.Maximo < value){
+                                return false;
+                            }
+                        }
+                        if(item.Minimo){
+                            if(item.Minimo > value){
+                                return false;
+                            }
+                        }
+                        if(item.Maximo){
+                            if (item.Maximo < value){
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }
+
                     context.forms.person.checkFieldsRequired();
                     context.forms.item.checkFieldsRequired();
                     
@@ -661,86 +677,19 @@ var itemPage = {
                             }],
                             verticalButtons: false
                         }).open();
-                    }else if (validateItem && validatePerson) {
+                    }else if(!validateMINMAX(context.forms.item.inputs['CantidadMonto'].value)){
                         app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se creará una nuevo item.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo item debe completar todos los campos obligatorios.',
+                            title: 'Datos mal ingresados',
+                            text: 'El valor ingresado en Cantidad o Monto infringe el minimo o maximo permitido.',
                             buttons: [{
                                 text: 'Aceptar'
                             }],
                             verticalButtons: false
                         }).open();
-                    }
-
-                });
-
-                $updateButton.on('click', function (e) {
-                    var dialogTitle = 'Editando Item';
-
-                    function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
-                        var metadataItem = context.forms.item.getMetadata();
-                        var metadataPerson = context.forms.person.getMetadata();
-
-                        var myJSON = JSON.stringify(metadataPerson);
-
-                        myJSON = myJSON.replace('}',JSON.stringify(metadataItem).replace('{',','));
-                        var metadata = JSON.parse(myJSON);
-
-                        spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
-                            dialog.close();
-
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Item actualizado con éxito',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.refreshPage();
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        });
-                    }
-
-                    context.forms.person.checkFieldsRequired();
-                    context.forms.item.checkFieldsRequired();
-
-                    var validatePerson =  context.forms.item.getValidation();
-                    var validateItem =  context.forms.item.getValidation();
-
-                    if (validateItem && validatePerson) {
+                    }else if (validateItem && validatePerson) {
                         app.dialog.create({
                             title: dialogTitle,
-                            text: 'Se actualizará el Item.',
+                            text: 'Se creará una nuevo item.',
                             buttons: [{
                                 text: 'Cancelar'
                             }, {

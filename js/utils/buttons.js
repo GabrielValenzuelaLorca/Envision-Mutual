@@ -1479,3 +1479,289 @@ localButtons.addListTrabajadorButton = function(context, Javiera){
     }
     return button
 }
+
+
+localButtons.addCapexView = function(item){
+    button = {
+        text: 'Asociar nuevo trabajador',
+        class: 'addCapex',
+        icon: 'AddFriend',
+        onClick: function(component){
+             mainView.router.navigate('/liststream?title=Asociar Trabajador a CAPEX&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close');
+        }
+    }
+    return button
+}
+
+localButtons.deleteCapex = function(context){
+    button = {
+        text: 'Eliminar convenio',
+        class: 'deleteCapex',
+        icon: 'Delete',
+        onClick: function(component, item){
+            var dialogTitle = 'Eliminar convenio CAPEX';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var metadata = {Capex: false};
+
+                spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, metadata, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        `Convenio CAPEX eliminado`,
+                        `El trabajador ${item.NombreCompleto} ha sido eliminado del convenio capex correctamente`,
+                        refresh(),
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desaprobar el informe.',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            app.dialog.create({
+                title: dialogTitle,
+                text:   `¿Esta seguro que desea quitar a ${item.NombreCompleto} de convenio CAPEX?`,
+                buttons: [
+                {
+                    text: 'Cancelar',
+                    onClick: function onClick(){
+                        return
+                    }
+                },{
+                    text: 'Aceptar',
+                    onClick: function onClick(){
+                        save();
+                    }
+                }],
+                verticalButtons: false
+            }).open();
+
+        }
+    }
+    return button
+}
+
+localButtons.multiDeleteCapex = function(context){
+    button = {
+        text: 'Eliminar convenios',
+        class: 'deleteCapex',
+        icon: 'Delete',
+        onClick: function(component, item){
+            var dialogTitle = 'Eliminar nuevos convenios CAPEX';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                var metadata = [];
+
+                item.map(function(x){
+                    metadata.push({
+                        "ID": x.ID,
+                        "Capex": false
+                    });
+                })
+
+                spo.updateListItems(spo.getSiteUrl(), "Planta", metadata, function (response) {
+                    dialog.close()
+                    app.dialog.create({
+                        title: dialogTitle,
+                        text:   `Los trabajadores seleccionados han sido eliminados correctamente al Convenio Capex`,
+                        buttons: [{
+                            text: 'Aceptar',
+                            onClick: function onClick(){
+                                refresh()
+                           }
+                        }],
+                        verticalButtons: false
+                    }).open();
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desaprobar el informe.',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            app.dialog.create({
+                title: dialogTitle,
+                text:   `¿Esta seguro que desea eliminar los trabajadores seleccionados del convenio CAPEX?`,
+                buttons: [
+                {
+                    text: 'Cancelar',
+                    onClick: function onClick(){
+                        return
+                    }
+                },{
+                    text: 'Aceptar',
+                    onClick: function onClick(){
+                        save();
+                    }
+                }],
+                verticalButtons: false
+            }).open();
+
+        }
+    }
+    return button
+}
+
+localButtons.addCapex = function(context){
+    button = {
+        text: 'Crear convenio CAPEX',
+        class: 'createCapex',
+        icon: 'Add',
+        onClick: function(component, item){
+            var dialogTitle = 'Registrar nuevo convenio CAPEX';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                var metadata = {Capex: true};
+
+                spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, metadata, function (response) {
+                    dialog.close()
+                    app.dialog.create({
+                        title: dialogTitle,
+                        text:   `El trabajador ${item.NombreCompleto} ha sido agregado correctamente al Convenio Capex`,
+                        buttons: [{
+                            text: 'Aceptar',
+                            onClick: function onClick(){
+                                mainView.router.navigate('/liststream?title=Mantenedor Convenio Capex&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close')
+                            }
+                        }],
+                        verticalButtons: false
+                    }).open();
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desaprobar el informe.',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            app.dialog.create({
+                title: dialogTitle,
+                text:   `¿Esta seguro que desea agregar a ${item.NombreCompleto} al convenio CAPEX?`,
+                buttons: [
+                {
+                    text: 'Cancelar',
+                    onClick: function onClick(){
+                        return
+                    }
+                },{
+                    text: 'Aceptar',
+                    onClick: function onClick(){
+                        save();
+                    }
+                }],
+                verticalButtons: false
+            }).open();
+
+        }
+    }
+    return button
+}
+
+localButtons.multiAddCapex = function(context){
+    button = {
+        text: 'Crear convenios CAPEX',
+        class: 'createCapex',
+        icon: 'Add',
+        onClick: function(component, item){
+            var dialogTitle = 'Registrar nuevos convenios CAPEX';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                var metadata = [];
+
+                item.map(function(x){
+                    metadata.push({
+                        "ID": x.ID,
+                        "Capex": true
+                    });
+                })
+
+                spo.updateListItems(spo.getSiteUrl(), "Planta", metadata, function (response) {
+                    dialog.close()
+                    app.dialog.create({
+                        title: 'dialogTitle',
+                        text:   `Los trabajadores seleccionados han sido agregado correctamente al Convenio Capex`,
+                        buttons: [{
+                            text: 'Aceptar',
+                            onClick: function onClick(){
+                                mainView.router.navigate('/liststream?title=Mantenedor Convenio Capex&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close')
+                            }
+                        }],
+                        verticalButtons: false
+                    }).open();
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desaprobar el informe.',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            app.dialog.create({
+                title: dialogTitle,
+                text:   `¿Esta seguro que desea agregar los trabajadores seleccionados al convenio CAPEX?`,
+                buttons: [
+                {
+                    text: 'Cancelar',
+                    onClick: function onClick(){
+                        return
+                    }
+                },{
+                    text: 'Aceptar',
+                    onClick: function onClick(){
+                        save();
+                    }
+                }],
+                verticalButtons: false
+            }).open();
+
+        }
+    }
+    return button
+}
+
+localButtons.toItemVariablePage = function(){
+    button = {
+        text: 'Editar item variable',
+        class: 'editItem',
+        icon: 'Edit',
+        onClick: function(component, item){
+             mainView.router.navigate('/itemVariable?listItemId='+item.ID+'&editable=true');
+        }
+    }
+    return button
+}
+
+localButtons.toSolicitudPage = function(){
+    button = {
+        text: 'Crear nueva solicitud',
+        class: 'addSolicitud',
+        icon: 'Add',
+        onClick: function(component, item){
+             mainView.router.navigate('/Solicitud');
+        }
+    }
+    return button
+}

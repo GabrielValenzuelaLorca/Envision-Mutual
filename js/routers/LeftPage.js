@@ -259,6 +259,17 @@ menuPage.methods.getListBlocksData = function(){
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--ExcelLogo"></i>',
+                },
+                {
+                    href: '/Solicitudes',
+                    title: 'Solicitudes',
+                    after: '',
+                    header: '',
+                    footer: 'Centro de costos',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--DocumentApproval"></i>',
                 }
             ]);
         } else if(!canSendInform) {
@@ -406,6 +417,12 @@ menuPage.methods.getListBlocksData = function(){
             footer: '',
             options: []
         };
+        let admSection2 = {
+            inset: true,
+            header: 'Mantenedores',
+            footer: '',
+            options: []
+        };
 
         if (context.onPeriod){
             admSection.options = admSection.options.concat([
@@ -448,17 +465,7 @@ menuPage.methods.getListBlocksData = function(){
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
             },
-            {
-                href: '/MItemVariable',
-                title: 'Mantenedor Haberes',
-                after: '',
-                header: '',
-                footer: '',
-                panelClose: true,
-                externalLink: false,
-                f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
-            },
+            
             {
                 href: '/informeHistorico?&panel=filter-open',
                 title: 'Informes',
@@ -484,6 +491,33 @@ menuPage.methods.getListBlocksData = function(){
             
         ]);
         settings.push(admSection);
+
+
+        admSection2.options = admSection2.options.concat([
+        {
+            href: '/liststream?title=Mantenedor Items Variables&listtitle=ListadoItemVariable&listview=Todos los elementos&template=list-row&panel=filter-close',
+            title: 'Mantenedor Haberes',
+            after: '',
+            header: '',
+            footer: '',
+            panelClose: true,
+            externalLink: false,
+            f7view: '.view-main',
+            media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+        },
+        {
+            href: '/liststream?title=Mantenedor Convenio Capex&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close',
+            title: 'Mantenedor Capex',
+            after: '',
+            header: '',
+            footer: '',
+            panelClose: true,
+            externalLink: false,
+            f7view: '.view-main',
+            media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+        },]);
+
+        settings.push(admSection2);
     }
 
     return settings;
