@@ -7,9 +7,13 @@ var leftView = null;
 var mainView = null;
 var XHRrequests = [];
 var translations = {};
-var plantaId = null;
 var planta = null;
 var admin = null;
+var adminInfo = {
+    coordinador: null,
+    aprobador: null,
+    administrador: null
+};
 var spo = new EnvisionSPO({
     tenantUrl: global.tenantUrl,
     siteUrl: global.siteUrl,
@@ -128,41 +132,35 @@ spo.getCurrentUserInformation().done(function(){
         }
 
         function shouldStartApp(){
-            if (loaded.PlantaInfo && loaded.Planta && loaded.AdminInfo && loaded.Admin){
-                if (planta) {
-                    if (planta.EstadoContrato == "Activo") {
-                        startApp();        
-                    } else {
-                        startAppNoAccess();
+            if (loaded.Planta && loaded.Admin && loaded.Coord && loaded.Apr){
+                for (let i = 0; i < planta.length; i++) {
+                    if (planta[i].EstadoContrato == "Activo"){
+                        startApp();
+                        return;
                     }
-                } else {
-                    startAppNoAccess();
                 }
+                startAppNoAccess();
             }
         }
 
         spo.getListInfo('Planta',
-            function (response2) {
-                loaded.PlantaInfo = true;
-                var query2 = spo.encodeUrlListQuery(response2, {
+            function (response) {
+                var query = spo.encodeUrlListQuery(response, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(Email eq \'' + spo.getCurrentUser()['EMail'] + '\')',
-                        'select': '*,AttachmentFiles',
-                        'expand': 'AttachmentFiles'
+                        'filter': '(Email eq \'' + spo.getCurrentUser()['EMail'] + '\')'
                     }
                 });
 
-                spo.getListItems(spo.getSiteUrl(), 'Planta', query2,
-                    function (response2) {
-                        plantaId = response2.d.results.length > 0 ? response2.d.results[0].ID : null;
-                        planta = response2.d.results.length > 0 ? response2.d.results[0] : null;
+                spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                    function (response) {
+                        planta = response.d.results;
                         loaded.Planta = true;
                         shouldStartApp();
 
                     },
-                    function (response2) {
-                        var responseText = JSON.parse(response2.responseText);
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
                         console.log(responseText.error.message.value);
                         resolve(failCond);
                     }
@@ -177,19 +175,79 @@ spo.getCurrentUserInformation().done(function(){
 
         spo.getListInfo('Administrador',
             function(response){
-                loaded.AdminInfo = true;
                 var query = spo.encodeUrlListQuery(response, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(Usuario/Email eq \'' + spo.getCurrentUser()['EMail'] + '\')',
-                        'select': '*,AttachmentFiles',
-                        'expand': 'AttachmentFiles'
+                        'filter': '(UserId eq ' + spo.getCurrentUserId() + ')'
                     }
                 });
                 spo.getListItems(spo.getSiteUrl(), 'Administrador', query,
                     function(response){
+                        if (response.d.results.length > 0) {
+                            adminInfo.administrador = response.d.results[0];
+                        }
                         admin = response.d.results.length > 0 ? response.d.results[0].Cargo : null;
                         loaded.Admin = true;
+                        shouldStartApp();
+                    },
+                    function(response){
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        resolve(failCond);
+                    }
+                );
+            },
+            function(response){
+                var responseText = JSON.parse(response.responseText);
+                console.log(responseText.error.message.value);
+                resolve(failCond);
+            }
+        );
+
+        spo.getListInfo('Coordinador',
+            function(response){
+                var query = spo.encodeUrlListQuery(response, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(UsuarioId eq ' + spo.getCurrentUserId() + ')',
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), 'Coordinador', query,
+                    function(response){
+                        if (response.d.results.length > 0) {
+                            adminInfo.coordinador = response.d.results[0];
+                        }
+                        loaded.Coord = true;
+                        shouldStartApp();
+                    },
+                    function(response){
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        resolve(failCond);
+                    }
+                );
+            },
+            function(response){
+                var responseText = JSON.parse(response.responseText);
+                console.log(responseText.error.message.value);
+                resolve(failCond);
+            }
+        );
+
+        spo.getListInfo('Aprobador',
+            function(response){
+                var query = spo.encodeUrlListQuery(response, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(UsuarioId eq ' + spo.getCurrentUserId() + ')',
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), 'Aprobador', query,
+                    function(response){
+                        if (response.d.results.length > 0) {
+                            adminInfo.aprobador = response.d.results[0];
+                        }
+                        loaded.Apr = true;
                         shouldStartApp();
                     },
                     function(response){
