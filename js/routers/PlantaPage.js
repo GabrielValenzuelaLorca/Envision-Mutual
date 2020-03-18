@@ -1,4 +1,4 @@
-var coordinadorPage = {
+var plantaPage = {
     template: '' +
         '<div class="page" data-page="FormPage">' +
             '<div class="navbar">' +
@@ -39,9 +39,9 @@ var coordinadorPage = {
                             '<i class="ms-Icon ms-Icon--Send"></i>' +
                             '<span class="ios-only">Enviar</span>' +
                         '</a>' +
-                        '<a href="#" class="link associate-proyect ms-fadeIn100 hide">' +
+                        '<a href="#" class="link hide associate-proyect ms-fadeIn100">' +
                             '<i class="ms-Icon ms-Icon--IDBadge"></i>' +
-                            '<span class="ios-only">Asociar ticket</span>' +
+                            '<span class="ios-only">Cargar Datos</span>' +
                         '</a>' +
                         '<a href="#" class="link close-ticket ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--CheckMark"></i>' +
@@ -51,7 +51,29 @@ var coordinadorPage = {
                 '</div>' +
             '</div>' +
             '<div class="page-content">' +
-                '<div class="form-container"></div>' +
+            '<div class="header-content">' +
+            '<div id="tituloFormularioMuestra" class="ms-font-xl ms-slideRightIn10" style="padding: 20px 20px 0 20px;">Formulario registro de trabajadores</div>' +
+            '</div>' +
+                '<div class="list accordion-list">' +
+                    '<ul>'+
+                        '<li class="accordion-item accordion-item-opened person"><a href="#" class="item-content item-link">'+
+                            '<div class="item-inner">'+
+                                '<div class="item-title">Información trabajador</div>'+
+                            '</div></a>'+
+                            '<div class="accordion-item-content">'+
+                                '<div class="form-container form1"></div>'+
+                            '</div>'+
+                        '</li>'+
+                        '<li class="accordion-item accordion-item-opened job"><a href="#" class="item-content item-link">'+
+                            '<div class="item-inner">'+
+                                '<div class="item-title">Información contrato</div>'+
+                            '</div></a>'+
+                        '<div class="accordion-item-content">'+
+                            '<div class="form-container form2"></div>'+
+                        '</div>'+
+                        '</li>'+
+                    '</ul>'+
+                '</div>'+
             '</div>' +
             
             '<div class="content-loader">' +
@@ -104,7 +126,7 @@ var coordinadorPage = {
 
         // obtener título de la lista de inspección
         getListTitle: function () {
-            return 'Coordinador';
+            return 'Planta';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -182,39 +204,96 @@ var coordinadorPage = {
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
                     $sendButton = $navbar.find('.link.send'),
-                    $updateButton = $navbar.find('.link.update'),
                     $clearButton = $navbar.find('.link.clear');
+                    $Cargar = $navbar.find('.link.associate-proyect');
 
                 // formulario de registro
-                context.forms.item = new EFWForm({
-                    container: $container.find('.form-container'),
-                    title: mths.getListTitle(),
-                    editable: false,
-                    fields: spo.getViewFields(context.lists.Coordinador, 'Mantenedor Coordinador')
+                context.forms.person = new EFWForm({
+                    container: $container.find('.form1'),
+                    title: '',
+                    editable: true,
+                    fields: spo.getViewFields(context.lists.Planta, 'FormularioPlantaPersona')
                 });
 
+                // formulario de registro
+                context.forms.contrato = new EFWForm({
+                    container: $container.find('.form2'),
+                    title: '',
+                    editable: true,
+                    fields: spo.getViewFields(context.lists.Planta, 'FormularioPlantaContrato')
+                });
 
-                if (listItemId) {
-                    context.forms.item.setValues(context.items.Coordinador);                    
+                $sendButton.removeClass('hide');
+                $clearButton.removeClass('hide');
 
-                    $updateButton.removeClass('hide');
+                $Cargar.on('click', function (e) {
+                    context.forms.person.inputs['Rut'].setValue('11111111');
+                    context.forms.person.inputs['Nombre'].setValue('Nombre');
+                    context.forms.person.inputs['ApellidoPaterno'].setValue('Paterno');
+                    context.forms.person.inputs['ApellidoMaterno'].setValue('Materno');
+                    context.forms.person.inputs['Email'].setValue('correo@correo.cl');
+                    context.forms.person.inputs['FechaNacimiento'].setValue('14/06/1999');
+                    context.forms.person.inputs['Direccion'].setValue('direccion');
+                    context.forms.person.inputs['Telefono'].setValue('12345678');
+                    context.forms.person.inputs['EstadoCivil'].setValue([{key: 'Soltero(a)', text: 'Soltero(a)'}]);
+                    context.forms.person.inputs['Nacionalidad'].setValue([{key: 'Chilena', text: 'Chilena'}]);
+                    context.forms.person.inputs['AFP'].setValue([{ key: 1, text: 'CUPRUM'}]);
+                    context.forms.person.inputs['Isapre'].setValue([{ key: 10, text: 'FONASA'}]);
+                    context.forms.contrato.inputs['TipoContrato'].setValue([{ key: 'Indefinido', text: 'Indefinido'}]);
+                    context.forms.contrato.inputs['Categoria'].setValue([{ key: 227, text: 'A-01'}]);
+                    context.forms.contrato.inputs['InicioContrato'].setValue('14/06/2000');
+                    context.forms.contrato.inputs['Jornada'].setValue([{key: 'Art. 22', text: 'Art. 22'}]);
+                    context.forms.contrato.inputs['CentroCosto'].setValue([{key: 1031, text: '100110'}]);
+                    context.forms.contrato.inputs['ClaseRol'].setValue([{key: 'Clase Rol General', text: 'Clase Rol General'}]);
+                    context.forms.contrato.inputs['HorasContrato'].setValue('45');
+                    context.forms.contrato.inputs['rentao_i'].setValue('fhghfh');
+                    context.forms.contrato.inputs['subase_i'].setValue('ergert');
+                    context.forms.contrato.inputs['AreaUnidad'].setValue('fdgsdfg');
+                    context.forms.contrato.inputs['cargo'].setValue('tgfhdfh');
+                    context.forms.contrato.inputs['cencos'].setValue('sgfdsgdsf');
+                    context.forms.contrato.inputs['codocupa'].setValue('esrtert');
+                    context.forms.contrato.inputs['cencos1'].setValue('sdfgsdfgsdf');
+                    context.forms.contrato.inputs['codocupa'].setValue('sdfgsdfg');
+                    context.forms.contrato.inputs['d_bienesta'].setValue('dfgsdfg');
+                    context.forms.contrato.inputs['d_btc'].setValue('sdfgsdfg');
+                    context.forms.contrato.inputs['d_cargo'].setValue('gdhdfghd');
+                    context.forms.contrato.inputs['d_centro_d'].setValue('gfhdfh');
+                    context.forms.contrato.inputs['d_seg_cesa'].setValue('dfghgh');
+                    context.forms.contrato.inputs['d_seccion'].setValue('sdfgsdfg');
+                    context.forms.contrato.inputs['d_serv_med'].setValue('sdf sg sdg');
+                    context.forms.contrato.inputs['d_subdivis'].setValue('szfasdf asg sdg');
+                    context.forms.contrato.inputs['d_unidad'].setValue('fghdfh');
+                    context.forms.contrato.inputs['grado'].setValue('fgsdfgs');
+                    context.forms.contrato.inputs['gradoc'].setValue('te h fd');
+                    context.forms.contrato.inputs['LPago'].setValue('dsfgsdgsdfg');
+                    context.forms.contrato.inputs['Nivel_Org_1'].setValue('dsfgsdfgsdf');
+                    context.forms.contrato.inputs['Nivel_Org_2'].setValue('fdgsdfgsd');
+                    context.forms.contrato.inputs['Nivel_Org_3'].setValue('dfsgsdfg');
+                    context.forms.contrato.inputs['seccion'].setValue('fsdfgsdf');
+                    context.forms.contrato.inputs['unidad'].setValue('sdfgsdfg');
 
-                } else {
-                    
+                });
 
-                    $sendButton.removeClass('hide');
-                    $clearButton.removeClass('hide');
-
-                }
 
                 $sendButton.on('click', function (e) {
                     var dialogTitle = 'Nuevo elemento';
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.item.getMetadata();
-                        metadata.Activo = true;
+                        var person = context.forms.person.getMetadata();
+                        var contrato = context.forms.contrato.getMetadata();
 
+                        
+
+                        var myJSON = JSON.stringify(person);
+
+                        myJSON = myJSON.replace('}',JSON.stringify(contrato).replace('{',','));
+                        var metadata = JSON.parse(myJSON);
+                        metadata['EstadoContrato'] = 'Activo';
+
+                        //General codigo payroll y eso seria
+
+                        console.log('MEtadata', metadata)
                         spo.saveListItem(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {
                             dialog.close();
                             
@@ -223,7 +302,7 @@ var coordinadorPage = {
                                 'Creado con éxito',
                                 function(component, item){
                                     leftView.router.refreshPage();
-                                    mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                    mainView.router.navigate('/plantaStream');
                                 },
                                 false
                             )
@@ -243,13 +322,15 @@ var coordinadorPage = {
                         });
                     }
 
-                    context.forms.item.checkFieldsRequired();
-                    var validate =  context.forms.item.getValidation();
+                    context.forms.person.checkFieldsRequired();
+                    context.forms.contrato.checkFieldsRequired();
+                    var validate = context.forms.person.getValidation();
+                    var validata2 = context.forms.contrato.getValidation();
 
-                    if (validate) {
+                    if (validate && validata2) {
                         app.dialog.create({
                             title: dialogTitle,
-                            text: 'Se creará una nuevo registro.',
+                            text: 'Se creará una nuevo trabajador.',
                             buttons: [{
                                 text: 'Cancelar'
                             }, {
@@ -263,78 +344,7 @@ var coordinadorPage = {
                     } else {
                         app.dialog.create({
                             title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    }
-
-                });
-
-                $updateButton.on('click', function (e) {
-                    var dialogTitle = 'Editando elemento';
-
-                    function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.item.getMetadata();
-                        metadata.Activo = context.items.Coordinador.Activo;
-
-                        spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
-                            dialog.close();
-
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Elemento actualizado con éxito',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-
-
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
-
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        });
-                    }
-                    
-                    context.forms.item.checkFieldsRequired();
-
-                    var validate = context.forms.item.getValidation();
-
-                    if (validate) {
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se actualizará el elemento.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
+                            text: 'Para crear un nuevo trabajador debe completar todos los campos obligatorios.',
                             buttons: [{
                                 text: 'Aceptar'
                             }],
@@ -345,11 +355,12 @@ var coordinadorPage = {
                 });
 
                 $clearButton.on('click', function (e){
-                    context.forms.item.setValues([]);
+                    context.forms.person.setValues([]);
                 });
 
                 // remover loader
                 mths.removePageLoader();
+
             }
 
             function getListInformation() {
@@ -359,7 +370,7 @@ var coordinadorPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.listaCoordinador && loaded.Coordinador) {
+                    if (loaded.Planta) {
                         initForm();
                     }
                 };
@@ -367,40 +378,10 @@ var coordinadorPage = {
                 // Obtener información de lista
                 spo.getListInfo(mths.getListTitle(),
                     function (response) {
-                        context.items.Coordinador = [];
-                        context.lists.Coordinador = response;
-                        loaded.listaCoordinador = true;
-                        
-                        // Si existe el id de algún item a obtener
-                        if (listItemId) {
-
-                            var query = spo.encodeUrlListQuery(context.lists.Coordinador, {
-                                view: 'Todos los elementos',
-                                odata: {
-                                    'filter': '(Id eq ' + listItemId + ')',
-                                    'select': '*,AttachmentFiles',
-                                    'expand': 'AttachmentFiles'
-                                }
-                            });
-
-                            spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
-                                function (response) {
-                                    context.items.Coordinador= response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.Coordinador = true;
-                                    shouldInitForms();
-
-
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
-                        } else {
-                            loaded.Coordinador = true;
-                            shouldInitForms();
-                        }
-
+                        context.items.Planta = [];
+                        context.lists.Planta = response;
+                        loaded.Planta = true;
+                        shouldInitForms();
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);

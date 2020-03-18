@@ -72,7 +72,7 @@ listStreamPage.methods.onItemDblClick = function(item){
     switch(title){
         case 'Mantenedor Items Variables':{
             mainView.router.navigate('/itemVariable?listItemId='+item.ID); 
-            break;
+            return;
         }
     }     
 }
@@ -99,7 +99,6 @@ listStreamPage.methods.getCamlQueryConditions = function(){
                     </Eq>
                 </And>
             `
-            break;
         }
         case 'Asociar Trabajador a CAPEX':{
             return `
@@ -117,7 +116,6 @@ listStreamPage.methods.getCamlQueryConditions = function(){
                     </Eq>
                 </And>
             `
-            break;
         }
     }
 
@@ -195,10 +193,6 @@ function getRoutes(){
             component: coordinadorStreamPage
         },
         {
-            path: '/coordinador',
-            component: coordinadorPage
-        },
-        {
             path: '/trabajadorPorCoordinador',
             component: trabajadoresStreamPage
         },
@@ -213,6 +207,18 @@ function getRoutes(){
         {
             path: '/Solicitud',
             component: solicitudesPage
+        },
+        {
+            path: '/newEmployee',
+            component: plantaPage
+        },
+        {
+            path: '/rolStream',
+            component: rolStreamPage
+        },
+        {
+            path: '/assignRol',
+            component: assignRolPage
         },
         // Default route (404 page). MUST BE THE LAST
         {

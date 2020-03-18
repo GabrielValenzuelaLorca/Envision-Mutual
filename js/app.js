@@ -7,13 +7,7 @@ var leftView = null;
 var mainView = null;
 var XHRrequests = [];
 var translations = {};
-var planta = null;
-var admin = null;
-var adminInfo = {
-    coordinador: null,
-    aprobador: null,
-    administrador: null
-};
+var plantaAdmin = null;
 var spo = new EnvisionSPO({
     tenantUrl: global.tenantUrl,
     siteUrl: global.siteUrl,
@@ -132,14 +126,16 @@ spo.getCurrentUserInformation().done(function(){
         }
 
         function shouldStartApp(){
-            if (loaded.Planta && loaded.Admin && loaded.Coord && loaded.Apr){
-                for (let i = 0; i < planta.length; i++) {
-                    if (planta[i].EstadoContrato == "Activo"){
+            if (loaded.Planta) {
+                if (plantaAdmin){
+                    if (plantaAdmin.Rol != null && plantaAdmin.EstadoContrato == "Activo"){
                         startApp();
-                        return;
+                    } else {
+                        startAppNoAccess();    
                     }
+                } else {
+                    startAppNoAccess();    
                 }
-                startAppNoAccess();
             }
         }
 
@@ -148,16 +144,16 @@ spo.getCurrentUserInformation().done(function(){
                 var query = spo.encodeUrlListQuery(response, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(Email eq \'' + spo.getCurrentUser()['EMail'] + '\')'
+                        'filter': '(UsuarioId eq \'' + spo.getCurrentUserId() + '\')',
+                        'select': '*'
                     }
                 });
 
                 spo.getListItems(spo.getSiteUrl(), 'Planta', query,
                     function (response) {
-                        planta = response.d.results;
+                        plantaAdmin = response.d.results[0];
                         loaded.Planta = true;
                         shouldStartApp();
-
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);
@@ -167,97 +163,6 @@ spo.getCurrentUserInformation().done(function(){
                 );
             },
             function (response) {
-                var responseText = JSON.parse(response.responseText);
-                console.log(responseText.error.message.value);
-                resolve(failCond);
-            }
-        );
-
-        spo.getListInfo('Administrador',
-            function(response){
-                var query = spo.encodeUrlListQuery(response, {
-                    view: 'Todos los elementos',
-                    odata: {
-                        'filter': '(UserId eq ' + spo.getCurrentUserId() + ')'
-                    }
-                });
-                spo.getListItems(spo.getSiteUrl(), 'Administrador', query,
-                    function(response){
-                        if (response.d.results.length > 0) {
-                            adminInfo.administrador = response.d.results[0];
-                        }
-                        admin = response.d.results.length > 0 ? response.d.results[0].Cargo : null;
-                        loaded.Admin = true;
-                        shouldStartApp();
-                    },
-                    function(response){
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                        resolve(failCond);
-                    }
-                );
-            },
-            function(response){
-                var responseText = JSON.parse(response.responseText);
-                console.log(responseText.error.message.value);
-                resolve(failCond);
-            }
-        );
-
-        spo.getListInfo('Coordinador',
-            function(response){
-                var query = spo.encodeUrlListQuery(response, {
-                    view: 'Todos los elementos',
-                    odata: {
-                        'filter': '(UsuarioId eq ' + spo.getCurrentUserId() + ')',
-                    }
-                });
-                spo.getListItems(spo.getSiteUrl(), 'Coordinador', query,
-                    function(response){
-                        if (response.d.results.length > 0) {
-                            adminInfo.coordinador = response.d.results[0];
-                        }
-                        loaded.Coord = true;
-                        shouldStartApp();
-                    },
-                    function(response){
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                        resolve(failCond);
-                    }
-                );
-            },
-            function(response){
-                var responseText = JSON.parse(response.responseText);
-                console.log(responseText.error.message.value);
-                resolve(failCond);
-            }
-        );
-
-        spo.getListInfo('Aprobador',
-            function(response){
-                var query = spo.encodeUrlListQuery(response, {
-                    view: 'Todos los elementos',
-                    odata: {
-                        'filter': '(UsuarioId eq ' + spo.getCurrentUserId() + ')',
-                    }
-                });
-                spo.getListItems(spo.getSiteUrl(), 'Aprobador', query,
-                    function(response){
-                        if (response.d.results.length > 0) {
-                            adminInfo.aprobador = response.d.results[0];
-                        }
-                        loaded.Apr = true;
-                        shouldStartApp();
-                    },
-                    function(response){
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                        resolve(failCond);
-                    }
-                );
-            },
-            function(response){
                 var responseText = JSON.parse(response.responseText);
                 console.log(responseText.error.message.value);
                 resolve(failCond);

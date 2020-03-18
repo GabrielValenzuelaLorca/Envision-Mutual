@@ -75,7 +75,7 @@ var ItemVariablePage = {
                             '<div class="item-title">Fechas Excepcionales</div>'+
                             '</div></a>'+
                         '<div class="accordion-item-content">'+
-                            '<div class="form-container form3">'+
+                            '<div class="form-container table-compact-row form3">'+
                             '</div>'+
                         '</div>'+
                         '</li>'+
@@ -284,8 +284,6 @@ var ItemVariablePage = {
                     fields: inputs2,
                 });
 
-                $container.find('.form3').addClass('.table-compact-row');
-
                 if (listItemId) {
                     context.forms.main.setValues(context.items.ListadoItems);
 
@@ -322,14 +320,13 @@ var ItemVariablePage = {
                         console.log('Data', data);
                         context.forms.fechas.setValues(data);
 
-                        console.log('Fechas especiales', fechas);
-
                         $('.accordion-item.fechas').removeClass('hide')
                         if(editable){
-                            $('.accordion-item.fechas').removeClass('accordion-item-opened')
+                            $('.accordion-item.fechas').removeClass('accordion-item-opened')                            
                         }
                         if(!editable){
-                            $('.accordion-item.fecha').removeClass('hide')
+                            $('.table-compact-row .ms-EnvisionSerializeForm-row:nth-of-type(1) .ms-Form-header').addClass('hide');
+                            $('.ms-EnvisionSerializeForm-wrapper .ms-Form-header').addClass('hide');
                         }
                     }
 

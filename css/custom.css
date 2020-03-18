@@ -148,6 +148,16 @@
      line-height: 40px;
      cursor: pointer;
  }
+ .ios .send-email-popup2 .close-button{
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    right: 0px;
+    text-align: center;
+    z-index: 2;
+    line-height: 40px;
+    cursor: pointer;
+}
  
 .buttons-container .button{
      width: 280px;
@@ -161,6 +171,13 @@
 
 .popup.send-email-popup.modal-in {
     height: 400px ;
+}
+.popup.send-email-popup2.modal-in {
+    height: 290px;
+}
+
+.popup.send-email-popup2.modal-in {
+    height: 260px !important;
 }
 
 /* .popup.send-email-popup.modal-in.approval {

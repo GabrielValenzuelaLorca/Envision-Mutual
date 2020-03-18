@@ -1,15 +1,23 @@
 var SolicitudesStreamPage = $.extend(true, {}, listStreamPage)
 
+var self = SolicitudesStreamPage;
+    var context = self.methods._getPageContext();
+    var page = self.methods._getPage();
+
 SolicitudesStreamPage.methods.allowChangeTemplate = function(){
     return false;
 }
 
 SolicitudesStreamPage.methods.getListView = function(){
-    return "Solicitud centro de costo"    
+    if (plantaAdmin.Rol == "Coordinador"){
+        return "Solicitud centro de costo" 
+    }else if (plantaAdmin.Rol == "Administrador"){
+        return "Solicitud centro de costo Admin"
+    }
 }
 
 SolicitudesStreamPage.methods.getTitle = function(){
-    return "Solicitudes de centro de Costo"
+    return "Portal de solicitudes filtradas por el período actual" 
 }
 
 SolicitudesStreamPage.methods.getListTitle = function(){
@@ -17,7 +25,7 @@ SolicitudesStreamPage.methods.getListTitle = function(){
 }
 
 SolicitudesStreamPage.methods.onItemDblClick = function(item){
-    // mainView.router.navigate('/itemVariable?listItemId='+item.ID);
+    mainView.router.navigate('/Solicitud?listItemId='+item.ID);
 }
 
 SolicitudesStreamPage.methods.getNoItemsSelectedButtons = function(){
@@ -25,7 +33,12 @@ SolicitudesStreamPage.methods.getNoItemsSelectedButtons = function(){
         page = self._getPage(),
         context = self._getPageContext(),
         buttons = [];
-        buttons.push(localButtons.toSolicitudPage());
+        if(plantaAdmin.Rol == "Coordinador"){
+            buttons.push(localButtons.toSolicitudPage());
+        }else if (plantaAdmin.Rol == "Administrador"){
+            buttons = [];
+        }
+            
     return buttons;
 }
 
@@ -34,7 +47,9 @@ SolicitudesStreamPage.methods.getOneItemSelectedButtons = function(item){
     var self = this, buttons = [],
     context = self._getPageContext(),
     buttons = [];
-    
+
+    buttons.push(localButtons.resolveRequest());
+
     return buttons;
 }
 
@@ -47,37 +62,13 @@ SolicitudesStreamPage.methods.getMultiItemsSelectedButtons = function(items){
     return buttons;
 }
 
-SolicitudesStreamPage.methods.getCamlQueryConditions = function(){
-    var page = this._getPage();
-    var context = this._getPageContext();
-    var urlQuery = page.route.query;
-
-     return `
-        <And>
-            <And>
-                <Eq>
-                    <FieldRef Name="TipoSolicitud" /><Value Type="Choice">Centro de costo diferente</Value>
-                </Eq>
-                <Eq>
-                    <FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">${context.periodId.ID}</Value>
-                </Eq>
-            </And>
-            <Eq>
-                <FieldRef Name="Coordinador" LookupId="TRUE"/><Value Type="Lookup">${context.coorId}</Value>
-            </Eq>
-        </And>
-    `
-}
-
 SolicitudesStreamPage.methods.beforeStartComponent = function(success,failure){
     var context = this._getPageContext();
     loaded = {};
-    function startItemComponent(){
-        if (loaded.Periodo && loaded.Coordinador){
-            console.log('Hola')
-            success();
-            return;
-        }
+    var shouldInitForms = function () {
+        if (loaded.Periodo){
+            if (success) success();
+        } 
     }
     spo.getListInfo('Periodo',
         function (response) {
@@ -90,9 +81,8 @@ SolicitudesStreamPage.methods.beforeStartComponent = function(success,failure){
             spo.getListItems(spo.getSiteUrl(), "Periodo", query,
                 function (response) {
                     context.periodId = response.d.results.length>0 ? response.d.results[0] : null;
-                    console.log('perodId',context.periodId )
                     loaded.Periodo = true;
-                    startItemComponent()
+                    shouldInitForms()
                 },
                 function (response) {
                     var responseText = JSON.parse(response.responseText);
@@ -108,35 +98,27 @@ SolicitudesStreamPage.methods.beforeStartComponent = function(success,failure){
             if (failure) failure();
         }
     );
+}
 
-    spo.getListInfo('Coordinador',
-        function (response) {
-            var query = spo.encodeUrlListQuery(response, {
-                view: 'Todos los elementos',
-                odata: {
-                    'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')',
-                    'select': '*'
-                }
-            });
-            spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
-                function (response) {
-                    context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
-                    console.log('context.coorId', context.coorId)
-                    loaded.Coordinador = true;
-                    startItemComponent()
-                },
-                function (response) {
-                    var responseText = JSON.parse(response.responseText);
-                    console.log(responseText.error.message.value);
-                    if (failure) failure();
-                }
-            );
-        },
-        function(response){
-            var responseText = JSON.parse(response.responseText);
-            console.log(responseText.error.message.value);
-            resolve(failCond);
-            if (failure) failure();
+SolicitudesStreamPage.methods.afterFilterComponentInitializated = function () {
+    var self = this;
+    var context = self._getPageContext();
+    var page = self._getPage();
+
+    if(plantaAdmin.Rol == "Administrador"){
+        if (context.periodId){
+            let periodo = context.periodId.PeriodoCompleto;
+            context.components.itemsFilter.inputs.Periodo.setValue([{key: context.periodId.ID ,text: periodo}]);
         }
-    );
+    }
+    $(page.navbarEl).find('a.filter').click();
+}
+
+SolicitudesStreamPage.methods.getCamlQueryConditions = function(){
+    var page = this._getPage();
+    var context = this._getPageContext();
+    var urlQuery = page.route.query;
+    if (plantaAdmin.Rol == "Coordinador") {
+        return '<And><Eq><FieldRef Name="Coordinador" LookupId="TRUE"/><Value Type="Lookup">'+ plantaAdmin.ID +'</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+ context.periodId.ID+'</Value></Eq></And>'
+    }
 }

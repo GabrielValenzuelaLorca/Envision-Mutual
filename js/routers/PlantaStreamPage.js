@@ -79,8 +79,8 @@ plantaStreamPage.methods.getNoItemsSelectedButtons = function(){
         return x.Title == 'ActualizandoPlanta'
     });
     if(cargandoPlanta[0].Value == 'NO'){
-        buttons.push(localButtons.fileButton());
-        
+        buttons.push(localButtons.toCreateEmployeeForm());
+        buttons.push(localButtons.toUploadPlanta());
     }else{
         app.dialog.create({
             title: 'Atención',

@@ -9,87 +9,25 @@ coordinadorStreamPage.methods.getListView = function(){
 }
 
 coordinadorStreamPage.methods.getTitle = function(){
-    return "Coordinadores"
+    return "Haga doble click sobre un coordinador para asociar trabajadores"
 }
 
 coordinadorStreamPage.methods.getListTitle = function(){
-    return "Coordinador"
+    return "Planta"
 }
 
 coordinadorStreamPage.methods.onItemDblClick = function(item){
      mainView.router.navigate('/trabajadorPorCoordinador?listItemId='+item.ID);
 }
 
-coordinadorStreamPage.methods.getListView = function(){   
-        return "Mantenedor Coordinador"    
-}
-
-coordinadorStreamPage.methods.beforeStartComponent = function(success,failure){
-    var context = this._getPageContext();
-    if (admin=="Coordinador"){
-        spo.getListInfo('Coordinador',
-            function (response) {
-                var query = spo.encodeUrlListQuery(response, {
-                    view: 'Todos los elementos',
-                    odata: {
-                        'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')'
-                    }
-                });
-                spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
-                    function (response) {
-                        context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
-                        if (success) success();
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                        if (failure) failure();
-                    }
-                );
-            },
-            function(response){
-                var responseText = JSON.parse(response.responseText);
-                console.log(responseText.error.message.value);
-                resolve(failCond);
-                if (failure) failure();
-            }
-        );
-    } else if (admin == "Administrador"){
-        spo.getListInfo('Coordinador',
-            function (response) {
-                var query = spo.encodeUrlListQuery(response, {
-                    view: 'Todos los elementos',
-                    odata: {
-                        'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')'
-                    }
-                });
-                spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
-                    function (response) {
-                        context.lastInforme = response.d.results.length>0 ? response.d.results[0] : null;
-                        if (success) success();
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                        if (failure) failure();
-                    }
-                );
-            },
-            function(response){
-                var responseText = JSON.parse(response.responseText);
-                console.log(responseText.error.message.value);
-                resolve(failCond);
-                if (failure) failure();
-            }
-        );
-    }
-}
-
 coordinadorStreamPage.methods.getOneItemSelectedButtons = function(){
     return false;
 }
 //console para saber que metodos puedo usar
-console.log('metodos', coordinadorStreamPage.methods)
 coordinadorStreamPage.methods.getMultiItemsSelectedButtons = function(){
     return false;
+}
+
+coordinadorStreamPage.methods.getCamlQueryConditions = function(){
+    return '<And><Eq><FieldRef Name="Rol"/><Value Type="Choice">Coordinador</Value></Eq><Eq><FieldRef Name="EstadoContrato"/><Value Type="Choice">Activo</Value></Eq></And>' 
 }

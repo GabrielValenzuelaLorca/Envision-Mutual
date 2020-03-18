@@ -5,10 +5,10 @@ informePeriodoPage.methods.allowChangeTemplate = function(){
 }
 
 informePeriodoPage.methods.getListView = function(){
-    if (admin == "Aprobador") {
-        return "Aprobador"    
-    } else if (admin == "Administrador") {
+    if (plantaAdmin.Rol == "Administrador") {
         return "Administrador"
+    } else if (plantaAdmin.Rol == "Aprobador") {
+        return "Aprobador"    
     }
 }
 
@@ -35,7 +35,7 @@ informePeriodoPage.methods.beforeStartComponent = function(success,failure){
     var context = this._getPageContext();
     loaded = {}
     function startInformeComponent(){
-        if ((loaded.Aprobador || admin == "Administrador") && loaded.Periodo){
+        if ((loaded.Aprobador || plantaAdmin.Rol == "Administrador") && loaded.Periodo){
             if (success) success();
         }
     }
@@ -67,51 +67,24 @@ informePeriodoPage.methods.beforeStartComponent = function(success,failure){
             if (failure) failure();
         }
     );
-    if (admin == "Aprobador"){
-        spo.getListInfo('Aprobador',
+
+    if (plantaAdmin.Rol == "Aprobador"){    
+        // Busco a los coordinadores que me envían haberes
+        spo.getListInfo('Planta',
             function (response) {
                 var query = spo.encodeUrlListQuery(response, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')',
-                        'select': '*,AttachmentFiles',
-                        'expand': 'AttachmentFiles'
+                        'filter': '(AprobadorId eq '+ plantaAdmin.ID +')'
                     }
                 });
-                spo.getListItems(spo.getSiteUrl(), "Aprobador", query,
+                spo.getListItems(spo.getSiteUrl(), "Planta", query,
                     function (response) {
-                        context.aprobadorId = response.d.results.length>0 ? response.d.results[0].ID : null;
-                        // Busco a los coordinadores que me envían haberes
-                        spo.getListInfo('Coordinador',
-                            function (response) {
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'filter': '(AprobadorId eq '+ context.aprobadorId +')'
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
-                                    function (response) {
-                                        context.coordinadoresId = response.d.results.map(function(coord){
-                                            return coord.ID
-                                        })
-                                        loaded.Aprobador = true;
-                                        startInformeComponent()
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                        if (failure) failure();
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                                resolve(failCond);
-                                if (failure) failure();
-                            }
-                        );
+                        context.coordinadoresId = response.d.results.map(function(coord){
+                            return coord.ID
+                        })
+                        loaded.Aprobador = true;
+                        startInformeComponent()
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);

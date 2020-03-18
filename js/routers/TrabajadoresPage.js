@@ -17,59 +17,15 @@ trabajadoresPage.methods.getListTitle = function(){
 }
 
 trabajadoresPage.methods.onItemDblClick = function(item){
-   return(false)
-}
-
-trabajadoresPage.methods.getListView = function(){
-    // if (admin == "Administrador") {
-    //     return "Mantenedor Coordinador"    
-    // } else if (admin == "Coordinador"){
-    //     return "Personas Asociadas"
-    // }    
-}
-
-trabajadoresPage.methods.beforeStartComponent = function(success,failure){
-    var page = this._getPage();
-    var context = this._getPageContext();
-    var listItemId = page.route.query.listItemId;
-    spo.getListInfo('Planta',
-        function (response) {
-            var query = spo.encodeUrlListQuery(response, {
-                view: 'Trabajadores por coordinadores',
-                odata: {
-                    'top': 5000,
-                    'filter': 'CoordinadorId ne ' + listItemId,
-                }
-            });
-            spo.getListItems(spo.getSiteUrl(), "Planta", query,
-                function (response) {
-                    context.planta = response.d.results.length>0 ? response.d.results: null;
-                    loaded.Planta= true;
-                    console.log('listado planta', context.planta) 
-                    if (success) success();                   
-                },
-                function (response) {
-                    var responseText = JSON.parse(response.responseText);
-                    console.log(responseText.error.message.value);
-                    if (failure) failure();
-                }
-            );
-        },
-        function(response){
-            var responseText = JSON.parse(response.responseText);
-            console.log(responseText.error.message.value);
-            resolve(failCond);
-            if (failure) failure();
-        }
-    );
+   return false
 }
 
 trabajadoresPage.methods.getCamlQueryConditions = function(){
     var page = this._getPage();
     var context = this._getPageContext();
     var listItemId = page.route.query.listItemId;
-//aqui puse la query que me salio en la consola de la pagina
-     return '<Neq><FieldRef Name="Coordinador" LookupId="TRUE"/><Value Type="Lookup">'+listItemId+'</Value></Neq>'
+
+     return '<And><IsNull><FieldRef Name="Coordinador"/></IsNull><Eq><FieldRef Name="EstadoContrato"/><Value Type="Choice">Activo</Value></Eq></And>'
 }
 
 trabajadoresPage.methods.getMultiItemsSelectedButtons = function(){
@@ -81,7 +37,6 @@ trabajadoresPage.methods.getMultiItemsSelectedButtons = function(){
 
     buttons.push(localButtons.addListTrabajadoresButton(context, coordinador));
     
-
     return buttons;
 }
 trabajadoresPage.methods.getOneItemSelectedButtons = function(){
@@ -95,4 +50,6 @@ trabajadoresPage.methods.getOneItemSelectedButtons = function(){
 
     return buttons;
 }
-trabajadoresPage.methods.getNoItemsSelectedButtons = function(){return []}
+trabajadoresPage.methods.getNoItemsSelectedButtons = function(){
+    return false
+}

@@ -58,8 +58,12 @@ function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, f
         failure(JSON.stringify({"Error": "El numero de hojas es diferente al entregado"}));
     }
 }
-// Planta buttons
-localButtons.fileButton = function(){
+
+/**
+ * Redirecciones generales de la pagina
+ */
+
+localButtons.toUploadPlanta = function(){
     button = {
         text: 'Cargar Planta',
         class: 'uploadPlanta',
@@ -70,7 +74,360 @@ localButtons.fileButton = function(){
     }
     return button
 }
-// Periodo buttons
+
+localButtons.toSolicitudPage = function(){
+    button = {
+        text: 'Crear nueva solicitud',
+        class: 'addSolicitud',
+        icon: 'Add',
+        onClick: function(component, item){
+             mainView.router.navigate('/Solicitud');
+        }
+    }
+    return button
+}
+
+localButtons.toItemVariablePage = function(){
+    button = {
+        text: 'Editar item variable',
+        class: 'editItem',
+        icon: 'Edit',
+        onClick: function(component, item){
+             mainView.router.navigate('/itemVariable?listItemId='+item.ID+'&editable=true');
+        }
+    }
+    return button
+}
+
+localButtons.toOpenInforme = function(item){
+    button = {
+        text: 'Ver Informe',
+        class: 'openInforme',
+        icon: 'OpenInNewWindow',
+        onClick: function(component){
+            mainView.router.navigate('/informe?listItemId='+item.ID);
+        }
+    }
+    return button
+}
+
+localButtons.editPeriodButton = function(){
+    button = {
+        text: 'Editar',
+        class: 'editPeriodo',
+        icon: 'Edit',
+        onClick: function(component, item){
+            mainView.router.navigate('/periodo?listItemId='+item.ID);        
+        }
+    }
+    return button
+}
+
+localButtons.addCapexView = function(item){
+    button = {
+        text: 'Asociar nuevo trabajador',
+        class: 'addCapex',
+        icon: 'AddFriend',
+        onClick: function(component){
+             mainView.router.navigate('/liststream?title=Asociar Trabajador a CAPEX&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close');
+        }
+    }
+    return button
+}
+
+localButtons.resolveRequest = function(){
+    button = {
+        text: 'Ver detalle',
+        class: 'reviewDoc',
+        icon: 'RedEye',
+        onClick: function(component, item){
+             mainView.router.navigate('/Solicitud?listItemId='+item.ID);
+        }
+    }
+    return button
+}
+
+localButtons.toCreateEmployeeForm = function(){
+    button = {
+        text: 'Registrar nuevo trabajador',
+        class: 'addEmployee',
+        icon: 'PeopleAdd',
+        onClick: function(component, item){
+            mainView.router.navigate('/newEmployee');
+        }
+    }
+    return button
+}
+
+localButtons.toAssignRol = function(){
+    button = {
+        text: 'Asignar Rol',
+        class: 'addRole',
+        icon: 'AddFriend',
+        onClick: function(component, item){
+            mainView.router.navigate('/assignRol');
+        }
+    }
+    return button
+}
+
+
+
+
+
+/*
+    Todos los botones relacionados con la asociacion de trabajador por coordinador
+*/
+
+localButtons.addTrabajadorButton = function(context, id){
+    button = {
+        text: 'Asociar Trabajador',
+        class: 'addTranbajador',
+        icon: 'Add',
+        onClick: function(component, item){
+            mainView.router.navigate(encodeURI('/trabajadorTemporal?listItemId='+id));
+        }
+    }
+    return button
+}
+
+localButtons.addListTrabajadoresButton = function(context,coordinador){
+    button = {
+        text:'Asociar Trabajadores',
+        class:'addTrabajadores',
+        icon:'AddGroup',
+        onClick: function(component, item){
+
+            var dialogTitle = 'Asociando trabajadores';
+
+            //Ejecuta toda la funcion despues de la validacion de la alerta
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                console.log('Datos obtenidos', item)
+
+                var data = [];
+
+                item.map(function(x){
+                    data.push({
+                        "ID": x.ID,
+                        "CoordinadorId": coordinador
+                    });
+                })
+
+                spo.updateListItems(spo.getSiteUrl(), "Planta", data, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Trabajadores asociados con exito!',
+                        function(){
+                            mainView.router.navigate(encodeURI('/trabajadorPorCoordinador?listItemId='+coordinador));
+                        },
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'No se han podido asociar trabajadores, intente nuevamente',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            /* Alerta que se ejecuta al presionar el boton.
+            -   Si se presiona OK o aceptar se ejecuta el metodo save
+            -   Al cancelar no se ejecuta nada
+            */
+
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Esta seguro que desea asociar trabajadores?',
+                save
+            )
+        }
+    }
+    return button
+}
+
+localButtons.addListTrabajadorButton = function(context, coordinador){
+    button = {
+        text:'Asociar Trabajador',
+        class:'addTrabajador',
+        icon:'AddFriend',
+        onClick: function(component, item){
+            console.log('Valor seleccionado', item)
+
+            var dialogTitle = 'Asociando Trabajador';
+
+            //Ejecuta toda la funcion despues de la validacion de la alerta
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, {"CoordinadorId":coordinador}, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Trabajador asociado con exito!',
+                        function(){
+                            mainView.router.navigate(encodeURI('/trabajadorPorCoordinador?listItemId='+coordinador));
+                        },
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'No se ha podido asociar trabajador, intente nuevamente',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            /* Alerta que se ejecuta al presionar el boton.
+            -   Si se presiona OK o aceptar se ejecuta el metodo save
+            -   Al cancelar no se ejecuta nada
+            */
+
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Esta seguro que desea asociar trabajador?',
+                save
+            )
+        }
+
+    }
+    return button
+}
+
+localButtons.deleteTrabajador = function(context){
+    button = {
+        text: 'Desvincular trabajador',
+        class: 'desvincularTrabajador',
+        icon: 'Delete',
+        onClick: function(component, item){
+            var dialogTitle = 'Desvinculando trabajador';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var metadata = {"CoordinadorId": null};
+
+                spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, metadata, function (response) {
+                    dialog.close()
+                    app.dialog.create({
+                        title:  `Desvinculacion Completada`,
+                        text:    `El trabajador ${item.NombreCompleto} ha sido desvinculado de la lista del coordinador`,
+                        buttons: [{
+                            text: 'Aceptar',
+                            onClick: function onClick(){
+                                refresh()
+                            }
+                        }],
+                        verticalButtons: false
+                    }).open();
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desvincular trabajador, intente nuevamente',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            app.dialog.create({
+                title: dialogTitle,
+                text:   `¿Esta seguro que desea desvincular la asociacion de ${item.NombreCompleto} al coordinador?`,
+                buttons: [
+                {
+                    text: 'Cancelar',
+                    onClick: function onClick(){
+                        return
+                    }
+                },{
+                    text: 'Aceptar',
+                    onClick: function onClick(){
+                        save();
+                    }
+                }],
+                verticalButtons: false
+            }).open();
+
+        }
+    }
+    return button
+}
+
+localButtons.deleteListTrabajadoresButton = function(context){
+    button = {
+        text:'Desvincular Trabajadores',
+        class:'desvincularTrabajadores',
+        icon:'Delete',
+        onClick: function(component, item){
+
+            var dialogTitle = 'Desvinculando Trabajadores';
+
+            //Ejecuta toda la funcion despues de la validacion de la alerta
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                var metadata = [];
+
+                item.map(function(x){
+                    metadata.push({
+                        "ID": x.ID,
+                        "CoordinadorId": null
+                    });
+                })
+
+                spo.updateListItems(spo.getSiteUrl(), "Planta", metadata, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Trabajadores desvinculados con exito!',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desvincular trabajadores, intente nuevamente',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            /* Alerta que se ejecuta al presionar el boton.
+            -   Si se presiona OK o aceptar se ejecuta el metodo save
+            -   Al cancelar no se ejecuta nada
+            */
+
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Esta seguro que quiere desvincular trabajadores?',
+                save
+            )
+        }
+    }
+    return button
+}
+
+/*
+    Todos los botones relacionados con PeriodosPage
+*/
+
 localButtons.addPeriodButton = function(context){
     button = {
         text: 'Añadir Periodo',
@@ -103,17 +460,7 @@ localButtons.addPeriodButton = function(context){
     }
     return button
 }
-localButtons.editPeriodButton = function(){
-    button = {
-        text: 'Editar',
-        class: 'editPeriodo',
-        icon: 'Edit',
-        onClick: function(component, item){
-            mainView.router.navigate('/periodo?listItemId='+item.ID);        
-        }
-    }
-    return button
-}
+
 localButtons.desactivatePeriodoButton = function(){
     button = {
         text: 'Desactivar Periodo',
@@ -153,6 +500,7 @@ localButtons.desactivatePeriodoButton = function(){
     }
     return button
 }
+
 localButtons.activatePeriodoButton = function(context){
     button = {
         text: 'Activar Periodo',
@@ -214,7 +562,12 @@ localButtons.activatePeriodoButton = function(context){
     }
     return button
 }
-// Item Variable buttons
+
+/*
+    Todos los botones relacionados con ItemVariablePage
+*/
+
+//Envio de items Variables
 localButtons.sendButton = function(context){
     button = {
         text: 'Enviar Items',
@@ -227,7 +580,7 @@ localButtons.sendButton = function(context){
                 var query = spo.encodeUrlListQuery(context.list, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(CoordinadorId eq '+ context.coorId +' and PeriodoId eq '+ context.periodId +')',
+                        'filter': '(CoordinadorId eq '+ plantaAdmin.ID +' and PeriodoId eq '+ context.periodId +')',
                         'top': 5000
                     }
                 });
@@ -240,18 +593,18 @@ localButtons.sendButton = function(context){
                             // Se crea un nuevo informe
                             metadata = {
                                 PeriodoId: context.periodId,
-                                CoordinadorId: context.coorId,
+                                CoordinadorId: plantaAdmin.ID,
                                 Estado: "Enviado para aprobar",
                                 Haberes: JsonHaberes,
                                 Cantidad: response.d.results.length,
-                                AprobadorId: context.AprobadorId
+                                AprobadorId: plantaAdmin.AprobadorId
                             }
                             spo.saveListItem(spo.getSiteUrl(), "Informe Haberes", metadata, 
                                 function (response){
                                     dialog.close();
                                     dialogs.confirmDialog(
                                         dialogTitle,
-                                        'Informe enviado con éxito a ' + context.Aprobador,
+                                        'Informe enviado con éxito a ' + plantaAdmin.Aprobador.Email,
                                         function(){
                                             mainView.router.navigate(encodeURI('/informeDesaprobado'));
                                             leftView.router.refreshPage();
@@ -297,7 +650,11 @@ localButtons.sendButton = function(context){
     }
     return button
 }
-// Informe buttons
+
+/**
+ * Todo los botones relacionados con Informes
+ */
+
 localButtons.disableItemSended = function(context){
     button = {
         text: 'Desaprobar',
@@ -317,9 +674,9 @@ localButtons.disableItemSended = function(context){
             function save(comment) {
                 var dialog = app.dialog.progress(dialogTitle);
                 var metadata = {Estado: "Desaprobado"};
-                if (admin == "Aprobador"){
+                if (plantaAdmin.Rol == "Aprobador"){
                     metadata.Comentario = comment;
-                } else if (admin == "Administrador"){
+                } else if (plantaAdmin.Rol == "Administrador"){
                     metadata.ComentarioAdmin = comment;
                 }
 
@@ -419,7 +776,6 @@ localButtons.disableItemSended = function(context){
     return button
 }
 
-// Informe buttons
 localButtons.disableItemSendedAdmin = function(context, item){
     button = {
         text: 'Desaprobar',
@@ -459,9 +815,9 @@ localButtons.disableItemSendedAdmin = function(context, item){
             function save(comment) {
                 var dialog = app.dialog.progress(dialogTitle);
                 var metadata = {Estado: "Desaprobado"};
-                if (admin == "Aprobador"){
+                if (plantaAdmin.Rol == "Aprobador"){
                     metadata.Comentario = comment;
-                } else if (admin == "Administrador"){
+                } else if (plantaAdmin.Rol == "Administrador"){
                     metadata.ComentarioAdmin = comment;
                 }
 
@@ -841,657 +1197,9 @@ localButtons.sendJustification = function(context){
     return button
 }
 
-localButtons.downloadInformeCoord = function(context){
-    button = {
-        text: 'Descargar Informe',
-        class: 'informeDownload',
-        icon: 'ExcelLogo',
-        onClick: function(component, item){
-            var dialogTitle = 'Descargando informe';
-            function save() {
-                var dialog = app.dialog.progress(dialogTitle);
-                var query = spo.encodeUrlListQuery(context.list, {
-                    view: 'Todos los elementos',
-                    odata: {
-                        'filter': '(ID eq '+ item.ID +')'
-                    }
-                });
-                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
-                    function (response) {
-                        let haberes = JSON.parse(response.d.results[0].Haberes);
-                        let periodoName = "Periodo_"+response.d.results[0].Periodo.MesCalculado+"_"+response.d.results[0].Periodo.AnioCalculado;
-                        let arrayHaberes = haberes.d.results.map(function(haber){
-                            return {
-                                "Item Variable": haber.Haber.NombreItem,
-                                "Cantidad/Monto": haber.CantidadMonto,
-                                "Nombre": haber.Nombre.NombreCompleto,
-                                "Rut": haber.Rut,
-                                "Contrato": haber.TipoContrato,
-                                "Centro Costo": "Por Defecto",
-                                "Justificación":haber.Justificacion
-                            };
-                        });
-                        let colSizes = [[{"width":50},{"width":15},{"width":30},{"width":10},{"width":10},{"width":15},{"width":100}]];
-
-                        generateXLSX(["Items Variables"], periodoName, [arrayHaberes], false, colSizes, 
-                            function(response){
-                                dialog.close()
-                                dialogs.infoDialog(
-                                    dialogTitle,
-                                    'Su informe se ha descargado exitosamente',
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.Error);
-                                console.log('responseText', responseText);
-
-                                dialog.close();
-                                dialogs.infoDialog(
-                                    'Error al descargar el archivo',
-                                    responseText
-                                );
-                            });
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                    }
-                );
-            }
-            dialogs.confirmDialog(
-                dialogTitle,
-                'Se descargará un documento Excel con la información del informe seleccionado',
-                save
-            )
-        }
-    }
-    return button
-}
-
-localButtons.downloadInformeAdmin = function(context){
-    button = {
-        text: 'Descargar en Excel',
-        class: 'informeDownload',
-        icon: 'ExcelLogo',
-        onClick: function(component, item){
-            var dialogTitle = 'Descargando informe';
-            function save() {
-                var dialog = app.dialog.progress(dialogTitle);
-                var query = spo.encodeUrlListQuery(context.list, {
-                    view: 'Todos los elementos',
-                    odata: {
-                        'filter': '(ID eq '+ item.ID +')'
-                    }
-                });
-                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
-                    function (response) {
-                        var informe = response.d.results[0];
-                        spo.getListInfo('Coordinador',
-                            function (response) {
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'filter': '(ID eq '+ informe.CoordinadorId +')'
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
-                                    function (response) {
-                                        // Crear Book y sheets
-                                        var wb = XLSX.utils.book_new();
-                                        var coordinador = response.d.results[0];
-                                        
-                                        let headersItems = [["COD_PAYROLL","RUT","ITEM VARIABLE","CANT_$MONTO","NOMBRE","CONTRATO","CARGO","CCOSTO","OBSERVACIÓN/JUSTIFICACIÓN"]]
-                
-                                        // Se extrae la informacion
-                                        let haberes = JSON.parse(informe.Haberes);
-                                        let periodoName = "Coordinador_"+informe.Coordinador.Title+"_"
-                                        periodoName+="Periodo_"+informe.Periodo.MesCalculado+"_"+informe.Periodo.AnioCalculado;
-                                        let arrayHaberes = haberes.d.results.map(function(haber){
-                                            return [
-                                                haber.Haber.Title,
-                                                haber.Rut,
-                                                haber.Haber.NombreItem,
-                                                haber.CantidadMonto,
-                                                haber.Nombre.NombreCompleto,
-                                                haber.TipoContrato,
-                                                haber.Nombre.d_cargo,
-                                                haber.CentroCosto.CodigoCC,
-                                                haber.Justificacion
-                                            ];
-                                        });
-
-                                        // Se crea la hoja
-                                        let ws = XLSX.utils.aoa_to_sheet(headersItems.concat(arrayHaberes));
-                                        
-                                       // Se asigna tamaño a las columnas
-                                        let colSize = [{"width":13},{"width":10},{"width":35},{"width":14},{"width":35},{"width":15},{"width":20},{"width":8},{"width":100}];
-                                        ws["!cols"] = colSize;
-                
-                                        // Se crea la primera hoja
-                                        XLSX.utils.book_append_sheet(wb, ws, "Items Variables");
-                                        let coorData = [
-                                            ["Información del Coordinador"],
-                                            ["Nombre del coordinador", coordinador.Title],
-                                            ["Codigo payroll", coordinador.Planta.Title],
-                                            ["Centro costo", coordinador.CentroCosto.CodigoCC],
-                                            ["Jefe Aprobador", coordinador.Aprobador.Nombre],
-                                            ["Correo Jefe Aprobador", coordinador.Aprobador.Title],
-                                            ["Fecha de envío de informe",moment(informe.Created).format("DD/MM/YYYY hh:mm")],
-                                            ["Fecha de aprobación",moment(informe.FechaAprobacion).format("DD/MM/YYYY hh:mm")],
-                                            ["Número de items", informe.Cantidad.toString()],
-                                        ]
-
-                                        ws = XLSX.utils.aoa_to_sheet(coorData);
-                                        colSize = [{"width":25},{"width":30}];
-                                        ws["!cols"] = colSize;
-                                        XLSX.utils.book_append_sheet(wb, ws, "Información Coordinador");
-
-                                        XLSX.writeFile(wb, periodoName +'.xlsx');
-                                        
-                                        dialog.close()
-                                        dialogs.infoDialog(
-                                            dialogTitle,
-                                            'Su informe se ha descargado exitosamente',
-                                        );
-                
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                            }
-                        );
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                    }
-                );
-            }
-            dialogs.confirmDialog(
-                dialogTitle,
-                'Se descargará un documento Excel con la información del informe seleccionado',
-                save
-            )
-        }
-    }
-    return button
-}
-
-localButtons.downloadInformeComplete = function(context){
-    button = {
-        text: 'Descargar Excel Completo',
-        class: 'informeDownload',
-        icon: 'ExcelLogo',
-        onClick: function(component, item){
-            var dialogTitle = 'Descargando informe';
-            function save() {
-                var dialog = app.dialog.progress(dialogTitle);
-                var query = spo.encodeUrlListQuery(context.list, {
-                    view: 'Todos los elementos',
-                    odata: {
-                        'filter': '(Estado eq \'Aprobado\')'
-                    }
-                });
-                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
-                    function (response) {
-                        var informes = response.d.results;
-                       
-                        // Crear Book y sheets
-                        var wb = XLSX.utils.book_new();
-                        // var coordinador = response.d.results[0];
-                        
-                        let items = [["COD_PAYROLL","ITEM VARIABLE","CANT_$MONTO","NOMBRE","RUT","CONTRATO","CARGO","CCOSTO","OBSERVACIÓN/JUSTIFICACIÓN","AÑO PERIODO","MES PERIODO","COORDINADOR","FECHA ENVÍO","FECHA APROBACIÓN","JEFE APROBADOR","CORREO JEFE APROBADOR"]]
-
-                        // Se extrae la informacion
-                        informes.forEach(informe => {
-                            let haberes = JSON.parse(informe.Haberes);
-                            let arrayHaberes = haberes.d.results.map(function(haber){
-                                return [
-                                    haber.Haber.Title,
-                                    haber.Haber.NombreItem,
-                                    haber.CantidadMonto,
-                                    haber.Nombre.NombreCompleto,
-                                    haber.Rut,
-                                    haber.TipoContrato,
-                                    haber.Nombre.d_cargo,
-                                    haber.CentroCosto.CodigoCC,
-                                    haber.Justificacion,
-                                    informe.Periodo.AnioCalculado,
-                                    informe.Periodo.MesCalculado,
-                                    informe.Coordinador.Title,
-                                    moment(informe.Created).format("DD/MM/YYYY hh:mm"),
-                                    moment(informe.FechaAprobacion).format("DD/MM/YYYY hh:mm"),
-                                    informe.Aprobador.Nombre,
-                                    informe.Aprobador.Title,
-                                ];
-                            });
-                            items = items.concat(arrayHaberes)
-                        })
-
-                        // Se crea la hoja
-                        let ws = XLSX.utils.aoa_to_sheet(items);
-                        
-                        // Se asigna tamaño a las columnas
-                        let colSize = [{"width":13},{"width":35},{"width":14},{"width":35},{"width":10},{"width":15},{"width":20},{"width":8},{"width":100},{"width":13},{"width":13},{"width":25},{"width":16},{"width":18},{"width":25},{"width":30}];
-                        ws["!cols"] = colSize;
-
-                        // Se crea la primera hoja
-                        XLSX.utils.book_append_sheet(wb, ws, "Items Variables");
-                        XLSX.writeFile(wb, 'Items Variables Completo.xlsx');
-                        
-                        dialog.close()
-                        dialogs.infoDialog(
-                            dialogTitle,
-                            'Su informe se ha descargado exitosamente',
-                        );
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                    }
-                );
-            }
-            dialogs.confirmDialog(
-                dialogTitle,
-                'Se descargará un documento Excel con la información de todos los informes',
-                save
-            )
-        }
-    }
-    return button
-}
-
-localButtons.downloadInformePDF = function(context){
-    button = {
-        text: 'Descargar en PDF',
-        class: 'informePDFDownload',
-        icon: 'PDF',
-        onClick: function(component, item){
-            var dialogTitle = 'Descargando informe';
-            var dialog = app.dialog
-            var loaded = {};
-            context.items = {};
-            function createPDF(){
-                // Crear PDF
-                var doc = new jsPDF({
-                    orientation: 'l',
-                    format: "legal"
-                  })
-
-                // Formato Texto General
-                doc.setFontStyle("bold");
-                doc.setFont("helvetica");
-                
-                // Header
-                doc.setFontSize(10);
-                doc.setTextColor(100);
-                doc.text("LISTADO ITEMS VARIABLES", 155, 15);
-                
-                // Logo
-                doc.addImage(mutualLogo, "JPEG", 169, 20, 20, 13);
-                
-                // Barras verdes 
-                doc.setDrawColor(0);
-                doc.setFillColor(76, 147, 27);
-                doc.rect(10, 35, 336, 4, "F");
-                doc.rect(10, 62, 336, 4, "F");
-                
-                doc.setFontStyle("normal");
-                doc.setTextColor(255,255,255);
-                doc.setFontSize(10);
-                doc.text("Información del coordinador", 11, 38);
-                doc.text("Ítems Variables Registrados ("+ context.items.informe.Cantidad +" items)", 11, 65);
-                
-                // Lines
-                doc.line(10, 41, 346, 41);
-                doc.line(10, 47, 346, 47);
-                doc.line(10, 53, 346, 53);
-                doc.line(10, 59, 346, 59);
-                
-                // Green letters
-                doc.setTextColor(76, 147, 27);
-                doc.setFontSize(8);
-                doc.text("Nombre del Coordinador", 11, 45);
-                doc.text("Centro de costo a cargo", 11, 51);
-                doc.text("Fecha de envío del informe", 11, 57);
-                doc.text("Código Payroll Coordinador", 170, 45);
-                doc.text("Jefe Aprobador", 170, 51);
-                doc.text("Fecha de aprobación", 170, 57);
-                
-                // Answers to green letters
-                doc.setTextColor(0);
-                doc.text(context.items.coordinador.Title, 65, 45);
-                doc.text(context.items.coordinador.CentroCosto.CodigoCC, 65, 51);
-                doc.text(moment(context.items.informe.Created).format("DD/MM/YYYY hh:mm"), 65, 57);
-                doc.text(context.items.coordinador.Planta.Title, 225, 45);
-                doc.text(context.items.coordinador.Aprobador.Nombre, 225, 51);
-                doc.text(moment(context.items.informe.FechaAprobacion).format("DD/MM/YYYY hh:mm"), 225, 57);
-        
-                // Table
-                let haberes = JSON.parse(context.items.informe.Haberes);
-                let n = 0;
-                let arrayHaberes = haberes.d.results.map(function(haber){
-                    n += 1;
-                    return [
-                        n,
-                        haber.Haber.Title,
-                        haber.Rut,
-                        haber.Haber.NombreItem,
-                        haber.CantidadMonto,
-                        haber.Nombre.NombreCompleto,
-                        haber.TipoContrato,
-                        haber.Nombre.d_cargo,
-                        haber.CentroCosto.CodigoCC,
-                        haber.Justificacion
-                    ];
-                });
-
-                doc.autoTable({
-                    head: [["N°", "COD_PAYROLL", "RUT", "ITEM VARIABLE", "CANT_$MONTO", "NOMBRE", "CONTRATO", "CARGO", "CCOSTO", "JUSTIFICACIÓN"]],
-                    body: arrayHaberes,
-                    theme: "grid",
-                    startY: 68,
-                    margin: {left: 10, bottom: 55},
-                    rowPageBreak: "avoid",
-                    tableWidth: 336,
-                    headStyles: {
-                        fontStyle:"bold",
-                        fillColor: null,
-                        textColor: [76, 147, 27],
-                        halign: 'center',
-                        fontSize: 8,
-                        lineColor: 1,
-                        lineWidth: 0.1
-                    },
-                    bodyStyles:{
-                        fontSize:7,
-                        overflow: 'ellipsize'
-                    },
-                    columnStyles: {
-                        0: {cellWidth: 10},// N°
-                        1: {cellWidth: 25},// COD_PAYROLL
-                        2: {cellWidth: 19},// RUT
-                        3: {cellWidth: 50},// ITEM VARIABLE
-                        4: {cellWidth: 20},// CANT_$MONTO
-                        5: {cellWidth: 50},// NOMBRE
-                        6: {cellWidth: 20},// CONTRATO
-                        7: {cellWidth: 20},// CARGO
-                        8: {cellWidth: 15},// CCOSTO
-                        9: {cellWidth: 50},// JUSTIFICACIÓN
-                    },
-                })
-
-                let pageCount = doc.internal.getNumberOfPages();
-                for(i = 1; i < pageCount + 1; i++) { 
-                    // Pagination
-                    doc.setPage(i); 
-                    doc.text("Página " + i + " de " + doc.internal.getNumberOfPages(), 180, 200, "center");
-
-                    // Aprobado
-                    doc.addImage(approved, "JPEG", 280, 160, 50, 40);
-                    doc.setFontStyle("bold");
-                    doc.setFontSize(10);
-                    doc.text("RESPONSABLE", 225, 175, "center");
-                    doc.setFontStyle("normal");
-                    doc.text(context.items.coordinador.Aprobador.Nombre, 225, 180, "center");
-                    doc.text(context.items.aprobador.Planta.d_cargo, 225, 185, "center");
-                    doc.text("Mutual de Seguridad C.HC.C.", 225, 190, "center");
-                }
-        
-                // Download
-                let periodoName = "Coordinador_"+context.items.informe.Coordinador.Title+"_"
-                periodoName+="Periodo_"+context.items.informe.Periodo.MesCalculado+"_"+context.items.informe.Periodo.AnioCalculado;
-                doc.save(periodoName)
-                
-                dialog.close()
-                dialogs.infoDialog(
-                    dialogTitle,
-                    'Su informe se ha descargado exitosamente',
-                );
-            }
-            function shouldCreatePDF(){
-                if (loaded.Coordinador && loaded.Aprobador){
-                    createPDF();
-                }
-            }
-            function save() {
-                dialog.progress(dialogTitle);
-                var query = spo.encodeUrlListQuery(context.list, {
-                    view: 'Todos los elementos',
-                    odata: {
-                        'filter': '(ID eq '+ item.ID +')'
-                    }
-                });
-                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
-                    function (response) {
-                        context.items.informe = response.d.results[0];
-                        spo.getListInfo('Coordinador',
-                            function (response) {
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'filter': '(ID eq '+ context.items.informe.CoordinadorId +')'
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
-                                    function (response) {
-                                        context.items.coordinador = response.d.results[0];
-                                        loaded.Coordinador = true;
-                                        shouldCreatePDF();
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                            }
-                        );
-                        spo.getListInfo('Aprobador',
-                            function (response) {
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'filter': '(ID eq '+ context.items.informe.AprobadorId +')'
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "Aprobador", query,
-                                    function (response) {
-                                        context.items.aprobador = response.d.results[0];
-                                        loaded.Aprobador = true;
-                                        shouldCreatePDF();
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                            }
-                        );
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                    }
-                );
-            }
-            dialogs.confirmDialog(
-                dialogTitle,
-                'Se descargará un PDF con la información del informe',
-                save
-            )
-        }
-    }
-    return button
-}
-
-localButtons.openInforme = function(item){
-    button = {
-        text: 'Ver Informe',
-        class: 'openInforme',
-        icon: 'OpenInNewWindow',
-        onClick: function(component){
-            mainView.router.navigate('/informe?listItemId='+item.ID);
-        }
-    }
-    return button
-}
-// Mantenedor Coordinador
-
-localButtons.addTrabajadorButton = function(context, id){
-    button = {
-        text: 'Afiliar Trabajador',
-        class: 'addTranbajador',
-        icon: 'Add',
-        onClick: function(component, item){
-            mainView.router.navigate(encodeURI('/trabajadorTemporal?listItemId='+id));
-           
-        }
-    }
-    return button
-}
-
-localButtons.addListTrabajadoresButton = function(context,coordinador){
-    button = {
-        text:'Asignar Trabajadores',
-        class:'addTrabajadores',
-        icon:'AddGroup',
-        onClick: function(component, item){
-
-            var dialogTitle = 'Solicitando Justificación';
-
-            //Ejecuta toda la funcion despues de la validacion de la alerta
-            function save() {
-                var dialog = app.dialog.progress(dialogTitle);
-
-                console.log('Datos obtenidos', item)
-
-                var data = [];
-
-                item.map(function(x){
-                    data.push({
-                        "ID": x.ID,
-                        "CoordinadorId": coordinador
-                    });
-                })
-
-                spo.updateListItems(spo.getSiteUrl(), "Planta", data, function (response) {
-                    dialog.close()
-                    dialogs.confirmDialog(
-                        dialogTitle,
-                        'Trabajadores asignados con exito!! jujui!!!',
-                        refresh,
-                        false
-                    )
-
-                }, function (response) {
-                    var responseText = JSON.parse(response.responseText);
-                    console.log('responseText', responseText);
-
-                    dialog.close();
-                    dialogs.infoDialog(
-                        'Pucha la cuestion, no funciono :C',
-                        responseText.error.message.value,
-                    )
-                });
-            }
-
-            /* Alerta que se ejecuta al presionar el boton.
-            -   Si se presiona OK o aceptar se ejecuta el metodo save
-            -   Al cancelar no se ejecuta nada
-            */
-
-            dialogs.confirmDialog(
-                dialogTitle,
-                'Esta seguro que quiere hacer esta vaina?',
-                save
-            )
-
-            
-        }
-
-    }
-    return button
-}
-
-localButtons.addListTrabajadorButton = function(context, Javiera){
-    button = {
-        text:'Asignar Trabajador',
-        class:'addTrabajador',
-        icon:'AddFriend',
-        onClick: function(component, item){
-            console.log('Valor seleccionado', item)
-
-            var dialogTitle = 'Solicitando Justificación';
-
-            //Ejecuta toda la funcion despues de la validacion de la alerta
-            function save() {
-                var dialog = app.dialog.progress(dialogTitle);
-
-                spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, {"CoordinadorId":Javiera}, function (response) {
-                    dialog.close()
-                    dialogs.confirmDialog(
-                        dialogTitle,
-                        'Trabajador asignado con exito!! jujui!!!',
-                        refresh,
-                        false
-                    )
-
-                }, function (response) {
-                    var responseText = JSON.parse(response.responseText);
-                    console.log('responseText', responseText);
-
-                    dialog.close();
-                    dialogs.infoDialog(
-                        'Pucha la cuestion, no funciono :C',
-                        responseText.error.message.value,
-                    )
-                });
-            }
-
-            /* Alerta que se ejecuta al presionar el boton.
-            -   Si se presiona OK o aceptar se ejecuta el metodo save
-            -   Al cancelar no se ejecuta nada
-            */
-
-            dialogs.confirmDialog(
-                dialogTitle,
-                'Esta seguro que quiere hacer esta vaina?',
-                save
-            )
-
-            //mainView.router.navigate(encodeURI(''));
-        }
-
-    }
-    return button
-}
-
-
-localButtons.addCapexView = function(item){
-    button = {
-        text: 'Asociar nuevo trabajador',
-        class: 'addCapex',
-        icon: 'AddFriend',
-        onClick: function(component){
-             mainView.router.navigate('/liststream?title=Asociar Trabajador a CAPEX&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close');
-        }
-    }
-    return button
-}
+/*
+    Todos los botones relacionados con Mantenedor Capex
+*/
 
 localButtons.deleteCapex = function(context){
     button = {
@@ -1697,7 +1405,7 @@ localButtons.multiAddCapex = function(context){
                 spo.updateListItems(spo.getSiteUrl(), "Planta", metadata, function (response) {
                     dialog.close()
                     app.dialog.create({
-                        title: 'dialogTitle',
+                        title: 'Registrando convenios',
                         text:   `Los trabajadores seleccionados han sido agregado correctamente al Convenio Capex`,
                         buttons: [{
                             text: 'Aceptar',
@@ -1742,25 +1450,501 @@ localButtons.multiAddCapex = function(context){
     return button
 }
 
-localButtons.toItemVariablePage = function(){
+/*
+    Todos los botones relacionados con Descargas de archivos
+*/
+localButtons.downloadInformeCoord = function(context){
     button = {
-        text: 'Editar item variable',
-        class: 'editItem',
-        icon: 'Edit',
+        text: 'Descargar Informe',
+        class: 'informeDownload',
+        icon: 'ExcelLogo',
         onClick: function(component, item){
-             mainView.router.navigate('/itemVariable?listItemId='+item.ID+'&editable=true');
+            var dialogTitle = 'Descargando informe';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var query = spo.encodeUrlListQuery(context.list, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(ID eq '+ item.ID +')'
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
+                    function (response) {
+                        let haberes = JSON.parse(response.d.results[0].Haberes);
+                        let periodoName = "Periodo_"+response.d.results[0].Periodo.MesCalculado+"_"+response.d.results[0].Periodo.AnioCalculado;
+                        let arrayHaberes = haberes.d.results.map(function(haber){
+                            return {
+                                "Item Variable": haber.Haber.NombreItem,
+                                "Cantidad/Monto": haber.CantidadMonto,
+                                "Nombre": haber.Nombre.NombreCompleto,
+                                "Rut": haber.Rut,
+                                "Contrato": haber.TipoContrato,
+                                "Centro Costo": "Por Defecto",
+                                "Justificación":haber.Justificacion
+                            };
+                        });
+                        let colSizes = [[{"width":50},{"width":15},{"width":30},{"width":10},{"width":10},{"width":15},{"width":100}]];
+
+                        generateXLSX(["Items Variables"], periodoName, [arrayHaberes], false, colSizes, 
+                            function(response){
+                                dialog.close()
+                                dialogs.infoDialog(
+                                    dialogTitle,
+                                    'Su informe se ha descargado exitosamente',
+                                );
+                            },
+                            function(response){
+                                var responseText = JSON.parse(response.Error);
+                                console.log('responseText', responseText);
+
+                                dialog.close();
+                                dialogs.infoDialog(
+                                    'Error al descargar el archivo',
+                                    responseText
+                                );
+                            });
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se descargará un documento Excel con la información del informe seleccionado',
+                save
+            )
         }
     }
     return button
 }
 
-localButtons.toSolicitudPage = function(){
+localButtons.downloadInformeAdmin = function(context){
     button = {
-        text: 'Crear nueva solicitud',
-        class: 'addSolicitud',
-        icon: 'Add',
+        text: 'Descargar en Excel',
+        class: 'informeDownload',
+        icon: 'ExcelLogo',
         onClick: function(component, item){
-             mainView.router.navigate('/Solicitud');
+            var dialogTitle = 'Descargando informe';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var query = spo.encodeUrlListQuery(context.list, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(ID eq '+ item.ID +')'
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
+                    function (response) {
+                        var informe = response.d.results[0];
+                        spo.getListInfo('Planta',
+                            function (response) {
+                                var query = spo.encodeUrlListQuery(response, {
+                                    view: 'Todos los elementos',
+                                    odata: {
+                                        'filter': '(ID eq '+ informe.CoordinadorId +')'
+                                    }
+                                });
+                                spo.getListItems(spo.getSiteUrl(), "Planta", query,
+                                    function (response) {
+                                        // Crear Book y sheets
+                                        var wb = XLSX.utils.book_new();
+                                        var coordinador = response.d.results[0];
+                                        
+                                        let headersItems = [["COD_PAYROLL","RUT","ITEM VARIABLE","CANT_$MONTO","NOMBRE","CONTRATO","CARGO","CCOSTO","OBSERVACIÓN/JUSTIFICACIÓN"]]
+                
+                                        // Se extrae la informacion
+                                        let haberes = JSON.parse(informe.Haberes);
+                                        let periodoName = "Coordinador_"+coordinador.NombreCompleto+"_"
+                                        periodoName+="Periodo_"+informe.Periodo.MesCalculado+"_"+informe.Periodo.AnioCalculado;
+                                        let arrayHaberes = haberes.d.results.map(function(haber){
+                                            return [
+                                                haber.Haber.Title,
+                                                haber.Rut,
+                                                haber.Haber.NombreItem,
+                                                haber.CantidadMonto,
+                                                haber.Nombre.NombreCompleto,
+                                                haber.TipoContrato,
+                                                haber.Nombre.d_cargo,
+                                                haber.CentroCosto.CodigoCC,
+                                                haber.Justificacion
+                                            ];
+                                        });
+
+                                        // Se crea la hoja
+                                        let ws = XLSX.utils.aoa_to_sheet(headersItems.concat(arrayHaberes));
+                                        
+                                       // Se asigna tamaño a las columnas
+                                        let colSize = [{"width":13},{"width":10},{"width":35},{"width":14},{"width":35},{"width":15},{"width":20},{"width":8},{"width":100}];
+                                        ws["!cols"] = colSize;
+                
+                                        // Se crea la primera hoja
+                                        XLSX.utils.book_append_sheet(wb, ws, "Items Variables");
+                                        let coorData = [
+                                            ["Información del Coordinador"],
+                                            ["Nombre del coordinador", coordinador.NombreCompleto],
+                                            ["Codigo payroll", coordinador.Title],
+                                            ["Centro costo", coordinador.CentroCosto.CodigoCC],
+                                            ["Jefe Aprobador", informe.Aprobador.NombreCompleto],
+                                            ["Correo Jefe Aprobador", informe.Aprobador.Email],
+                                            ["Fecha de envío de informe",moment(informe.Created).format("DD/MM/YYYY hh:mm")],
+                                            ["Fecha de aprobación",moment(informe.FechaAprobacion).format("DD/MM/YYYY hh:mm")],
+                                            ["Número de items", informe.Cantidad.toString()],
+                                        ]
+
+                                        ws = XLSX.utils.aoa_to_sheet(coorData);
+                                        colSize = [{"width":25},{"width":30}];
+                                        ws["!cols"] = colSize;
+                                        XLSX.utils.book_append_sheet(wb, ws, "Información Coordinador");
+
+                                        XLSX.writeFile(wb, periodoName +'.xlsx');
+                                        
+                                        dialog.close()
+                                        dialogs.infoDialog(
+                                            dialogTitle,
+                                            'Su informe se ha descargado exitosamente',
+                                        );
+                
+                                    },
+                                    function (response) {
+                                        var responseText = JSON.parse(response.responseText);
+                                        console.log(responseText.error.message.value);
+                                    }
+                                );
+                            },
+                            function(response){
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se descargará un documento Excel con la información del informe seleccionado',
+                save
+            )
+        }
+    }
+    return button
+}
+
+localButtons.downloadInformeComplete = function(context){
+    button = {
+        text: 'Descargar Excel Completo',
+        class: 'informeDownload',
+        icon: 'ExcelLogo',
+        onClick: function(component, item){
+            var dialogTitle = 'Descargando informe';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var query = spo.encodeUrlListQuery(context.list, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(Estado eq \'Aprobado\')'
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
+                    function (response) {
+                        var informes = response.d.results;
+                       
+                        // Crear Book y sheets
+                        var wb = XLSX.utils.book_new();
+                        // var coordinador = response.d.results[0];
+                        
+                        let items = [["COD_PAYROLL","ITEM VARIABLE","CANT_$MONTO","NOMBRE","RUT","CONTRATO","CARGO","CCOSTO","OBSERVACIÓN/JUSTIFICACIÓN","AÑO PERIODO","MES PERIODO","COORDINADOR","FECHA ENVÍO","FECHA APROBACIÓN","JEFE APROBADOR","CORREO JEFE APROBADOR"]]
+
+                        // Se extrae la informacion
+                        informes.forEach(informe => {
+                            let haberes = JSON.parse(informe.Haberes);
+                            let arrayHaberes = haberes.d.results.map(function(haber){
+                                return [
+                                    haber.Haber.Title,
+                                    haber.Haber.NombreItem,
+                                    haber.CantidadMonto,
+                                    haber.Nombre.NombreCompleto,
+                                    haber.Rut,
+                                    haber.TipoContrato,
+                                    haber.Nombre.d_cargo,
+                                    haber.CentroCosto.CodigoCC,
+                                    haber.Justificacion,
+                                    informe.Periodo.AnioCalculado,
+                                    informe.Periodo.MesCalculado,
+                                    informe.Coordinador.NombreCompleto,
+                                    moment(informe.Created).format("DD/MM/YYYY hh:mm"),
+                                    moment(informe.FechaAprobacion).format("DD/MM/YYYY hh:mm"),
+                                    informe.Aprobador.NombreCompleto,
+                                    informe.Aprobador.Email
+                                ];
+                            });
+                            items = items.concat(arrayHaberes)
+                        })
+
+                        // Se crea la hoja
+                        let ws = XLSX.utils.aoa_to_sheet(items);
+                        
+                        // Se asigna tamaño a las columnas
+                        let colSize = [{"width":13},{"width":35},{"width":14},{"width":35},{"width":10},{"width":15},{"width":20},{"width":8},{"width":100},{"width":13},{"width":13},{"width":25},{"width":16},{"width":18},{"width":25},{"width":30}];
+                        ws["!cols"] = colSize;
+
+                        // Se crea la primera hoja
+                        XLSX.utils.book_append_sheet(wb, ws, "Items Variables");
+                        XLSX.writeFile(wb, 'Items Variables Completo.xlsx');
+                        
+                        dialog.close()
+                        dialogs.infoDialog(
+                            dialogTitle,
+                            'Su informe se ha descargado exitosamente',
+                        );
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se descargará un documento Excel con la información de todos los informes',
+                save
+            )
+        }
+    }
+    return button
+}
+
+localButtons.downloadInformePDF = function(context){
+    button = {
+        text: 'Descargar en PDF',
+        class: 'informePDFDownload',
+        icon: 'PDF',
+        onClick: function(component, item){
+            var dialogTitle = 'Descargando informe';
+            var dialog = app.dialog
+            var loaded = {};
+            context.items = {};
+            function createPDF(){
+                // Crear PDF
+                var doc = new jsPDF({
+                    orientation: 'l',
+                    format: "legal"
+                  })
+
+                // Formato Texto General
+                doc.setFontStyle("bold");
+                doc.setFont("helvetica");
+                
+                // Header
+                doc.setFontSize(10);
+                doc.setTextColor(100);
+                doc.text("LISTADO ITEMS VARIABLES", 155, 15);
+                
+                // Logo
+                doc.addImage(mutualLogo, "JPEG", 169, 20, 20, 13);
+                
+                // Barras verdes 
+                doc.setDrawColor(0);
+                doc.setFillColor(76, 147, 27);
+                doc.rect(10, 35, 336, 4, "F");
+                doc.rect(10, 62, 336, 4, "F");
+                
+                doc.setFontStyle("normal");
+                doc.setTextColor(255,255,255);
+                doc.setFontSize(10);
+                doc.text("Información del coordinador", 11, 38);
+                doc.text("Ítems Variables Registrados ("+ context.items.informe.Cantidad +" items)", 11, 65);
+                
+                // Lines
+                doc.line(10, 41, 346, 41);
+                doc.line(10, 47, 346, 47);
+                doc.line(10, 53, 346, 53);
+                doc.line(10, 59, 346, 59);
+                
+                // Green letters
+                doc.setTextColor(76, 147, 27);
+                doc.setFontSize(8);
+                doc.text("Nombre del Coordinador", 11, 45);
+                doc.text("Centro de costo a cargo", 11, 51);
+                doc.text("Fecha de envío del informe", 11, 57);
+                doc.text("Código Payroll Coordinador", 170, 45);
+                doc.text("Jefe Aprobador", 170, 51);
+                doc.text("Fecha de aprobación", 170, 57);
+                
+                // Answers to green letters
+                doc.setTextColor(0);
+                doc.text(context.items.coordinador.NombreCompleto, 65, 45);
+                doc.text(context.items.coordinador.CentroCosto.CodigoCC, 65, 51);
+                doc.text(moment(context.items.informe.Created).format("DD/MM/YYYY hh:mm"), 65, 57);
+                doc.text(context.items.coordinador.Title, 225, 45);
+                doc.text(context.items.aprobador.NombreCompleto, 225, 51);
+                doc.text(moment(context.items.informe.FechaAprobacion).format("DD/MM/YYYY hh:mm"), 225, 57);
+        
+                // Table
+                let haberes = JSON.parse(context.items.informe.Haberes);
+                let n = 0;
+                let arrayHaberes = haberes.d.results.map(function(haber){
+                    n += 1;
+                    return [
+                        n,
+                        haber.Haber.Title,
+                        haber.Rut,
+                        haber.Haber.NombreItem,
+                        haber.CantidadMonto,
+                        haber.Nombre.NombreCompleto,
+                        haber.TipoContrato,
+                        haber.Nombre.d_cargo,
+                        haber.CentroCosto.CodigoCC,
+                        haber.Justificacion
+                    ];
+                });
+
+                doc.autoTable({
+                    head: [["N°", "COD_PAYROLL", "RUT", "ITEM VARIABLE", "CANT_$MONTO", "NOMBRE", "CONTRATO", "CARGO", "CCOSTO", "JUSTIFICACIÓN"]],
+                    body: arrayHaberes,
+                    theme: "grid",
+                    startY: 68,
+                    margin: {left: 10, bottom: 55},
+                    rowPageBreak: "avoid",
+                    tableWidth: 336,
+                    headStyles: {
+                        fontStyle:"bold",
+                        fillColor: null,
+                        textColor: [76, 147, 27],
+                        halign: 'center',
+                        fontSize: 8,
+                        lineColor: 1,
+                        lineWidth: 0.1
+                    },
+                    bodyStyles:{
+                        fontSize:7,
+                        overflow: 'ellipsize'
+                    },
+                    columnStyles: {
+                        0: {cellWidth: 10},// N°
+                        1: {cellWidth: 25},// COD_PAYROLL
+                        2: {cellWidth: 19},// RUT
+                        3: {cellWidth: 50},// ITEM VARIABLE
+                        4: {cellWidth: 20},// CANT_$MONTO
+                        5: {cellWidth: 50},// NOMBRE
+                        6: {cellWidth: 20},// CONTRATO
+                        7: {cellWidth: 20},// CARGO
+                        8: {cellWidth: 15},// CCOSTO
+                        9: {cellWidth: 50},// JUSTIFICACIÓN
+                    },
+                })
+
+                let pageCount = doc.internal.getNumberOfPages();
+                for(i = 1; i < pageCount + 1; i++) { 
+                    // Pagination
+                    doc.setPage(i); 
+                    doc.text("Página " + i + " de " + doc.internal.getNumberOfPages(), 180, 200, "center");
+
+                    // Aprobado
+                    doc.addImage(approved, "JPEG", 280, 160, 50, 40);
+                    doc.setFontStyle("bold");
+                    doc.setFontSize(10);
+                    doc.text("RESPONSABLE", 225, 175, "center");
+                    doc.setFontStyle("normal");
+                    doc.text(context.items.aprobador.NombreCompleto, 225, 180, "center");
+                    doc.text(context.items.aprobador.d_cargo, 225, 185, "center");
+                    doc.text("Mutual de Seguridad C.HC.C.", 225, 190, "center");
+                }
+        
+                // Download
+                let periodoName = "Coordinador_"+context.items.coordinador.NombreCompleto+"_"
+                periodoName+="Periodo_"+context.items.informe.Periodo.MesCalculado+"_"+context.items.informe.Periodo.AnioCalculado;
+                doc.save(periodoName)
+                
+                dialog.close()
+                dialogs.infoDialog(
+                    dialogTitle,
+                    'Su informe se ha descargado exitosamente',
+                );
+            }
+            function shouldCreatePDF(){
+                if (loaded.Coordinador && loaded.Aprobador){
+                    createPDF();
+                }
+            }
+            function save() {
+                dialog.progress(dialogTitle);
+                var query = spo.encodeUrlListQuery(context.list, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(ID eq '+ item.ID +')'
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
+                    function (response) {
+                        context.items.informe = response.d.results[0];
+                        spo.getListInfo('Planta',
+                            function (response) {
+                                var query = spo.encodeUrlListQuery(response, {
+                                    view: 'Todos los elementos',
+                                    odata: {
+                                        'filter': '(ID eq '+ context.items.informe.CoordinadorId +')'
+                                    }
+                                });
+                                spo.getListItems(spo.getSiteUrl(), "Planta", query,
+                                    function (response) {
+                                        context.items.coordinador = response.d.results[0];
+                                        loaded.Coordinador = true;
+                                        shouldCreatePDF();
+                                    },
+                                    function (response) {
+                                        var responseText = JSON.parse(response.responseText);
+                                        console.log(responseText.error.message.value);
+                                    }
+                                );
+                            },
+                            function(response){
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+                        spo.getListInfo('Planta',
+                            function (response) {
+                                var query = spo.encodeUrlListQuery(response, {
+                                    view: 'Todos los elementos',
+                                    odata: {
+                                        'filter': '(ID eq '+ context.items.informe.AprobadorId +')'
+                                    }
+                                });
+                                spo.getListItems(spo.getSiteUrl(), "Planta", query,
+                                    function (response) {
+                                        context.items.aprobador = response.d.results[0];
+                                        loaded.Aprobador = true;
+                                        shouldCreatePDF();
+                                    },
+                                    function (response) {
+                                        var responseText = JSON.parse(response.responseText);
+                                        console.log(responseText.error.message.value);
+                                    }
+                                );
+                            },
+                            function(response){
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se descargará un PDF con la información del informe',
+                save
+            )
         }
     }
     return button
