@@ -40,7 +40,7 @@ informePendientePage.methods.beforeStartComponent = function(success,failure){
     var context = this._getPageContext();
     loaded = {}
     function startPendingComponent(){
-        if (loaded.Coordinador && loaded.Periodo){
+        if (loaded.Periodo){
             if (success) success();
         }
     }
@@ -55,37 +55,8 @@ informePendientePage.methods.beforeStartComponent = function(success,failure){
             spo.getListItems(spo.getSiteUrl(), "Periodo", query,
                 function (response) {
                     context.periodId = response.d.results.length>0 ? response.d.results[0].ID : null;
+                    console.log("El periodo actual es", response.d.results[0])
                     loaded.Periodo = true;
-                    startPendingComponent()
-                },
-                function (response) {
-                    var responseText = JSON.parse(response.responseText);
-                    console.log(responseText.error.message.value);
-                    if (failure) failure();
-                }
-            );
-        },
-        function(response){
-            var responseText = JSON.parse(response.responseText);
-            console.log(responseText.error.message.value);
-            resolve(failCond);
-            if (failure) failure();
-        }
-    );
-    spo.getListInfo('Coordinador',
-        function (response) {
-            var query = spo.encodeUrlListQuery(response, {
-                view: 'Todos los elementos',
-                odata: {
-                    'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')',
-                    'select': '*,AttachmentFiles',
-                    'expand': 'AttachmentFiles'
-                }
-            });
-            spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
-                function (response) {
-                    context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
-                    loaded.Coordinador = true;
                     startPendingComponent()
                 },
                 function (response) {
@@ -130,11 +101,11 @@ informePendientePage.methods.getCamlQueryConditions = function(){
     var page = this._getPage();
     var context = this._getPageContext();
     var urlQuery = page.route.query;
-
+    
     return ''+
         '<And><Eq>'+
             '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
-                '<Value Type="Lookup">'+context.coorId+'</Value>'+
+                '<Value Type="Lookup">'+plantaAdmin.ID+'</Value>'+
         '</Eq><Eq>'+
             '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
                 '<Value Type="Lookup">'+context.periodId+'</Value>'+

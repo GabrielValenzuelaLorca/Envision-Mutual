@@ -3,6 +3,125 @@ listStreamPage.methods.allowChangeTemplate = function(){
     return false;
 }
 
+listStreamPage.methods.getOneItemSelectedButtons = function(item){
+    var page = this._getPage();
+    var context = this._getPageContext();
+    var title = page.route.query.title
+    var buttons = [];
+    
+    switch(title){
+        case 'Mantenedor Convenio Capex':{
+            buttons.push(localButtons.deleteCapex(context));
+            break;
+        }
+        case 'Asociar Trabajador a CAPEX':{
+            buttons.push(localButtons.addCapex(context));
+            break;
+        }
+        case 'Mantenedor Items Variables':{
+            buttons.push(localButtons.toItemVariablePage());
+            break;
+        }
+
+    }
+    
+    return buttons; 
+}
+
+listStreamPage.methods.getNoItemsSelectedButtons = function(item){
+    var page = this._getPage();
+    var context = this._getPageContext();
+    var title = page.route.query.title
+    var buttons = [];
+    
+    switch(title){
+        case 'Mantenedor Convenio Capex':{
+            buttons.push(localButtons.addCapexView(context));
+            break;
+        }
+    }
+    
+    return buttons;
+}
+
+listStreamPage.methods.getMultiItemsSelectedButtons = function(item){
+    var page = this._getPage();
+    var context = this._getPageContext();
+    var title = page.route.query.title
+    var buttons = [];
+    
+    switch(title){
+        case 'Mantenedor Convenio Capex':{
+            buttons.push(localButtons.multiDeleteCapex(context));
+            break;
+        }
+        case 'Asociar Trabajador a CAPEX':{
+            buttons.push(localButtons.multiAddCapex(context));
+            break;
+        }
+    }
+    
+    return buttons;
+}
+
+listStreamPage.methods.onItemDblClick = function(item){
+
+    var page = this._getPage();
+    var context = this._getPageContext();
+    var title = page.route.query.title
+    switch(title){
+        case 'Mantenedor Items Variables':{
+            mainView.router.navigate('/itemVariable?listItemId='+item.ID); 
+            return;
+        }
+    }     
+}
+
+listStreamPage.methods.getCamlQueryConditions = function(){
+    var page = this._getPage();
+    var context = this._getPageContext();
+    var title = page.route.query.title
+
+    switch(title){
+        case 'Mantenedor Convenio Capex':{
+            return `
+                <And>
+                    <Or>
+                        <Eq>
+                            <FieldRef Name="EstadoContrato" /><Value Type="Choice">Activo</Value>
+                        </Eq>
+                        <Eq>
+                            <FieldRef Name="EstadoContrato" /><Value Type="Choice">Pendiente</Value>
+                        </Eq>
+                    </Or>
+                    <Eq>
+                        <FieldRef Name="Capex" /><Value Type="Boolean">1</Value>
+                    </Eq>
+                </And>
+            `
+        }
+        case 'Asociar Trabajador a CAPEX':{
+            return `
+                <And>
+                    <Or>
+                        <Eq>
+                            <FieldRef Name="EstadoContrato" /><Value Type="Choice">Activo</Value>
+                        </Eq>
+                        <Eq>
+                            <FieldRef Name="EstadoContrato" /><Value Type="Choice">Pendiente</Value>
+                        </Eq>
+                    </Or>
+                    <Eq>
+                        <FieldRef Name="Capex" /><Value Type="Boolean">0</Value>
+                    </Eq>
+                </And>
+            `
+        }
+    }
+
+    
+}
+
 function getRoutes(){
     return [
         {
@@ -24,10 +143,6 @@ function getRoutes(){
         {
             path: '/periodo',
             component: periodoPage
-        },
-        {
-            path: '/itemVariable',
-            component: itemVariablePage
         },
         {
             path: '/uploadPlanta',
@@ -70,8 +185,40 @@ function getRoutes(){
             component: sendStatusPage
         },
         {
-            path: '/MItemVariable',
-            component: MItemVariableStreamPage
+            path: '/itemVariable',
+            component: ItemVariablePage
+        },
+        {
+            path: '/coordinadorStream',
+            component: coordinadorStreamPage
+        },
+        {
+            path: '/trabajadorPorCoordinador',
+            component: trabajadoresStreamPage
+        },
+        {
+            path: '/trabajadorTemporal',
+            component: trabajadoresPage
+        },
+        {
+            path: '/Solicitudes',
+            component: SolicitudesStreamPage
+        },
+        {
+            path: '/Solicitud',
+            component: solicitudesPage
+        },
+        {
+            path: '/newEmployee',
+            component: plantaPage
+        },
+        {
+            path: '/rolStream',
+            component: rolStreamPage
+        },
+        {
+            path: '/assignRol',
+            component: assignRolPage
         },
         // Default route (404 page). MUST BE THE LAST
         {
@@ -79,7 +226,7 @@ function getRoutes(){
             url: './pages/404.html',
         },
     ];
-
+    // For test
 }
 
 // cambiar los colores :D

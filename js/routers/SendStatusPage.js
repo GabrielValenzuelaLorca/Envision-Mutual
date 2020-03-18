@@ -207,7 +207,7 @@ var sendStatusPage = {
                     },
                     { 
                         Id: generateUUID(),
-                        Title: 'Jefe coordinador',
+                        Title: 'Jefe Aprobador',
                         InternalName: 'Jefe',
                         TypeAsString: 'Text'
                     },
@@ -227,7 +227,7 @@ var sendStatusPage = {
                     oneItemSelectedButtons: function(table, item){
                         let btn = [];
                         if (item.Status != "No enviado"){
-                            btn.push(localButtons.openInforme(item));
+                            btn.push(localButtons.toOpenInforme(item));
                         }
                         if (item.Status == "Aprobado") {
                             btn.push(localButtons.disableItemSendedAdmin(context, item));
@@ -242,12 +242,10 @@ var sendStatusPage = {
 
                 if(!context.items.InformeHaberes){
                     context.items.Coordinador.map(function(x){
-                        let apr = context.items.Aprobador.filter(a => a.ID == x.AprobadorId)
-                        console.log('APR', apr)
                         data.push({
-                            "Coordinador": x.Planta.NombreCompleto,
-                            "Correo": x.Usuario.UserName,
-                            "Jefe": apr.Nombre,
+                            "Coordinador": x.NombreCompleto,
+                            "Correo": x.Email,
+                            "Jefe": x.Aprobador.NombreCompleto,
                             "Status": 'No enviado',
                             "FUA": moment(new Date()).format("DD/MM/YYYY hh:mm:ss")
                         });
@@ -257,22 +255,20 @@ var sendStatusPage = {
                 }else{
                     context.items.Coordinador.map(function(x){
                         let coo = context.items.InformeHaberes.filter(i => i.CoordinadorId == x.ID)[0];
-                        let apr = context.items.Aprobador.filter(a => a.ID == x.AprobadorId)[0]
-                        console.log('APR', apr)
                         if(coo){
                             data.push({
-                                "Coordinador": x.Planta.NombreCompleto,
-                                "Correo": x.Usuario.UserName,
-                                "Jefe": apr.Nombre,
+                                "Coordinador": x.NombreCompleto,
+                                "Correo": x.Email,
+                                "Jefe": x.Aprobador.NombreCompleto,
                                 "Status": coo.Estado,
                                 "FUA": moment(coo.Modified).format("DD/MM/YYYY hh:mm:ss"),
                                 "ID": coo.ID
                             });
                         }else{
                             data.unshift({
-                                "Coordinador": x.Planta.NombreCompleto,
-                                "Correo": x.Usuario.UserName,
-                                "Jefe": apr.Nombre,
+                                "Coordinador": x.NombreCompleto,
+                                "Correo": x.Email,
+                                "Jefe": x.Aprobador.NombreCompleto,
                                 "Status": 'No enviado',
                                 "FUA": moment(new Date()).format("DD/MM/YYYY hh:mm:ss")
                             });
@@ -338,13 +334,13 @@ var sendStatusPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.Coordinador && loaded.InformeHaberes && loaded.Periodo && loaded.Aprobador) {
+                    if (loaded.Coordinador && loaded.InformeHaberes && loaded.Periodo) {
                         initForm();
                     }
                 };
 
                 // Obtener información de la planta asociada al coordinador
-                spo.getListInfo('Coordinador',
+                spo.getListInfo('Planta',
                     function (response) {
                         context.items.Coordinador = [];
                         context.lists.Coordinador = response;                        
@@ -353,15 +349,16 @@ var sendStatusPage = {
                             view: 'Todos los elementos',
                             odata: {
                                 'select': '*',
+                                'filter': '(Rol eq \'Coordinador\')',
                                 'top': 5000,
                             }
                         });
 
-                        spo.getListItems(spo.getSiteUrl(), 'Coordinador', query,
+                        spo.getListItems(spo.getSiteUrl(), 'Planta', query,
                             function (response) {
                                 context.items.Coordinador = response.d.results.length > 0 ? response.d.results : null;
                                 loaded.Coordinador = true;
-
+                                console.log('Coordinador', context.items.Coordinador)
                             },
                             function (response) {
                                 var responseText = JSON.parse(response.responseText);
@@ -376,36 +373,36 @@ var sendStatusPage = {
                 );
 
                 // Obtener información de la planta asociada al coordinador
-                spo.getListInfo('Aprobador',
-                    function (response) {
-                        context.items.Aprobador = [];
-                        context.lists.Aprobador = response;                        
+                // spo.getListInfo('Planta',
+                //     function (response) {
+                //         context.items.Aprobador = [];
+                //         context.lists.Aprobador = response;                        
 
-                        var query = spo.encodeUrlListQuery(context.lists.Aprobador, {
-                            view: 'Todos los elementos',
-                            odata: {
-                                'select': '*',
-                                'top': 5000,
-                            }
-                        });
+                //         var query = spo.encodeUrlListQuery(context.lists.Aprobador, {
+                //             view: 'Todos los elementos',
+                //             odata: {
+                //                 'select': '*',
+                //                 'top': 5000,
+                //             }
+                //         });
 
-                        spo.getListItems(spo.getSiteUrl(), 'Aprobador', query,
-                            function (response) {
-                                context.items.Aprobador = response.d.results.length > 0 ? response.d.results : null;
-                                loaded.Aprobador = true;
+                //         spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                //             function (response) {
+                //                 context.items.Aprobador = response.d.results.length > 0 ? response.d.results : null;
+                //                 loaded.Aprobador = true;
 
-                            },
-                            function (response) {
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                            }
-                        );
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                    }
-                );
+                //             },
+                //             function (response) {
+                //                 var responseText = JSON.parse(response.responseText);
+                //                 console.log(responseText.error.message.value);
+                //             }
+                //         );
+                //     },
+                //     function (response) {
+                //         var responseText = JSON.parse(response.responseText);
+                //         console.log(responseText.error.message.value);
+                //     }
+                // );
 
                 //Obtengo el periodo actual para imputar
                 spo.getListInfo('Periodo',
@@ -446,6 +443,7 @@ var sendStatusPage = {
                                         function (response) {
                                             context.items.InformeHaberes = response.d.results.length > 0 ? response.d.results : null;
                                             loaded.InformeHaberes = true;
+                                            console.log('Informes', context.items.InformeHaberes)
                                             shouldInitForms();
                                         },
                                         function (response) {

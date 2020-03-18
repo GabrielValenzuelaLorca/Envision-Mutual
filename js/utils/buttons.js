@@ -12,7 +12,6 @@ function buildInCaml(array, type){
     });
     return query;
 }
-
 function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, failure){
     var wb = XLSX.utils.book_new();
 
@@ -59,8 +58,12 @@ function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, f
         failure(JSON.stringify({"Error": "El numero de hojas es diferente al entregado"}));
     }
 }
-// Planta buttons
-localButtons.fileButton = function(){
+
+/**
+ * Redirecciones generales de la pagina
+ */
+
+localButtons.toUploadPlanta = function(){
     button = {
         text: 'Cargar Planta',
         class: 'uploadPlanta',
@@ -71,7 +74,360 @@ localButtons.fileButton = function(){
     }
     return button
 }
-// Periodo buttons
+
+localButtons.toSolicitudPage = function(){
+    button = {
+        text: 'Crear nueva solicitud',
+        class: 'addSolicitud',
+        icon: 'Add',
+        onClick: function(component, item){
+             mainView.router.navigate('/Solicitud');
+        }
+    }
+    return button
+}
+
+localButtons.toItemVariablePage = function(){
+    button = {
+        text: 'Editar item variable',
+        class: 'editItem',
+        icon: 'Edit',
+        onClick: function(component, item){
+             mainView.router.navigate('/itemVariable?listItemId='+item.ID+'&editable=true');
+        }
+    }
+    return button
+}
+
+localButtons.toOpenInforme = function(item){
+    button = {
+        text: 'Ver Informe',
+        class: 'openInforme',
+        icon: 'OpenInNewWindow',
+        onClick: function(component){
+            mainView.router.navigate('/informe?listItemId='+item.ID);
+        }
+    }
+    return button
+}
+
+localButtons.editPeriodButton = function(){
+    button = {
+        text: 'Editar',
+        class: 'editPeriodo',
+        icon: 'Edit',
+        onClick: function(component, item){
+            mainView.router.navigate('/periodo?listItemId='+item.ID);        
+        }
+    }
+    return button
+}
+
+localButtons.addCapexView = function(item){
+    button = {
+        text: 'Asociar nuevo trabajador',
+        class: 'addCapex',
+        icon: 'AddFriend',
+        onClick: function(component){
+             mainView.router.navigate('/liststream?title=Asociar Trabajador a CAPEX&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close');
+        }
+    }
+    return button
+}
+
+localButtons.resolveRequest = function(){
+    button = {
+        text: 'Ver detalle',
+        class: 'reviewDoc',
+        icon: 'RedEye',
+        onClick: function(component, item){
+             mainView.router.navigate('/Solicitud?listItemId='+item.ID);
+        }
+    }
+    return button
+}
+
+localButtons.toCreateEmployeeForm = function(){
+    button = {
+        text: 'Registrar nuevo trabajador',
+        class: 'addEmployee',
+        icon: 'PeopleAdd',
+        onClick: function(component, item){
+            mainView.router.navigate('/newEmployee');
+        }
+    }
+    return button
+}
+
+localButtons.toAssignRol = function(){
+    button = {
+        text: 'Asignar Rol',
+        class: 'addRole',
+        icon: 'AddFriend',
+        onClick: function(component, item){
+            mainView.router.navigate('/assignRol');
+        }
+    }
+    return button
+}
+
+
+
+
+
+/*
+    Todos los botones relacionados con la asociacion de trabajador por coordinador
+*/
+
+localButtons.addTrabajadorButton = function(context, id){
+    button = {
+        text: 'Asociar Trabajador',
+        class: 'addTranbajador',
+        icon: 'Add',
+        onClick: function(component, item){
+            mainView.router.navigate(encodeURI('/trabajadorTemporal?listItemId='+id));
+        }
+    }
+    return button
+}
+
+localButtons.addListTrabajadoresButton = function(context,coordinador){
+    button = {
+        text:'Asociar Trabajadores',
+        class:'addTrabajadores',
+        icon:'AddGroup',
+        onClick: function(component, item){
+
+            var dialogTitle = 'Asociando trabajadores';
+
+            //Ejecuta toda la funcion despues de la validacion de la alerta
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                console.log('Datos obtenidos', item)
+
+                var data = [];
+
+                item.map(function(x){
+                    data.push({
+                        "ID": x.ID,
+                        "CoordinadorId": coordinador
+                    });
+                })
+
+                spo.updateListItems(spo.getSiteUrl(), "Planta", data, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Trabajadores asociados con exito!',
+                        function(){
+                            mainView.router.navigate(encodeURI('/trabajadorPorCoordinador?listItemId='+coordinador));
+                        },
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'No se han podido asociar trabajadores, intente nuevamente',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            /* Alerta que se ejecuta al presionar el boton.
+            -   Si se presiona OK o aceptar se ejecuta el metodo save
+            -   Al cancelar no se ejecuta nada
+            */
+
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Esta seguro que desea asociar trabajadores?',
+                save
+            )
+        }
+    }
+    return button
+}
+
+localButtons.addListTrabajadorButton = function(context, coordinador){
+    button = {
+        text:'Asociar Trabajador',
+        class:'addTrabajador',
+        icon:'AddFriend',
+        onClick: function(component, item){
+            console.log('Valor seleccionado', item)
+
+            var dialogTitle = 'Asociando Trabajador';
+
+            //Ejecuta toda la funcion despues de la validacion de la alerta
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, {"CoordinadorId":coordinador}, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Trabajador asociado con exito!',
+                        function(){
+                            mainView.router.navigate(encodeURI('/trabajadorPorCoordinador?listItemId='+coordinador));
+                        },
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'No se ha podido asociar trabajador, intente nuevamente',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            /* Alerta que se ejecuta al presionar el boton.
+            -   Si se presiona OK o aceptar se ejecuta el metodo save
+            -   Al cancelar no se ejecuta nada
+            */
+
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Esta seguro que desea asociar trabajador?',
+                save
+            )
+        }
+
+    }
+    return button
+}
+
+localButtons.deleteTrabajador = function(context){
+    button = {
+        text: 'Desvincular trabajador',
+        class: 'desvincularTrabajador',
+        icon: 'Delete',
+        onClick: function(component, item){
+            var dialogTitle = 'Desvinculando trabajador';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var metadata = {"CoordinadorId": null};
+
+                spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, metadata, function (response) {
+                    dialog.close()
+                    app.dialog.create({
+                        title:  `Desvinculacion Completada`,
+                        text:    `El trabajador ${item.NombreCompleto} ha sido desvinculado de la lista del coordinador`,
+                        buttons: [{
+                            text: 'Aceptar',
+                            onClick: function onClick(){
+                                refresh()
+                            }
+                        }],
+                        verticalButtons: false
+                    }).open();
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desvincular trabajador, intente nuevamente',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            app.dialog.create({
+                title: dialogTitle,
+                text:   `¿Esta seguro que desea desvincular la asociacion de ${item.NombreCompleto} al coordinador?`,
+                buttons: [
+                {
+                    text: 'Cancelar',
+                    onClick: function onClick(){
+                        return
+                    }
+                },{
+                    text: 'Aceptar',
+                    onClick: function onClick(){
+                        save();
+                    }
+                }],
+                verticalButtons: false
+            }).open();
+
+        }
+    }
+    return button
+}
+
+localButtons.deleteListTrabajadoresButton = function(context){
+    button = {
+        text:'Desvincular Trabajadores',
+        class:'desvincularTrabajadores',
+        icon:'Delete',
+        onClick: function(component, item){
+
+            var dialogTitle = 'Desvinculando Trabajadores';
+
+            //Ejecuta toda la funcion despues de la validacion de la alerta
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                var metadata = [];
+
+                item.map(function(x){
+                    metadata.push({
+                        "ID": x.ID,
+                        "CoordinadorId": null
+                    });
+                })
+
+                spo.updateListItems(spo.getSiteUrl(), "Planta", metadata, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Trabajadores desvinculados con exito!',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desvincular trabajadores, intente nuevamente',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            /* Alerta que se ejecuta al presionar el boton.
+            -   Si se presiona OK o aceptar se ejecuta el metodo save
+            -   Al cancelar no se ejecuta nada
+            */
+
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Esta seguro que quiere desvincular trabajadores?',
+                save
+            )
+        }
+    }
+    return button
+}
+
+/*
+    Todos los botones relacionados con PeriodosPage
+*/
+
 localButtons.addPeriodButton = function(context){
     button = {
         text: 'Añadir Periodo',
@@ -104,17 +460,7 @@ localButtons.addPeriodButton = function(context){
     }
     return button
 }
-localButtons.editPeriodButton = function(){
-    button = {
-        text: 'Editar',
-        class: 'editPeriodo',
-        icon: 'Edit',
-        onClick: function(component, item){
-            mainView.router.navigate('/periodo?listItemId='+item.ID);        
-        }
-    }
-    return button
-}
+
 localButtons.desactivatePeriodoButton = function(){
     button = {
         text: 'Desactivar Periodo',
@@ -154,6 +500,7 @@ localButtons.desactivatePeriodoButton = function(){
     }
     return button
 }
+
 localButtons.activatePeriodoButton = function(context){
     button = {
         text: 'Activar Periodo',
@@ -215,7 +562,12 @@ localButtons.activatePeriodoButton = function(context){
     }
     return button
 }
-// Item Variable buttons
+
+/*
+    Todos los botones relacionados con ItemVariablePage
+*/
+
+//Envio de items Variables
 localButtons.sendButton = function(context){
     button = {
         text: 'Enviar Items',
@@ -228,7 +580,7 @@ localButtons.sendButton = function(context){
                 var query = spo.encodeUrlListQuery(context.list, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(CoordinadorId eq '+ context.coorId +' and PeriodoId eq '+ context.periodId +')',
+                        'filter': '(CoordinadorId eq '+ plantaAdmin.ID +' and PeriodoId eq '+ context.periodId +')',
                         'top': 5000
                     }
                 });
@@ -241,18 +593,18 @@ localButtons.sendButton = function(context){
                             // Se crea un nuevo informe
                             metadata = {
                                 PeriodoId: context.periodId,
-                                CoordinadorId: context.coorId,
+                                CoordinadorId: plantaAdmin.ID,
                                 Estado: "Enviado para aprobar",
                                 Haberes: JsonHaberes,
                                 Cantidad: response.d.results.length,
-                                AprobadorId: context.AprobadorId
+                                AprobadorId: plantaAdmin.AprobadorId
                             }
                             spo.saveListItem(spo.getSiteUrl(), "Informe Haberes", metadata, 
                                 function (response){
                                     dialog.close();
                                     dialogs.confirmDialog(
                                         dialogTitle,
-                                        'Informe enviado con éxito a ' + context.Aprobador,
+                                        'Informe enviado con éxito a ' + plantaAdmin.Aprobador.Email,
                                         function(){
                                             mainView.router.navigate(encodeURI('/informeDesaprobado'));
                                             leftView.router.refreshPage();
@@ -298,7 +650,11 @@ localButtons.sendButton = function(context){
     }
     return button
 }
-// Informe buttons
+
+/**
+ * Todo los botones relacionados con Informes
+ */
+
 localButtons.disableItemSended = function(context){
     button = {
         text: 'Desaprobar',
@@ -318,9 +674,9 @@ localButtons.disableItemSended = function(context){
             function save(comment) {
                 var dialog = app.dialog.progress(dialogTitle);
                 var metadata = {Estado: "Desaprobado"};
-                if (admin == "Aprobador"){
+                if (plantaAdmin.Rol == "Aprobador"){
                     metadata.Comentario = comment;
-                } else if (admin == "Administrador"){
+                } else if (plantaAdmin.Rol == "Administrador"){
                     metadata.ComentarioAdmin = comment;
                 }
 
@@ -420,7 +776,6 @@ localButtons.disableItemSended = function(context){
     return button
 }
 
-// Informe buttons
 localButtons.disableItemSendedAdmin = function(context, item){
     button = {
         text: 'Desaprobar',
@@ -460,9 +815,9 @@ localButtons.disableItemSendedAdmin = function(context, item){
             function save(comment) {
                 var dialog = app.dialog.progress(dialogTitle);
                 var metadata = {Estado: "Desaprobado"};
-                if (admin == "Aprobador"){
+                if (plantaAdmin.Rol == "Aprobador"){
                     metadata.Comentario = comment;
-                } else if (admin == "Administrador"){
+                } else if (plantaAdmin.Rol == "Administrador"){
                     metadata.ComentarioAdmin = comment;
                 }
 
@@ -842,6 +1197,262 @@ localButtons.sendJustification = function(context){
     return button
 }
 
+/*
+    Todos los botones relacionados con Mantenedor Capex
+*/
+
+localButtons.deleteCapex = function(context){
+    button = {
+        text: 'Eliminar convenio',
+        class: 'deleteCapex',
+        icon: 'Delete',
+        onClick: function(component, item){
+            var dialogTitle = 'Eliminar convenio CAPEX';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var metadata = {Capex: false};
+
+                spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, metadata, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        `Convenio CAPEX eliminado`,
+                        `El trabajador ${item.NombreCompleto} ha sido eliminado del convenio capex correctamente`,
+                        refresh(),
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desaprobar el informe.',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            app.dialog.create({
+                title: dialogTitle,
+                text:   `¿Esta seguro que desea quitar a ${item.NombreCompleto} de convenio CAPEX?`,
+                buttons: [
+                {
+                    text: 'Cancelar',
+                    onClick: function onClick(){
+                        return
+                    }
+                },{
+                    text: 'Aceptar',
+                    onClick: function onClick(){
+                        save();
+                    }
+                }],
+                verticalButtons: false
+            }).open();
+
+        }
+    }
+    return button
+}
+
+localButtons.multiDeleteCapex = function(context){
+    button = {
+        text: 'Eliminar convenios',
+        class: 'deleteCapex',
+        icon: 'Delete',
+        onClick: function(component, item){
+            var dialogTitle = 'Eliminar nuevos convenios CAPEX';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                var metadata = [];
+
+                item.map(function(x){
+                    metadata.push({
+                        "ID": x.ID,
+                        "Capex": false
+                    });
+                })
+
+                spo.updateListItems(spo.getSiteUrl(), "Planta", metadata, function (response) {
+                    dialog.close()
+                    app.dialog.create({
+                        title: dialogTitle,
+                        text:   `Los trabajadores seleccionados han sido eliminados correctamente al Convenio Capex`,
+                        buttons: [{
+                            text: 'Aceptar',
+                            onClick: function onClick(){
+                                refresh()
+                           }
+                        }],
+                        verticalButtons: false
+                    }).open();
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desaprobar el informe.',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            app.dialog.create({
+                title: dialogTitle,
+                text:   `¿Esta seguro que desea eliminar los trabajadores seleccionados del convenio CAPEX?`,
+                buttons: [
+                {
+                    text: 'Cancelar',
+                    onClick: function onClick(){
+                        return
+                    }
+                },{
+                    text: 'Aceptar',
+                    onClick: function onClick(){
+                        save();
+                    }
+                }],
+                verticalButtons: false
+            }).open();
+
+        }
+    }
+    return button
+}
+
+localButtons.addCapex = function(context){
+    button = {
+        text: 'Crear convenio CAPEX',
+        class: 'createCapex',
+        icon: 'Add',
+        onClick: function(component, item){
+            var dialogTitle = 'Registrar nuevo convenio CAPEX';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                var metadata = {Capex: true};
+
+                spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, metadata, function (response) {
+                    dialog.close()
+                    app.dialog.create({
+                        title: dialogTitle,
+                        text:   `El trabajador ${item.NombreCompleto} ha sido agregado correctamente al Convenio Capex`,
+                        buttons: [{
+                            text: 'Aceptar',
+                            onClick: function onClick(){
+                                mainView.router.navigate('/liststream?title=Mantenedor Convenio Capex&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close')
+                            }
+                        }],
+                        verticalButtons: false
+                    }).open();
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desaprobar el informe.',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            app.dialog.create({
+                title: dialogTitle,
+                text:   `¿Esta seguro que desea agregar a ${item.NombreCompleto} al convenio CAPEX?`,
+                buttons: [
+                {
+                    text: 'Cancelar',
+                    onClick: function onClick(){
+                        return
+                    }
+                },{
+                    text: 'Aceptar',
+                    onClick: function onClick(){
+                        save();
+                    }
+                }],
+                verticalButtons: false
+            }).open();
+
+        }
+    }
+    return button
+}
+
+localButtons.multiAddCapex = function(context){
+    button = {
+        text: 'Crear convenios CAPEX',
+        class: 'createCapex',
+        icon: 'Add',
+        onClick: function(component, item){
+            var dialogTitle = 'Registrar nuevos convenios CAPEX';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                var metadata = [];
+
+                item.map(function(x){
+                    metadata.push({
+                        "ID": x.ID,
+                        "Capex": true
+                    });
+                })
+
+                spo.updateListItems(spo.getSiteUrl(), "Planta", metadata, function (response) {
+                    dialog.close()
+                    app.dialog.create({
+                        title: 'Registrando convenios',
+                        text:   `Los trabajadores seleccionados han sido agregado correctamente al Convenio Capex`,
+                        buttons: [{
+                            text: 'Aceptar',
+                            onClick: function onClick(){
+                                mainView.router.navigate('/liststream?title=Mantenedor Convenio Capex&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close')
+                            }
+                        }],
+                        verticalButtons: false
+                    }).open();
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al desaprobar el informe.',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            app.dialog.create({
+                title: dialogTitle,
+                text:   `¿Esta seguro que desea agregar los trabajadores seleccionados al convenio CAPEX?`,
+                buttons: [
+                {
+                    text: 'Cancelar',
+                    onClick: function onClick(){
+                        return
+                    }
+                },{
+                    text: 'Aceptar',
+                    onClick: function onClick(){
+                        save();
+                    }
+                }],
+                verticalButtons: false
+            }).open();
+
+        }
+    }
+    return button
+}
+
+/*
+    Todos los botones relacionados con Descargas de archivos
+*/
 localButtons.downloadInformeCoord = function(context){
     button = {
         text: 'Descargar Informe',
@@ -927,7 +1538,7 @@ localButtons.downloadInformeAdmin = function(context){
                 spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
                     function (response) {
                         var informe = response.d.results[0];
-                        spo.getListInfo('Coordinador',
+                        spo.getListInfo('Planta',
                             function (response) {
                                 var query = spo.encodeUrlListQuery(response, {
                                     view: 'Todos los elementos',
@@ -935,7 +1546,7 @@ localButtons.downloadInformeAdmin = function(context){
                                         'filter': '(ID eq '+ informe.CoordinadorId +')'
                                     }
                                 });
-                                spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                                spo.getListItems(spo.getSiteUrl(), "Planta", query,
                                     function (response) {
                                         // Crear Book y sheets
                                         var wb = XLSX.utils.book_new();
@@ -945,7 +1556,7 @@ localButtons.downloadInformeAdmin = function(context){
                 
                                         // Se extrae la informacion
                                         let haberes = JSON.parse(informe.Haberes);
-                                        let periodoName = "Coordinador_"+informe.Coordinador.Title+"_"
+                                        let periodoName = "Coordinador_"+coordinador.NombreCompleto+"_"
                                         periodoName+="Periodo_"+informe.Periodo.MesCalculado+"_"+informe.Periodo.AnioCalculado;
                                         let arrayHaberes = haberes.d.results.map(function(haber){
                                             return [
@@ -972,11 +1583,11 @@ localButtons.downloadInformeAdmin = function(context){
                                         XLSX.utils.book_append_sheet(wb, ws, "Items Variables");
                                         let coorData = [
                                             ["Información del Coordinador"],
-                                            ["Nombre del coordinador", coordinador.Title],
-                                            ["Codigo payroll", coordinador.Planta.Title],
+                                            ["Nombre del coordinador", coordinador.NombreCompleto],
+                                            ["Codigo payroll", coordinador.Title],
                                             ["Centro costo", coordinador.CentroCosto.CodigoCC],
-                                            ["Jefe Aprobador", coordinador.Aprobador.Nombre],
-                                            ["Correo Jefe Aprobador", coordinador.Aprobador.Title],
+                                            ["Jefe Aprobador", informe.Aprobador.NombreCompleto],
+                                            ["Correo Jefe Aprobador", informe.Aprobador.Email],
                                             ["Fecha de envío de informe",moment(informe.Created).format("DD/MM/YYYY hh:mm")],
                                             ["Fecha de aprobación",moment(informe.FechaAprobacion).format("DD/MM/YYYY hh:mm")],
                                             ["Número de items", informe.Cantidad.toString()],
@@ -1065,11 +1676,11 @@ localButtons.downloadInformeComplete = function(context){
                                     haber.Justificacion,
                                     informe.Periodo.AnioCalculado,
                                     informe.Periodo.MesCalculado,
-                                    informe.Coordinador.Title,
+                                    informe.Coordinador.NombreCompleto,
                                     moment(informe.Created).format("DD/MM/YYYY hh:mm"),
                                     moment(informe.FechaAprobacion).format("DD/MM/YYYY hh:mm"),
-                                    informe.Aprobador.Nombre,
-                                    informe.Aprobador.Title,
+                                    informe.Aprobador.NombreCompleto,
+                                    informe.Aprobador.Email
                                 ];
                             });
                             items = items.concat(arrayHaberes)
@@ -1167,11 +1778,11 @@ localButtons.downloadInformePDF = function(context){
                 
                 // Answers to green letters
                 doc.setTextColor(0);
-                doc.text(context.items.coordinador.Title, 65, 45);
+                doc.text(context.items.coordinador.NombreCompleto, 65, 45);
                 doc.text(context.items.coordinador.CentroCosto.CodigoCC, 65, 51);
                 doc.text(moment(context.items.informe.Created).format("DD/MM/YYYY hh:mm"), 65, 57);
-                doc.text(context.items.coordinador.Planta.Title, 225, 45);
-                doc.text(context.items.coordinador.Aprobador.Nombre, 225, 51);
+                doc.text(context.items.coordinador.Title, 225, 45);
+                doc.text(context.items.aprobador.NombreCompleto, 225, 51);
                 doc.text(moment(context.items.informe.FechaAprobacion).format("DD/MM/YYYY hh:mm"), 225, 57);
         
                 // Table
@@ -1226,23 +1837,27 @@ localButtons.downloadInformePDF = function(context){
                         8: {cellWidth: 15},// CCOSTO
                         9: {cellWidth: 50},// JUSTIFICACIÓN
                     },
-                    didDrawPage: data => {
-                        data.doc.text("Página " + data.pageNumber, 330, 200, "right");
-                    },
                 })
-        
-                // Aprobado
-                doc.addImage(approved, "JPEG", 195, 160, 50, 40);
-                doc.setFontStyle("bold");
-                doc.setFontSize(10);
-                doc.text("RESPONSABLE", 140, 175, "center");
-                doc.setFontStyle("normal");
-                doc.text(context.items.coordinador.Aprobador.Nombre, 140, 180, "center");
-                doc.text(context.items.aprobador.Planta.d_cargo, 140, 185, "center");
-                doc.text("Mutual de Seguridad C.HC.C.", 140, 190, "center");
+
+                let pageCount = doc.internal.getNumberOfPages();
+                for(i = 1; i < pageCount + 1; i++) { 
+                    // Pagination
+                    doc.setPage(i); 
+                    doc.text("Página " + i + " de " + doc.internal.getNumberOfPages(), 180, 200, "center");
+
+                    // Aprobado
+                    doc.addImage(approved, "JPEG", 280, 160, 50, 40);
+                    doc.setFontStyle("bold");
+                    doc.setFontSize(10);
+                    doc.text("RESPONSABLE", 225, 175, "center");
+                    doc.setFontStyle("normal");
+                    doc.text(context.items.aprobador.NombreCompleto, 225, 180, "center");
+                    doc.text(context.items.aprobador.d_cargo, 225, 185, "center");
+                    doc.text("Mutual de Seguridad C.HC.C.", 225, 190, "center");
+                }
         
                 // Download
-                let periodoName = "Coordinador_"+context.items.informe.Coordinador.Title+"_"
+                let periodoName = "Coordinador_"+context.items.coordinador.NombreCompleto+"_"
                 periodoName+="Periodo_"+context.items.informe.Periodo.MesCalculado+"_"+context.items.informe.Periodo.AnioCalculado;
                 doc.save(periodoName)
                 
@@ -1268,7 +1883,7 @@ localButtons.downloadInformePDF = function(context){
                 spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
                     function (response) {
                         context.items.informe = response.d.results[0];
-                        spo.getListInfo('Coordinador',
+                        spo.getListInfo('Planta',
                             function (response) {
                                 var query = spo.encodeUrlListQuery(response, {
                                     view: 'Todos los elementos',
@@ -1276,7 +1891,7 @@ localButtons.downloadInformePDF = function(context){
                                         'filter': '(ID eq '+ context.items.informe.CoordinadorId +')'
                                     }
                                 });
-                                spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                                spo.getListItems(spo.getSiteUrl(), "Planta", query,
                                     function (response) {
                                         context.items.coordinador = response.d.results[0];
                                         loaded.Coordinador = true;
@@ -1293,7 +1908,7 @@ localButtons.downloadInformePDF = function(context){
                                 console.log(responseText.error.message.value);
                             }
                         );
-                        spo.getListInfo('Aprobador',
+                        spo.getListInfo('Planta',
                             function (response) {
                                 var query = spo.encodeUrlListQuery(response, {
                                     view: 'Todos los elementos',
@@ -1301,7 +1916,7 @@ localButtons.downloadInformePDF = function(context){
                                         'filter': '(ID eq '+ context.items.informe.AprobadorId +')'
                                     }
                                 });
-                                spo.getListItems(spo.getSiteUrl(), "Aprobador", query,
+                                spo.getListItems(spo.getSiteUrl(), "Planta", query,
                                     function (response) {
                                         context.items.aprobador = response.d.results[0];
                                         loaded.Aprobador = true;
@@ -1330,18 +1945,6 @@ localButtons.downloadInformePDF = function(context){
                 'Se descargará un PDF con la información del informe',
                 save
             )
-        }
-    }
-    return button
-}
-
-localButtons.openInforme = function(item){
-    button = {
-        text: 'Ver Informe',
-        class: 'openInforme',
-        icon: 'OpenInNewWindow',
-        onClick: function(component){
-            mainView.router.navigate('/informe?listItemId='+item.ID);
         }
     }
     return button

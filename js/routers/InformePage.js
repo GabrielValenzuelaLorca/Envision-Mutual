@@ -172,8 +172,7 @@ var informePage = {
             // variables
             var context = this.$options.data(),
                 mths = this.$options.methods,
-                listItemId = page.route.query.listItemId,
-                viewName = "";
+                listItemId = page.route.query.listItemId;
 
             context.methods = mths;
 
@@ -200,16 +199,17 @@ var informePage = {
                     title: mths.getListTitle(),
                     editable: false,
                 }
-                if (admin == "Coordinador"){
+
+                if (plantaAdmin.Rol == "Administrador" || plantaAdmin.Rol == "Aprobador"){
+                    form.fields = spo.getViewFields(context.lists.Informe, "Informe Admin Page");
+                } else if (plantaAdmin.Rol == "Coordinador"){
                     form.fields = spo.getViewFields(context.lists.Informe, "Informe Coord Page");
-                } else if (admin == "Aprobador"){
-                    form.fields = spo.getViewFields(context.lists.Informe, "Informe Admin Page");
-                } else if (admin == "Administrador"){
-                    form.fields = spo.getViewFields(context.lists.Informe, "Informe Admin Page");
-                }
+                } 
+
                 context.forms.item = new EFWForm(form);
 
                 let tableForm = {
+                    // listFields: spo.getViewFields(context.lists.Item, "Nombre vista"),
                     container: $container.find('.sent-haberes-container'),
                     title: 'Haberes',
                     editable: false,
@@ -222,14 +222,16 @@ var informePage = {
                     disabled: true,
                     sortable: false,
                 }
-                if (admin == "Coordinador"){
-                    tableForm.listFields = spo.getViewFields(context.lists.Item, "Coordinador");
-                } else if (admin == "Aprobador"){
-                    tableForm.listFields = spo.getViewFields(context.lists.Item, "Administrador");
-                } else if (admin == "Administrador"){
+
+                if (plantaAdmin.Rol == "Administrador"){
                     tableForm.listFields = spo.getViewFields(context.lists.Item, "Administrador");
                     $pdfButton.removeClass('hide');
-                }
+                } else if (plantaAdmin.Rol == "Aprobador"){
+                    tableForm.listFields = spo.getViewFields(context.lists.Item, "Administrador");
+                } else if (plantaAdmin.Rol == "Coordinador"){
+                    tableForm.listFields = spo.getViewFields(context.lists.Item, "Coordinador");
+                } 
+
                 context.forms.haberes = new EFWListTable(tableForm);
 
                 if (listItemId) {
@@ -290,7 +292,7 @@ var informePage = {
 
                         // Se extrae la informacion
                         let haberes = JSON.parse(context.items.Informe.Haberes);
-                        let periodoName = "Coordinador_"+context.items.Informe.Coordinador.Title+"_"
+                        let periodoName = "Coordinador_"+context.items.Coord.NombreCompleto+"_"
                         periodoName+="Periodo_"+context.items.Informe.Periodo.MesCalculado+"_"+context.items.Informe.Periodo.AnioCalculado;
                         let arrayHaberes = haberes.d.results.map(function(haber){
                             return [
@@ -317,11 +319,11 @@ var informePage = {
                         XLSX.utils.book_append_sheet(wb, ws, "Items Variables");
                         let coorData = [
                             ["Información del Coordinador"],
-                            ["Nombre del coordinador", context.items.Coord.Title],
-                            ["Codigo payroll", context.items.Coord.Planta.Title],
+                            ["Nombre del coordinador", context.items.Coord.NombreCompleto],
+                            ["Codigo payroll", context.items.Coord.Title],
                             ["Centro costo", context.items.Coord.CentroCosto.CodigoCC],
-                            ["Jefe Aprobador", context.items.Coord.Aprobador.Nombre],
-                            ["Correo Jefe Aprobador", context.items.Coord.Aprobador.Title],
+                            ["Jefe Aprobador", context.items.Apr.NombreCompleto],
+                            ["Correo Jefe Aprobador", context.items.Apr.Email],
                             ["Fecha de envío de informe",moment(context.items.Informe.Created).format("DD/MM/YYYY hh:mm")],
                             ["Fecha de aprobación",moment(context.items.Informe.FechaAprobacion).format("DD/MM/YYYY hh:mm")],
                             ["Número de items", context.items.Informe.Cantidad.toString()],
@@ -341,17 +343,17 @@ var informePage = {
                         );
                         
                     }
-                    if (admin=="Coordinador"){
-                        dialogs.confirmDialog(
-                            dialogTitle,
-                            'Se descargará un documento Excel con la información en pantalla',
-                            coorSave
-                        )
-                    } else if (admin=="Administrador"){
+                    if (plantaAdmin.Rol == "Administrador"){
                         dialogs.confirmDialog(
                             dialogTitle,
                             'Se descargará un documento Excel con la información en pantalla',
                             adminSave
+                        )
+                    } else if (plantaAdmin.Rol == "Coordinador"){
+                        dialogs.confirmDialog(
+                            dialogTitle,
+                            'Se descargará un documento Excel con la información en pantalla',
+                            coorSave
                         )
                     }
                 });
@@ -409,11 +411,11 @@ var informePage = {
                         
                         // Answers to green letters
                         doc.setTextColor(0);
-                        doc.text(context.items.Coord.Title, 65, 45);
+                        doc.text(context.items.Coord.NombreCompleto, 65, 45);
                         doc.text(context.items.Coord.CentroCosto.CodigoCC, 65, 51);
                         doc.text(moment(context.items.Informe.Created).format("DD/MM/YYYY hh:mm"), 65, 57);
-                        doc.text(context.items.Coord.Planta.Title, 225, 45);
-                        doc.text(context.items.Coord.Aprobador.Nombre, 225, 51);
+                        doc.text(context.items.Coord.Title, 225, 45);
+                        doc.text(context.items.Apr.NombreCompleto, 225, 51);
                         doc.text(moment(context.items.Informe.FechaAprobacion).format("DD/MM/YYYY hh:mm"), 225, 57);
                 
                         // Table
@@ -468,23 +470,27 @@ var informePage = {
                                 8: {cellWidth: 15},// CCOSTO
                                 9: {cellWidth: 50},// JUSTIFICACIÓN
                             },
-                            didDrawPage: data => {
-                                data.doc.text("Página " + data.pageNumber, 330, 200, "right");
-                            },
                         })
                 
-                        // Aprobado
-                        doc.addImage(approved, "JPEG", 195, 160, 50, 40);
-                        doc.setFontStyle("bold");
-                        doc.setFontSize(10);
-                        doc.text("RESPONSABLE", 140, 175, "center");
-                        doc.setFontStyle("normal");
-                        doc.text(context.items.Coord.Aprobador.Nombre, 140, 180, "center");
-                        doc.text(context.items.aprobador.Planta.d_cargo, 140, 185, "center");
-                        doc.text("Mutual de Seguridad C.HC.C.", 140, 190, "center");
+                        let pageCount = doc.internal.getNumberOfPages();
+                        for(i = 1; i < pageCount + 1; i++) { 
+                            // Pagination
+                            doc.setPage(i); 
+                            doc.text("Página " + i + " de " + doc.internal.getNumberOfPages(), 180, 200, "center");
+
+                            // Aprobado
+                            doc.addImage(approved, "JPEG", 280, 160, 50, 40);
+                            doc.setFontStyle("bold");
+                            doc.setFontSize(10);
+                            doc.text("RESPONSABLE", 225, 175, "center");
+                            doc.setFontStyle("normal");
+                            doc.text(context.items.Apr.NombreCompleto, 225, 180, "center");
+                            doc.text(context.items.Apr.d_cargo, 225, 185, "center");
+                            doc.text("Mutual de Seguridad C.HC.C.", 225, 190, "center");
+                        }
                 
                         // Download
-                        let periodoName = "Coordinador_"+context.items.Informe.Coordinador.Title+"_"
+                        let periodoName = "Coordinador_"+context.items.Coord.NombreCompleto+"_"
                         periodoName+="Periodo_"+context.items.Informe.Periodo.MesCalculado+"_"+context.items.Informe.Periodo.AnioCalculado;
                         doc.save(periodoName)
                         
@@ -494,44 +500,10 @@ var informePage = {
                             'Su informe se ha descargado exitosamente',
                         );
                     }
-                    function shouldCreatePDF(){
-                        if (loaded.Aprobador){
-                            createPDF();
-                        }
-                    }
-                    function save() {
-                        dialog.progress(dialogTitle);
-                        spo.getListInfo('Aprobador',
-                            function (response) {
-                                console.log("El informe", context.items.Informe)
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'filter': '(ID eq '+ context.items.Informe.AprobadorId +')'
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "Aprobador", query,
-                                    function (response) {
-                                        context.items.aprobador = response.d.results[0];
-                                        loaded.Aprobador = true;
-                                        shouldCreatePDF();
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                            }
-                        );
-                    }
                     dialogs.confirmDialog(
                         dialogTitle,
                         'Se descargará un PDF con la información del informe',
-                        save
+                        createPDF
                     )
                 });
 
@@ -546,7 +518,7 @@ var informePage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.listaItem && loaded.listaCoord && loaded.Coord) {
+                    if (loaded.listaItem && loaded.listaCoord && loaded.Coord && loaded.Aprobador) {
                         initForm();
                     }
                 };
@@ -570,7 +542,7 @@ var informePage = {
                             spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
                                 function (response) {
                                     context.items.Informe = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    spo.getListInfo("Coordinador",
+                                    spo.getListInfo("Planta",
                                         function (response) {
                                             context.items.Coord = [];
                                             context.lists.Coord = response;
@@ -583,7 +555,7 @@ var informePage = {
                                                 }
                                             });
 
-                                            spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                                            spo.getListItems(spo.getSiteUrl(), "Planta", query,
                                                 function (response) {
                                                     context.items.Coord = response.d.results.length > 0 ? response.d.results[0] : null;
                                                     loaded.Coord = true;
@@ -594,6 +566,34 @@ var informePage = {
                                                     console.log(responseText.error.message.value);
                                                 }
                                             );
+                                        },
+                                        function (response) {
+                                            var responseText = JSON.parse(response.responseText);
+                                            console.log(responseText.error.message.value);
+                                        }
+                                    );
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                            spo.getListInfo("Planta",
+                                function (response) {
+                                    context.lists.Apr = response;
+
+                                    var query = spo.encodeUrlListQuery(context.lists.Apr, {
+                                        view: 'Todos los elementos',
+                                        odata: {
+                                            'filter': '(Id eq ' + context.items.Informe.AprobadorId + ')'
+                                        }
+                                    });
+
+                                    spo.getListItems(spo.getSiteUrl(), "Planta", query,
+                                        function (response) {
+                                            context.items.Apr = response.d.results.length > 0 ? response.d.results[0] : null;
+                                            loaded.Aprobador = true;
+                                            shouldInitForms();
                                         },
                                         function (response) {
                                             var responseText = JSON.parse(response.responseText);

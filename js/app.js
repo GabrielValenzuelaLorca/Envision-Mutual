@@ -7,9 +7,7 @@ var leftView = null;
 var mainView = null;
 var XHRrequests = [];
 var translations = {};
-var plantaId = null;
-var planta = null;
-var admin = null;
+var plantaAdmin = null;
 var spo = new EnvisionSPO({
     tenantUrl: global.tenantUrl,
     siteUrl: global.siteUrl,
@@ -128,78 +126,43 @@ spo.getCurrentUserInformation().done(function(){
         }
 
         function shouldStartApp(){
-            if (loaded.PlantaInfo && loaded.Planta && loaded.AdminInfo && loaded.Admin){
-                if (planta) {
-                    if (planta.EstadoContrato == "Activo") {
-                        startApp();        
+            if (loaded.Planta) {
+                if (plantaAdmin){
+                    if (plantaAdmin.Rol != null && plantaAdmin.EstadoContrato == "Activo"){
+                        startApp();
                     } else {
-                        startAppNoAccess();
+                        startAppNoAccess();    
                     }
                 } else {
-                    startAppNoAccess();
+                    startAppNoAccess();    
                 }
             }
         }
 
         spo.getListInfo('Planta',
-            function (response2) {
-                loaded.PlantaInfo = true;
-                var query2 = spo.encodeUrlListQuery(response2, {
-                    view: 'Todos los elementos',
-                    odata: {
-                        'filter': '(Email eq \'' + spo.getCurrentUser()['EMail'] + '\')',
-                        'select': '*,AttachmentFiles',
-                        'expand': 'AttachmentFiles'
-                    }
-                });
-
-                spo.getListItems(spo.getSiteUrl(), 'Planta', query2,
-                    function (response2) {
-                        plantaId = response2.d.results.length > 0 ? response2.d.results[0].ID : null;
-                        planta = response2.d.results.length > 0 ? response2.d.results[0] : null;
-                        loaded.Planta = true;
-                        shouldStartApp();
-
-                    },
-                    function (response2) {
-                        var responseText = JSON.parse(response2.responseText);
-                        console.log(responseText.error.message.value);
-                        resolve(failCond);
-                    }
-                );
-            },
             function (response) {
-                var responseText = JSON.parse(response.responseText);
-                console.log(responseText.error.message.value);
-                resolve(failCond);
-            }
-        );
-
-        spo.getListInfo('Administrador',
-            function(response){
-                loaded.AdminInfo = true;
                 var query = spo.encodeUrlListQuery(response, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(Usuario/Email eq \'' + spo.getCurrentUser()['EMail'] + '\')',
-                        'select': '*,AttachmentFiles',
-                        'expand': 'AttachmentFiles'
+                        'filter': '(UsuarioId eq \'' + spo.getCurrentUserId() + '\')',
+                        'select': '*'
                     }
                 });
-                spo.getListItems(spo.getSiteUrl(), 'Administrador', query,
-                    function(response){
-                        admin = response.d.results.length > 0 ? response.d.results[0].Cargo : null;
-                        loaded.Admin = true;
+
+                spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                    function (response) {
+                        plantaAdmin = response.d.results[0];
+                        loaded.Planta = true;
                         shouldStartApp();
                     },
-                    function(response){
+                    function (response) {
                         var responseText = JSON.parse(response.responseText);
                         console.log(responseText.error.message.value);
                         resolve(failCond);
                     }
                 );
             },
-            function(response){
+            function (response) {
                 var responseText = JSON.parse(response.responseText);
                 console.log(responseText.error.message.value);
                 resolve(failCond);

@@ -18,19 +18,20 @@ itemVariableStreamPage.methods.getListTitle = function(){
 
 itemVariableStreamPage.methods.onItemDblClick = function(item){
     // mainView.router.navigate('/itemVariable?listItemId='+item.ID);
+    return;
 }
 
 itemVariableStreamPage.methods.beforeStartComponent = function(success,failure){
     var context = this._getPageContext();
     loaded = {}
     function startItemComponent(){
-        if (loaded.Coordinador && loaded.Periodo){
+        if (loaded.Periodo){
             spo.getListInfo('Informe Haberes',
                 function (response) {
                     var query = spo.encodeUrlListQuery(response, {
                         view: 'Todos los elementos',
                         odata: {
-                            'filter': '(CoordinadorId eq ' + context.coorId + ' and PeriodoId eq '+context.periodId+')'
+                            'filter': '(CoordinadorId eq ' + plantaAdmin.ID + ' and PeriodoId eq '+context.periodId+')'
                         }
                     });
                     spo.getListItems(spo.getSiteUrl(), "Informe Haberes", query,
@@ -66,38 +67,6 @@ itemVariableStreamPage.methods.beforeStartComponent = function(success,failure){
                 function (response) {
                     context.periodId = response.d.results.length>0 ? response.d.results[0].ID : null;
                     loaded.Periodo = true;
-                    startItemComponent()
-                },
-                function (response) {
-                    var responseText = JSON.parse(response.responseText);
-                    console.log(responseText.error.message.value);
-                    if (failure) failure();
-                }
-            );
-        },
-        function(response){
-            var responseText = JSON.parse(response.responseText);
-            console.log(responseText.error.message.value);
-            resolve(failCond);
-            if (failure) failure();
-        }
-    );
-    spo.getListInfo('Coordinador',
-        function (response) {
-            var query = spo.encodeUrlListQuery(response, {
-                view: 'Todos los elementos',
-                odata: {
-                    'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')',
-                    'select': '*,AttachmentFiles',
-                    'expand': 'AttachmentFiles'
-                }
-            });
-            spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
-                function (response) {
-                    context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
-                    context.Aprobador = response.d.results[0].Aprobador.Title;
-                    context.AprobadorId = response.d.results[0].AprobadorId;
-                    loaded.Coordinador = true;
                     startItemComponent()
                 },
                 function (response) {
@@ -156,10 +125,10 @@ itemVariableStreamPage.methods.getCamlQueryConditions = function(){
     var urlQuery = page.route.query;
 
     if (context.informes.length == 0 ) {
-        return '<And><Eq><FieldRef Name="Coordinador" LookupId="TRUE"/><Value Type="Lookup">'+context.coorId+'</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
+        return '<And><Eq><FieldRef Name="Coordinador" LookupId="TRUE"/><Value Type="Lookup">'+plantaAdmin.ID+'</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
     } else {
         if (context.informes[0].Estado == "Desaprobado"){
-            return '<And><Eq><FieldRef Name="Coordinador" LookupId="TRUE"/><Value Type="Lookup">'+context.coorId+'</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
+            return '<And><Eq><FieldRef Name="Coordinador" LookupId="TRUE"/><Value Type="Lookup">'+plantaAdmin.ID+'</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
         } else {
             return '<Eq><FieldRef Name="Coordinador" LookupId="TRUE"/><Value Type="Lookup">Nono</Value></Eq>'
         }

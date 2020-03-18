@@ -11,142 +11,114 @@ menuPage.methods.beforeStartComponent = function(success, failure){
     }
 
     function informesCoordinador(){
-        spo.getListInfo('Coordinador',
+        //Carga Informe Haberes
+        spo.getListInfo('Informe Haberes',
             function (response) {
                 var query = spo.encodeUrlListQuery(response, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(UsuarioId eq '+spo.getCurrentUserId()+')',
+                        'filter': '(CoordinadorId eq ' + plantaAdmin.ID + ' and PeriodoId eq '+context.onPeriod+')'
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), "Informe Haberes", query,
+                    function (response) {
+                        context.informes = response.d.results;
+                        loaded.Informe = true;
+                        shouldStart();
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        if (failure) failure();
+                    }
+                );
+            },
+            function(response){
+                var responseText = JSON.parse(response.responseText);
+                console.log(responseText.error.message.value);
+                resolve(failCond);
+                if (failure) failure();
+            }
+        );
+
+        //Carga Planta del coordinador
+        spo.getListInfo('Planta',
+            function (response) {
+                var query = spo.encodeUrlListQuery(response, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(Coordinador eq ' + plantaAdmin.ID + ')',
+                        'top': 5000
+                        
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), "Planta", query,
+                    function (response) {
+                        context.planta = response.d.results;
+                        loaded.Planta = true;
+                        shouldStart();                                 
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        if (failure) failure();
+                    }
+                );
+            },
+            function(response){
+                var responseText = JSON.parse(response.responseText);
+                console.log(responseText.error.message.value);
+                resolve(failCond);
+                if (failure) failure();
+            }
+        );
+
+        //Carga Categorias del coordinador
+        spo.getListInfo('Categoria',
+            function (response) {
+                var query = spo.encodeUrlListQuery(response, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'top': 5000
+                        
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), "Categoria", query,
+                    function (response) {
+                        context.Categoria = response.d.results;
+                        loaded.Categoria = true;
+                        shouldStart();                                  
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        if (failure) failure();
+                    }
+                );
+            },
+            function(response){
+                var responseText = JSON.parse(response.responseText);
+                console.log(responseText.error.message.value);
+                resolve(failCond);
+                if (failure) failure();
+            }
+        );
+
+        //Carga Haberes del coordinador
+        spo.getListInfo('ListadoItemVariable',
+            function (response) {
+                var query = spo.encodeUrlListQuery(response, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'top': 5000,
                         'select': '*'
                     }
                 });
-                spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                spo.getListItems(spo.getSiteUrl(), "ListadoItemVariable", query,
                     function (response) {
-                        context.coordinadorId = response.d.results.length>0 ? response.d.results[0] : false;
-                        //Carga Informe Haberes
-                        spo.getListInfo('Informe Haberes',
-                            function (response) {
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'filter': '(CoordinadorId eq ' + context.coordinadorId.ID + ' and PeriodoId eq '+context.onPeriod+')'
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "Informe Haberes", query,
-                                    function (response) {
-                                        context.informes = response.d.results;
-                                        loaded.Informe = true;
-                                        shouldStart();
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                        if (failure) failure();
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                                resolve(failCond);
-                                if (failure) failure();
-                            }
-                        );
-
-                        //Carga Planta del coordinador
-                        spo.getListInfo('Planta',
-                            function (response) {
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'filter': '(Coordinador eq ' + context.coordinadorId.ID + ')',
-                                        'top': 5000
-                                        
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "Planta", query,
-                                    function (response) {
-                                        context.planta = response.d.results;
-                                        loaded.Planta = true;
-                                        shouldStart();                                 
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                        if (failure) failure();
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                                resolve(failCond);
-                                if (failure) failure();
-                            }
-                        );
-
-                        //Carga Categorias del coordinador
-                        spo.getListInfo('Categoria',
-                            function (response) {
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'top': 5000
-                                        
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "Categoria", query,
-                                    function (response) {
-                                        context.Categoria = response.d.results;
-                                        loaded.Categoria = true;
-                                        shouldStart();                                  
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                        if (failure) failure();
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                                resolve(failCond);
-                                if (failure) failure();
-                            }
-                        );
-
-                        //Carga Haberes del coordinador
-                        spo.getListInfo('ListadoItemVariable',
-                            function (response) {
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'top': 5000,
-                                        'select': '*'
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "ListadoItemVariable", query,
-                                    function (response) {
-                                        context.haber = response.d.results;
-                                        loaded.Item = true;
-                                        shouldStart();                      
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                        if (failure) failure();
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                                resolve(failCond);
-                                if (failure) failure();
-                            }
-                        );
-
+                        context.haber = response.d.results;
+                        loaded.Item = true;
+                        shouldStart();                      
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);
@@ -175,7 +147,7 @@ menuPage.methods.beforeStartComponent = function(success, failure){
             spo.getListItems(spo.getSiteUrl(), "Periodo", query,
                 function (response) {
                     context.onPeriod = response.d.results.length>0 ? response.d.results[0].ID : false;
-                    if (admin == "Coordinador"){
+                    if (plantaAdmin.Rol == "Coordinador"){
                         informesCoordinador();    
                     } else {
                         if (success) success();
@@ -205,7 +177,7 @@ menuPage.methods.getListBlocksData = function(){
 
     // configuración de menú
     var settings = []
-    if (admin == "Coordinador"){
+    if (plantaAdmin.Rol == "Coordinador"){
         let canSendInform = true;
         let coorSection = {
             inset: true,
@@ -259,6 +231,17 @@ menuPage.methods.getListBlocksData = function(){
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--ExcelLogo"></i>',
+                },
+                {
+                    href: '/Solicitudes?panel=filter-open',
+                    title: 'Solicitudes',
+                    after: '',
+                    header: '',
+                    footer: 'Centro de costos',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--DocumentApproval"></i>',
                 }
             ]);
         } else if(!canSendInform) {
@@ -325,14 +308,17 @@ menuPage.methods.getListBlocksData = function(){
                 media: '<i class="ms-Icon ms-Icon--ExcelLogo"></i>',
                 onClick: function(){
                     //Almacenamos todos los haberes asignados a el coordinador.
-                    var selfHaber = context.coordinadorId.HaberesId.results.map(function(y){
+                    var selfHaber = plantaAdmin.HaberesId.results.map(function(y){
                             let encontrado = context.haber.filter(function(x){
                                 return x.ID == y
                             })[0]
+                            console.log('Haber disponible', encontrado)
                             return {
                                 "Codigo Item Variable": encontrado.Title,
                                 "Nombre Item Variable": encontrado.NombreItem,
                                 "Tipo de ingreso": encontrado.TipoIngreso,
+                                "Minimo": encontrado.Minimo,
+                                "Maximo": encontrado.Maximo
                             };
                     });
                     let selfJobs = context.planta.map(function(x){
@@ -370,7 +356,7 @@ menuPage.methods.getListBlocksData = function(){
         settings.push(coorSection2); 
     }
 
-    if (admin == "Aprobador"){
+    if (plantaAdmin.Rol == "Aprobador"){
         let aprobSection = {
             inset: true,
             header: 'Aprobación',
@@ -399,10 +385,16 @@ menuPage.methods.getListBlocksData = function(){
         settings.push(aprobSection);
     } 
 
-    if (admin == "Administrador"){
+    if (plantaAdmin.Rol == "Administrador"){
         let admSection = {
             inset: true,
             header: 'Administración',
+            footer: '',
+            options: []
+        };
+        let admSection2 = {
+            inset: true,
+            header: 'Mantenedores',
             footer: '',
             options: []
         };
@@ -419,6 +411,17 @@ menuPage.methods.getListBlocksData = function(){
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--TimeEntry"></i>',
+                },
+                {
+                    href: '/Solicitudes?panel=filter-open',
+                    title: 'Solicitudes',
+                    after: '',
+                    header: '',
+                    footer: 'Centro de costos',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--DocumentApproval"></i>',
                 }
             ]);
         } else {
@@ -448,17 +451,7 @@ menuPage.methods.getListBlocksData = function(){
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
             },
-            {
-                href: '/MItemVariable',
-                title: 'Mantenedor Haberes',
-                after: '',
-                header: '',
-                footer: '',
-                panelClose: true,
-                externalLink: false,
-                f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
-            },
+            
             {
                 href: '/informeHistorico?&panel=filter-open',
                 title: 'Informes',
@@ -470,8 +463,60 @@ menuPage.methods.getListBlocksData = function(){
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--ActivateOrders"></i>',
             },
+            
+            
         ]);
         settings.push(admSection);
+
+
+        admSection2.options = admSection2.options.concat([
+        {
+            href: '/rolStream',
+            title: 'Mantenedor Roles',
+            after: '',
+            header: '',
+            footer: '',
+            panelClose: true,
+            externalLink: false,
+            f7view: '.view-main',
+            media: '<i class="ms-Icon ms-Icon--AccountManagement"></i>',
+        },
+        // {
+        //     href: '/liststream?title=Mantenedor Items Variables&listtitle=ListadoItemVariable&listview=Todos los elementos&template=list-row&panel=filter-close',
+        //     title: 'Mantenedor Haberes',
+        //     after: '',
+        //     header: '',
+        //     footer: '',
+        //     panelClose: true,
+        //     externalLink: false,
+        //     f7view: '.view-main',
+        //     media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+        // },
+        {
+            href: '/liststream?title=Mantenedor Convenio Capex&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close',
+            title: 'Mantenedor Capex',
+            after: '',
+            header: '',
+            footer: '',
+            panelClose: true,
+            externalLink: false,
+            f7view: '.view-main',
+            media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+        },
+        {
+            href: '/coordinadorStream',
+            title: 'Mantenedor Coordinador',
+            after: '',
+            header: '',
+            footer: '',
+            panelClose: true,
+            externalLink: false,
+            f7view: '.view-main',
+            media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+        },
+    ]);
+
+        settings.push(admSection2);
     }
 
     return settings;

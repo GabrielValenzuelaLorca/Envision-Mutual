@@ -227,8 +227,6 @@ var uploadItemsPage = {
                             function(response){
                                 //Reseteamos los errores
                                 context.forms.errorsList.setValues([]);
-                                console.log('Datos de response', response[0]);
-
                                 //Funcion que valida si el item puede ser imputado por el trabajador
                                 function validateItem(trabajador, item){
                                     //Valida si es un Haber o descuento
@@ -346,7 +344,7 @@ var uploadItemsPage = {
                                                         context.aprobado = true;
                                                     }
                                                 }else if(x.Categoria.trim().length == 1){
-                                                    if(categoriaActual.Categoria.trim() == x.Categoria.trim()){
+                                                    if(categoriaActual.Categoria.charAt(0) == x.Categoria.charAt(0)){
                                                         context.aprobado = true;
                                                     }
                                                 }
@@ -368,6 +366,7 @@ var uploadItemsPage = {
                                 }
 
                                 function callServiceCargaMasivaItems(body){
+                                    console.log('Body', JSON.stringify(body))
                                     fetch('https://prod-41.westus.logic.azure.com:443/workflows/7936281e1e9642b7bce907f3b5c79f98/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=M0U07-7TKCCEM1d_uwLaTyhGKUGed1dqJAwpJp-mBJg', {
                                         method: 'POST',
                                         headers: {
@@ -399,13 +398,79 @@ var uploadItemsPage = {
                                         "Codigo": fila.COD_PAYROLL,
                                         "Item": item.ID,
                                         "Nombre": trabajador.Rut,
-                                        "CentroCosto": trabajador.CentroCostoId                                        
+                                        "CentroCosto": fila.CCOSTO ? fila.CCOSTO : trabajador.CentroCostoId,
+                                        "Excepcion" : fila.CCOSTO ? 'Centro de costo diferente' : ''
+                                    }
+                                }
+
+                                function validateMINMAX(value, codItem){
+                                    let item = context.items.ListadoItemVariable.filter(x => x.Title == codItem)[0];
+                                    value = parseInt(value);
+            
+                                    if(item.Minino && item.Maximo){
+                                        if(item.Minimo > value && item.Maximo < value){
+                                            return false;
+                                        }
+                                    }
+                                    if(item.Minimo){
+                                        if(item.Minimo > value){
+                                            return false;
+                                        }
+                                    }
+                                    if(item.Maximo){
+                                        if (item.Maximo < value){
+                                            return false;
+                                        }
+                                    }
+            
+                                    return true;
+                                }
+
+                                function validateCC(cc, trabajador, item){
+                                    if(context.items.Solicitudes.length > 0){
+
+                                        var filtrado = context.items.Solicitudes.filter(function(x){
+                                            return x.Trabajador.NombreCompleto == trabajador.NombreCompleto 
+                                            && x.Item.NombreItem == item.NombreItem
+                                        });
+
+                                        if(filtrado.length > 0){
+                                            console.log('filtrado', filtrado)
+
+                                            var encontrado =filtrado.filter(function(x){
+                                                return (x.Centro_x0020_de_x0020_costo.D_CC.split(' '))[0] == cc
+                                            });
+                                            console.log('Encontrados', encontrado)
+
+                                            if(encontrado.length > 0){
+                                                return {
+                                                    "Error": false,
+                                                    "value": encontrado[0].Centro_x0020_de_x0020_costoId
+                                                }
+                                            }else{
+                                                return {
+                                                    "Error": true,
+                                                    "Message": "El centro de costo ingresado es incorrecto."
+                                                }
+                                            }
+                                        }else{
+                                            return {
+                                                "Error": true,
+                                                "Message": "No se encontraron coincidencias con el trabajador o item ingresado."
+                                            }
+                                        }
+
+                                    }else{
+                                        return {
+                                            "Error": true,
+                                            "Message": "No posee solicitudes aprobadas para el periodo."
+                                        }
                                     }
                                 }
 
                                 //Obtenemos todos los datos de los item que puede acceder el coordinador
                                 var ItemPorCoo = context.items.ListadoItemVariable.filter( x => 
-                                    context.items.Coordinador[0].HaberesId.results.includes(x.ID)
+                                    plantaAdmin.HaberesId.results.includes(x.ID)
                                 );
 
                                 //Arreglos donde quedaran los datos
@@ -458,6 +523,23 @@ var uploadItemsPage = {
                                         });
                                         linea++
                                         return;
+                                    }else{
+                                        if(!Number.isInteger(fila.CANT_$MONTO)){
+                                            Errores.push({
+                                                "Linea": linea,
+                                                "Message": `En el campo cantidad o monto solo se permiten numeros.`
+                                            });
+                                            linea++
+                                            return;
+                                        }
+                                        if(!validateMINMAX(fila.CANT_$MONTO, fila.COD_HABER)){
+                                            Errores.push({
+                                                "Linea": linea,
+                                                "Message": `La cantidad o monto ingresado excede los limites establecidos para el item.`
+                                            });
+                                            linea++
+                                            return;
+                                        }
                                     }
 
                                     //Errores de justificacion
@@ -488,9 +570,26 @@ var uploadItemsPage = {
                                         });
                                         linea++
                                         return;
-                                    }else{
-                                        OK.push(PrepareToSend(fila, jobs[0], cat[0]));
                                     }
+
+                                    if(fila.CCOSTO){
+                                        let res = validateCC(fila.CCOSTO, jobs[0], cat[0]);
+                                        if(res.Error == true){
+                                            Errores.push({
+                                                "Linea": linea,
+                                                "Message": res.Message
+                                            });
+                                            linea++
+                                            return;
+                                        }else{
+                                            console.log('Valor de REs', res.value)
+                                            fila.CCOSTO = res.value
+                                        }
+                                    }else{
+                                        console.log('No aplica CC')
+                                    }
+                                    
+                                    OK.push(PrepareToSend(fila, jobs[0], cat[0]));
                                     linea++
                                 });
 
@@ -515,9 +614,9 @@ var uploadItemsPage = {
                                     }).open();
                                 }else{
                                     var body = [];
-                                    body[0] = context.items.Coordinador[0].ID;
+                                    body[0] = plantaAdmin.ID;
                                     body[1] = context.items.Periodo[0].ID;
-                                    body[2] = spo.getCurrentUser()['EMail'];
+                                    body[2] = plantaAdmin.Email;
                                     body[3] = OK;
                                     callServiceCargaMasivaItems(body);
                                     dialog.close();
@@ -621,7 +720,7 @@ var uploadItemsPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.lista && loaded.Planta && loaded.Categoria && loaded.ListadoItemVariable ) {
+                    if (loaded.lista && loaded.Planta && loaded.Categoria && loaded.ListadoItemVariable && loaded.Solicitudes) {
                         initForm();
                     }
                 };
@@ -640,55 +739,25 @@ var uploadItemsPage = {
                     }
                 );
 
-                // Obtener información de la planta asociada al coordinador
-                spo.getListInfo('Coordinador',
+                // Obtengo los trabajadores asociados al coordinador
+                spo.getListInfo('Planta',
                     function (response) {
-                        context.items.Coordinador = [];
-                        context.lists.Coordinador = response;                        
+                        context.items.Planta = [];
+                        context.lists.Planta = response;                        
 
-                        var query = spo.encodeUrlListQuery(context.lists.Coordinador, {
+                        var query = spo.encodeUrlListQuery(context.lists.Planta, {
                             view: 'Todos los elementos',
                             odata: {
-                                'filter': '(UsuarioId eq \'' + spo.getCurrentUserId() + '\')',
-                                'select': '*',
+                                'filter': '(EstadoContrato ne \'Suspendido\' and CoordinadorId eq \'' + plantaAdmin.ID + '\')',
                                 'top': 5000,
                             }
                         });
 
-                        spo.getListItems(spo.getSiteUrl(), 'Coordinador', query,
+                        spo.getListItems(spo.getSiteUrl(), 'Planta', query,
                             function (response) {
-                                context.items.Coordinador = response.d.results.length > 0 ? response.d.results : null;
-                                // Obtengo los trabajadores asociados al coordinador
-                                spo.getListInfo('Planta',
-                                    function (response) {
-                                        context.items.Planta = [];
-                                        context.lists.Planta = response;                        
-
-                                        var query = spo.encodeUrlListQuery(context.lists.Planta, {
-                                            view: 'Todos los elementos',
-                                            odata: {
-                                                'filter': '(EstadoContrato ne \'Suspendido\' and CoordinadorId eq \'' + context.items.Coordinador[0].ID + '\')',
-                                                'top': 5000,
-                                            }
-                                        });
-
-                                        spo.getListItems(spo.getSiteUrl(), 'Planta', query,
-                                            function (response) {
-                                                context.items.Planta = response.d.results.length > 0 ? response.d.results : null;
-                                                loaded.Planta = true;
-                                                shouldInitForms();
-                                            },
-                                            function (response) {
-                                                var responseText = JSON.parse(response.responseText);
-                                                console.log(responseText.error.message.value);
-                                            }
-                                        );
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                    }
-                                );
+                                context.items.Planta = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.Planta = true;
+                                shouldInitForms();
                             },
                             function (response) {
                                 var responseText = JSON.parse(response.responseText);
@@ -757,7 +826,37 @@ var uploadItemsPage = {
                              function (response) {
                                  context.items.Periodo = response.d.results.length > 0 ? response.d.results : null;
                                  loaded.Periodo = true;
-                                 shouldInitForms();
+                                 spo.getListInfo('Solicitudes',
+                                        function (response) {
+                                            context.items.Solicitudes = [];
+                                            context.lists.Solicitudes = response;
+                                                var query = spo.encodeUrlListQuery(context.lists.Solicitudes, {
+                                                    view: 'Todos los elementos',
+                                                    odata: {
+                                                        'select': '*',
+                                                        'top': 5000,
+                                                        'filter': '(PeriodoId eq ' + context.items.Periodo[0].ID + ' and CoordinadorId eq \'' + plantaAdmin.ID + '\' and Estado eq \'Aprobado\')'
+                                                    }
+                                                });
+
+                                                spo.getListItems(spo.getSiteUrl(), 'Solicitudes', query,
+                                                    function (response) {
+                                                        context.items.Solicitudes = response.d.results.length > 0 ? response.d.results : null;
+                                                        loaded.Solicitudes = true;
+                                                        shouldInitForms();
+                                                    },
+                                                    function (response) {
+                                                        var responseText = JSON.parse(response.responseText);
+                                                        console.log(responseText.error.message.value);
+                                                    }
+                                                );
+
+                                        },
+                                        function (response) {
+                                            var responseText = JSON.parse(response.responseText);
+                                            console.log(responseText.error.message.value);
+                                        }
+                                    );
                              },
                              function (response) {
                                  var responseText = JSON.parse(response.responseText);

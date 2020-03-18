@@ -5,12 +5,11 @@ informeHistoricoPage.methods.allowChangeTemplate = function(){
 }
 
 informeHistoricoPage.methods.getListView = function(){
-    if (admin == "Administrador") {
+    if (plantaAdmin.Rol == "Administrador") {
         return "Historico"    
-    } else if (admin == "Coordinador"){
+    } else if (plantaAdmin.Rol == "Coordinador"){
         return "Historico Coordinador"
     }
-    
 }
 
 informeHistoricoPage.methods.getTitle = function(){
@@ -34,35 +33,7 @@ informeHistoricoPage.methods.onItemDblClick = function(item){
 
 informeHistoricoPage.methods.beforeStartComponent = function(success,failure){
     var context = this._getPageContext();
-    if (admin=="Coordinador"){
-        spo.getListInfo('Coordinador',
-            function (response) {
-                var query = spo.encodeUrlListQuery(response, {
-                    view: 'Todos los elementos',
-                    odata: {
-                        'filter': '(UsuarioId eq '+ spo.getCurrentUserId() +')'
-                    }
-                });
-                spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
-                    function (response) {
-                        context.coorId = response.d.results.length>0 ? response.d.results[0].ID : null;
-                        if (success) success();
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                        if (failure) failure();
-                    }
-                );
-            },
-            function(response){
-                var responseText = JSON.parse(response.responseText);
-                console.log(responseText.error.message.value);
-                resolve(failCond);
-                if (failure) failure();
-            }
-        );
-    } else if (admin == "Administrador"){
+    if (plantaAdmin.Rol == "Administrador"){
         spo.getListInfo('Informe Haberes',
             function (response) {
                 var query = spo.encodeUrlListQuery(response, {
@@ -91,7 +62,9 @@ informeHistoricoPage.methods.beforeStartComponent = function(success,failure){
                 if (failure) failure();
             }
         );
-    }
+    } else if (plantaAdmin.Rol == "Coordinador"){
+        if (success) success();
+    } 
 }
 
 informeHistoricoPage.methods.getOneItemSelectedButtons = function(item){
@@ -100,13 +73,12 @@ informeHistoricoPage.methods.getOneItemSelectedButtons = function(item){
     context = self._getPageContext(),
     buttons = [];
 
-    if (admin=="Coordinador") {
-        buttons.push(localButtons.downloadInformeCoord(context));    
-    } else if(admin=="Administrador"){
+    if(plantaAdmin.Rol == "Administrador"){
         buttons.push(localButtons.downloadInformeAdmin(context));    
         buttons.push(localButtons.downloadInformePDF(context)); 
+    } else if (plantaAdmin.Rol == "Coordinador") {
+        buttons.push(localButtons.downloadInformeCoord(context));    
     }
-    
     return buttons;
 }
 
@@ -116,7 +88,7 @@ informeHistoricoPage.methods.getNoItemsSelectedButtons = function(){
         context = self._getPageContext(),
         buttons = [];
     
-    if (admin=="Administrador"){
+    if (plantaAdmin.Rol == "Administrador"){
         buttons.push(localButtons.downloadInformeComplete(context));
     }
 
@@ -163,20 +135,20 @@ informeHistoricoPage.methods.getCamlQueryConditions = function(){
     var page = this._getPage();
     var context = this._getPageContext();
     var urlQuery = page.route.query;
-    if (admin == "Administrador") {
+    if (plantaAdmin.Rol == "Administrador") {
         return ''+ 
             '<Eq>'+
                 '<FieldRef Name="Estado" />'+
                     '<Value Type="Choice">Aprobado</Value>'+
             '</Eq>'    
-    } else if (admin == "Coordinador") {
+    } else if (plantaAdmin.Rol == "Coordinador") {
         return ''+
             '<And><Eq>'+
                 '<FieldRef Name="Estado" />'+
                     '<Value Type="Choice">Aprobado</Value>'+
             '</Eq><Eq>'+
                 '<FieldRef Name="Coordinador" LookupId="TRUE"/>'+
-                    '<Value Type="Lookup">'+context.coorId+'</Value>'+
+                    '<Value Type="Lookup">'+plantaAdmin.ID+'</Value>'+
             '</Eq></And>'
     }
 }

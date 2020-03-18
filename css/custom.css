@@ -148,6 +148,16 @@
      line-height: 40px;
      cursor: pointer;
  }
+ .ios .send-email-popup2 .close-button{
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    right: 0px;
+    text-align: center;
+    z-index: 2;
+    line-height: 40px;
+    cursor: pointer;
+}
  
 .buttons-container .button{
      width: 280px;
@@ -161,6 +171,13 @@
 
 .popup.send-email-popup.modal-in {
     height: 400px ;
+}
+.popup.send-email-popup2.modal-in {
+    height: 290px;
+}
+
+.popup.send-email-popup2.modal-in {
+    height: 260px !important;
 }
 
 /* .popup.send-email-popup.modal-in.approval {
@@ -218,4 +235,167 @@
 
 .ios .dialog-button{
     background-color:#8EBD00 !important;
+}
+
+.ios .list {
+    margin: 5px 0 !important;
+    font-size: 17px;
+  }
+
+
+/* Tabla de items variables */
+
+.table-compact-row .not-editable .ms-TextField.required-field .ms-Label::after{
+    display: unset;
+}
+ 
+.table-compact-row .ms-EnvisionSerializeForm-row:first-child .ms-Form-container .ms-Label::after{
+    content: ' *';
+    color: red;
+}
+ 
+.table-compact-row .ms-Form-header {
+    /* display: none; */
+    /* display: flex; */
+    float: right;
+    /* margin-bottom: -50px; */
+    /* margin-left: -42px; */
+    /* margin-right: 50px; */
+    margin-top: 5px;
+    position: absolute;
+    right: -82px;
+}
+ 
+.table-compact-row .ms-Form-container {
+    white-space: normal;
+}
+ 
+.table-compact-row .ms-EnvisionSerializeForm-row:last-child .ms-Form-content {
+    /* padding-right: 0; */
+    border-right: initial !important;
+}
+ 
+.table-compact-row .ms-Form-content {
+    border-left: 1px solid #ddddde !important;
+    /* border-right: 1px solid #ddddde !important; */
+    padding-left: 0 !important;
+    /* border-top: 1px solid #ddddde !important; */
+    border-left: 1px solid #ddddde !important;
+    /* border-right: 1px solid #ddddde !important; */
+    padding-left: 0 !important;
+    display: table-caption;
+}
+ 
+.table-compact-row .ms-TextFields-wrapper {
+    display: flex;
+}
+ 
+.table-compact-row .ms-EnvisionSerializeForm-row:last-child .ms-FormField {
+    border-bottom: 1px solid #dddddb;
+    /* border-top: 1px solid #dddddb; */
+    border-right: 1px solid #ddddde;
+    /* padding: 5px 4px 5px 4px; */
+}
+ 
+.table-compact-row .ms-FormField {
+    border-top: 1px solid #dddddb;
+    border-right: 1px solid #ddddde !important;
+    padding: 5px 4px;
+    padding-left: 0px !important;
+    padding: auto 0;
+    display: inline-flex !important;
+    width: 200px !important;
+}
+ 
+.table-compact-row label.ms-Label {
+    background: #f7f7f7;
+    padding: 8px 12px !important;
+    border-bottom: 1px solid #ddddde;
+    margin: -5px -4px 0px -4px !important;
+    min-width: calc(100% + 8px);
+    /* min-height: 39px; */
+    text-align: center;
+    font-weight: bold;
+    background: #f7f7f7;
+    padding: 8px 12px !important;
+    border-bottom: 1px solid #ddddde;
+    margin: -5px -4px 0px -4px !important;
+    min-width: calc(100% + 8px);
+    /* min-height: 39px; */
+    text-align: center;
+    width: 100%;
+    height: 60px;
+    justify-content: center;
+}
+ 
+.table-compact-row .ms-TextField {
+    margin-bottom: 0px !important;
+    /* vertical-align: middle; */
+    margin-bottom: 0px !important;
+    width: 100%;
+}
+ 
+ 
+.table-compact-row .ms-TextField-fieldGroup {
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    min-width: 10px;
+}
+ 
+.table-compact-row .ms-TextField-value {
+    white-space: initial;
+    word-break: break-word;
+    padding: 5px;
+}
+ 
+.table-compact-row .ms-Form-Title {
+    display: none !important;
+}
+ 
+.table-compact-row .ms-EnvisionSerializeForm-wrapper {
+    padding: 0px 10px;
+    padding-bottom: 8px;
+    overflow-x: auto;
+}
+ 
+.table-compact-row .ms-EnvisionSerializeForm-rowForm {
+    display: flex;
+    /* height: 50px; */
+}
+ 
+.table-compact-row [data-field-typeasstring="Choice"] input {
+    min-width: 100%;
+}
+ 
+.table-compact-row input {
+    min-width: 10px;
+    width: 100%;
+    max-width: initial !important;
+}
+ 
+.table-compact-row .ms-FormField[data-field-internalname="Hours"] {
+    width: 140px !important;
+}
+ 
+.table-compact-row .ms-EnvisionSerializeForm-row:nth-of-type(1) .ms-Form-header {
+    margin-top: 60px;
+}
+ 
+.table-compact-row label.ms-Button.ms-Button--remove {
+    height: 43px;
+}
+ 
+.table-compact-row .ms-EnvisionSerializeForm-row:nth-of-type(1) .ms-Form-header label.ms-Button.ms-Button--remove {
+    height: 43px;
+    /* height: 10%; */
+    /* width: 10%; */
+    /* height: 20px; */
+    /* width: 20px !important; */
+}
+ 
+.table-compact-row .ms-TextField-state {
+    word-break: break-word;
+    white-space: normal;
+    margin: 5px;
 }
