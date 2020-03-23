@@ -17,12 +17,18 @@ rolStreamPage.methods.getListTitle = function(){
 }
 
 rolStreamPage.methods.onItemDblClick = function(item){
-    //  mainView.router.navigate('/trabajadorPorCoordinador?listItemId='+item.ID);
-    return false;
+    mainView.router.navigate('/rol?listItemId='+item.ID);
 }
 
 rolStreamPage.methods.getOneItemSelectedButtons = function(){
-    return false;
+    var self = this,
+        page = self._getPage(),
+        context = self._getPageContext(),
+        buttons = [];
+
+    buttons.push(localButtons.deleteRol(context));
+
+    return buttons;
 }
 
 rolStreamPage.methods.getMultiItemsSelectedButtons = function(){

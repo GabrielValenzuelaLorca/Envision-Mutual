@@ -111,9 +111,14 @@ listStreamPage.methods.getCamlQueryConditions = function(){
                             <FieldRef Name="EstadoContrato" /><Value Type="Choice">Pendiente</Value>
                         </Eq>
                     </Or>
-                    <Eq>
-                        <FieldRef Name="Capex" /><Value Type="Boolean">0</Value>
-                    </Eq>
+                    <And>
+                        <Eq>
+                            <FieldRef Name="Capex" /><Value Type="Boolean">0</Value>
+                        </Eq>
+                        <Eq>
+                            <FieldRef Name="Categoria_x003a_ESC" /><Value Type="Lookup">E</Value>
+                        </Eq>
+                    </And>
                 </And>
             `
         }
@@ -219,6 +224,10 @@ function getRoutes(){
         {
             path: '/assignRol',
             component: assignRolPage
+        },
+        {
+            path: '/rol',
+            component: rolPage
         },
         // Default route (404 page). MUST BE THE LAST
         {

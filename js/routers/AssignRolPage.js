@@ -17,12 +17,19 @@ assignRolPage.methods.getListTitle = function(){
 }
 
 assignRolPage.methods.onItemDblClick = function(item){
-    //  mainView.router.navigate('/trabajadorPorCoordinador?listItemId='+item.ID);
-    return false;
+    mainView.router.navigate('/rol?listItemId='+item.ID);
+    
 }
 
 assignRolPage.methods.getOneItemSelectedButtons = function(){
-    return false;
+    var self = this,
+        page = self._getPage(),
+        context = self._getPageContext(),
+        buttons = [];
+
+    buttons.push(localButtons.assignRol(context));
+
+    return buttons;
 }
 //console para saber que metodos puedo usar
 assignRolPage.methods.getMultiItemsSelectedButtons = function(){
@@ -31,4 +38,8 @@ assignRolPage.methods.getMultiItemsSelectedButtons = function(){
 
 assignRolPage.methods.getCamlQueryConditions = function(){
     return '<And><IsNull><FieldRef Name="Rol"/></IsNull><Eq><FieldRef Name="EstadoContrato" /><Value Type="Choice">Activo</Value></Eq></And>';
+}
+
+assignRolPage.methods.getNoItemsSelectedButtons = function(){
+    return false;
 }

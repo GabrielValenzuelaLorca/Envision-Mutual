@@ -1,4 +1,4 @@
-var periodoPage = {
+var rolPage = {
     template: '' +
         '<div class="page" data-page="FormPage">' +
             '<div class="navbar">' +
@@ -37,7 +37,7 @@ var periodoPage = {
                         '</a>' +
                         '<a href="#" class="link send ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Send"></i>' +
-                            '<span class="ios-only">Enviar</span>' +
+                            '<span class="ios-only">Asignar</span>' +
                         '</a>' +
                         '<a href="#" class="link associate-proyect ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--IDBadge"></i>' +
@@ -104,7 +104,7 @@ var periodoPage = {
 
         // obtener título de la lista de inspección
         getListTitle: function () {
-            return 'Periodo';
+            return 'Planta';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -163,7 +163,7 @@ var periodoPage = {
             // variables
             var context = this.$options.data(),
                 mths = this.$options.methods,
-                listItemId = page.route.query.listItemId
+                listItemId = page.route.query.listItemId;
 
             context.methods = mths;
 
@@ -181,177 +181,123 @@ var periodoPage = {
                 // containers
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
-                    $sendButton = $navbar.find('.link.send'),
-                    $updateButton = $navbar.find('.link.update'),
-                    $clearButton = $navbar.find('.link.clear');
+                    $sendButton = $navbar.find('.link.send');
 
                 // formulario de registro
-                context.forms.item = new EFWForm({
+                let form = {
                     container: $container.find('.form-container'),
                     title: mths.getListTitle(),
-                    editable: true,
-                    fields: spo.getViewFields(context.lists.Periodo, 'Form')
-                });
-
-
-                if (listItemId) {
-                    context.forms.item.setValues(context.items.Periodo);
-                    context.forms.item.inputs['Activo'].hide();
-                    context.forms.item.inputs['Modified'].setEditable(false);
-                    context.forms.item.inputs['Editor'].setEditable(false);
-                    context.forms.item.inputs['Author'].setEditable(false);
-
-                    $updateButton.removeClass('hide');
-
-                } else {
-                    context.forms.item.inputs['Activo'].hide();
-                    context.forms.item.inputs['Modified'].hide();
-                    context.forms.item.inputs['Editor'].hide();
-                    context.forms.item.inputs['Author'].hide();
-
-                    $sendButton.removeClass('hide');
-                    $clearButton.removeClass('hide');
+                    editable: false,
+                    fields: spo.getViewFields(context.lists.planta, "Rol Form")
                 }
 
-                $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Nuevo elemento';
+                context.forms.planta = new EFWForm(form);
 
-                    function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.item.getMetadata();
-                        metadata.Activo = true;
+                context.forms.planta.inputs['Rol'].setEditable(true);
+                context.forms.planta.inputs['Rol'].setRequired(true);
+                context.forms.planta.inputs['Usuario'].setEditable(true);
+                context.forms.planta.inputs['Usuario'].setRequired(true);
+                context.forms.planta.inputs['Aprobador'].hide();
 
-                        spo.saveListItem(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {
-                            dialog.close();
-                            
-                            dialogs.confirmDialog(
-                                dialogTitle,
-                                'Creado con éxito',
-                                function(component, item){
-                                    leftView.router.refreshPage();
-                                    mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
-                                },
-                                false
-                            )
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
 
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        });
-                    }
-
-                    context.forms.item.checkFieldsRequired();
-                    var validate =  context.forms.item.getValidation();
-
-                    if (validate) {
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se creará una nuevo registro.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
+                context.forms.planta.inputs['Rol'].params.onChange = function(comp, input, state, values){
+                    if (values.length > 0){
+                        if(values[0].key == "Coordinador"){
+                            context.forms.planta.inputs['Aprobador'].show();
+                            context.forms.planta.inputs['Aprobador'].setEditable(true);
+                            context.forms.planta.inputs['Aprobador'].setRequired (true)
+                        } else {
+                            context.forms.planta.inputs['Aprobador'].hide();
+                            context.forms.planta.inputs['Aprobador'].setEditable(false);
+                            context.forms.planta.inputs['Aprobador'].resetValue();
+                            context.forms.planta.inputs['Aprobador'].setRequired (false)
+                        }
                     } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
+                        context.forms.planta.inputs['Aprobador'].hide();
+                        context.forms.planta.inputs['Aprobador'].setEditable(false);
+                        context.forms.planta.inputs['Aprobador'].resetValue();
+                        context.forms.planta.inputs['Aprobador'].setRequired (false)
                     }
+                }
 
-                });
+                context.forms.planta.inputs['Aprobador'].params.source = function(dropdown, query, render){
+                    let data = [];
+                    if(context.items.aprobadores){
+                        context.items.aprobadores.map(function(item){
+                            data.push({
+                                "key": item.ID,
+                                "text": item.NombreCompleto +" - "+ item.d_cargo,
+                                "item": item
+                            });
+                        })
+                    } else {
+                        context.forms.planta.inputs['Aprobador'].input.placeholder = "No hay aprobadores disponibles"
+                    }
+                    render(data);
+                }  
 
-                $updateButton.on('click', function (e) {
-                    var dialogTitle = 'Editando elemento';
+                context.forms.planta.inputs['Usuario'].params.beforeRenderSuggestions = function(suggestions){
+                    let data = [];
+                    suggestions.forEach(element => {
+                        if(!context.adminIds.includes(element.ID)){
+                            data.push(element)
+                        }
+                    });
+                    return data;
+                }
 
-                    function save() {
+                if (listItemId) {
+                    context.forms.planta.setValues(context.items.planta);
+                    $sendButton.removeClass('hide');
+                } 
+
+                $sendButton.on('click', function (e) {
+                    var dialogTitle = 'Asignación de rol';
+
+                    function update() {
                         var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.item.getMetadata();
-                        metadata.Activo = context.items.Periodo.Activo;
+                        var metadata = context.forms.planta.getMetadata();
+                        delete metadata.LinkTitle;
 
                         spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
                             dialog.close();
 
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Elemento actualizado con éxito',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.navigate('/periodoStream');
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-
+                            dialogs.confirmDialog(
+                                dialogTitle,
+                                'Rol asignado con éxito',
+                                function () {
+                                    mainView.router.navigate('/rolStream');
+                                },
+                                false
+                            );
 
                         }, function (response) {
                             var responseText = JSON.parse(response.responseText);
                             console.log('responseText', responseText);
 
                             dialog.close();
-                            app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
+                            dialogs.infoDialog(
+                                "Error",
+                                'Hubo un problema al asignar el rol'
+                            )
                         });
                     }
                     
-                    context.forms.item.checkFieldsRequired();
+                    context.forms.planta.checkFieldsRequired();
+                    var validatePlanta =  context.forms.planta.getValidation();
 
-                    var validate = context.forms.item.getValidation();
-
-                    if (validate) {
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se actualizará el elemento.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
+                    if (validatePlanta){
+                        dialogs.confirmDialog(
+                            dialogTitle,
+                            'Se asignará un rol a este usuario',
+                            update
+                        )
                     } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
+                        dialogs.infoDialog(
+                            "Datos mal ingresados",
+                            'Rellene todos los campos correctamente'
+                        )
                     }
-
-                });
-
-                $clearButton.on('click', function (e){
-                    context.forms.item.setValues([]);
                 });
 
                 // remover loader
@@ -365,54 +311,80 @@ var periodoPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.listaPeriodo && loaded.Periodo) {
+                    if (loaded.planta && loaded.aprobadores && loaded.admins) {
                         initForm();
                     }
                 };
 
-                // Obtener información de lista
                 spo.getListInfo(mths.getListTitle(),
                     function (response) {
-                        context.items.Periodo = [];
-                        context.lists.Periodo = response;
-                        loaded.listaPeriodo = true;
-                        
-                        // Si existe el id de algún item a obtener
-                        if (listItemId) {
+                        context.lists.planta = response;
+                        var query = spo.encodeUrlListQuery(response, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'filter': '(Id eq ' + listItemId + ')'
+                            }
+                        });
 
-                            var query = spo.encodeUrlListQuery(context.lists.Periodo, {
-                                view: 'Todos los elementos',
-                                odata: {
-                                    'filter': '(Id eq ' + listItemId + ')',
-                                    'select': '*,AttachmentFiles',
-                                    'expand': 'AttachmentFiles'
-                                }
-                            });
+                        spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
+                            function (response) {
+                                context.items.planta = response.d.results.length > 0 ? response.d.results[0] : null;
+                                loaded.planta = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
 
-                            spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
-                                function (response) {
-                                    context.items.Periodo = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.Periodo = true;
-                                    shouldInitForms();
+                        var query2 = spo.encodeUrlListQuery(response, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'filter': '(Rol eq \'Aprobador\')'
+                            }
+                        });
 
+                        spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query2,
+                            function (response) {
+                                context.items.aprobadores = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.aprobadores = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
 
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
-                        } else {
-                            loaded.Periodo = true;
-                            shouldInitForms();
-                        }
+                        var query3 = spo.encodeUrlListQuery(response, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'filter': '(UsuarioId ne null)'
+                            }
+                        });
 
+                        spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query3,
+                            function (response) {
+                                context.items.admins = response.d.results.length > 0 ? response.d.results : null;
+                                context.adminIds = context.items.admins.map(function (admin) {
+                                    return admin.UsuarioId
+                                })
+                                loaded.admins = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);
                         console.log(responseText.error.message.value);
                     }
                 );
+
             }
 
             getListInformation();

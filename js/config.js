@@ -23,6 +23,7 @@ var AppScriptsArray = [
     "js/routers/CoordinadorStreamPage.js",
     "js/routers/RolStreamPage.js",
     "js/routers/AssignRolPage.js",
+    "js/routers/RolPage.js",
     "js/routers/HomePage.js",
     "js/routers/ItemPage.js",
     "js/routers/UploadPlantaPage.js",

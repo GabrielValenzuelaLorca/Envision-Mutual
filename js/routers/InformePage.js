@@ -572,28 +572,28 @@ var informePage = {
                                             console.log(responseText.error.message.value);
                                         }
                                     );
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
-                            spo.getListInfo("Planta",
-                                function (response) {
-                                    context.lists.Apr = response;
-
-                                    var query = spo.encodeUrlListQuery(context.lists.Apr, {
-                                        view: 'Todos los elementos',
-                                        odata: {
-                                            'filter': '(Id eq ' + context.items.Informe.AprobadorId + ')'
-                                        }
-                                    });
-
-                                    spo.getListItems(spo.getSiteUrl(), "Planta", query,
+                                    spo.getListInfo("Planta",
                                         function (response) {
-                                            context.items.Apr = response.d.results.length > 0 ? response.d.results[0] : null;
-                                            loaded.Aprobador = true;
-                                            shouldInitForms();
+                                            context.lists.Apr = response;
+
+                                            var query = spo.encodeUrlListQuery(context.lists.Apr, {
+                                                view: 'Todos los elementos',
+                                                odata: {
+                                                    'filter': '(Id eq ' + context.items.Informe.AprobadorId + ')'
+                                                }
+                                            });
+
+                                            spo.getListItems(spo.getSiteUrl(), "Planta", query,
+                                                function (response) {
+                                                    context.items.Apr = response.d.results.length > 0 ? response.d.results[0] : null;
+                                                    loaded.Aprobador = true;
+                                                    shouldInitForms();
+                                                },
+                                                function (response) {
+                                                    var responseText = JSON.parse(response.responseText);
+                                                    console.log(responseText.error.message.value);
+                                                }
+                                            );
                                         },
                                         function (response) {
                                             var responseText = JSON.parse(response.responseText);

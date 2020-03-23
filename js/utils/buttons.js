@@ -161,7 +161,7 @@ localButtons.toCreateEmployeeForm = function(){
 
 localButtons.toAssignRol = function(){
     button = {
-        text: 'Asignar Rol',
+        text: 'Asignación de Roles',
         class: 'addRole',
         icon: 'AddFriend',
         onClick: function(component, item){
@@ -171,7 +171,17 @@ localButtons.toAssignRol = function(){
     return button
 }
 
-
+localButtons.assignRol = function(context){
+    button = {
+        text: 'Asignar Rol',
+        class: 'assignRol',
+        icon: 'FollowUser',
+        onClick: function(component, item){
+            mainView.router.navigate('/rol?listItemId='+item.ID);
+        }
+    }
+    return button;
+}
 
 
 
@@ -567,7 +577,6 @@ localButtons.activatePeriodoButton = function(context){
     Todos los botones relacionados con ItemVariablePage
 */
 
-//Envio de items Variables
 localButtons.sendButton = function(context){
     button = {
         text: 'Enviar Items',
@@ -1214,13 +1223,18 @@ localButtons.deleteCapex = function(context){
 
                 spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, metadata, function (response) {
                     dialog.close()
-                    dialogs.confirmDialog(
-                        `Convenio CAPEX eliminado`,
-                        `El trabajador ${item.NombreCompleto} ha sido eliminado del convenio capex correctamente`,
-                        refresh(),
-                        false
-                    )
 
+                    app.dialog.create({
+                        title:  `Convenio CAPEX eliminado`,
+                        text:    `El trabajador ${item.NombreCompleto} ha sido eliminado del convenio capex correctamente`,
+                        buttons: [{
+                            text: 'Aceptar',
+                            onClick: function onClick(){
+                                refresh()
+                           }
+                        }],
+                        verticalButtons: false
+                    }).open();
                 }, function (response) {
                     var responseText = JSON.parse(response.responseText);
                     console.log('responseText', responseText);
@@ -1945,6 +1959,59 @@ localButtons.downloadInformePDF = function(context){
                 'Se descargará un PDF con la información del informe',
                 save
             )
+        }
+    }
+    return button
+}
+
+/*
+    Todos los botones relacionados roles
+*/
+
+localButtons.deleteRol = function(context){
+    button = {
+        text: 'Quitar Rol',
+        class: 'removeRol',
+        icon: 'UserRemove',
+        onClick: function(component, item){
+            var dialogTitle = 'Quitar Rol';
+
+            function remove() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var metadata = {
+                    UsuarioId: null,
+                    AprobadorId: null,
+                    Rol: null
+                }
+
+                spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, metadata, function (response) {
+                    dialog.close();
+
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Rol removido con éxito',
+                        refresh,
+                        false
+                    );
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        "Error",
+                        'Hubo un problema al remover el rol'
+                    )
+                });
+            }
+            
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se quitará el rol de este usuario',
+                remove
+            )
+            
         }
     }
     return button

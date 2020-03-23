@@ -17,7 +17,7 @@ menuPage.methods.beforeStartComponent = function(success, failure){
                 var query = spo.encodeUrlListQuery(response, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(CoordinadorId eq ' + plantaAdmin.ID + ' and PeriodoId eq '+context.onPeriod+')'
+                        'filter': '(CoordinadorId eq ' + plantaAdmin.ID + ' and PeriodoId eq '+context.onPeriod.ID+')'
                     }
                 });
                 spo.getListItems(spo.getSiteUrl(), "Informe Haberes", query,
@@ -146,7 +146,7 @@ menuPage.methods.beforeStartComponent = function(success, failure){
             });
             spo.getListItems(spo.getSiteUrl(), "Periodo", query,
                 function (response) {
-                    context.onPeriod = response.d.results.length>0 ? response.d.results[0].ID : false;
+                    context.onPeriod = response.d.results.length>0 ? response.d.results[0] : false;
                     if (plantaAdmin.Rol == "Coordinador"){
                         informesCoordinador();    
                     } else {

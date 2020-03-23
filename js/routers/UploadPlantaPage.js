@@ -262,7 +262,7 @@ var uploadPlantaPage = {
                             "FechaNacimiento": numeroAFecha(item.fecha_nac),
                             "Sexo": item.sexo.trim().toUpperCase(),
                             "Direccion": item.direccion,
-                            "Telefono": item.celular,
+                            "Telefono": item.celular.replace(' ', ''),
                             "EstadoContrato": "Activo",
                             "InicioContrato": numeroAFecha(item.fecha_ing),
                             "FinContrato": numeroAFecha(item.fecha_ret),
@@ -304,20 +304,20 @@ var uploadPlantaPage = {
                             "peri": item.peri,
                             "rentao_i": item.rentao_i,
                             "subase_i": item.subase_i,
-                            "Aprobador1": item.Aprobador1,
-                            "Aprobador2": item.Aprobador2,
-                            "Aprobador3": item.Aprobador3,
-                            "Aprobador4": item.Aprobador4,
-                            "Aprobador5": item.Aprobador5,
-                            "Aprobador6": item.Aprobador6,
-                            "Aprobador7": item.Aprobador7,
-                            "Aprobador8": item.Aprobador8,
+                            "Aprobador1": item['Aprobador 1'],
+                            "Aprobador2": item['Aprobador 2'],
+                            "Aprobador3": item['Aprobador 3'],
+                            "Aprobador4": item['Aprobador 4'],
+                            "Aprobador5": item['Aprobador 5'],
+                            "Aprobador6": item['Aprobador 6'],
+                            "Aprobador7": item['Aprobador 7'],
+                            "Aprobador8": item['Aprobador 8'],
                             "CentroCostoId": item.d_nro_cenc
                         }
                     }
 
                     function callServiceCargaMasivaPlanta(body){
-
+                        console.log('Body', JSON.stringify(body))
                         fetch('https://prod-09.westus.logic.azure.com:443/workflows/ebee079485634fdeb4f5cd060b424663/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=2bv590n5l4kP0RSXvGeOtuqx3Gfvm5NnNk1Rmwt3g34', {
                             method: 'POST',
                             headers: {
@@ -348,7 +348,7 @@ var uploadPlantaPage = {
                         handleExcelFromInput(files, 
                             function(response){
                                 //contadores y linea actual del prosesamiento
-                                var linea = 1;
+                                var linea = 2;
 
                                 //Arreglos donde quedaran los datos
                                 var Agregar = [];
@@ -593,11 +593,6 @@ var uploadPlantaPage = {
                                         }).open();
                                     }
                                 }
-
-                                //Fin calculo del tiempo de ejecucion
-                                var end = Date.now();
- 
-                                console.log('Tiempo de Ejecucion ',end - start);
     
                             }, 
                             function (response) {
