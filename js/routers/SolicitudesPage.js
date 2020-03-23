@@ -180,7 +180,130 @@ var solicitudesPage = {
 
             function initForm() {
 
-                console.log('init form');
+                function ValidateItem(items){
+                    let per = persona[0].item;
+
+                    var dato = items.filter(function(item){
+                        return plantaAdmin.HaberesId.results.includes(item.ID);
+                    });
+
+                    var resultado = [];
+
+                    dato.map(function(haber){
+                        if(haber['TipoItem'] != 'Haber'){
+                            return;
+                        }
+
+                        //Contrato Indefinido
+                        if(haber['ContratoIndefinido']){
+                            //que tipo de contrato tiene?
+                            if(per.TipoContrato != 'Indefinido'){
+                                return;
+                            }
+                        }
+                        
+                        //Validacion Capex
+                        if(haber['Capex']){
+                            //que tipo de contrato tiene?
+                            if(!per.Capex){
+                                return;
+                            }
+                        }
+                       
+                        //Trabajadores Excepto Art 22
+                        if(haber['AplicaArt22']){
+                            if(per.Jornada == 'Art. 22'){
+                                return;
+                            }
+                        }
+
+                        //Validamos las fechas especificas
+                        if(haber['FechasExcepcionales'] != null ){
+                            context.pertenece = false;
+                            let fechas = haber['FechasExcepcionales'].split(',');
+                            fechas.map(function(x){
+
+                                if(context.pertenece){
+                                    return;
+                                }                                
+                                let nombreMes = moment(x, 'DD/MM/YYYY').format("MMMM");
+                                nombreMes = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+                                if(context.items.Periodo.Mes == nombreMes){
+                                    context.pertenece = true;
+                                    return;
+                                }
+                            });
+                            if(!context.pertenece){
+                                return;
+                            }
+                        }
+
+                        if(haber['Pabellon']){
+                            if(!per.Pabellon){
+                                return;
+                            }
+                        }
+
+                        //Validamos la GP y subGP correspondiente
+                        if(haber['GP']){
+
+                            //Valida si el campo no esta vacio.
+                            if(haber['CategoriaId'] != null){
+                                //Obtengo todos los valores de las categorias y las guardo en GPS
+                                var gps = [];
+                                haber['CategoriaId'].map(function(y){
+                                    gps.push(context.items.Categorias.filter(function(x){
+                                        return x.ID == y
+                                    })[0]);
+                                });
+
+                                //Obtengo la categoria de la persona seleccionada y la guardo en categoria Actual
+                                var categoriaActual = context.items.Categorias.filter(function(x){
+                                    return x.ID == per.CategoriaId;
+                                })[0];
+
+                                context.aprobado = false;
+
+                                //Recorrimos el listado de elementos para encontrar coincidencias en la categoria.
+                                gps.map(function(x){
+
+                                    if(x.Categoria.includes('P')){
+                                        console.log('Largo de categoria', x.Categoria.trim().length);
+                                    }
+                                    if(context.aprobado){
+                                        return;
+                                    }
+                                    if(x.Categoria.trim().length > 1){
+                                        if(x.Categoria.trim() === categoriaActual.Categoria.trim()){
+                                            context.aprobado = true;
+                                        }
+                                    }else if(x.Categoria.trim().length == 1){
+                                        if(categoriaActual.Categoria.charAt(0) == x.Categoria.charAt(0)){
+                                            context.aprobado = true;
+                                        }
+                                    }
+                                });
+                                //Si la categoria no aparece en el listado no se considerara para agregarla al listado
+                                if(!context.aprobado){
+                                    return;
+                                }
+                            }else{
+                                console.log('El campoGP esta vacio y tiene habilitada las GP');
+                            }
+
+                            
+                        }
+
+                        resultado.push(haber);
+                    });
+
+                    console.log('Cantidad Haberes disponibles', resultado.length);
+                    console.log('Cantidad Total Haberes', items.length);
+
+                    return resultado
+                }
+
+                var persona = null;
 
                 // containers
                 var $container = $(page.$el),
@@ -210,26 +333,32 @@ var solicitudesPage = {
 
                 context.forms.solicitud.inputs['TipoSolicitud'].setValue([{ key:'Centro de costo diferente', text: 'Centro de costo diferente'}])
 
-                context.forms.solicitud.inputs['Item'].params.source = function(dropdown, query, render){
-                    let data = [];
-                    if(plantaAdmin.HaberesId.results){
-                        plantaAdmin.HaberesId.results.map(function(array){
-                            let value = context.items.ListadoItemVariable.filter(x => x.ID == array)[0];
-                            data.push({
-                                "key": value.ID,
-                                "text": value.NombreItem,
-                                "item": value
-                            });
-                        })
-                    }else{
-                        data.push({
-                            "key": 0,
-                            "text": 'No dispone de items para imputar',
-                            "item": null
-                        });
-                    }
-                    render(data);   
+                // context.forms.solicitud.inputs['Item'].params.source = function(dropdown, query, render){
+                //     let data = [];
+                //     if(plantaAdmin.HaberesId.results){
+                //         plantaAdmin.HaberesId.results.map(function(array){
+                //             let value = context.items.ListadoItemVariable.filter(x => x.ID == array)[0];
+                //             data.push({
+                //                 "key": value.ID,
+                //                 "text": value.NombreItem,
+                //                 "item": value
+                //             });
+                //         })
+                //     }else{
+                //         data.push({
+                //             "key": 0,
+                //             "text": 'No dispone de items para imputar',
+                //             "item": null
+                //         });
+                //     }
+                //     render(data);   
+                // }
+
+                context.forms.solicitud.inputs['Item'].params.beforeRenderSuggestions = function (items) {
+                    return ValidateItem(items);
                 }
+
+                console.log('Metodos', context.forms.solicitud.inputs['Item'].params)
 
                 // Filtrar trabajadores segun asignacion del coordinador
                 context.forms.solicitud.inputs['Trabajador'].params.source = function(dropdown, query, render){
@@ -250,7 +379,15 @@ var solicitudesPage = {
                         });
                     }
                     render(data);
-                } 
+                }
+
+                // Filtrar trabajadores segun asignacion del coordinador
+                context.forms.solicitud.inputs['Trabajador'].params.onChange = function(comp, input, state, values){
+                    persona = values
+                    console.log('Values', values)
+                }
+                
+                
 
                 if(listItemId){
                     context.forms.solicitud.setValues(context.items.Solicitudes);
@@ -376,7 +513,7 @@ var solicitudesPage = {
 
                 });
 
-                $aproveButton.on('click', function (e) {
+                $aproveButton.on('click', function (e) { 
                     var dialogTitle = 'Nueva solicitud';
                     function save(ComentarioVirtual) {
                         var cc = context.items.CentroCosto.filter(x => x.D_CC == ComentarioVirtual)[0];
@@ -904,7 +1041,7 @@ var solicitudesPage = {
                         }
                     }
                     if(plantaAdmin.Rol == "Coordinador"){
-                        if (loaded.Planta && loaded.Solicitudes && loaded.Periodo && loaded.ListadoItemVariable ) {
+                        if (loaded.Categorias && loaded.Planta && loaded.Solicitudes && loaded.Periodo && loaded.ListadoItemVariable) {
                             console.log('admininfro es coordinador');
                             initForm();
                             return;
@@ -950,6 +1087,8 @@ var solicitudesPage = {
                         console.log(responseText.error.message.value);
                     }
                 );
+                
+                
 
                 if(plantaAdmin.Rol == "Coordinador"){
                     //Obtengo el listado de haberes para ser filtrados
@@ -983,7 +1122,41 @@ var solicitudesPage = {
                             var responseText = JSON.parse(response.responseText);
                             console.log(responseText.error.message.value);
                         }
-                    );                
+                    );
+
+                    // Obtengo el listado de categorias completa
+                    spo.getListInfo('Categoria',
+                    function (response) {
+                                 context.items.Categorias = [];
+                                 context.lists.Categorias = response;
+                                 //loaded.listaItemVariable = true;
+         
+                                     var query = spo.encodeUrlListQuery(context.lists.Categorias, {
+                                         view: 'Todos los elementos',
+                                         odata: {
+                                             'select': '*',
+                                             'top' : 5000
+                                         }
+                                     });
+         
+                                     spo.getListItems(spo.getSiteUrl(), 'Categoria', query,
+                                         function (response) {
+                                             context.items.Categorias = response.d.results.length > 0 ? response.d.results : null;
+                                             loaded.Categorias = true;
+                                             shouldInitForms();
+                                         },
+                                         function (response) {
+                                             var responseText = JSON.parse(response.responseText);
+                                             console.log(responseText.error.message.value);
+                                         }
+                                     );
+         
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
+                    );
 
                     //Obtengo el listado de haberes para ser filtrados
                     spo.getListInfo('ListadoItemVariable',
