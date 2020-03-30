@@ -229,6 +229,14 @@ function getRoutes(){
             path: '/rol',
             component: rolPage
         },
+        {
+            path: '/licenciaHistorico',
+            component: licenciaStreamPage
+        },
+        {
+            path: '/licencia',
+            component: licenciaPage
+        },
         // Default route (404 page). MUST BE THE LAST
         {
             path: '(.*)',

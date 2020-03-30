@@ -183,10 +183,33 @@ localButtons.assignRol = function(context){
     return button;
 }
 
+localButtons.addLicencia = function(context){
+    button = {
+        text: 'Agregar Licencia',
+        class: 'addLicencia',
+        icon: 'ActivateOrders',
+        onClick: function(component, item){
+            mainView.router.navigate('/licencia');
+        }
+    }
+    return button;
+}
+
+localButtons.toLicencia = function(context){
+    button = {
+        text: 'Ver Detalle',
+        class: 'seeDetail',
+        icon: 'RedEye',
+        onClick: function(component, item){
+            mainView.router.navigate('/licencia?listItemId='+item.ID);
+        }
+    }
+    return button;
+}
 
 
 /*
-    Todos los botones relacionados con la asociacion de trabajador por coordinador
+    Todos los botones relacionados con CoordinadorStreamPage, TrabajadorPage y TrabajadorStreamPage
 */
 
 localButtons.addTrabajadorButton = function(context, id){
@@ -2012,6 +2035,231 @@ localButtons.deleteRol = function(context){
                 remove
             )
             
+        }
+    }
+    return button
+}
+
+/*
+    Todos los botones relacionados con licencia
+*/
+localButtons.deleteLicencia = function(context){
+    button = {
+        text: 'Eliminar Licencia',
+        class: 'removeLicencia',
+        icon: 'DeactivateOrders',
+        onClick: function(component, item){
+            var dialogTitle = 'Eliminar Licencia';
+
+            function remove() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                spo.deleteListItem(spo.getSiteUrl(), "Licencia", item.ID, function (response) {
+                    dialog.close();
+
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Licencia removida con éxito',
+                        function(){
+                            mainView.router.refreshPage();
+                        },
+                        false
+                    );
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        "Error",
+                        'Hubo un problema al eliminar la licencia'
+                    )
+                });
+            }
+            
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se eliminará esta licencia',
+                remove
+            )
+            
+        }
+    }
+    return button
+}
+
+localButtons.downloadLicenciaComplete = function(context){
+    button = {
+        text: 'Descargar Excel Histórico',
+        class: 'completeDownload',
+        icon: 'ExcelLogo',
+        onClick: function(component, item){
+            var dialogTitle = 'Descargando licencias';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var query = spo.encodeUrlListQuery(context.list, {
+                    view: 'Todos los elementos',
+                    odata: {
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
+                    function (response) {
+                        var licencias = response.d.results;
+                       
+                        // Crear Book y sheets
+                        var wb = XLSX.utils.book_new();
+                        let items = [["RUT", "NOMBRE_COMPLETO", "N_LICENCIA", "INICIO", "FIN", "N_DIAS", "TIPO_LICENCIA", "TIPO_REPOSO", "RUT_RESP", "NOMBRE_COMPLETO_RESP", "GERE_AGE_ORIGEN", "F_INFORME", "MES_PROCESO", "ANO_PROCESO"]]
+
+                        // Se extrae la informacion
+                        array = licencias.map(licencia => {
+                            return [
+                                licencia.Rut.Rut,
+                                licencia.Rut.NombreCompleto,
+                                licencia.N_LICENCIA,
+                                moment(licencia.INICIO).format("DD/MM/YYYY"),
+                                moment(licencia.FIN).format("DD/MM/YYYY"),
+                                licencia.N_DIAS,
+                                licencia.TIPO_LICENCIA,
+                                licencia.TIPO_REPOSO,
+                                licencia.RUT_RESP.Rut,
+                                licencia.RUT_RESP.NombreCompleto,
+                                licencia.RUT_RESP.d_subdivis,
+                                moment(licencia.Created).format("DD/MM/YYYY hh:mm"),
+                                licencia.Periodo.MesCalculado,
+                                licencia.Periodo.AnioCalculado,
+                            ];
+                        })
+                        items = items.concat(array)
+
+                        // Se crea la hoja
+                        let ws = XLSX.utils.aoa_to_sheet(items);
+                        
+                        // // Se asigna tamaño a las columnas
+                        let colSize = [{"width":10},{"width":35},{"width":13},{"width":10},{"width":10},{"width":7},{"width":38},{"width":12},{"width":10},{"width":32},{"width":17},{"width":15},{"width":13},{"width":13}];
+                        ws["!cols"] = colSize;
+
+                        // // Se crea la primera hoja
+                        XLSX.utils.book_append_sheet(wb, ws, "Licencias");
+                        XLSX.writeFile(wb, 'Histórico Licencias Médicas.xlsx');
+                        
+                        dialog.close()
+                        dialogs.infoDialog(
+                            dialogTitle,
+                            'El documento se ha descargado exitosamente',
+                        );
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Se descargará un documento Excel con la información de todas las licencias',
+                save
+            )
+        }
+    }
+    return button
+}
+
+localButtons.downloadLicenciaPeriodo = function(context){
+    button = {
+        text: 'Descargar Excel Periodo',
+        class: 'periodoDownload',
+        icon: 'ExcelLogo',
+        onClick: function(component, item){
+            let mes = context.components.itemsFilter.inputs.Periodo_x003a_MesCalculado.values
+            let anio = context.components.itemsFilter.inputs.Periodo_x003a_AnioCalculado.values
+            let filter = ""
+            let filterApplied = true
+            if (mes.length && anio.length){
+                filter += '(Periodo/MesCalculado eq \''+ mes[0].text +'\' and Periodo/AnioCalculado eq \''+ anio[0].text + '\')'
+            } else if (mes.length){
+                filter += '(Periodo/MesCalculado eq \''+ mes[0].text +'\')'
+            } else if (anio.length){
+                filter += '(Periodo/AnioCalculado eq \''+ anio[0].text +'\')'
+            } else {
+                filterApplied = false;
+            }
+
+            var dialogTitle = 'Descargando licencias';
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+                var query = spo.encodeUrlListQuery(context.list, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': filter
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), context.list.Title, query,
+                    function (response) {
+                        var licencias = response.d.results;
+                       
+                        // Crear Book y sheets
+                        var wb = XLSX.utils.book_new();
+                        
+                        let items = [["RUT", "NOMBRE_COMPLETO", "N_LICENCIA", "INICIO", "FIN", "N_DIAS", "TIPO_LICENCIA", "TIPO_REPOSO", "RUT_RESP", "NOMBRE_COMPLETO_RESP", "GERE_AGE_ORIGEN", "F_INFORME", "MES_PROCESO", "ANO_PROCESO"]]
+
+                        console.log("las licencias", licencias)
+                        // Se extrae la informacion
+                        array = licencias.map(licencia => {
+                            return [
+                                licencia.Rut.Rut,
+                                licencia.Rut.NombreCompleto,
+                                licencia.N_LICENCIA,
+                                moment(licencia.INICIO).format("DD/MM/YYYY"),
+                                moment(licencia.FIN).format("DD/MM/YYYY"),
+                                licencia.N_DIAS,
+                                licencia.TIPO_LICENCIA,
+                                licencia.TIPO_REPOSO,
+                                licencia.RUT_RESP.Rut,
+                                licencia.RUT_RESP.NombreCompleto,
+                                licencia.RUT_RESP.d_subdivis,
+                                moment(licencia.Created).format("DD/MM/YYYY hh:mm"),
+                                licencia.Periodo.MesCalculado,
+                                licencia.Periodo.AnioCalculado,
+                            ];
+                        })
+                        items = items.concat(array)
+
+                        // Se crea la hoja
+                        let ws = XLSX.utils.aoa_to_sheet(items);
+                        
+                        // // Se asigna tamaño a las columnas
+                        let colSize = [{"width":10},{"width":35},{"width":13},{"width":10},{"width":10},{"width":7},{"width":38},{"width":12},{"width":10},{"width":32},{"width":17},{"width":15},{"width":13},{"width":13}];
+                        ws["!cols"] = colSize;
+
+                        // // Se crea la primera hoja
+                        XLSX.utils.book_append_sheet(wb, ws, "Licencias");
+                        XLSX.writeFile(wb, 'Licencias Médicas Periodo'+' '+mes[0].text +' '+anio[0].text+'.xlsx');
+                        
+                        dialog.close()
+                        dialogs.infoDialog(
+                            dialogTitle,
+                            'El documento se ha descargado exitosamente',
+                        );
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
+            }
+            if (filterApplied){
+                dialogs.confirmDialog(
+                    dialogTitle,
+                    'Se descargará un documento Excel con el periodo del filtro aplicado',
+                    save
+                )
+            } else {
+                dialogs.infoDialog(
+                    'Error',
+                    'No hay ningun filtro de periodo aplicado',
+                )
+            }
         }
     }
     return button

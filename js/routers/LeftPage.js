@@ -262,6 +262,17 @@ menuPage.methods.getListBlocksData = function(){
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--TimeEntry"></i>',
+                },
+                {
+                    href: '/licenciaHistorico',
+                    title: 'Ingreso Licencias',
+                    after: '',
+                    header: '',
+                    footer: 'En Periodo',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
                 }
             ]);
         }
@@ -517,6 +528,31 @@ menuPage.methods.getListBlocksData = function(){
     ]);
 
         settings.push(admSection2);
+    }
+
+    if (plantaAdmin.Rol == "Encargado de Licencias Médicas"){
+        let licSection = {
+            inset: true,
+            header: 'Encargado de Licencias Médicas',
+            footer: '',
+            options: []
+        };
+
+        licSection.options = licSection.options.concat([
+            {
+                href: '/licenciaHistorico?panel=filter-open',
+                title: 'Licencias',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
+            },
+        ]);
+      
+        settings.push(licSection);
     }
 
     return settings;
