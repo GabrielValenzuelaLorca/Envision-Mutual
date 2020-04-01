@@ -29,6 +29,8 @@ var AppScriptsArray = [
     "js/routers/itemVariable/TrabajadoresPage.js",
     "js/routers/itemVariable/TrabajadoresStreamPage.js",
     "js/routers/itemVariable/UploadItemsPage.js",    
+    "js/routers/itemVariable/CoordinadorStreamPage.js",
+    "js/routers/itemVariable/CooStreamPage.js",
     
     
     //Carpeta mantenedores general
@@ -48,8 +50,6 @@ var AppScriptsArray = [
     "js/routers/SDP/SolicitantePage.js",
 
     //Por ordenar
-    "js/routers/CoordinadorStreamPage.js",
-    "js/routers/CooStreamPage.js",
     "js/routers/HaberesPage.js",
    
     
