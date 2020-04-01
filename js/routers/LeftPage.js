@@ -570,11 +570,11 @@ menuPage.methods.getListBlocksData = function(){
 
         licSection.options = licSection.options.concat([
             {
-                href: '/licencia?panel=filter-open',
+                href: '/licenciaHistorico?panel=filter-open',
                 title: 'Licencias',
                 after: '',
                 header: '',
-                footer: 'En Periodo',
+                footer: '',
                 panelClose: true,
                 externalLink: false,
                 f7view: '.view-main',
@@ -597,31 +597,6 @@ menuPage.methods.getListBlocksData = function(){
             {
                 href: '/formSolicitante',
                 title: 'Formulario solicitud 1',
-                after: '',
-                header: '',
-                footer: '',
-                panelClose: true,
-                externalLink: false,
-                f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
-            },
-        ]);
-      
-        settings.push(licSection);
-    }
-
-    if (plantaAdmin.Rol == "Encargado de Licencias Médicas"){
-        let licSection = {
-            inset: true,
-            header: 'Encargado de Licencias Médicas',
-            footer: '',
-            options: []
-        };
-
-        licSection.options = licSection.options.concat([
-            {
-                href: '/licenciaHistorico?panel=filter-open',
-                title: 'Licencias',
                 after: '',
                 header: '',
                 footer: '',
