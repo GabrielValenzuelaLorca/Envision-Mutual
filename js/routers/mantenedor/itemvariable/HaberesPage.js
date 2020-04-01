@@ -190,19 +190,12 @@ var haberesPage = {
                     $clearButton = $navbar.find('.link.clear');
 
                     $updateButton.removeClass('hide');
-
-                // context.forms.haberes = new EFWForm({
-                //     container: $container.find('.form-container'),
-                //     title: 'Haberes Coordinador',
-                //     editable: editable ? true : false,
-                //     fields: spo.getViewFields(context.lists.Planta, 'FormHaberes')
-                // })
+            
 
                 console.log('datoslistadohaberes',context.items.ListadoItemVariable);
 
                 let meruem = [];
                 context.items.ListadoItemVariable.map(function(jade){
-
                     meruem.push({
                         key: jade.NombreItem,
                         text: jade.NombreItem,
@@ -229,20 +222,29 @@ var haberesPage = {
                     editable: true,
                     multiSelect: true,
                     choices: meruem
-                })
-                
+                })                
 
                 if(listItemId){
                     context.forms.persona.setValues(context.items.Planta);
                     // context.forms.haberes.inputs['Rut'].setEditable(false);
                     // context.forms.haberes.inputs['NombreCompleto'].setEditable(false);
-                    context.forms.persona.inputs['Haberes'].setEditable(false);
-
+                    // context.forms.persona.inputs['Haberes'].setEditable(false);
+                    
+                    
                     if(editable){
                         context.forms.persona.inputs['Haberes'].setEditable(true);
                         $updateButton.removeClass('hide');
                     }
                 }
+
+                // if(listItemId){
+                //     console.log('List Item', context.items.solicitudSDP)
+
+                //     context.forms.jefe.setValues(context.items.solicitudSDP)
+                //     context.forms.recepcion.setValues(context.items.solicitudSDP)
+                //     context.forms.posicion.setValues(context.items.solicitudSDP);
+                //     context.forms.recuperable.setValues(context.items.solicitudSDP)
+                //     context.forms.vacante.setValues(context.items.solicitudSDP)
                   
 
                 $updateButton.on('click', function (e) {
@@ -290,7 +292,7 @@ var haberesPage = {
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
-                                        mainView.router.navigate('/cooStream?listItemId='+listItemId);
+                                        mainView.router.navigate('/haberTemporal?listItemId='+listItemId);
                                     }
                                 }],
                                 verticalButtons: false
