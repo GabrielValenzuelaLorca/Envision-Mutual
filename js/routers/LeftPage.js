@@ -175,6 +175,21 @@ menuPage.methods.getListBlocksData = function(){
     var app = page.app;
     var context = this._getPageContext();
 
+    function showAlertFirstOpened(){
+        let dias = moment(context.onPeriod.FechaTermino).diff( moment(), 'days')
+        console.log(dias);
+        app.dialog.create({
+            title: 'Atención',
+            text: `Recuerde que le quedan ${dias} para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`,
+            buttons: [{
+                text: 'Aceptar',
+                onClick: function () {
+                    return
+                }
+            }],
+            verticalButtons: false
+        }).open();
+    }    
     // configuración de menú
     var settings = []
     if (plantaAdmin.Rol == "Coordinador"){
@@ -198,6 +213,10 @@ menuPage.methods.getListBlocksData = function(){
         }
         
         if (canSendInform && context.onPeriod) {
+            if(plantaAdmin.Rol == "Coordinador" && showAlert == true && canSendInform){
+                showAlertFirstOpened()
+                showAlert = false;
+            }
             coorSection.options = coorSection.options.concat([ 
                 {
                     href: '/item',
@@ -470,53 +489,114 @@ menuPage.methods.getListBlocksData = function(){
 
 
         admSection2.options = admSection2.options.concat([
-        {
-            href: '/rolStream',
-            title: 'Mantenedor Roles',
-            after: '',
-            header: '',
-            footer: '',
-            panelClose: true,
-            externalLink: false,
-            f7view: '.view-main',
-            media: '<i class="ms-Icon ms-Icon--AccountManagement"></i>',
-        },
-        // {
-        //     href: '/liststream?title=Mantenedor Items Variables&listtitle=ListadoItemVariable&listview=Todos los elementos&template=list-row&panel=filter-close',
-        //     title: 'Mantenedor Haberes',
-        //     after: '',
-        //     header: '',
-        //     footer: '',
-        //     panelClose: true,
-        //     externalLink: false,
-        //     f7view: '.view-main',
-        //     media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
-        // },
-        {
-            href: '/liststream?title=Mantenedor Convenio Capex&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close',
-            title: 'Mantenedor Capex',
-            after: '',
-            header: '',
-            footer: '',
-            panelClose: true,
-            externalLink: false,
-            f7view: '.view-main',
-            media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
-        },
-        {
-            href: '/coordinadorStream',
-            title: 'Mantenedor Coordinador',
-            after: '',
-            header: '',
-            footer: '',
-            panelClose: true,
-            externalLink: false,
-            f7view: '.view-main',
-            media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
-        },
-    ]);
+            {
+                href: '/rolStream',
+                title: 'Mantenedor Roles',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--AccountManagement"></i>',
+            },
+            {
+                href: '/liststream?title=Mantenedor Items Variables&listtitle=ListadoItemVariable&listview=Todos los elementos&template=list-row&panel=filter-close',
+                title: 'Mantenedor Haberes',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+            },
+            {
+                href: '/liststream?title=Mantenedor Convenio Capex&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close',
+                title: 'Mantenedor Capex',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+            },
+            {
+                href: '/coordinadorStream',
+                title: 'Mantenedor Trabajadores',
+                after: '',
+                header: '',
+                footer: 'por coordinador',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+            },
+            {
+                href: '/cooStream',
+                title: 'Mantenedor Haberes',
+                after: '',
+                header: '',
+                footer: 'por coordinador',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+            },
+        ]);
 
         settings.push(admSection2);
+    }
+
+    if (plantaAdmin.Rol == "Encargado de Licencias Médicas"){
+        let licSection = {
+            inset: true,
+            header: 'Encargado de Licencias Médicas',
+            footer: '',
+            options: []
+        };
+
+        licSection.options = licSection.options.concat([
+            {
+                href: '/licencia?panel=filter-open',
+                title: 'Licencias',
+                after: '',
+                header: '',
+                footer: 'En Periodo',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
+            },
+        ]);
+      
+        settings.push(licSection);
+    }
+
+    if (plantaAdmin.Rol == "SDP"){
+        let licSection = {
+            inset: true,
+            header: 'Solicitud de permisos',
+            footer: '',
+            options: []
+        };
+
+        licSection.options = licSection.options.concat([
+            {
+                href: '/formSolicitante',
+                title: 'Formulario solicitud 1',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
+            },
+        ]);
+      
+        settings.push(licSection);
     }
 
     return settings;

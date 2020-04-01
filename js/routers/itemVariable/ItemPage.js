@@ -355,7 +355,8 @@ var itemPage = {
                     })
                 });
                 context.forms.person.inputs['Nombre'].setEditable(true);
-                // context.forms.person.inputs['CentroCostoId'].hide();
+                context.forms.person.inputs['Cargo'].hide();
+                context.forms.person.inputs['CentroCostoId'].hide();
 
                 // formulario de registro Item Variable
                 context.forms.item = new EFWForm({
@@ -436,6 +437,8 @@ var itemPage = {
                         context.forms.person.inputs['CentroCostoId'].resetValue();
                         context.forms.item.inputs['Haber'].setEditable(false);
                         context.forms.item.inputs['Haber_x003a_Codigo'].setEditable(false);
+                        context.forms.person.inputs['Cargo'].resetValue();
+
                         current = null;
                         return;
                     }
@@ -445,6 +448,7 @@ var itemPage = {
                     context.forms.person.inputs['Rut'].setValue(values[0].item.Rut);
                     context.forms.person.inputs['TipoContrato'].setValue(values[0].item.TipoContrato);
                     context.forms.person.inputs['Categoria'].setValue(values[0].item.Categoria.Categoria.charAt(0));
+                    context.forms.person.inputs['Cargo'].setValue(values[0].item.d_cargo.NombreCargo)
 
                     //Habilitamos el formulario siguiente
                     context.forms.person.inputs['CentroCostoId'].setValue(values[0].item.CentroCostoId);
@@ -587,6 +591,9 @@ var itemPage = {
                         metadata['HaberId'] = metadataItem.HaberId;
                         metadata['CantidadMonto'] = metadataItem.CantidadMonto;
                         metadata['Justificacion'] = metadataItem.Justificacion;
+                        console.log('Persona', persona[0].item.d_cargo.NombreCargo);
+                        metadata['Cargo'] = persona[0].item.d_cargo.NombreCargo;
+                        metadata['CentroCostoId'] = persona[0].item.CentroCostoId;
 
                         if(context.forms.EX.inputs['ExceptionCC'].value){
                             metadata['CentroCostoId'] = metadataEX.CentroCosto

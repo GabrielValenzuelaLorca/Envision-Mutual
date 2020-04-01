@@ -186,7 +186,7 @@ localButtons.assignRol = function(context){
 
 
 /*
-    Todos los botones relacionados con la asociacion de trabajador por coordinador
+    Todos los botones relacionados con CoordinadorStreamPage, TrabajadorPage y TrabajadorStreamPage
 */
 
 localButtons.addTrabajadorButton = function(context, id){
@@ -429,6 +429,20 @@ localButtons.deleteListTrabajadoresButton = function(context){
                 'Esta seguro que quiere desvincular trabajadores?',
                 save
             )
+        }
+    }
+    return button
+}
+/*
+    Todos los botones relacionados con HabaresStreamPage y CooStreamPage
+*/
+localButtons.addHaberButton = function(context, id){
+    button = {
+        text: 'Asociar Haber',
+        class: 'addHaber',
+        icon: 'Add',
+        onClick: function(component, item){
+            mainView.router.navigate(encodeURI('/haberTemporal?listItemId='+id));
         }
     }
     return button

@@ -259,13 +259,23 @@ var ItemVariablePage = {
                     fields: spo.getViewFields(context.lists.ListadoItems, 'MinimoMaximo'),
                 });
 
+                let data = [];
+
+                listasharepoint.map(function(x){
+                    data.push({
+                        key: x.nombrehaber,
+                        text: x.haber,
+                        item: x
+                    })
+                })
+
                 //Formulario Fechas excepcionales
                 var inputs2 = [{
                     Id: generateUUID(),
                     Title: 'Día',
                     InternalName: 'Day',
                     TypeAsString: 'Choice',
-                    Choices: [ "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]
+                    Choices: data
                 },{
                     Id: generateUUID(),
                     Title: 'Mes',

@@ -158,6 +158,17 @@
     line-height: 40px;
     cursor: pointer;
 }
+
+.ios .search-popup .close-button{
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    right: 0px;
+    text-align: center;
+    z-index: 2;
+    line-height: 40px;
+    cursor: pointer;
+}
  
 .buttons-container .button{
      width: 280px;
@@ -178,6 +189,10 @@
 
 .popup.send-email-popup2.modal-in {
     height: 260px !important;
+}
+
+.popup.search-popup.modal-in {
+    height: 230px !important;
 }
 
 /* .popup.send-email-popup.modal-in.approval {
@@ -398,4 +413,14 @@
     word-break: break-word;
     white-space: normal;
     margin: 5px;
+}
+
+/* Cambio a los formularios */
+
+.form-container .ms-FormField{
+    min-height: 80px !important;
+}
+
+div.list.no-hairlines.no-hairlines-between ul li{
+    float: left !important;
 }

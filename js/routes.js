@@ -128,7 +128,7 @@ listStreamPage.methods.getCamlQueryConditions = function(){
 }
 
 function getRoutes(){
-    return [
+    var mainRoutes = [
         {
             path: '/liststream',
             component: listStreamPage
@@ -141,6 +141,15 @@ function getRoutes(){
             path: '/homepage',
             component: homePage
         },
+        // Default route (404 page). MUST BE THE LAST
+        {
+            path: '(.*)',
+            url: './pages/404.html',
+        },
+    ]
+
+    var itemRoutes = [
+        
         {
             path: '/item',
             component: itemPage
@@ -198,12 +207,20 @@ function getRoutes(){
             component: coordinadorStreamPage
         },
         {
+            path: '/cooStream',
+            component: cooStreamPage
+        },
+        {
             path: '/trabajadorPorCoordinador',
             component: trabajadoresStreamPage
         },
         {
             path: '/trabajadorTemporal',
             component: trabajadoresPage
+        },
+        {
+            path: '/haberTemporal',
+            component: haberesPage
         },
         {
             path: '/Solicitudes',
@@ -229,12 +246,23 @@ function getRoutes(){
             path: '/rol',
             component: rolPage
         },
-        // Default route (404 page). MUST BE THE LAST
         {
-            path: '(.*)',
-            url: './pages/404.html',
+            path: '/licencia',
+            component: licenciaStreamPage
         },
     ];
+
+    var SDPRoutes = [
+        {
+            path: '/formSolicitante',
+            component: solicitantePage
+        }
+    ]
+
+    var routes = itemRoutes;
+    routes = routes.concat(SDPRoutes);
+    routes = routes.concat(mainRoutes);
+    return routes;
     // For test
 }
 
