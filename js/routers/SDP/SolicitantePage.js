@@ -224,9 +224,6 @@ var solicitantePage = {
                     $send = $navbar.find('.link.send');
                     $approve = $navbar.find('.link.approve');
 
-                $search.removeClass('hide');
-                $send.removeClass('hide');
-                $approve.removeClass('hide');
 
                 // context.forms.busqueda.inputs['busqueda'].params.onChange = function(comp, input, state, values){
                 //     if(values.length == 0){
@@ -240,20 +237,23 @@ var solicitantePage = {
                 context.forms.jefe = new EFWForm({
                     container: $container.find('.form1'),
                     title: '',
-                    editable: false,
+                    editable: listItemId ? false : true,
                     fields: spo.getViewFields(context.lists.solicitudSDP, 'FormSolicitante')
                 }); 
                 
-                context.forms.jefe.inputs['Rut'].setEditable(true);
+                if(!listItemId){
+                    context.forms.jefe.inputs['Rut'].setEditable(true);
 
-                context.forms.jefe.inputs['Rut'].params.onChange = function(comp, input, state, values){
-                    if(values.length > 0){
-                        let cargo = context.items.Cargo.filter(x => x.ID == values[0].item.d_cargoId)[0];
-                        context.forms.jefe.inputs['Nombre'].setValue(values[0].item.Nombre ? values[0].item.Nombre : '') 
-                        context.forms.jefe.inputs['ApellidoPaterno'].setValue(values[0].item.ApellidoPaterno ? values[0].item.ApellidoPaterno : '')
-                        context.forms.jefe.inputs['ApellidoMaterno'].setValue(values[0].item.ApellidoMaterno ? values[0].item.ApellidoMaterno : '')
-                        context.forms.jefe.inputs['Cargo'].setValue(cargo.NombreCargo ? cargo.NombreCargo : '');
-                        context.forms.jefe.inputs['Gerencia'].setValue(values[0].item.Nivel_Org_1 ? values[0].item.Nivel_Org_1 : '');
+                    context.forms.jefe.inputs['Rut'].params.onChange = function(comp, input, state, values){
+                        if(values.length > 0){
+                            
+                            var cargo = context.items.Cargo.filter(x => x.ID == values[0].item.d_cargoId)[0];
+                            context.forms.jefe.inputs['Nombre'].setValue(values[0].item.Nombre ? values[0].item.Nombre : '') 
+                            context.forms.jefe.inputs['ApellidoPaterno'].setValue(values[0].item.ApellidoPaterno ? values[0].item.ApellidoPaterno : '')
+                            context.forms.jefe.inputs['ApellidoMaterno'].setValue(values[0].item.ApellidoMaterno ? values[0].item.ApellidoMaterno : '')
+                            context.forms.jefe.inputs['Cargo'].setValue(cargo.NombreCargo ? cargo.NombreCargo : '');
+                            context.forms.jefe.inputs['Gerencia'].setValue(values[0].item.Nivel_Org_1 ? values[0].item.Nivel_Org_1 : '');
+                        }
                     }
                 }
 
@@ -275,7 +275,7 @@ var solicitantePage = {
                 context.forms.recepcion = new EFWForm({
                     container: $container.find('.form2'),
                     title: '',
-                    editable: true,
+                    editable: listItemId ? false : true,
                     fields: input1
                 });
 
@@ -341,7 +341,7 @@ var solicitantePage = {
                 context.forms.posicion = new EFWForm({
                     container: $container.find('.form3'),
                     title: '',
-                    editable: true,
+                    editable: listItemId ? false : true,
                     fields: input2
                 });
                 context.forms.posicion.inputs['DocDescriptor de cargo'].hide()
@@ -354,6 +354,7 @@ var solicitantePage = {
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setRequired(false);
                         context.forms.posicion.inputs['DocDescriptor de cargo'].show();
                         context.forms.posicion.inputs['NombreNewCargo'].show();
+                        context.forms.posicion.inputs['NombreCargoSolicitado'].setValue([]);
                     }else{
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setEditable(true);
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setRequired(true);
@@ -363,7 +364,6 @@ var solicitantePage = {
                         context.forms.posicion.inputs['NombreNewCargo'].setValue('');
                     }
                 }
-
 
                 //Form Parte 3
                 context.forms.recuperable = new EFWForm({
@@ -379,12 +379,45 @@ var solicitantePage = {
                 context.forms.vacante = new EFWForm({
                     container: $container.find('.form5'),
                     title: 'Datos de posicion vacante',
-                    editable: true,
+                    editable: listItemId ? false : true,
                     fields:spo.getViewFields(context.lists.solicitudSDP, 'FormVacante')
                 });
 
                 //Ocultamos el formulario
                 context.forms.vacante.hide();
+
+
+                if(listItemId){
+                    console.log('List Item', context.items.solicitudSDP)
+
+                    context.forms.jefe.setValues(context.items.solicitudSDP)
+                    context.forms.recepcion.setValues(context.items.solicitudSDP)
+                    context.forms.posicion.setValues(context.items.solicitudSDP);
+                    context.forms.recuperable.setValues(context.items.solicitudSDP)
+                    context.forms.vacante.setValues(context.items.solicitudSDP)
+
+                    
+                    if(context.items.solicitudSDP.Adjuntos.results.length > 0){
+                        context.forms.recepcion.inputs['CotizaciónMandante'].resetValue();
+                        context.forms.posicion.inputs['DocDescriptor de cargo'].resetValue();
+                        if(context.items.solicitudSDP.Adjuntos.results.includes('Cotizacion') && context.items.solicitudSDP.Adjuntos.results.includes('Cargo')){
+                            context.forms.recepcion.inputs['CotizaciónMandante'].setValue([context.items.solicitudSDP.AttachmentFiles.results[0]]);
+                            context.forms.posicion.inputs['DocDescriptor de cargo'].setValue([context.items.solicitudSDP.AttachmentFiles.results[0]]);
+                        }else if(context.items.solicitudSDP.Adjuntos.results.includes('Cotizacion')){
+                            context.forms.recepcion.inputs['CotizaciónMandante'].setValue([context.items.solicitudSDP.AttachmentFiles.results[0]]);
+                        }else if(context.items.solicitudSDP.Adjuntos.results.includes('Cargo')){
+                            context.forms.posicion.inputs['DocDescriptor de cargo'].setValue([context.items.solicitudSDP.AttachmentFiles.results[0]]);
+                        }
+                    }
+
+                    $approve.removeClass('hide');
+                }else{
+                    $search.removeClass('hide');
+                    $send.removeClass('hide');
+                }
+
+
+
 
                 $search.on('click', function (e) {
                     function abrirPopup(data){
@@ -486,14 +519,22 @@ var solicitantePage = {
 
                         var metadata = [];
 
-
-                        //Nota adjuntos
-                        // CotizaciónMandante
-
                         var Attachments = [];
+                        var Adjuntos = [];
 
-                        Attachments[0] = metadataRecepcion.CotizaciónMandante[0];
-                        Attachments[1] = metadataPocicion['DocDescriptor de cargo'][0];
+                        if(metadataRecepcion.CotizaciónMandante){
+                            Attachments[0] = metadataRecepcion.CotizaciónMandante[0];
+                            Adjuntos.push("Cotizacion")
+                        }else{
+                            Attachments[0] = null
+                        }
+
+                        if(metadataPocicion['DocDescriptor de cargo']){
+                            Attachments[1] = metadataPocicion['DocDescriptor de cargo'][0];
+                            Adjuntos.push("Cargo")
+                        }else{
+                            Attachments[1] = null
+                        }
 
                         metadata.RutId = metadataJefe.RutId;
                         metadata.Nombre = metadataJefe.Nombre;
@@ -503,9 +544,11 @@ var solicitantePage = {
                         metadata.Gerencia = metadataJefe.Gerencia;
                         metadata.Posicion = metadataRecepcion.Posicion;
                         metadata.AumentoPresupuesto = metadataRecepcion.ContratoMutualProyRecuperable;
+                        metadata.ContratoMutualProyRecuperable = metadataRecepcion.ContratoMutualProyRecuperable;
                         metadata.CPRFechaDesde = metadataRecepcion.CPRFechaDesde;
                         metadata.CPRFechaHasta = metadataRecepcion.CPRFechaHasta;
-                        metadata.NombreCargoSolicitadoId = metadataPocicion.NombreCargoSolicitadoId
+                        metadata.NombreCargoSolicitadoId = metadataPocicion.NombreCargoSolicitadoId;
+                        metadata.otroCargo = metadataPocicion.otroCargo
                         metadata.NombreNewCargo = metadataPocicion.NombreNewCargo;
                         metadata.PersonasAContratar = metadataPocicion.PersonasAContratar;
                         metadata.JefaturaDirectaId = metadataPocicion.JefaturaDirectaId;
@@ -516,9 +559,14 @@ var solicitantePage = {
                         metadata.CentroCostoId = metadataVacante.CentroCostoId;
                         metadata.Observacion = metadataVacante.Observacion;
                         metadata.Attachments = Attachments;
+                        metadata.Adjuntos = {};
+                        metadata.Adjuntos.results = Adjuntos;
+                        metadata.Estado = 'Inicial';
 
                             
                         console.log('Metadata final', metadata)
+
+                        console.log('Metadata', context.forms.vacante.getMetadata())
 
                         spo.saveListItem(spo.getSiteUrl(), 'SolicitudSDP', metadata, function (response) {
                                 dialog.close();
@@ -550,7 +598,7 @@ var solicitantePage = {
                         });
                     }
 
-                    //Checkamos los campos requeridos
+                    // Checkamos los campos requeridos
                     context.forms.jefe.checkFieldsRequired();
                     context.forms.recepcion.checkFieldsRequired();
                     context.forms.posicion.checkFieldsRequired();
@@ -622,8 +670,32 @@ var solicitantePage = {
                 spo.getListInfo("SolicitudSDP",
                     function (response) {
                         context.lists.solicitudSDP = response;
-                        loaded.Solicitud = true;
-                        shouldInitForms();
+
+                        if(listItemId){
+                            var query = spo.encodeUrlListQuery(context.lists.solicitudSDP, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'filter': '(ID eq '+listItemId+')',
+                                    'select': '*',
+                                    'top': 5000
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), 'SolicitudSDP', query,
+                                function (response) {
+                                    context.items.solicitudSDP = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    loaded.Solicitud = true;
+                                    shouldInitForms();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                        }else{
+                            loaded.Solicitud = true;
+                            shouldInitForms();
+                        }
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);
