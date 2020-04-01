@@ -575,14 +575,14 @@ menuPage.methods.getListBlocksData = function(){
     }
 
     if (plantaAdmin.Rol == "SDP"){
-        let licSection = {
+        let SDPSection = {
             inset: true,
             header: 'Solicitud de permisos',
             footer: '',
             options: []
         };
 
-        licSection.options = licSection.options.concat([
+        SDPSection.options = SDPSection.options.concat([
             {
                 href: '/formSolicitante',
                 title: 'Formulario solicitud 1',
@@ -594,9 +594,20 @@ menuPage.methods.getListBlocksData = function(){
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
             },
+            {
+                href: '/SolicitudStream',
+                title: 'Solicitudes SDP',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
+            },
         ]);
       
-        settings.push(licSection);
+        settings.push(SDPSection);
     }
 
     return settings;
