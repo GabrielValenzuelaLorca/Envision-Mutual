@@ -456,6 +456,20 @@ localButtons.deleteListTrabajadoresButton = function(context){
     }
     return button
 }
+/*
+    Todos los botones relacionados con HabaresStreamPage y CooStreamPage
+*/
+localButtons.addHaberButton = function(context, id){
+    button = {
+        text: 'Asociar Haber',
+        class: 'addHaber',
+        icon: 'Add',
+        onClick: function(component, item){
+            mainView.router.navigate(encodeURI('/haberTemporal?listItemId='+id));
+        }
+    }
+    return button
+}
 
 /*
     Todos los botones relacionados con PeriodosPage
@@ -785,12 +799,17 @@ localButtons.disableItemSended = function(context){
                             // {event} enviar correo
                             $sendButton.on('click', function(e){
                                 form.checkFieldsRequired();
-                                if(form.getValidation()){
+                                if(form.getValidation() && form.getMetadata().ComentarioVirtual.length >= 10){
                                     var comentarioRechazo = form.getMetadata();                                                                    
                                     // cerrar popover
                                     popup.close();
     
                                     save(comentarioRechazo.ComentarioVirtual);
+                                } else if (form.getMetadata().ComentarioVirtual.length < 10){
+                                    dialogs.infoDialog(
+                                        "Hubo un error",
+                                        "Su justificación tiene menos de 10 caracteres"
+                                    )
                                 }
                                 
                             })
@@ -926,12 +945,17 @@ localButtons.disableItemSendedAdmin = function(context, item){
                             // {event} enviar correo
                             $sendButton.on('click', function(e){
                                 form.checkFieldsRequired();
-                                if(form.getValidation()){
+                                if(form.getValidation() && form.getMetadata().ComentarioVirtual.length >= 10){
                                     var comentarioRechazo = form.getMetadata();                                                                    
                                     // cerrar popover
                                     popup.close();
     
                                     save(comentarioRechazo.ComentarioVirtual);
+                                } else if (form.getMetadata().ComentarioVirtual.length < 10){
+                                    dialogs.infoDialog(
+                                        "Hubo un error",
+                                        "Su justificación tiene menos de 10 caracteres"
+                                    )
                                 }
                                 
                             })
@@ -1096,12 +1120,17 @@ localButtons.requireJustificationItem = function(context){
                             // {event} enviar correo
                             $sendButton.on('click', function(e){
                                 form.checkFieldsRequired();
-                                if(form.getValidation()){
+                                if(form.getValidation() && form.getMetadata().ComentarioVirtual.length >= 10){
                                     var comentarioRechazo = form.getMetadata();                                                                    
                                     // cerrar popover
                                     popup.close();
     
                                     save(comentarioRechazo.ComentarioVirtual);
+                                } else if (form.getMetadata().ComentarioVirtual.length < 10){
+                                    dialogs.infoDialog(
+                                        "Hubo un error",
+                                        "Su justificación tiene menos de 10 caracteres"
+                                    )
                                 }
                                 
                             })
@@ -1203,7 +1232,7 @@ localButtons.sendJustification = function(context){
                             // {event} enviar correo
                             $sendButton.on('click', function(e){
                                 form.checkFieldsRequired();
-                                if(form.getValidation()){
+                                if(form.getValidation() && form.getMetadata().ComentarioVirtual.length >= 10){
                                     var justificacion = form.getMetadata();
 
                                     console.log(form.getMetadata().ComentarioVirtual);
@@ -1212,6 +1241,11 @@ localButtons.sendJustification = function(context){
                                     popup.close();
     
                                     save(justificacion.ComentarioVirtual);
+                                } else if (form.getMetadata().ComentarioVirtual.length < 10){
+                                    dialogs.infoDialog(
+                                        "Hubo un error",
+                                        "Su justificación tiene menos de 10 caracteres"
+                                    )
                                 }
                                 
                             })
@@ -1603,7 +1637,7 @@ localButtons.downloadInformeAdmin = function(context){
                                                 haber.CantidadMonto,
                                                 haber.Nombre.NombreCompleto,
                                                 haber.TipoContrato,
-                                                haber.Nombre.d_cargo,
+                                                haber.Cargo,
                                                 haber.CentroCosto.CodigoCC,
                                                 haber.Justificacion
                                             ];
@@ -1708,7 +1742,7 @@ localButtons.downloadInformeComplete = function(context){
                                     haber.Nombre.NombreCompleto,
                                     haber.Rut,
                                     haber.TipoContrato,
-                                    haber.Nombre.d_cargo,
+                                    haber.Cargo,
                                     haber.CentroCosto.CodigoCC,
                                     haber.Justificacion,
                                     informe.Periodo.AnioCalculado,
@@ -1835,7 +1869,7 @@ localButtons.downloadInformePDF = function(context){
                         haber.CantidadMonto,
                         haber.Nombre.NombreCompleto,
                         haber.TipoContrato,
-                        haber.Nombre.d_cargo,
+                        haber.Cargo,
                         haber.CentroCosto.CodigoCC,
                         haber.Justificacion
                     ];
@@ -1889,7 +1923,7 @@ localButtons.downloadInformePDF = function(context){
                     doc.text("RESPONSABLE", 225, 175, "center");
                     doc.setFontStyle("normal");
                     doc.text(context.items.aprobador.NombreCompleto, 225, 180, "center");
-                    doc.text(context.items.aprobador.d_cargo, 225, 185, "center");
+                    doc.text(context.items.aprobador.d_cargo.NombreCargo, 225, 185, "center");
                     doc.text("Mutual de Seguridad C.HC.C.", 225, 190, "center");
                 }
         

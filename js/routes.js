@@ -198,12 +198,20 @@ function getRoutes(){
             component: coordinadorStreamPage
         },
         {
+            path: '/cooStream',
+            component: cooStreamPage
+        },
+        {
             path: '/trabajadorPorCoordinador',
             component: trabajadoresStreamPage
         },
         {
             path: '/trabajadorTemporal',
             component: trabajadoresPage
+        },
+        {
+            path: '/haberTemporal',
+            component: haberesPage
         },
         {
             path: '/Solicitudes',

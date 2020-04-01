@@ -226,7 +226,7 @@ var rolPage = {
                         context.items.aprobadores.map(function(item){
                             data.push({
                                 "key": item.ID,
-                                "text": item.NombreCompleto +" - "+ item.d_cargo,
+                                "text": item.NombreCompleto +" - "+ item.d_cargo.NombreCargo,
                                 "item": item
                             });
                         })

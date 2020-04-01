@@ -258,11 +258,14 @@ var sendStatusPage = {
                 }else{
                     context.items.Coordinador.map(function(x){
                         let coo = context.items.InformeHaberes.filter(i => i.CoordinadorId == x.ID)[0];
+                        console.log('Aprobadores', context.items.Aprobador)
+                        console.log('Coordinador', x)
+                        let apr = context.items.Aprobador.filter(a => a.ID == x.AprobadorId)[0];
                         if(coo){
                             data.push({
                                 "Coordinador": x.NombreCompleto,
                                 "Correo": x.Email,
-                                "Jefe": x.Aprobador.NombreCompleto,
+                                "Jefe": apr.NombreCompleto ? apr.NombreCompleto : 'No posee Aprobador',
                                 "Status": coo.Estado,
                                 "FUA": moment(coo.Modified).format("DD/MM/YYYY hh:mm:ss"),
                                 "ID": coo.ID
@@ -440,13 +443,10 @@ var sendStatusPage = {
 
                         for (persona in infoExcelGeneral){
                             let forDelete = [];
-                            let first = true;
                             while (Object.keys(infoExcelGeneral[persona]).length > 0){
                                 let line = [headersItems[0].map(function(){return ""})]
-                                if (first){
-                                    line[0][0] = persona;
-                                    first = false;
-                                }
+                                line[0][0] = persona;
+
                                 for (haber in infoExcelGeneral[persona]){
                                     let imput = infoExcelGeneral[persona][haber].pop()
                                     line[0][headersPos[haber]] = imput.Cantidad
@@ -479,13 +479,11 @@ var sendStatusPage = {
 
                         for (persona in infoExcelPrivado){
                             let forDelete = [];
-                            let first = true;
+
                             while (Object.keys(infoExcelPrivado[persona]).length > 0){
                                 let line = [headersItems[0].map(function(){return ""})]
-                                if (first){
-                                    line[0][0] = persona;
-                                    first = false;
-                                }
+                                line[0][0] = persona;
+                                
                                 for (haber in infoExcelPrivado[persona]){
                                     let imput = infoExcelPrivado[persona][haber].pop()
                                     line[0][headersPos[haber]] = imput.Cantidad
@@ -528,7 +526,7 @@ var sendStatusPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.Coordinador && loaded.InformeHaberes && loaded.Periodo) {
+                    if (loaded.Coordinador && loaded.InformeHaberes && loaded.Periodo && loaded.Aprobador) {
                         initForm();
                     }
                 };
@@ -566,37 +564,37 @@ var sendStatusPage = {
                     }
                 );
 
-                // Obtener información de la planta asociada al coordinador
-                // spo.getListInfo('Planta',
-                //     function (response) {
-                //         context.items.Aprobador = [];
-                //         context.lists.Aprobador = response;                        
+                //Obtener información de la planta asociada al coordinador
+                spo.getListInfo('Planta',
+                    function (response) {
+                        context.items.Aprobador = [];
+                        context.lists.Aprobador = response;                        
 
-                //         var query = spo.encodeUrlListQuery(context.lists.Aprobador, {
-                //             view: 'Todos los elementos',
-                //             odata: {
-                //                 'select': '*',
-                //                 'top': 5000,
-                //             }
-                //         });
+                        var query = spo.encodeUrlListQuery(context.lists.Aprobador, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'select': '*',
+                                'top': 5000,
+                            }
+                        });
 
-                //         spo.getListItems(spo.getSiteUrl(), 'Planta', query,
-                //             function (response) {
-                //                 context.items.Aprobador = response.d.results.length > 0 ? response.d.results : null;
-                //                 loaded.Aprobador = true;
-
-                //             },
-                //             function (response) {
-                //                 var responseText = JSON.parse(response.responseText);
-                //                 console.log(responseText.error.message.value);
-                //             }
-                //         );
-                //     },
-                //     function (response) {
-                //         var responseText = JSON.parse(response.responseText);
-                //         console.log(responseText.error.message.value);
-                //     }
-                // );
+                        spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                            function (response) {
+                                context.items.Aprobador = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.Aprobador = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
 
                 //Obtengo el periodo actual para imputar
                 spo.getListInfo('Periodo',
