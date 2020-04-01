@@ -147,7 +147,7 @@ menuPage.methods.beforeStartComponent = function(success, failure){
             spo.getListItems(spo.getSiteUrl(), "Periodo", query,
                 function (response) {
                     context.onPeriod = response.d.results.length>0 ? response.d.results[0] : false;
-                    if (plantaAdmin.Rol == "Coordinador"){
+                    if (plantaAdmin.Rol == "Coordinador" && context.onPeriod){
                         informesCoordinador();    
                     } else {
                         if (success) success();
@@ -177,7 +177,6 @@ menuPage.methods.getListBlocksData = function(){
 
     function showAlertFirstOpened(){
         let dias = moment(context.onPeriod.FechaTermino).diff( moment(), 'days')
-        console.log(dias);
         app.dialog.create({
             title: 'Atención',
             text: `Recuerde que le quedan ${dias} para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`,
@@ -207,9 +206,10 @@ menuPage.methods.getListBlocksData = function(){
             options: []
         };
         
-        if (context.informes.length > 0 ) {
-            if (context.informes[0].Estado != "Desaprobado") 
-            canSendInform = false;    
+        if (context.informes){
+            if (context.informes.length > 0 ) {
+                canSendInform = context.informes[0].Estado == "Desaprobado" ? true : false
+            }
         }
         
         if (canSendInform && context.onPeriod) {
@@ -359,7 +359,7 @@ menuPage.methods.getListBlocksData = function(){
                             "Nombre Completo": x.NombreCompleto,
                             "Tipo Contrato": x.TipoContrato,
                             "Categoria": categoria.Categoria.charAt(0),
-                            "Cargo": x.d_cargo
+                            "Cargo": x.d_cargo.NombreCargo
                         }
                     });
 
@@ -520,7 +520,7 @@ menuPage.methods.getListBlocksData = function(){
                 panelClose: true,
                 externalLink: false,
                 f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+                media: '<i class="ms-Icon ms-Icon--Archive"></i>',
             },
             {
                 href: '/liststream?title=Mantenedor Convenio Capex&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close',
@@ -531,7 +531,7 @@ menuPage.methods.getListBlocksData = function(){
                 panelClose: true,
                 externalLink: false,
                 f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+                media: '<i class="ms-Icon ms-Icon--Accounts"></i>',
             },
             {
                 href: '/coordinadorStream',
@@ -542,7 +542,7 @@ menuPage.methods.getListBlocksData = function(){
                 panelClose: true,
                 externalLink: false,
                 f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+                media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
             },
             {
                 href: '/cooStream',
@@ -553,7 +553,7 @@ menuPage.methods.getListBlocksData = function(){
                 panelClose: true,
                 externalLink: false,
                 f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
+                media: '<i class="ms-Icon ms-Icon--Archive"></i>',
             },
         ]);
 
