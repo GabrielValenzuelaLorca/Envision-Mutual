@@ -19,6 +19,7 @@ var AppScriptsArray = [
     "js/routers/itemVariable/InformePeriodoPage.js",
     "js/routers/itemVariable/ItemPage.js",
     "js/routers/itemVariable/ItemVariableStreamPage.js",
+    "js/routers/itemVariable/LicenciaPage.js",
     "js/routers/itemVariable/LicenciaStreamPage.js",
     "js/routers/itemVariable/PeriodoPage.js",
     "js/routers/itemVariable/PeriodoStreamPage.js",
@@ -54,7 +55,6 @@ var AppScriptsArray = [
     
     //Carpeta Principal
     "js/routers/HomePage.js",
-    "js/routers/LicenciaPage.js",
     "js/routers/LeftPage.js",
     "js/routes.js", // routes.js si,empre al penúltimo
     "js/app.js" // app.js siempre al último

@@ -5,7 +5,11 @@ licenciaStreamPage.methods.allowChangeTemplate = function(){
 }
 
 licenciaStreamPage.methods.getListView = function(){
-    return "Todos los elementos"
+    if (plantaAdmin.Rol == "Coordinador"){
+        return "Form"
+    } else if (plantaAdmin.Rol == "Administrador" || plantaAdmin.Rol == "Encargado de Licencias Médicas") {
+        return "Todos los elementos"
+    }
 }
 
 licenciaStreamPage.methods.getTitle = function(){
@@ -18,37 +22,67 @@ licenciaStreamPage.methods.getListTitle = function(){
 
 licenciaStreamPage.methods.beforeStartComponent = function(success,failure){
     var context = this._getPageContext();
-    spo.getListInfo('Licencia',
-        function (response) {
-            var query = spo.encodeUrlListQuery(response, {
-                view: 'Todos los elementos',
-                odata: {
-                    'top': 1
-                }
-            });
-            spo.getListItems(spo.getSiteUrl(), "Licencia", query,
-                function (response) {
-                    context.lastLicencia = response.d.results.length>0 ? response.d.results[0] : null;
-                    if (success) success();
-                },
-                function (response) {
-                    var responseText = JSON.parse(response.responseText);
-                    console.log(responseText.error.message.value);
-                    if (failure) failure();
-                }
-            );
-        },
-        function(response){
-            var responseText = JSON.parse(response.responseText);
-            console.log(responseText.error.message.value);
-            resolve(failCond);
-            if (failure) failure();
-        }
-    );
+    if (plantaAdmin.Rol == "Coordinador"){
+        spo.getListInfo("Periodo",
+            function (response) {
+                var query = spo.encodeUrlListQuery(response, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(Activo eq 1)'
+                    }
+                });
+
+                spo.getListItems(spo.getSiteUrl(), "Periodo", query,
+                    function (response) {
+                        context.periodId = response.d.results.length > 0 ? response.d.results[0].ID : null;
+                        if (success) success();
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        if (failure) failure();
+                    }
+                );
+            }, 
+            function (response) {
+                var responseText = JSON.parse(response.responseText);
+                console.log(responseText.error.message.value);
+                if (failure) failure();
+            }
+        );
+    } else if (plantaAdmin.Rol == "Administrador" || plantaAdmin.Rol == "Encargado de Licencias Médicas") {
+        spo.getListInfo('Licencia',
+            function (response) {
+                var query = spo.encodeUrlListQuery(response, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'top': 1
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), "Licencia", query,
+                    function (response) {
+                        context.lastLicencia = response.d.results.length>0 ? response.d.results[0] : null;
+                        if (success) success();
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        if (failure) failure();
+                    }
+                );
+            },
+            function(response){
+                var responseText = JSON.parse(response.responseText);
+                console.log(responseText.error.message.value);
+                resolve(failCond);
+                if (failure) failure();
+            }
+        );
+    }
 }
 
 licenciaStreamPage.methods.onItemDblClick = function(item){
-    // mainView.router.navigate('/periodo?listItemId='+item.ID);    
+    mainView.router.navigate('/licencia?listItemId='+item.ID);    
     return false    
 }
 
@@ -58,14 +92,10 @@ licenciaStreamPage.methods.getOneItemSelectedButtons = function(item){
     context = self._getPageContext(),
     buttons = [];
 
-    // if (self.allowUpdateItem()){
-    //     buttons.push(localButtons.editPeriodButton());
-    // }
-    // if (item.Activo == "Sí"){
-    //     buttons.push(localButtons.desactivatePeriodoButton());
-    // } else {
-    //     buttons.push(localButtons.activatePeriodoButton(context));
-    // }
+    buttons.push(localButtons.toLicencia());
+    if (plantaAdmin.Rol == "Coordinador"){
+        buttons.push(localButtons.deleteLicencia());
+    }
    
     return buttons;
 }
@@ -85,7 +115,12 @@ licenciaStreamPage.methods.getNoItemsSelectedButtons = function(item){
         context = self._getPageContext(),
         buttons = [];
 
-    // buttons.push(localButtons.addPeriodButton(context));
+    if (plantaAdmin.Rol == "Coordinador"){
+        buttons.push(localButtons.addLicencia(context));
+    } else if (plantaAdmin.Rol == "Administrador" || plantaAdmin.Rol == "Encargado de Licencias Médicas"){
+        buttons.push(localButtons.downloadLicenciaPeriodo(context));
+        buttons.push(localButtons.downloadLicenciaComplete(context));
+    }
 
     return buttons;
 }
@@ -95,25 +130,28 @@ licenciaStreamPage.methods.afterFilterComponentInitializated = function () {
     var context = self._getPageContext();
     var page = self._getPage();
 
-    console.log(context.lastLicencia)
-    console.log(context)
-    if (context.lastLicencia){
-        let anio = context.lastLicencia.MES_PROCESO.AnioCalculado
-        let mes = context.lastLicencia.MES_PROCESO.MesCalculado
-        context.components.itemsFilter.inputs.MES_PROCESO_x003a_AnioCalculado.setValue([{text: anio}]);
-        context.components.itemsFilter.inputs.MES_PROCESO.setValue([{text: mes}]);
-
-        var element = "<div class='added-filter' style='padding: 10px 0px 0px 20px; margin-top:0px;'><h4 style='margin-top:0px; margin-bottom:0px;'>Se están mostrando las licencias del último periodo registrado</h4>"
-        element += "<p style='margin-top: 0px; margin-bottom: 5px;'>"+ mes +" - "+ anio +"</p>"
-        element += "</div>"
-        $(page.pageEl).find('.liststreampage-page-content-header').last().parent().last().append(element)
+    if (plantaAdmin.Rol == "Administrador" || plantaAdmin.Rol == "Encargado de Licencias Médicas") {
+        if (context.lastLicencia){
+            let anio = context.lastLicencia.Periodo.AnioCalculado
+            let mes = context.lastLicencia.Periodo.MesCalculado
+            context.components.itemsFilter.inputs.Periodo_x003a_AnioCalculado.setValue([{text: anio}]);
+            context.components.itemsFilter.inputs.Periodo_x003a_MesCalculado.setValue([{text: mes}]);
+    
+            var element = "<div class='added-filter' style='padding: 10px 0px 0px 20px; margin-top:0px;'><h4 style='margin-top:0px; margin-bottom:0px;'>Se están mostrando las licencias del último periodo registrado</h4>"
+            element += "<p style='margin-top: 0px; margin-bottom: 5px;'>"+ mes +" - "+ anio +"</p>"
+            element += "</div>"
+            $(page.pageEl).find('.liststreampage-page-content-header').last().parent().last().append(element)
+        }
+        $(page.navbarEl).find('a.filter').click();
     }
-    $(page.navbarEl).find('a.filter').click();
+    
 }
 
-licenciaStreamPage.methods.onFilterCallback = function(filters){
-    var self = this;
-    var page = self._getPage();
+licenciaStreamPage.methods.getCamlQueryConditions = function(){
+    var page = this._getPage();
+    var context = this._getPageContext();
 
-    console.log(filters)
+    if (plantaAdmin.Rol == "Coordinador"){
+        return '<And><Eq><FieldRef Name="RUT_RESP" LookupId="TRUE"/><Value Type="Lookup">'+ plantaAdmin.ID +'</Value></Eq><Eq><FieldRef Name="Periodo" LookupId="TRUE"/><Value Type="Lookup">'+context.periodId+'</Value></Eq></And>'
+    }
 }
