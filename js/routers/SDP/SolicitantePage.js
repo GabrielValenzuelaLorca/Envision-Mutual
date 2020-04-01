@@ -241,7 +241,9 @@ var solicitantePage = {
                     fields: spo.getViewFields(context.lists.solicitudSDP, 'FormSolicitante')
                 }); 
                 
-                if(!listItemId){
+                if(listItemId){
+                    
+                }else{
                     context.forms.jefe.inputs['Rut'].setEditable(true);
 
                     context.forms.jefe.inputs['Rut'].params.onChange = function(comp, input, state, values){
@@ -356,7 +358,8 @@ var solicitantePage = {
                         context.forms.posicion.inputs['NombreNewCargo'].show();
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setValue([]);
                     }else{
-                        context.forms.posicion.inputs['NombreCargoSolicitado'].setEditable(true);
+                        !listItemId ? context.forms.posicion.inputs['NombreCargoSolicitado'].setEditable(true) : '';
+                        context.forms.posicion.inputs['NombreCargoSolicitado'].setValue([]);
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setRequired(true);
                         context.forms.posicion.inputs['DocDescriptor de cargo'].hide();
                         context.forms.posicion.inputs['NombreNewCargo'].hide();
@@ -388,25 +391,24 @@ var solicitantePage = {
 
 
                 if(listItemId){
-                    console.log('List Item', context.items.solicitudSDP)
-
                     context.forms.jefe.setValues(context.items.solicitudSDP)
                     context.forms.recepcion.setValues(context.items.solicitudSDP)
                     context.forms.posicion.setValues(context.items.solicitudSDP);
                     context.forms.recuperable.setValues(context.items.solicitudSDP)
                     context.forms.vacante.setValues(context.items.solicitudSDP)
 
-                    
-                    if(context.items.solicitudSDP.Adjuntos.results.length > 0){
-                        context.forms.recepcion.inputs['CotizaciónMandante'].resetValue();
-                        context.forms.posicion.inputs['DocDescriptor de cargo'].resetValue();
-                        if(context.items.solicitudSDP.Adjuntos.results.includes('Cotizacion') && context.items.solicitudSDP.Adjuntos.results.includes('Cargo')){
-                            context.forms.recepcion.inputs['CotizaciónMandante'].setValue([context.items.solicitudSDP.AttachmentFiles.results[0]]);
-                            context.forms.posicion.inputs['DocDescriptor de cargo'].setValue([context.items.solicitudSDP.AttachmentFiles.results[0]]);
-                        }else if(context.items.solicitudSDP.Adjuntos.results.includes('Cotizacion')){
-                            context.forms.recepcion.inputs['CotizaciónMandante'].setValue([context.items.solicitudSDP.AttachmentFiles.results[0]]);
-                        }else if(context.items.solicitudSDP.Adjuntos.results.includes('Cargo')){
-                            context.forms.posicion.inputs['DocDescriptor de cargo'].setValue([context.items.solicitudSDP.AttachmentFiles.results[0]]);
+                    if(context.items.solicitudSDP.Adjuntos){
+                        if(context.items.solicitudSDP.Adjuntos.results.length > 0){
+                            context.forms.recepcion.inputs['CotizaciónMandante'].resetValue();
+                            context.forms.posicion.inputs['DocDescriptor de cargo'].resetValue();
+                            if(context.items.solicitudSDP.Adjuntos.results.includes('Cotizacion') && context.items.solicitudSDP.Adjuntos.results.includes('Cargo')){
+                                context.forms.recepcion.inputs['CotizaciónMandante'].setValue([context.items.solicitudSDP.AttachmentFiles.results[0]]);
+                                context.forms.posicion.inputs['DocDescriptor de cargo'].setValue([context.items.solicitudSDP.AttachmentFiles.results[0]]);
+                            }else if(context.items.solicitudSDP.Adjuntos.results.includes('Cotizacion')){
+                                context.forms.recepcion.inputs['CotizaciónMandante'].setValue([context.items.solicitudSDP.AttachmentFiles.results[0]]);
+                            }else if(context.items.solicitudSDP.Adjuntos.results.includes('Cargo')){
+                                context.forms.posicion.inputs['DocDescriptor de cargo'].setValue([context.items.solicitudSDP.AttachmentFiles.results[0]]);
+                            }
                         }
                     }
 

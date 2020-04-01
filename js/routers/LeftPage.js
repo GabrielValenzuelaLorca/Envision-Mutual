@@ -193,6 +193,7 @@ menuPage.methods.getListBlocksData = function(){
     var settings = []
     if (plantaAdmin.Rol == "Coordinador"){
         let canSendInform = true;
+        let outPeriod = false;
         let coorSection = {
             inset: true,
             header: 'Coordinación',
@@ -211,8 +212,12 @@ menuPage.methods.getListBlocksData = function(){
                 canSendInform = context.informes[0].Estado == "Desaprobado" ? true : false
             }
         }
-        
-        if (canSendInform && context.onPeriod) {
+
+        if(moment(context.onPeriod.FechaTermino).diff( moment(), 'days') <=0){
+            outPeriod = true;
+        }
+
+        if (canSendInform && context.onPeriod && !outPeriod) {
             if(plantaAdmin.Rol == "Coordinador" && showAlert == true && canSendInform){
                 showAlertFirstOpened()
                 showAlert = false;
@@ -263,6 +268,8 @@ menuPage.methods.getListBlocksData = function(){
                     media: '<i class="ms-Icon ms-Icon--DocumentApproval"></i>',
                 }
             ]);
+        } else if(outPeriod){
+            coorSection.footer = 'Se ha vencido el periodo de envio. Contactese con el administrador';
         } else if(!canSendInform) {
             coorSection.footer = 'Tu informe ya ha sido enviado';
         } else if(!context.onPeriod){
@@ -586,14 +593,14 @@ menuPage.methods.getListBlocksData = function(){
     }
 
     if (plantaAdmin.Rol == "SDP"){
-        let licSection = {
+        let SDPSection = {
             inset: true,
             header: 'Solicitud de permisos',
             footer: '',
             options: []
         };
 
-        licSection.options = licSection.options.concat([
+        SDPSection.options = SDPSection.options.concat([
             {
                 href: '/formSolicitante',
                 title: 'Formulario solicitud 1',
@@ -605,9 +612,20 @@ menuPage.methods.getListBlocksData = function(){
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
             },
+            {
+                href: '/SolicitudStream',
+                title: 'Solicitudes SDP',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
+            },
         ]);
       
-        settings.push(licSection);
+        settings.push(SDPSection);
     }
 
     return settings;

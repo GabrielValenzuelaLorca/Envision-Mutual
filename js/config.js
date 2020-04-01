@@ -49,6 +49,7 @@ var AppScriptsArray = [
 
     //Carpeta SDP
     "js/routers/SDP/SolicitantePage.js",
+    "js/routers/SDP/SolicitudStreamPage.js",
    
     
     //Carpeta Principal

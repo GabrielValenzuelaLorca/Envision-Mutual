@@ -260,11 +260,22 @@ function getRoutes(){
         {
             path: '/formSolicitante',
             component: solicitantePage
+        },
+        {
+            path: '/SolicitudStream',
+            component: solicitudStreamPage
         }
     ]
 
-    var routes = itemRoutes;
-    routes = routes.concat(SDPRoutes);
+    var routes = [];
+    
+    routes = routes.concat(itemRoutes);
+
+    if(plantaAdmin.Rol == "SDP"){
+        routes = routes.concat(SDPRoutes);
+    }
+    
+    
     routes = routes.concat(mainRoutes);
     return routes;
     // For test

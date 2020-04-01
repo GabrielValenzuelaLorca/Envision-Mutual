@@ -60,7 +60,7 @@ function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, f
 }
 
 /**
- * Redirecciones generales de la pagina
+ * Redirecciones generales de la pagina Item Variable
  */
 
 localButtons.toUploadPlanta = function(){
@@ -206,6 +206,23 @@ localButtons.toLicencia = function(context){
     }
     return button;
 }
+
+/**
+ * Redirecciones generales de la pagina SDP
+ */
+
+localButtons.toSeeDetailsSolicitud = function(){
+    button = {
+        text: 'Ver detalle',
+        class: 'seeDetails',
+        icon: 'RedEye',
+        onClick: function(component, item){
+            mainView.router.navigate('/formSolicitante?listItemId='+item.ID);
+        }
+    }
+    return button
+}
+
 
 
 /*
