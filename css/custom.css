@@ -421,6 +421,7 @@
     min-height: 80px !important;
 }
 
-div.list.no-hairlines.no-hairlines-between ul li{
+/* div.list.no-hairlines.no-hairlines-between ul li{
+    max-width: 47%;
     float: left !important;
-}
+} */

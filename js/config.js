@@ -26,11 +26,7 @@ var AppScriptsArray = [
     "js/routers/itemVariable/SendStatusPage.js",
     "js/routers/itemVariable/SolicitudesPage.js",
     "js/routers/itemVariable/SolicitudesStreamPage.js",
-    "js/routers/itemVariable/TrabajadoresPage.js",
-    "js/routers/itemVariable/TrabajadoresStreamPage.js",
     "js/routers/itemVariable/UploadItemsPage.js",    
-    "js/routers/itemVariable/CoordinadorStreamPage.js",
-    "js/routers/itemVariable/CooStreamPage.js",
     
     
     //Carpeta mantenedores general
@@ -44,13 +40,15 @@ var AppScriptsArray = [
     "js/routers/mantenedor/itemVariable/ItemVariablePage.js",
     "js/routers/mantenedor/itemVariable/RolPage.js",
     "js/routers/mantenedor/itemVariable/RolStreamPage.js",
-    
+    "js/routers/mantenedor/itemVariable/CoordinadorStreamPage.js",
+    "js/routers/mantenedor/itemVariable/CooStreamPage.js",
+    "js/routers/mantenedor/itemVariable/HaberesPage.js",
+    "js/routers/mantenedor/itemVariable/TrabajadoresPage.js",
+    "js/routers/mantenedor/itemVariable/TrabajadoresStreamPage.js",
+
 
     //Carpeta SDP
     "js/routers/SDP/SolicitantePage.js",
-
-    //Por ordenar
-    "js/routers/HaberesPage.js",
    
     
     //Carpeta Principal
