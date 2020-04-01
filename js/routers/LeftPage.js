@@ -194,6 +194,7 @@ menuPage.methods.getListBlocksData = function(){
     var settings = []
     if (plantaAdmin.Rol == "Coordinador"){
         let canSendInform = true;
+        let outPeriod = false;
         let coorSection = {
             inset: true,
             header: 'Coordinación',
@@ -211,8 +212,12 @@ menuPage.methods.getListBlocksData = function(){
             if (context.informes[0].Estado != "Desaprobado") 
             canSendInform = false;    
         }
-        
-        if (canSendInform && context.onPeriod) {
+
+        if(moment(context.onPeriod.FechaTermino).diff( moment(), 'days') <=0){
+            outPeriod = true;
+        }
+
+        if (canSendInform && context.onPeriod && !outPeriod) {
             if(plantaAdmin.Rol == "Coordinador" && showAlert == true && canSendInform){
                 showAlertFirstOpened()
                 showAlert = false;
@@ -263,6 +268,8 @@ menuPage.methods.getListBlocksData = function(){
                     media: '<i class="ms-Icon ms-Icon--DocumentApproval"></i>',
                 }
             ]);
+        } else if(outPeriod){
+            coorSection.footer = 'Se ha vencido el periodo de envio. Contactese con el administrador';
         } else if(!canSendInform) {
             coorSection.footer = 'Tu informe ya ha sido enviado';
         } else if(!context.onPeriod){
