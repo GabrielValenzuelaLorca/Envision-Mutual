@@ -456,6 +456,20 @@ localButtons.deleteListTrabajadoresButton = function(context){
     }
     return button
 }
+/*
+    Todos los botones relacionados con HabaresStreamPage y CooStreamPage
+*/
+localButtons.addHaberButton = function(context, id){
+    button = {
+        text: 'Asociar Haber',
+        class: 'addHaber',
+        icon: 'Add',
+        onClick: function(component, item){
+            mainView.router.navigate(encodeURI('/haberTemporal?listItemId='+id));
+        }
+    }
+    return button
+}
 
 /*
     Todos los botones relacionados con PeriodosPage
