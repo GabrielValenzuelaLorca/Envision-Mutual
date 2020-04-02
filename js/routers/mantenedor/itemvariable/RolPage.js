@@ -226,7 +226,7 @@ var rolPage = {
                         context.items.aprobadores.map(function(item){
                             data.push({
                                 "key": item.ID,
-                                "text": item.NombreCompleto +" - "+ item.d_cargo,
+                                "text": item.NombreCompleto +" - "+ item.d_cargo.NombreCargo,
                                 "item": item
                             });
                         })
@@ -319,7 +319,7 @@ var rolPage = {
                 spo.getListInfo(mths.getListTitle(),
                     function (response) {
                         context.lists.planta = response;
-                        var query = spo.encodeUrlListQuery(response, {
+                        var query = spo.encodeUrlListQuery(context.lists.planta, {
                             view: 'Todos los elementos',
                             odata: {
                                 'filter': '(Id eq ' + listItemId + ')'
@@ -338,10 +338,10 @@ var rolPage = {
                             }
                         );
 
-                        var query2 = spo.encodeUrlListQuery(response, {
+                        var query2 = spo.encodeUrlListQuery(context.lists.planta, {
                             view: 'Todos los elementos',
                             odata: {
-                                'filter': '(Rol eq \'Aprobador\')'
+                                'filter': '(Rol eq \'Aprobador\' and EstadoContrato eq \'Activo\')'
                             }
                         });
 
@@ -357,7 +357,7 @@ var rolPage = {
                             }
                         );
 
-                        var query3 = spo.encodeUrlListQuery(response, {
+                        var query3 = spo.encodeUrlListQuery(context.lists.planta, {
                             view: 'Todos los elementos',
                             odata: {
                                 'filter': '(UsuarioId ne null)'

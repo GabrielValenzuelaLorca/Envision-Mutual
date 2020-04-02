@@ -419,11 +419,14 @@
 
 .form-container .ms-FormField{
     min-height: 80px !important;
+    
 }
 
 div.list.no-hairlines.no-hairlines-between ul li{
     float: left !important;
     width: 50% !important;
+    background-color: #ffffff!important;
+    
 }
 
 .ios .ms-FormField.editable label.item-checkbox input[type="checkbox"]:checked ~ .icon-checkbox, .ios .checkbox input[type="checkbox"]:checked ~ i{

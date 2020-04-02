@@ -5,7 +5,7 @@ coordinadorStreamPage.methods.allowChangeTemplate = function(){
 }
 
 coordinadorStreamPage.methods.getListView = function(){
-    return "Mantenedor Coordinador"
+    return "Mantenedor Coordinadores"
 }
 
 coordinadorStreamPage.methods.getTitle = function(){

@@ -247,8 +247,12 @@ function getRoutes(){
             component: rolPage
         },
         {
-            path: '/licencia',
+            path: '/licenciaHistorico',
             component: licenciaStreamPage
+        },
+        {
+            path: '/licencia',
+            component: licenciaPage
         },
     ];
 
