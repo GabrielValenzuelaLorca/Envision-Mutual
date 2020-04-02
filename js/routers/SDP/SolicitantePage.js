@@ -245,16 +245,21 @@ var solicitantePage = {
                     
                 }else{
                     context.forms.jefe.inputs['Rut'].setEditable(true);
+                    context.forms.jefe.inputs['Aprobadores'].hide();
 
                     context.forms.jefe.inputs['Rut'].params.onChange = function(comp, input, state, values){
                         if(values.length > 0){
-                            
+                            let aprobadores = []
+                            for (let i = 1; i < 9; i++) {
+                                aprobadores.push(values[0].item["Aprobador"+i.toString()])
+                            }
                             var cargo = context.items.Cargo.filter(x => x.ID == values[0].item.d_cargoId)[0];
                             context.forms.jefe.inputs['Nombre'].setValue(values[0].item.Nombre ? values[0].item.Nombre : '') 
                             context.forms.jefe.inputs['ApellidoPaterno'].setValue(values[0].item.ApellidoPaterno ? values[0].item.ApellidoPaterno : '')
                             context.forms.jefe.inputs['ApellidoMaterno'].setValue(values[0].item.ApellidoMaterno ? values[0].item.ApellidoMaterno : '')
                             context.forms.jefe.inputs['Cargo'].setValue(cargo.NombreCargo ? cargo.NombreCargo : '');
                             context.forms.jefe.inputs['Gerencia'].setValue(values[0].item.Nivel_Org_1 ? values[0].item.Nivel_Org_1 : '');
+                            context.forms.jefe.inputs['Aprobadores'].setValue(aprobadores.length ? JSON.stringify(aprobadores) : '');
                         }
                     }
                 }
@@ -505,7 +510,6 @@ var solicitantePage = {
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
-
                         var metadataJefe = context.forms.jefe.getMetadata(),
                             metadataRecepcion = context.forms.recepcion.getMetadata(),
                             metadataPocicion = context.forms.posicion.getMetadata(),
@@ -564,6 +568,7 @@ var solicitantePage = {
                         metadata.Adjuntos = {};
                         metadata.Adjuntos.results = Adjuntos;
                         metadata.Estado = 'Inicial';
+                        metadata.Aprobadores = context.forms.jefe.inputs["Aprobadores"].value;
 
                             
                         console.log('Metadata final', metadata)
