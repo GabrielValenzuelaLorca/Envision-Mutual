@@ -189,7 +189,11 @@ menuPage.methods.getListBlocksData = function(){
             verticalButtons: false
         }).open();
     }    
-    // configuración de menú
+    
+    /*** 
+     * Seccion Item Variable
+     * ***/
+
     var settings = []
     if (plantaAdmin.Rol == "Coordinador"){
         let canSendInform = true;
@@ -542,26 +546,26 @@ menuPage.methods.getListBlocksData = function(){
             },
             {
                 href: '/coordinadorStream',
-                title: 'Mantenedor Trabajadores',
+                title: 'Mantenedor Coordinador',
                 after: '',
                 header: '',
-                footer: 'por coordinador',
+                footer: 'haberes y trabajadores',
                 panelClose: true,
                 externalLink: false,
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
             },
-            {
-                href: '/cooStream',
-                title: 'Mantenedor Haberes',
-                after: '',
-                header: '',
-                footer: 'por coordinador',
-                panelClose: true,
-                externalLink: false,
-                f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--Archive"></i>',
-            },
+            // {
+            //     href: '/cooStream',
+            //     title: 'Mantenedor Haberes',
+            //     after: '',
+            //     header: '',
+            //     footer: 'por coordinador',
+            //     panelClose: true,
+            //     externalLink: false,
+            //     f7view: '.view-main',
+            //     media: '<i class="ms-Icon ms-Icon--Archive"></i>',
+            // },
         ]);
 
         settings.push(admSection2);
@@ -592,40 +596,96 @@ menuPage.methods.getListBlocksData = function(){
         settings.push(licSection);
     }
 
-    if (plantaAdmin.Rol == "SDP"){
-        let SDPSection = {
-            inset: true,
-            header: 'Solicitud de permisos',
-            footer: '',
-            options: []
-        };
+    /*** 
+     * Seccion Solicitud de Personal
+     * ***/
 
-        SDPSection.options = SDPSection.options.concat([
-            {
-                href: '/formSolicitante',
-                title: 'Formulario solicitud 1',
-                after: '',
-                header: '',
+    if(plantaAdmin.RolSDP){
+        if (plantaAdmin.RolSDP.results.includes("Jefe Solicitante")){
+            let solSection = {
+                inset: true,
+                header: 'Solicitud de permisos',
                 footer: '',
-                panelClose: true,
-                externalLink: false,
-                f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
-            },
-            {
-                href: '/SolicitudStream',
-                title: 'Solicitudes SDP',
-                after: '',
-                header: '',
+                options: []
+            };
+    
+            solSection.options = solSection.options.concat([
+                {
+                    href: '/formSolicitante',
+                    title: 'Formulario solicitud 1',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
+                },
+                {
+                    href: '/SolicitudStream',
+                    title: 'Solicitudes SDP',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
+                },
+            ]);
+          
+            settings.push(solSection);
+        }
+    
+        if (plantaAdmin.RolSDP.results.includes("Validador")){
+            let valSection = {
+                inset: true,
+                header: 'Validación de solicitudes',
                 footer: '',
-                panelClose: true,
-                externalLink: false,
-                f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
-            },
-        ]);
-      
-        settings.push(SDPSection);
+                options: []
+            };
+    
+            valSection.options = valSection.options.concat([
+                {
+                    href: '/SolicitudesPorValidar',
+                    title: 'Solicitudes SDP',
+                    after: '',
+                    header: '',
+                    footer: 'Por aprobar',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--AwayStatus"></i>',
+                },
+            ]);
+          
+            settings.push(valSection);
+        }
+    
+        if (plantaAdmin.RolSDP.results.includes("CyE")){
+            let cyeSection = {
+                inset: true,
+                header: 'CyE',
+                footer: '',
+                options: []
+            };
+    
+            cyeSection.options = cyeSection.options.concat([
+                {
+                    href: '/SolicitudesCyE',
+                    title: 'Solicitudes',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--DocumentSet"></i>',
+                },
+            ]);
+          
+            settings.push(cyeSection);
+        }
     }
 
     return settings;

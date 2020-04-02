@@ -207,6 +207,33 @@ localButtons.toLicencia = function(context){
     return button;
 }
 
+localButtons.ToHaberesPage = function(){
+    button = {
+        text: 'Ir al Mantenedor de Haberes',
+        class: 'uploadPlanta',
+        icon: 'ExcelLogo',
+        onClick: function(component, item){
+            mainView.router.navigate('/haberTemporal?listItemId='+item.ID+'&editable=true');
+        }
+    }
+    return button
+}
+
+localButtons.ToAsociateTrabajadorPage = function(){
+    button = {
+        text: 'Ver trabajadores asignados',
+        class: 'uploadPlanta',
+        icon: 'ExcelLogo',
+        onClick: function(component, item){
+            mainView.router.navigate('/trabajadorPorCoordinador?listItemId='+item.ID);
+        }
+    }
+    return button
+}
+
+
+
+
 /**
  * Redirecciones generales de la pagina SDP
  */
@@ -2224,13 +2251,14 @@ localButtons.downloadLicenciaPeriodo = function(context){
         onClick: function(component, item){
             let mes = context.components.itemsFilter.inputs.Periodo_x003a_MesCalculado.values
             let anio = context.components.itemsFilter.inputs.Periodo_x003a_AnioCalculado.values
+            console.log(anio, mes)
             let filter = ""
             let filterApplied = true
-            if (mes.length && anio.length){
+            if (mes.length == 1 && anio.length == 1){
                 filter += '(Periodo/MesCalculado eq \''+ mes[0].text +'\' and Periodo/AnioCalculado eq \''+ anio[0].text + '\')'
-            } else if (mes.length){
+            } else if (mes.length == 1){
                 filter += '(Periodo/MesCalculado eq \''+ mes[0].text +'\')'
-            } else if (anio.length){
+            } else if (anio.length == 1){
                 filter += '(Periodo/AnioCalculado eq \''+ anio[0].text +'\')'
             } else {
                 filterApplied = false;
@@ -2285,7 +2313,12 @@ localButtons.downloadLicenciaPeriodo = function(context){
 
                         // // Se crea la primera hoja
                         XLSX.utils.book_append_sheet(wb, ws, "Licencias");
-                        XLSX.writeFile(wb, 'Licencias Médicas Periodo'+' '+mes[0].text +' '+anio[0].text+'.xlsx');
+                        if (mes.length && anio.length)
+                            XLSX.writeFile(wb, 'Licencias Médicas Periodo'+' '+mes[0].text +' '+anio[0].text+'.xlsx');
+                        else if(anio.length)
+                            XLSX.writeFile(wb, 'Licencias Médicas Periodo'+' '+anio[0].text+'.xlsx');
+                        else if(mes.length)
+                            XLSX.writeFile(wb, 'Licencias Médicas Periodo'+' '+mes[0].text+'.xlsx');
                         
                         dialog.close()
                         dialogs.infoDialog(
@@ -2308,9 +2341,25 @@ localButtons.downloadLicenciaPeriodo = function(context){
             } else {
                 dialogs.infoDialog(
                     'Error',
-                    'No hay ningun filtro de periodo aplicado',
+                    'Se ha seleccionado un periodo incorrecto.',
                 )
             }
+        }
+    }
+    return button
+}
+
+/*
+    Todos los botones relacionados con CyE
+*/
+
+localButtons.gestionar = function(context){
+    button = {
+        text: 'Gestionar',
+        class: 'gestionar',
+        icon: 'PageEdit',
+        onClick: function(component, item){
+            console.log("Gestionar")
         }
     }
     return button

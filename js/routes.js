@@ -264,14 +264,22 @@ function getRoutes(){
         {
             path: '/SolicitudStream',
             component: solicitudStreamPage
-        }
+        },
+        {
+            path: '/SolicitudesPorValidar',
+            component: solicitudStreamPage
+        },
+        {
+            path: '/SolicitudesCyE',
+            component: solicitudCyEStream
+        },
     ]
 
     var routes = [];
     
     routes = routes.concat(itemRoutes);
 
-    if(plantaAdmin.Rol == "SDP"){
+    if(plantaAdmin.RolSDP){
         routes = routes.concat(SDPRoutes);
     }
     

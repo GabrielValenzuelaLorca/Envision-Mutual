@@ -9,7 +9,7 @@ cooStreamPage.methods.getListView = function(){
 }
 
 cooStreamPage.methods.getTitle = function(){
-    return "Haga doble click sobre un coordinador para asociar haberes"
+    return "Seleccióne un coordinador para ver las opciónes"
 }
 
 cooStreamPage.methods.getListTitle = function(){

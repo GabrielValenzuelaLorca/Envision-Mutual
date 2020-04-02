@@ -29,7 +29,7 @@ var solicitantePage = {
                         '</a>' +
                         '<a href="#" class="link doc-reject ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PageRemove"></i>' +
-                            '<span class="ios-only">Rechazar</span>' +
+                            '<span class="ios-only">Rechazar Solicitud</span>' +
                         '</a>' +
                         '<a href="#" class="link clear ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Cancel"></i>' +
@@ -59,6 +59,14 @@ var solicitantePage = {
                             '<i class="ms-Icon ms-Icon--Accept"></i>' +
                             '<span class="ios-only">Aprobar Solicitud</span>' +
                         '</a>' +
+                        '<a href="#" class="link final-approve ms-fadeIn100 hide">' +
+                            '<i class="ms-Icon ms-Icon--Accept"></i>' +
+                            '<span class="ios-only">Enviar Solicitud a Compensación</span>' +
+                        '</a>' +
+                        '<a href="#" class="link force-close ms-fadeIn100 hide">' +
+                        '<i class="ms-Icon ms-Icon--Commitments"></i>' +
+                        '<span class="ios-only">Forzar Cierre</span>' +
+                    '</a>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -92,6 +100,7 @@ var solicitantePage = {
                             '</div>'+
                         '</li>'+
                     '</ul>'+
+                    '<div class="history"></div>' +
                 '</div>'+
             '<div class="content-loader">' +
                 '<div class="content-loader-inner">' +
@@ -195,7 +204,78 @@ var solicitantePage = {
 
             return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
         },
+        
+        addComment (fn){
+            var commentPopup = app.popup.create({
+                content: `
+                    <div class="popup send-email-popup" style="overflow:auto">
+                        <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                        <div class="block">
+                            <div class="update-form" style="margin-top: 10px !important;"></div>
+                            <div class="buttons-container ms-slideLeftIn10 hide">
+                                <button class="button button-fill close-popup">Volver</button>
+                                <button class="button button-fill send">Enviar</button>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                // Events
+                on: {
+                    opened: function (popup) {
+                        var $container = $(popup.el),
+                            $sendButton = $container.find('.send'),
+                            $closeButton = $container.find('.close-popup'),
+                            $buttonsContainer = $container.find('.buttons-container');
+                        
+                        var campos = []
+                        campos.push({
+                            Title: 'Justificación',
+                            Id: generateUUID(),
+                            TypeAsString: 'Note',
+                            InternalName: 'ComentarioVirtual',
+                            Required: true,
+                        });
+                        // formulario de actualización
+                        form = new EFWForm({
+                            container: $container.find('.update-form'),
+                            title: 'Observaciones'.bold(),
+                            editable: true,
+                            description: 'Ingrese su observación.',
+                            fields: campos
+                        });
+                        
+                        $buttonsContainer.removeClass('hide');
 
+                        // {event} cerrar popup
+                        $closeButton.on('click', function(e){
+                            popup.close();
+                        });
+
+                        // {event} enviar correo
+                        $sendButton.on('click', function(e){
+                            form.checkFieldsRequired();
+                            if(form.getValidation() && form.getMetadata().ComentarioVirtual.length >= 10){
+                                var comentarioRechazo = form.getMetadata();                                                                    
+                                // cerrar popover
+                                popup.close();
+                                
+                                fn(comentarioRechazo.ComentarioVirtual);
+                            } else if (form.getMetadata().ComentarioVirtual.length < 10){
+                                dialogs.infoDialog(
+                                    "Hubo un error",
+                                    "Su observación tiene menos de 10 caracteres"
+                                )
+                            }
+                            
+                        })
+                    },
+                    closed: function (popup) {
+                        if (form) form.destroy();
+                    },
+                },
+            });
+            commentPopup.open();
+        }
     },
     on: {
         pageInit: function (e, page) {
@@ -223,7 +303,9 @@ var solicitantePage = {
                     $search = $navbar.find('.link.search');
                     $send = $navbar.find('.link.send');
                     $approve = $navbar.find('.link.approve');
-
+                    $refuse = $navbar.find('.link.doc-reject')
+                    $finalApprove = $navbar.find('.link.final-approve');
+                    $forceClose = $navbar.find('.link.force-close');
 
                 // context.forms.busqueda.inputs['busqueda'].params.onChange = function(comp, input, state, values){
                 //     if(values.length == 0){
@@ -237,21 +319,24 @@ var solicitantePage = {
                 context.forms.jefe = new EFWForm({
                     container: $container.find('.form1'),
                     title: '',
-                    editable: listItemId ? false : true,
+                    editable: false,
                     fields: spo.getViewFields(context.lists.solicitudSDP, 'FormSolicitante')
                 }); 
                 
-                if(listItemId){
-                    
-                }else{
+                
+                if(!listItemId){
                     context.forms.jefe.inputs['Rut'].setEditable(true);
                     context.forms.jefe.inputs['Aprobadores'].hide();
+                    context.forms.jefe.inputs['NextVal'].hide();
 
                     context.forms.jefe.inputs['Rut'].params.onChange = function(comp, input, state, values){
                         if(values.length > 0){
                             let aprobadores = []
                             for (let i = 1; i < 9; i++) {
-                                aprobadores.push(values[0].item["Aprobador"+i.toString()])
+                                let apr = values[0].item["Aprobador"+i.toString()];
+                                if (apr){
+                                    aprobadores.push(apr)
+                                }
                             }
                             var cargo = context.items.Cargo.filter(x => x.ID == values[0].item.d_cargoId)[0];
                             context.forms.jefe.inputs['Nombre'].setValue(values[0].item.Nombre ? values[0].item.Nombre : '') 
@@ -259,6 +344,7 @@ var solicitantePage = {
                             context.forms.jefe.inputs['ApellidoMaterno'].setValue(values[0].item.ApellidoMaterno ? values[0].item.ApellidoMaterno : '')
                             context.forms.jefe.inputs['Cargo'].setValue(cargo.NombreCargo ? cargo.NombreCargo : '');
                             context.forms.jefe.inputs['Gerencia'].setValue(values[0].item.Nivel_Org_1 ? values[0].item.Nivel_Org_1 : '');
+                            context.forms.jefe.inputs['CentroCosto'].setValue(values[0].item.d_centro_d ? values[0].item.d_centro_d : '')
                             context.forms.jefe.inputs['Aprobadores'].setValue(aprobadores.length ? JSON.stringify(aprobadores) : '');
                         }
                     }
@@ -321,28 +407,23 @@ var solicitantePage = {
 
                 var input2 = [
                     spo.getViewFields(context.lists.solicitudSDP, 'AntecedentesPosicion')[0],
-                {
-                    Id: generateUUID(),
-                    Title: '¿Otro?',
-                    InternalName: 'otroCargo',
-                    TypeAsString: 'Boolean',
-                },
-                {
-                    Id: generateUUID(),
-                    Title: 'Nombre nuevo cargo',
-                    InternalName: 'NombreNewCargo',
-                    TypeAsString: 'Text',
-                    required: true,
-                },
-                {
-                    Id: generateUUID(),
-                    Title: 'Descriptor de cargo',
-                    InternalName: 'DocDescriptor de cargo',
-                    TypeAsString: 'Attachments',
-                    required: true,
-                },
-                spo.getViewFields(context.lists.solicitudSDP, 'AntecedentesPosicion')[1],
-                spo.getViewFields(context.lists.solicitudSDP, 'AntecedentesPosicion')[2],];
+                    {
+                        Id: generateUUID(),
+                        Title: '¿Otro?',
+                        InternalName: 'otroCargo',
+                        TypeAsString: 'Boolean',
+                    },
+                    spo.getViewFields(context.lists.solicitudSDP, 'AntecedentesPosicion')[1],
+                    {
+                        Id: generateUUID(),
+                        Title: 'Descriptor de cargo',
+                        InternalName: 'DocDescriptor de cargo',
+                        TypeAsString: 'Attachments',
+                        required: true,
+                    },
+                    spo.getViewFields(context.lists.solicitudSDP, 'AntecedentesPosicion')[2],
+                    spo.getViewFields(context.lists.solicitudSDP, 'AntecedentesPosicion')[3]
+                ];
 
                 //Form Parte 3
                 context.forms.posicion = new EFWForm({
@@ -359,17 +440,21 @@ var solicitantePage = {
                     if(values){
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setEditable(false);
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setRequired(false);
+                        context.forms.posicion.inputs['NombreNewCargo'].setRequired(true);
+                        context.forms.posicion.inputs['DocDescriptor de cargo'].setRequired(true);
                         context.forms.posicion.inputs['DocDescriptor de cargo'].show();
                         context.forms.posicion.inputs['NombreNewCargo'].show();
-                        context.forms.posicion.inputs['NombreCargoSolicitado'].setValue([]);
                     }else{
+                        context.forms.posicion.inputs['NombreCargoSolicitado'].setValue([]);
                         !listItemId ? context.forms.posicion.inputs['NombreCargoSolicitado'].setEditable(true) : '';
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setValue([]);
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setRequired(true);
                         context.forms.posicion.inputs['DocDescriptor de cargo'].hide();
                         context.forms.posicion.inputs['NombreNewCargo'].hide();
-                        context.forms.posicion.inputs['DocDescriptor de cargo'].setValue([]);
+                        context.forms.posicion.inputs['DocDescriptor de cargo'].resetValue();
                         context.forms.posicion.inputs['NombreNewCargo'].setValue('');
+                        context.forms.posicion.inputs['NombreNewCargo'].setRequired(false);
+                        context.forms.posicion.inputs['DocDescriptor de cargo'].setRequired(false);
                     }
                 }
 
@@ -395,14 +480,42 @@ var solicitantePage = {
                 context.forms.vacante.hide();
 
 
+                //Form Parte 3
+                context.forms.history = new EFWForm({
+                    container: $container.find('.history'),
+                    title: 'Historial de la solicitud',
+                    editable: false,
+                    fields: [
+                        spo.getViewFields(context.lists.solicitudSDP, 'History')[0],
+                        {
+                            Id: generateUUID(),
+                            Title: 'Siguiente Aprobador',
+                            InternalName: 'NextApprove',
+                            TypeAsString: 'Text',
+                        },
+                        spo.getViewFields(context.lists.solicitudSDP, 'History')[1]
+                    ]
+                });
+                context.forms.history.hide();
+
                 if(listItemId){
                     context.forms.jefe.setValues(context.items.solicitudSDP)
                     context.forms.recepcion.setValues(context.items.solicitudSDP)
                     context.forms.posicion.setValues(context.items.solicitudSDP);
                     context.forms.recuperable.setValues(context.items.solicitudSDP)
                     context.forms.vacante.setValues(context.items.solicitudSDP)
+                    context.forms.history.setValues(context.items.solicitudSDP)
+                    context.forms.jefe.inputs["Aprobadores"].hide()
+                    context.forms.jefe.inputs["NextVal"].hide()
+
+                    //Mostramos el historial
+                    context.forms.history.show();
+                    context.forms.history.inputs['HistorialAprobacion'].setEditable(true);
+                    context.forms.history.inputs['HistorialAprobacion'].setReadOnly(true);
+                    context.forms.history.inputs['NextApprove'].setValue(context.items.solicitudSDP.NextVal);
 
                     if(context.items.solicitudSDP.Adjuntos){
+                        console.log('Adjuntos', context.items.solicitudSDP)
                         if(context.items.solicitudSDP.Adjuntos.results.length > 0){
                             context.forms.recepcion.inputs['CotizaciónMandante'].resetValue();
                             context.forms.posicion.inputs['DocDescriptor de cargo'].resetValue();
@@ -417,93 +530,103 @@ var solicitantePage = {
                         }
                     }
 
-                    $approve.removeClass('hide');
+
+                    if (plantaAdmin.RolSDP.results.includes("Validador")){
+                        if (context.items.solicitudSDP.NextVal == plantaAdmin.Email){
+                            if (context.items.solicitudSDP.Estado == "Última Validación")
+                                $finalApprove.removeClass('hide');
+                            else     
+                                $approve.removeClass('hide');
+
+                            $refuse.removeClass('hide');
+                        } else if (plantaAdmin.Confianza && context.items.solicitudSDP.Estado == "Última Validación"){
+                            $forceClose.removeClass('hide');
+                        }
+                    }
+
                 }else{
-                    $search.removeClass('hide');
+                    // $search.removeClass('hide');
                     $send.removeClass('hide');
                 }
 
-
-
-
-                $search.on('click', function (e) {
-                    function abrirPopup(data){
+                // $search.on('click', function (e) {
+                //     function abrirPopup(data){
                                                             
-                                    // Inyectar HTML
-                        var dynamicPopup = app.popup.create({
-                            content: `
-                                <div class="popup search-popup" style="overflow:auto">
-                                    <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
-                                    <div class="block">
-                                        <div class="busqueda" style="margin-top: 10px !important;"></div>
-                                            <div class="buttons-container ms-slideLeftIn10 hide">
-                                                <button class="button button-fill send">Copiar al portapapeles</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `,
-                                // Events
-                                on: {
-                                    opened: function (popup) {
-                                        var $container = $(popup.el),
-                                            $sendButton = $container.find('.send'),
-                                            $closeButton = $container.find('.close-popup'),
-                                            $buttonsContainer = $container.find('.buttons-container');
+                //                     // Inyectar HTML
+                //         var dynamicPopup = app.popup.create({
+                //             content: `
+                //                 <div class="popup search-popup" style="overflow:auto">
+                //                     <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                //                     <div class="block">
+                //                         <div class="busqueda" style="margin-top: 10px !important;"></div>
+                //                             <div class="buttons-container ms-slideLeftIn10 hide">
+                //                                 <button class="button button-fill send">Copiar al portapapeles</button>
+                //                             </div>
+                //                         </div>
+                //                     </div>
+                //                 `,
+                //                 // Events
+                //                 on: {
+                //                     opened: function (popup) {
+                //                         var $container = $(popup.el),
+                //                             $sendButton = $container.find('.send'),
+                //                             $closeButton = $container.find('.close-popup'),
+                //                             $buttonsContainer = $container.find('.buttons-container');
                                                 
                         
-                                            var input = [{
-                                                Id: generateUUID(),
-                                                Title: 'Busqueda Planta',
-                                                InternalName: 'busqueda',
-                                                TypeAsString: 'Choice',
-                                                Choices: data
-                                            }]
+                //                             var input = [{
+                //                                 Id: generateUUID(),
+                //                                 Title: 'Busqueda Planta',
+                //                                 InternalName: 'busqueda',
+                //                                 TypeAsString: 'Choice',
+                //                                 Choices: data
+                //                             }]
                                             
-                                            context.forms.busqueda = new EFWForm({
-                                                container: $container.find('.busqueda'),
-                                                title: 'Buscador de personas',
-                                                editable: true,
-                                                fields: input
-                                            });
+                //                             context.forms.busqueda = new EFWForm({
+                //                                 container: $container.find('.busqueda'),
+                //                                 title: 'Buscador de personas',
+                //                                 editable: true,
+                //                                 fields: input
+                //                             });
                                                 
-                                            $buttonsContainer.removeClass('hide');
+                //                             $buttonsContainer.removeClass('hide');
                     
-                                            // {event} cerrar popup
-                                            $closeButton.on('click', function(e){
-                                                popup.close();
-                                            });
+                //                             // {event} cerrar popup
+                //                             $closeButton.on('click', function(e){
+                //                                 popup.close();
+                //                             });
                     
-                                            // {event} enviar correo
-                                            $sendButton.on('click', function(e){
-                                                clipboard = context.forms.busqueda.getMetadata();
-                                                clipboard = context.items.Planta.filter(x => x.BusquedaPlanta == context.forms.busqueda.getMetadata()['busqueda'])[0]
-                                                console.log('Portapapeles', clipboard)
-                                                // cerrar popover
-                                                popup.close();
+                //                             // {event} enviar correo
+                //                             $sendButton.on('click', function(e){
+                //                                 clipboard = context.forms.busqueda.getMetadata();
+                //                                 clipboard = context.items.Planta.filter(x => x.BusquedaPlanta == context.forms.busqueda.getMetadata()['busqueda'])[0]
+                //                                 console.log('Portapapeles', clipboard)
+                //                                 // cerrar popover
+                //                                 popup.close();
 
-                                                app.notification.create({
-                                                    icon: '<i class="ms-Icon ms-Icon--ClipboardSolid"></i>',
-                                                    title: 'Agregardo a portapapeles',
-                                                    subtitle: 'Se ha copiado el trabajador en el portapapeles.',
-                                                    closeOnClick: true,
-                                                    closeTimeout: 2000,
-                                                }).open();
+                //                                 app.notification.create({
+                //                                     icon: '<i class="ms-Icon ms-Icon--ClipboardSolid"></i>',
+                //                                     title: 'Agregardo a portapapeles',
+                //                                     subtitle: 'Se ha copiado el trabajador en el portapapeles.',
+                //                                     closeOnClick: true,
+                //                                     closeTimeout: 2000,
+                //                                 }).open();
                     
-                                            })                                                   
-                                    }
-                                },
-                                closed: function (popup) {
-                                    if (form) form.destroy();
-                                },
-                        });
+                //                             })                                                   
+                //                     }
+                //                 },
+                //                 closed: function (popup) {
+                //                     if (form) form.destroy();
+                //                 },
+                //         });
 
-                        dynamicPopup.open();
-                    }
-                    var data =  context.items.Planta.map(function(x){
-                                    return x.BusquedaPlanta
-                                });
-                    abrirPopup(data)
-                });
+                //         dynamicPopup.open();
+                //     }
+                //     var data =  context.items.Planta.map(function(x){
+                //                     return x.BusquedaPlanta
+                //                 });
+                //     abrirPopup(data)
+                // });
 
                 $send.on('click', function (e) {
                     var dialogTitle = 'Nueva solicitud';
@@ -529,17 +652,13 @@ var solicitantePage = {
                         var Adjuntos = [];
 
                         if(metadataRecepcion.CotizaciónMandante){
-                            Attachments[0] = metadataRecepcion.CotizaciónMandante[0];
+                            Attachments.push(metadataRecepcion.CotizaciónMandante[0]);
                             Adjuntos.push("Cotizacion")
-                        }else{
-                            Attachments[0] = null
                         }
 
                         if(metadataPocicion['DocDescriptor de cargo']){
-                            Attachments[1] = metadataPocicion['DocDescriptor de cargo'][0];
+                            Attachments.push(metadataPocicion['DocDescriptor de cargo'][0]);
                             Adjuntos.push("Cargo")
-                        }else{
-                            Attachments[1] = null
                         }
 
                         metadata.RutId = metadataJefe.RutId;
@@ -562,18 +681,14 @@ var solicitantePage = {
                         metadata.DependenciaDirectaId = metadataRecuperable.DependenciaDirectaId
                         metadata.Renta = metadataRecuperable.Renta;
                         metadata.ReemplazoId = metadataVacante.ReemplazoId;
-                        metadata.CentroCostoId = metadataVacante.CentroCostoId;
+                        metadata.CentroCosto = metadataJefe.CentroCosto
                         metadata.Observacion = metadataVacante.Observacion;
                         metadata.Attachments = Attachments;
                         metadata.Adjuntos = {};
                         metadata.Adjuntos.results = Adjuntos;
-                        metadata.Estado = 'Inicial';
+                        metadata.Estado = '1ra Validación';
                         metadata.Aprobadores = context.forms.jefe.inputs["Aprobadores"].value;
-
-                            
-                        console.log('Metadata final', metadata)
-
-                        console.log('Metadata', context.forms.vacante.getMetadata())
+                        metadata.NextVal = JSON.parse(metadata.Aprobadores)[0]
 
                         spo.saveListItem(spo.getSiteUrl(), 'SolicitudSDP', metadata, function (response) {
                                 dialog.close();
@@ -584,7 +699,7 @@ var solicitantePage = {
                                     buttons: [{
                                         text: 'Aceptar',
                                         onClick: function () {
-                                            mainView.router.navigate('/Solicitudes');
+                                            mainView.router.navigate('/SolicitudStream');
                                         }
                                     }],
                                     verticalButtons: false
@@ -657,6 +772,344 @@ var solicitantePage = {
                         }).open();
                     }
                 });
+
+                $approve.on('click', function (e) {
+                    var dialogTitle = 'Aprobación de solicitud'
+                    var estados = [
+                        "1ra Validación",
+                        "2da Validación",
+                        "3ra Validación",
+                        "4ta Validación",
+                        "5ta Validación",
+                        "6ta Validación",
+                        "7ma Validación",
+                    ]
+
+                    function save(comentario){
+                        var dialog = app.dialog.progress(dialogTitle);
+                        let pos = parseInt(context.items.solicitudSDP.Estado[0]);
+                        let metadata = {
+                            NextVal: JSON.parse(context.items.solicitudSDP.Aprobadores)[pos]
+                        }
+                        if (pos + 1 == JSON.parse(context.items.solicitudSDP.Aprobadores).length){
+                            metadata.Estado = "Última Validación";
+                        } else {
+                            metadata.Estado = estados[pos];
+                        }
+
+                        metadata["V_x00b0_B_x00b0__x0028_"+pos.toString()+"_x0029_"] = true
+                        metadata["FechadeV_x00b0_B_x00b0__x0028_"+ pos.toString() +"_"] = new Date().toISOString()
+                        metadata["Observacion_x0028_"+ pos.toString() +"_x0029_"] = comentario;
+
+                        let registro = ""
+                        registro += "Fecha de validación: " + moment(new Date()).format("DD/MM/YYYY hh:mm") + "\n"
+                        registro += "Estado de validación previo: " + context.items.solicitudSDP.Estado + "\n"
+                        registro += "Estado de validación actual: " + metadata.Estado + "\n"
+                        registro += "Nombre del Validador: " + plantaAdmin.NombreCompleto + "\n"
+                        registro += "Cargo del Validador: " + plantaAdmin.d_cargo.NombreCargo + "\n"
+                        if (comentario) registro += "Observaciones: " + comentario + "\n\n"
+                        else registro += "Observaciones: Sin Observaciones\n\n"
+                        registro += context.items.solicitudSDP.HistorialAprobacion ? context.items.solicitudSDP.HistorialAprobacion : ""
+
+                        metadata.HistorialAprobacion = registro
+
+                        spo.updateListItem(spo.getSiteUrl(), "SolicitudSDP", context.items.solicitudSDP.ID, metadata, function (response) {
+                            dialog.close();
+        
+                            dialogs.confirmDialog(
+                                dialogTitle,
+                                'Validación de solicitud exitosa',
+                                function(){
+                                    mainView.router.navigate('/SolicitudesPorValidar')
+                                },
+                                false
+                            );
+        
+                        }, function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log('responseText', responseText);
+        
+                            dialog.close();
+                            dialogs.infoDialog(
+                                "Error",
+                                'Hubo un problema al validar la solicitud'
+                            )
+                        });
+
+                    }
+
+                    app.dialog.create({
+                        title: dialogTitle,
+                        text: '¿Desea añadir una observación a su aprobación?',
+                        buttons: [{
+                            text: 'No',
+                            onClick: function(){
+                                dialogs.confirmDialog(
+                                    dialogTitle,
+                                    "Se validará la solicitud seleccionada",
+                                    save
+                                )
+                            }
+                        },{
+                            text: 'Sí',
+                            onClick: function(){
+                                mths.addComment(save)
+                            }
+                        }],
+                        verticalButtons: false
+                    }).open();
+                });
+
+                $forceClose.on('click', function (e) {
+                    var dialogTitle = 'Forzar Cierre de Solicitud'
+
+                    function save(comentario){
+                        var dialog = app.dialog.progress(dialogTitle);
+                        let lastApr = null;
+
+                        var query = spo.encodeUrlListQuery(context.lists.Planta, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'filter': '(Email eq \''+ context.items.solicitudSDP.NextVal +'\' and EstadoContrato eq \'Activo\')'
+                            }
+                        });
+                        spo.getListItems(spo.getSiteUrl(), "Planta", query,
+                            function (response) {
+                                if (response.d.results.length>0){
+                                    lastApr = response.d.results[0]
+                                    let metadata = {
+                                        NextVal: null,
+                                        Estado: "Enviada a Compensación"
+                                    }
+
+                                    let pos = JSON.parse(context.items.solicitudSDP.Aprobadores).length.toString()
+            
+                                    metadata["V_x00b0_B_x00b0__x0028_"+pos+"_x0029_"] = true
+                                    metadata["FechadeV_x00b0_B_x00b0__x0028_"+ pos +"_"] = new Date().toISOString()
+                                    metadata["Observacion_x0028_"+ pos +"_x0029_"] = comentario;
+
+                                    let registro = ""
+                                    registro += "Fecha de validación: " + moment(new Date()).format("DD/MM/YYYY hh:mm") + "\n"
+                                    registro += "Estado de validación previo: " + context.items.solicitudSDP.Estado + "\n"
+                                    registro += "Estado de validación actual: " + metadata.Estado + "\n"
+                                    registro += "Nombre del Validador: " + lastApr.NombreCompleto + "\n"
+                                    registro += "Cargo del Validador: " + lastApr.d_cargo.NombreCargo + "\n"
+                                    if (comentario) registro += "Observaciones: " + comentario + "\n\n"
+                                    else registro += "Observaciones: Sin Observaciones\n\n"
+                                    registro += context.items.solicitudSDP.HistorialAprobacion ? context.items.solicitudSDP.HistorialAprobacion : ""
+            
+                                    metadata.HistorialAprobacion = registro
+            
+                                    spo.updateListItem(spo.getSiteUrl(), "SolicitudSDP", context.items.solicitudSDP.ID, metadata, function (response) {
+                                        dialog.close();
+                    
+                                        dialogs.confirmDialog(
+                                            dialogTitle,
+                                            'Envío de solicitud exitoso',
+                                            function(){
+                                                mainView.router.navigate('/SolicitudesPorValidar')
+                                            },
+                                            false
+                                        );
+                    
+                                    }, function (response) {
+                                        var responseText = JSON.parse(response.responseText);
+                                        console.log('responseText', responseText);
+                    
+                                        dialog.close();
+                                        dialogs.infoDialog(
+                                            "Error",
+                                            'Hubo un problema al enviar la solicitud'
+                                        )
+                                    });
+                                }
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+                    }
+
+                    app.dialog.create({
+                        title: dialogTitle,
+                        text: '¿Desea añadir una observación a su cierre?',
+                        buttons: [{
+                            text: 'No',
+                            onClick: function(){
+                                dialogs.confirmDialog(
+                                    dialogTitle,
+                                    "Se validará la solicitud seleccionada",
+                                    save
+                                )
+                            }
+                        },{
+                            text: 'Sí',
+                            onClick: function(){
+                                mths.addComment(save)
+                            }
+                        }],
+                        verticalButtons: false
+                    }).open();
+                });
+
+
+                $finalApprove.on('click', function (e) {
+                    var dialogTitle = 'Envío a compensación'
+
+                    function save(comentario){
+                        var dialog = app.dialog.progress(dialogTitle);
+                        let metadata = {
+                            Estado: "Enviada a Compensación",
+                            NextVal: null,
+                        }
+
+                        let pos = JSON.parse(context.items.solicitudSDP.Aprobadores).length.toString()
+
+                        metadata["V_x00b0_B_x00b0__x0028_"+pos+"_x0029_"] = true
+                        metadata["FechadeV_x00b0_B_x00b0__x0028_"+ pos +"_"] = new Date().toISOString()
+                        metadata["Observacion_x0028_"+ pos +"_x0029_"] = comentario;
+                        
+                        let registro = ""
+                        registro += "Fecha de envío: " + moment(new Date()).format("DD/MM/YYYY hh:mm") + "\n"
+                        registro += "Estado de validación previo: " + context.items.solicitudSDP.Estado + "\n"
+                        registro += "Estado de validación actual: " + metadata.Estado + "\n"
+                        registro += "Nombre del Validador: " + plantaAdmin.NombreCompleto + "\n"
+                        registro += "Cargo del Validador: " + plantaAdmin.d_cargo.NombreCargo + "\n"
+                        if (comentario) registro += "Observaciones: " + comentario + "\n\n"
+                        else registro += "Observaciones: Sin Observaciones\n\n"
+                        registro += context.items.solicitudSDP.HistorialAprobacion ? context.items.solicitudSDP.HistorialAprobacion : ""
+
+                        metadata.HistorialAprobacion = registro
+
+                        spo.updateListItem(spo.getSiteUrl(), "SolicitudSDP", context.items.solicitudSDP.ID, metadata, function (response) {
+                            dialog.close();
+        
+                            dialogs.confirmDialog(
+                                dialogTitle,
+                                'Envío de solicitud exitoso',
+                                function(){
+                                    mainView.router.navigate('/SolicitudesPorValidar')
+                                },
+                                false
+                            );
+        
+                        }, function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log('responseText', responseText);
+        
+                            dialog.close();
+                            dialogs.infoDialog(
+                                "Error",
+                                'Hubo un problema al enviar la solicitud'
+                            )
+                        });
+
+                    }
+
+                    app.dialog.create({
+                        title: dialogTitle,
+                        text: '¿Desea añadir una observación a su envío?',
+                        buttons: [{
+                            text: 'No',
+                            onClick: function(){
+                                dialogs.confirmDialog(
+                                    dialogTitle,
+                                    "Se enviará la solicitud seleccionada",
+                                    save
+                                )
+                            }
+                        },{
+                            text: 'Sí',
+                            onClick: function(){
+                                mths.addComment(save)
+                            }
+                        }],
+                        verticalButtons: false
+                    }).open();
+                });
+
+                $refuse.on('click', function (e) {
+                    var dialogTitle = 'Rechazo de solicitud'
+
+                    function save(comentario){
+                        var dialog = app.dialog.progress(dialogTitle);
+                        let metadata = {
+                            Estado: "Rechazada",
+                            NextVal: null,
+                        }
+
+                        let pos = ''
+
+                        if (context.items.solicitudSDP.Estado == "Última Validación"){
+                            pos = JSON.parse(context.items.solicitudSDP.Aprobadores).length.toString()
+                        } else {
+                            pos = context.items.solicitudSDP.Estado[0]
+                        }
+
+                        metadata["V_x00b0_B_x00b0__x0028_"+pos+"_x0029_"] = false
+                        metadata["FechadeV_x00b0_B_x00b0__x0028_"+ pos +"_"] = new Date().toISOString()
+                        metadata["Observacion_x0028_"+ pos +"_x0029_"] = comentario ;
+                        
+                        let registro = ""
+                        registro += "Fecha de rechazo: " + moment(new Date()).format("DD/MM/YYYY hh:mm") + "\n"
+                        registro += "Estado de validación previo: " + context.items.solicitudSDP.Estado + "\n"
+                        registro += "Estado de validación actual: " + metadata.Estado + "\n"
+                        registro += "Nombre del Validador: " + plantaAdmin.NombreCompleto + "\n"
+                        registro += "Cargo del Validador: " + plantaAdmin.d_cargo.NombreCargo + "\n"
+                        if (comentario) registro += "Observaciones: " + comentario + "\n\n"
+                        else registro += "Observaciones: Sin Observaciones\n\n"
+                        registro += context.items.solicitudSDP.HistorialAprobacion ? context.items.solicitudSDP.HistorialAprobacion : ""
+
+                        metadata.HistorialAprobacion = registro
+
+                        spo.updateListItem(spo.getSiteUrl(), "SolicitudSDP", context.items.solicitudSDP.ID, metadata, function (response) {
+                            dialog.close();
+        
+                            dialogs.confirmDialog(
+                                dialogTitle,
+                                'Rechazo de solicitud exitoso',
+                                function(){
+                                    mainView.router.navigate('/SolicitudesPorValidar')
+                                },
+                                false
+                            );
+        
+                        }, function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log('responseText', responseText);
+        
+                            dialog.close();
+                            dialogs.infoDialog(
+                                "Error",
+                                'Hubo un problema al rechazar la solicitud'
+                            )
+                        });
+
+                    }
+
+                    app.dialog.create({
+                        title: dialogTitle,
+                        text: '¿Desea añadir una observación a su rechazo?',
+                        buttons: [{
+                            text: 'No',
+                            onClick: function(){
+                                dialogs.confirmDialog(
+                                    dialogTitle,
+                                    "Se rechazará la solicitud seleccionada",
+                                    save
+                                )
+                            }
+                        },{
+                            text: 'Sí',
+                            onClick: function(){
+                                mths.addComment(save)
+                            }
+                        }],
+                        verticalButtons: false
+                    }).open();
+                });
+
                 
                 // remover loader
                 mths.removePageLoader();
@@ -669,7 +1122,7 @@ var solicitantePage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.Solicitud && loaded.Planta && loaded.Cargo) {
+                    if (loaded.Solicitud && loaded.Cargo && loaded.ListPlanta) {
                         initForm();
                     }
                 };
@@ -683,7 +1136,7 @@ var solicitantePage = {
                                 view: 'Todos los elementos',
                                 odata: {
                                     'filter': '(ID eq '+listItemId+')',
-                                    'select': '*',
+                                    'select': '*, Attachments',
                                     'top': 5000
                                 }
                             });
@@ -710,39 +1163,42 @@ var solicitantePage = {
                     }
                 );
 
-                // Obtengo los trabajadores asociados al coordinador
+                // // Obtengo los trabajadores asociados al coordinador
                 spo.getListInfo('Planta',
                     function (response) {
-                        context.items.Planta = [];
+                //         context.items.Planta = [];
                         context.lists.Planta = response; 
+                        loaded.ListPlanta = true
+                        shouldInitForms();
                         
-                        // Genera la query basado en los campos que se obtubieron en la SPO anterior
-                         var query = spo.encodeUrlListQuery(context.lists.Planta, {
-                            view: 'Todos los elementos',
-                            odata: {
-                                'filter': '(EstadoContrato ne \'Suspendido\')',
-                                'select': '*',
-                                'top': 5000
-                            }
-                        });
+                //         // Genera la query basado en los campos que se obtubieron en la SPO anterior
+                //          var query = spo.encodeUrlListQuery(context.lists.Planta, {
+                //             view: 'Todos los elementos',
+                //             odata: {
+                //                 'filter': '(EstadoContrato ne \'Suspendido\')',
+                //                 'select': '*',
+                //                 'top': 5000
+                //             }
+                //         });
 
-                        spo.getListItems(spo.getSiteUrl(), 'Planta', query,
-                            function (response) {
-                                context.items.Planta = response.d.results.length > 0 ? response.d.results : null;
-                                loaded.Planta = true;
-                                shouldInitForms();
-                            },
-                            function (response) {
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                            }
-                        );
+                //         spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                //             function (response) {
+                //                 context.items.Planta = response.d.results.length > 0 ? response.d.results : null;
+                //                 loaded.Planta = true;
+                //                 shouldInitForms();
+                //             },
+                //             function (response) {
+                //                 var responseText = JSON.parse(response.responseText);
+                //                 console.log(responseText.error.message.value);
+                //             }
+                //         );
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);
                         console.log(responseText.error.message.value);
                     }
                 );
+
 
                 // Obtengo los trabajadores asociados al coordinador
                 spo.getListInfo('Cargo',

@@ -5,7 +5,7 @@ solicitudStreamPage.methods.allowChangeTemplate = function(){
 }
 
 solicitudStreamPage.methods.getListView = function(){
-    return "Todos los elementos"
+    return "SolicitudesStream"
 }
 
 solicitudStreamPage.methods.getTitle = function(){
@@ -23,11 +23,32 @@ solicitudStreamPage.methods.onItemDblClick = function(item){
 solicitudStreamPage.methods.getOneItemSelectedButtons = function(){
     return [localButtons.toSeeDetailsSolicitud()]
 }
-//console para saber que metodos puedo usar
+
 solicitudStreamPage.methods.getMultiItemsSelectedButtons = function(){
     return false;
 }
 
-// solicitudStreamPage.methods.getCamlQueryConditions = function(){
-//     return '<And><Eq><FieldRef Name="Rol"/><Value Type="Choice">Coordinador</Value></Eq><Eq><FieldRef Name="EstadoContrato"/><Value Type="Choice">Activo</Value></Eq></And>' 
-// }
+solicitudStreamPage.methods.getCamlQueryConditions = function(){
+    var page = this._getPage();
+    var url = page.route.url
+    
+    if (url == "/SolicitudesPorValidar"){
+        if (plantaAdmin.Confianza){
+            return ''+
+                '<Or><Eq>'+
+                    '<FieldRef Name="Estado" />'+
+                        '<Value Type="Choice">Última Validación</Value>'+
+                '</Eq>'+
+                    '<Contains><FieldRef Name="NextVal" />' +
+                        '<Value Type="Text">'+ plantaAdmin.Email +'</Value>' +
+                    '</Contains>' +
+                '</Or>'  
+        } else {
+            return ''+
+                '<Contains><FieldRef Name="NextVal" />' +
+                    '<Value Type="Text">'+ plantaAdmin.Email +'</Value>' +
+                '</Contains>'               
+        }
+        
+    }
+}

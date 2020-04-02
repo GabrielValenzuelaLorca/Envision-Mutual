@@ -17,7 +17,7 @@ var haberesPage = {
                     '<div class="right">' +
                         '<a href="#" class="link update ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Save"></i>' +
-                            '<span class="ios-only">Actualizar</span>' +
+                            '<span class="ios-only">Imputar Haberes</span>' +
                         '</a>' +
                         '<a href="#" class="link generate-PDF ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PDF"></i>' +
@@ -218,18 +218,38 @@ var haberesPage = {
 
                 context.forms.haberes = new CheckboxInput({
                     container: $container.find('.formu2'),
-                    title: 'Imputación de haberes',
+                    title: 'Marque o Desmarque los haberes que desea imputar',
                     editable: true,
                     multiSelect: true,
                     choices: meruem
-                })                
+                })        
+                console.log('formulario haberes', context.forms.haberes)        
 
                 if(listItemId){
-                    context.forms.persona.setValues(context.items.Planta);
-                    // context.forms.haberes.inputs['Rut'].setEditable(false);
-                    // context.forms.haberes.inputs['NombreCompleto'].setEditable(false);
-                    // context.forms.persona.inputs['Haberes'].setEditable(false);
                     
+                    context.forms.persona.setValues(context.items.Planta);
+     
+                    var trabajador = context.items.Planta.HaberesId.results;
+                    var haberesitos = context.items.ListadoItemVariable;
+                    var guardado = []
+
+                    // console.log('trabajador', trabajador);
+                    // console.log('haberesitos', haberesitos);
+                
+                    for (var i = 0; i < haberesitos.length ; i++) {
+                        // console.log('id haberes', haberesitos[i].Id);
+                        var  paver = trabajador.includes(haberesitos[i].Id)
+                        // console.log('booss', paver )
+                        if(paver == true){
+                            guardado.push({
+                                key: haberesitos[i].NombreItem,
+                                text: haberesitos[i].NombreItem,
+                            })
+                        }
+                     }
+                    //  console.log('guardado', guardado)  
+                     
+                      context.forms.haberes.setValue(guardado)
                     
                     if(editable){
                         context.forms.persona.inputs['Haberes'].setEditable(true);
@@ -237,6 +257,7 @@ var haberesPage = {
                     }
                 }
 
+                
                 // if(listItemId){
                 //     console.log('List Item', context.items.solicitudSDP)
 
@@ -292,7 +313,7 @@ var haberesPage = {
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
-                                        mainView.router.navigate('/haberTemporal?listItemId='+listItemId);
+                                        mainView.router.navigate('/cooStream?listItemId='+listItemId);
                                     }
                                 }],
                                 verticalButtons: false
