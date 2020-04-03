@@ -25,11 +25,11 @@ var solicitantePage = {
                         '</a>' +
                         '<a href="#" class="link doc-approve ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--DocumentApproval"></i>' +
-                            '<span class="ios-only">Aprobar</span>' +
+                            '<span class="ios-only">Validar</span>' +
                         '</a>' +
                         '<a href="#" class="link doc-reject ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PageRemove"></i>' +
-                            '<span class="ios-only">Rechazar Solicitud</span>' +
+                            '<span class="ios-only">No Validar</span>' +
                         '</a>' +
                         '<a href="#" class="link clear ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Cancel"></i>' +
@@ -1030,12 +1030,12 @@ var solicitantePage = {
                 });
 
                 $refuse.on('click', function (e) {
-                    var dialogTitle = 'Rechazo de solicitud'
+                    var dialogTitle = 'No validación de solicitud'
 
                     function save(comentario){
                         var dialog = app.dialog.progress(dialogTitle);
                         let metadata = {
-                            Estado: "Rechazada",
+                            Estado: "No Validada",
                             NextVal: null,
                         }
 
@@ -1052,7 +1052,7 @@ var solicitantePage = {
                         metadata["Observacion_x0028_"+ pos +"_x0029_"] = comentario ;
                         
                         let registro = ""
-                        registro += "Fecha de rechazo: " + moment(new Date()).format("DD/MM/YYYY hh:mm") + "\n"
+                        registro += "Fecha de no validación: " + moment(new Date()).format("DD/MM/YYYY hh:mm") + "\n"
                         registro += "Estado de validación previo: " + context.items.solicitudSDP.Estado + "\n"
                         registro += "Estado de validación actual: " + metadata.Estado + "\n"
                         registro += "Nombre del Validador: " + plantaAdmin.NombreCompleto + "\n"
@@ -1068,7 +1068,7 @@ var solicitantePage = {
         
                             dialogs.confirmDialog(
                                 dialogTitle,
-                                'Rechazo de solicitud exitoso',
+                                'No validación de solicitud exitosa',
                                 function(){
                                     mainView.router.navigate('/SolicitudesPorValidar')
                                 },
@@ -1082,7 +1082,7 @@ var solicitantePage = {
                             dialog.close();
                             dialogs.infoDialog(
                                 "Error",
-                                'Hubo un problema al rechazar la solicitud'
+                                'Hubo un problema al no validar la solicitud'
                             )
                         });
 
@@ -1090,13 +1090,13 @@ var solicitantePage = {
 
                     app.dialog.create({
                         title: dialogTitle,
-                        text: '¿Desea añadir una observación a su rechazo?',
+                        text: '¿Desea añadir una observación a su no validación?',
                         buttons: [{
                             text: 'No',
                             onClick: function(){
                                 dialogs.confirmDialog(
                                     dialogTitle,
-                                    "Se rechazará la solicitud seleccionada",
+                                    "Se invalidará la solicitud seleccionada",
                                     save
                                 )
                             }
