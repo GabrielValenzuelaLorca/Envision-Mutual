@@ -441,13 +441,13 @@ var solicitantePage = {
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setEditable(false);
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setRequired(false);
                         context.forms.posicion.inputs['NombreNewCargo'].setRequired(true);
+                        context.forms.posicion.inputs['NombreCargoSolicitado'].setValue([]);
                         context.forms.posicion.inputs['DocDescriptor de cargo'].setRequired(true);
                         context.forms.posicion.inputs['DocDescriptor de cargo'].show();
                         context.forms.posicion.inputs['NombreNewCargo'].show();
                     }else{
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setValue([]);
                         !listItemId ? context.forms.posicion.inputs['NombreCargoSolicitado'].setEditable(true) : '';
-                        context.forms.posicion.inputs['NombreCargoSolicitado'].setValue([]);
                         context.forms.posicion.inputs['NombreCargoSolicitado'].setRequired(true);
                         context.forms.posicion.inputs['DocDescriptor de cargo'].hide();
                         context.forms.posicion.inputs['NombreNewCargo'].hide();
@@ -462,7 +462,7 @@ var solicitantePage = {
                 context.forms.recuperable = new EFWForm({
                     container: $container.find('.form4'),
                     title: 'Datos contrato Mutual proy. recuperable',
-                    editable: true,
+                    editable: listItemId ? false : true,
                     fields: spo.getViewFields(context.lists.solicitudSDP, 'FormContratoRecuperable')
                 });
 

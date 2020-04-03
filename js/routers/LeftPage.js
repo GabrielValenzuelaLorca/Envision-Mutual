@@ -463,7 +463,18 @@ menuPage.methods.getListBlocksData = function(){
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--DocumentApproval"></i>',
-                }
+                },
+                {
+                    href: '/licenciaHistorico?panel=filter-open',
+                    title: 'Licencias',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
+                },
             ]);
         } else {
             admSection.footer = 'No hay un periodo vigente para mostrar informes por aprobar';
@@ -612,7 +623,7 @@ menuPage.methods.getListBlocksData = function(){
             solSection.options = solSection.options.concat([
                 {
                     href: '/formSolicitante',
-                    title: 'Formulario solicitud 1',
+                    title: 'Crear Solicitud',
                     after: '',
                     header: '',
                     footer: '',
