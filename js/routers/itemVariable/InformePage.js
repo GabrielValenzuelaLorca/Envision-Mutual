@@ -209,13 +209,12 @@ var informePage = {
                 context.forms.item = new EFWForm(form);
 
                 let tableForm = {
-                    // listFields: spo.getViewFields(context.lists.Item, "Nombre vista"),
                     container: $container.find('.sent-haberes-container'),
                     title: 'Haberes',
                     editable: false,
                     items: JSON.parse(context.items.Informe.Haberes).d.results.map(function(haber){
-                        if (haber.Nombre.d_cargo == null){
-                            haber.Nombre.d_cargo = ""
+                        if (haber.Cargo == null){
+                            haber.Cargo = ""
                         }
                         return haber
                     }),
@@ -302,7 +301,7 @@ var informePage = {
                                 haber.CantidadMonto,
                                 haber.Nombre.NombreCompleto,
                                 haber.TipoContrato,
-                                haber.Nombre.d_cargo,
+                                haber.Cargo,
                                 haber.CentroCosto.CodigoCC,
                                 haber.Justificacion
                             ];
@@ -431,7 +430,7 @@ var informePage = {
                                 haber.CantidadMonto,
                                 haber.Nombre.NombreCompleto,
                                 haber.TipoContrato,
-                                haber.Nombre.d_cargo,
+                                haber.Cargo,
                                 haber.CentroCosto.CodigoCC,
                                 haber.Justificacion
                             ];
@@ -485,7 +484,7 @@ var informePage = {
                             doc.text("RESPONSABLE", 225, 175, "center");
                             doc.setFontStyle("normal");
                             doc.text(context.items.Apr.NombreCompleto, 225, 180, "center");
-                            doc.text(context.items.Apr.d_cargo, 225, 185, "center");
+                            doc.text(context.items.Apr.d_cargo.NombreCargo, 225, 185, "center");
                             doc.text("Mutual de Seguridad C.HC.C.", 225, 190, "center");
                         }
                 

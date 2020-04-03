@@ -1,4 +1,4 @@
-var rolPage = {
+var licenciaPage = {
     template: '' +
         '<div class="page" data-page="FormPage">' +
             '<div class="navbar">' +
@@ -37,7 +37,7 @@ var rolPage = {
                         '</a>' +
                         '<a href="#" class="link send ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Send"></i>' +
-                            '<span class="ios-only">Asignar</span>' +
+                            '<span class="ios-only">Enviar</span>' +
                         '</a>' +
                         '<a href="#" class="link associate-proyect ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--IDBadge"></i>' +
@@ -104,7 +104,7 @@ var rolPage = {
 
         // obtener título de la lista de inspección
         getListTitle: function () {
-            return 'Planta';
+            return 'Licencia';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -187,86 +187,79 @@ var rolPage = {
                 let form = {
                     container: $container.find('.form-container'),
                     title: mths.getListTitle(),
-                    editable: false,
-                    fields: spo.getViewFields(context.lists.planta, "Rol Form")
                 }
 
-                context.forms.planta = new EFWForm(form);
-
-                context.forms.planta.inputs['Rol'].setEditable(true);
-                context.forms.planta.inputs['Rol'].setRequired(true);
-                context.forms.planta.inputs['Usuario'].setEditable(true);
-                context.forms.planta.inputs['Usuario'].setRequired(true);
-                context.forms.planta.inputs['Aprobador'].hide();
-
-
-                context.forms.planta.inputs['Rol'].params.onChange = function(comp, input, state, values){
-                    if (values.length > 0){
-                        if(values[0].key == "Coordinador"){
-                            context.forms.planta.inputs['Aprobador'].show();
-                            context.forms.planta.inputs['Aprobador'].setEditable(true);
-                            context.forms.planta.inputs['Aprobador'].setRequired (true)
-                        } else {
-                            context.forms.planta.inputs['Aprobador'].hide();
-                            context.forms.planta.inputs['Aprobador'].setEditable(false);
-                            context.forms.planta.inputs['Aprobador'].resetValue();
-                            context.forms.planta.inputs['Aprobador'].setRequired (false)
-                        }
-                    } else {
-                        context.forms.planta.inputs['Aprobador'].hide();
-                        context.forms.planta.inputs['Aprobador'].setEditable(false);
-                        context.forms.planta.inputs['Aprobador'].resetValue();
-                        context.forms.planta.inputs['Aprobador'].setRequired (false)
+                if (listItemId){
+                    form.editable = false;
+                    if (plantaAdmin.Rol == "Coordinador") {
+                        form.fields = spo.getViewFields(context.lists.licencia, "Form");
+                    } else if (plantaAdmin.Rol == "Administrador" || plantaAdmin.Rol == "Encargado de Licencias Médicas") {
+                        form.fields = spo.getViewFields(context.lists.licencia, "Todos los elementos");
                     }
-                }
-
-                context.forms.planta.inputs['Aprobador'].params.source = function(dropdown, query, render){
-                    let data = [];
-                    if(context.items.aprobadores){
-                        context.items.aprobadores.map(function(item){
-                            data.push({
-                                "key": item.ID,
-                                "text": item.NombreCompleto +" - "+ item.d_cargo,
-                                "item": item
-                            });
-                        })
-                    } else {
-                        context.forms.planta.inputs['Aprobador'].input.placeholder = "No hay aprobadores disponibles"
-                    }
-                    render(data);
-                }  
-
-                context.forms.planta.inputs['Usuario'].params.beforeRenderSuggestions = function(suggestions){
-                    let data = [];
-                    suggestions.forEach(element => {
-                        if(!context.adminIds.includes(element.ID)){
-                            data.push(element)
-                        }
-                    });
-                    return data;
-                }
-
-                if (listItemId) {
-                    context.forms.planta.setValues(context.items.planta);
+                } else {
                     $sendButton.removeClass('hide');
-                } 
+                    form.editable = true;
+                    form.fields = spo.getViewFields(context.lists.licencia, "Form");
+                }
+
+                context.forms.licencia = new EFWForm(form);
+
+                if (listItemId){
+                    context.forms.licencia.setValues(context.items.licencia);
+
+                } else {
+                    context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].setRequired(true);
+                    context.forms.licencia.inputs['Rut'].setEditable(false);
+                    context.forms.licencia.inputs['FIN'].hide();
+                    context.forms.licencia.inputs['FIN'].setRequired(false);
+
+                    context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].params.source = function(dropdown, query, render){
+                        let data = [];
+                        if(context.items.trabajadores){
+                            context.items.trabajadores.map(function(item){
+                                data.push({
+                                    "key": item.ID,
+                                    "text": item.NombreCompleto,
+                                    "item": item
+                                });
+                            })
+                        } else {
+                            context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].input.placeholder = "No hay trabajadores disponibles"
+                        }
+                        render(data);
+                    }  
+
+                    context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].params.onChange = function(comp, input, state, values){
+                        if (values.length > 0){
+                            let person = context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].getValue()[0]
+                            context.forms.licencia.inputs['Rut'].setValue([{key:person.item.ID, text:person.item.Rut}])
+                        } else {
+                            context.forms.licencia.inputs['Rut'].resetValue();
+                        }
+                    }
+                }
 
                 $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Asignación de rol';
+                    var dialogTitle = 'Envío de licencia';
 
-                    function update() {
+                    function save() {
                         var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.planta.getMetadata();
-                        delete metadata.LinkTitle;
+                        var metadata = context.forms.licencia.getMetadata();
+                        var fecha = new Date(metadata.INICIO);
+                        metadata.RUT_RESPId = plantaAdmin.ID;
+                        metadata.N_DIAS = parseInt(metadata.N_DIAS);
+                        metadata.PeriodoId = context.items.periodo.ID
+                        fecha.setDate(fecha.getDate() + metadata.N_DIAS);
+                        metadata.FIN = fecha.toISOString()
 
-                        spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
+                        spo.saveListItem(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {
                             dialog.close();
 
                             dialogs.confirmDialog(
                                 dialogTitle,
-                                'Rol asignado con éxito',
+                                'Licencia enviada con éxito',
                                 function () {
-                                    mainView.router.navigate('/rolStream');
+                                    mainView.router.navigate('/licenciaHistorico');
                                 },
                                 false
                             );
@@ -278,19 +271,19 @@ var rolPage = {
                             dialog.close();
                             dialogs.infoDialog(
                                 "Error",
-                                'Hubo un problema al asignar el rol'
+                                'Hubo un problema al enviar la licencia'
                             )
                         });
                     }
                     
-                    context.forms.planta.checkFieldsRequired();
-                    var validatePlanta =  context.forms.planta.getValidation();
+                    context.forms.licencia.checkFieldsRequired();
+                    var validateLicencia =  context.forms.licencia.getValidation();
 
-                    if (validatePlanta){
+                    if (validateLicencia){
                         dialogs.confirmDialog(
                             dialogTitle,
-                            'Se asignará un rol a este usuario',
-                            update
+                            'Se enviará esta licencia médica',
+                            save
                         )
                     } else {
                         dialogs.infoDialog(
@@ -311,80 +304,103 @@ var rolPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.planta && loaded.aprobadores && loaded.admins) {
-                        initForm();
+                    if (listItemId){
+                        if (loaded.licencia) {
+                            initForm();
+                        }
+                    } else {
+                        if (loaded.trabajadores && loaded.periodo && loaded.licenciaInfo) {
+                            initForm();
+                        }
                     }
                 };
 
                 spo.getListInfo(mths.getListTitle(),
                     function (response) {
-                        context.lists.planta = response;
-                        var query = spo.encodeUrlListQuery(response, {
-                            view: 'Todos los elementos',
-                            odata: {
-                                'filter': '(Id eq ' + listItemId + ')'
-                            }
-                        });
+                        context.lists.licencia = response;
+                        loaded.licenciaInfo = true
+                        shouldInitForms();
 
-                        spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
-                            function (response) {
-                                context.items.planta = response.d.results.length > 0 ? response.d.results[0] : null;
-                                loaded.planta = true;
-                                shouldInitForms();
-                            },
-                            function (response) {
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                            }
-                        );
-
-                        var query2 = spo.encodeUrlListQuery(response, {
-                            view: 'Todos los elementos',
-                            odata: {
-                                'filter': '(Rol eq \'Aprobador\')'
-                            }
-                        });
-
-                        spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query2,
-                            function (response) {
-                                context.items.aprobadores = response.d.results.length > 0 ? response.d.results : null;
-                                loaded.aprobadores = true;
-                                shouldInitForms();
-                            },
-                            function (response) {
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                            }
-                        );
-
-                        var query3 = spo.encodeUrlListQuery(response, {
-                            view: 'Todos los elementos',
-                            odata: {
-                                'filter': '(UsuarioId ne null)'
-                            }
-                        });
-
-                        spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query3,
-                            function (response) {
-                                context.items.admins = response.d.results.length > 0 ? response.d.results : null;
-                                context.adminIds = context.items.admins.map(function (admin) {
-                                    return admin.UsuarioId
-                                })
-                                loaded.admins = true;
-                                shouldInitForms();
-                            },
-                            function (response) {
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                            }
-                        );
-                    },
+                        if (listItemId){
+                            var query = spo.encodeUrlListQuery(response, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'filter': '(Id eq ' + listItemId + ')'
+                                }
+                            });
+                            spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
+                                function (response) {
+                                    context.items.licencia = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    loaded.licencia = true;
+                                    shouldInitForms();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                        }
+                    }, 
                     function (response) {
                         var responseText = JSON.parse(response.responseText);
                         console.log(responseText.error.message.value);
                     }
                 );
 
+                if (!listItemId){
+                    spo.getListInfo("Periodo",
+                        function (response) {
+                            var query = spo.encodeUrlListQuery(response, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'filter': '(Activo eq 1)'
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), "Periodo", query,
+                                function (response) {
+                                    context.items.periodo = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    loaded.periodo = true;
+                                    shouldInitForms();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                        }, 
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
+                    );
+                    spo.getListInfo("Planta",
+                        function (response) {
+                            var query = spo.encodeUrlListQuery(response, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'filter': '(CoordinadorId eq '+ plantaAdmin.ID +' and EstadoContrato eq \'Activo\')'
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), "Planta", query,
+                                function (response) {
+                                    context.items.trabajadores = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.trabajadores = true;
+                                    shouldInitForms();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                        }, 
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
+                    );
+                } 
             }
 
             getListInformation();

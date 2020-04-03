@@ -5,11 +5,11 @@ coordinadorStreamPage.methods.allowChangeTemplate = function(){
 }
 
 coordinadorStreamPage.methods.getListView = function(){
-    return "Mantenedor Coordinador"
+    return "Mantenedor Coordinadores"
 }
 
 coordinadorStreamPage.methods.getTitle = function(){
-    return "Haga doble click sobre un coordinador para asociar trabajadores"
+    return "Seleccióne un coordinador para ver las opciónes"
 }
 
 coordinadorStreamPage.methods.getListTitle = function(){
@@ -17,11 +17,12 @@ coordinadorStreamPage.methods.getListTitle = function(){
 }
 
 coordinadorStreamPage.methods.onItemDblClick = function(item){
-     mainView.router.navigate('/trabajadorPorCoordinador?listItemId='+item.ID);
+    //  mainView.router.navigate('/trabajadorPorCoordinador?listItemId='+item.ID);
+    return false;
 }
 
 coordinadorStreamPage.methods.getOneItemSelectedButtons = function(){
-    return false;
+    return [localButtons.ToHaberesPage(), localButtons.ToAsociateTrabajadorPage()];
 }
 //console para saber que metodos puedo usar
 coordinadorStreamPage.methods.getMultiItemsSelectedButtons = function(){

@@ -258,11 +258,12 @@ var sendStatusPage = {
                 }else{
                     context.items.Coordinador.map(function(x){
                         let coo = context.items.InformeHaberes.filter(i => i.CoordinadorId == x.ID)[0];
+                        let apr = context.items.Aprobador.filter(a => a.ID == x.AprobadorId)[0];
                         if(coo){
                             data.push({
                                 "Coordinador": x.NombreCompleto,
                                 "Correo": x.Email,
-                                "Jefe": x.Aprobador.NombreCompleto,
+                                "Jefe": apr.NombreCompleto ? apr.NombreCompleto : 'No posee Aprobador',
                                 "Status": coo.Estado,
                                 "FUA": moment(coo.Modified).format("DD/MM/YYYY hh:mm:ss"),
                                 "ID": coo.ID
@@ -339,7 +340,6 @@ var sendStatusPage = {
                         aprobados.forEach(informe => {
                             let haberes = JSON.parse(informe.Haberes).d.results;
                             haberes.forEach(haber => {
-                                console.log(haber)
                                 if (haber.Nombre.ClaseVal == "Clase Rol General"){
                                     if (!(haber.CodigoPayroll in infoExcelGeneral)){
                                         infoExcelGeneral[haber.CodigoPayroll] = {}
@@ -528,7 +528,7 @@ var sendStatusPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.Coordinador && loaded.InformeHaberes && loaded.Periodo) {
+                    if (loaded.Coordinador && loaded.InformeHaberes && loaded.Periodo && loaded.Aprobador) {
                         initForm();
                     }
                 };
@@ -552,7 +552,6 @@ var sendStatusPage = {
                             function (response) {
                                 context.items.Coordinador = response.d.results.length > 0 ? response.d.results : null;
                                 loaded.Coordinador = true;
-                                console.log('Coordinador', context.items.Coordinador)
                             },
                             function (response) {
                                 var responseText = JSON.parse(response.responseText);
@@ -566,37 +565,37 @@ var sendStatusPage = {
                     }
                 );
 
-                // Obtener información de la planta asociada al coordinador
-                // spo.getListInfo('Planta',
-                //     function (response) {
-                //         context.items.Aprobador = [];
-                //         context.lists.Aprobador = response;                        
+                //Obtener información de la planta asociada al coordinador
+                spo.getListInfo('Planta',
+                    function (response) {
+                        context.items.Aprobador = [];
+                        context.lists.Aprobador = response;                        
 
-                //         var query = spo.encodeUrlListQuery(context.lists.Aprobador, {
-                //             view: 'Todos los elementos',
-                //             odata: {
-                //                 'select': '*',
-                //                 'top': 5000,
-                //             }
-                //         });
+                        var query = spo.encodeUrlListQuery(context.lists.Aprobador, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'select': '*',
+                                'top': 5000,
+                            }
+                        });
 
-                //         spo.getListItems(spo.getSiteUrl(), 'Planta', query,
-                //             function (response) {
-                //                 context.items.Aprobador = response.d.results.length > 0 ? response.d.results : null;
-                //                 loaded.Aprobador = true;
-
-                //             },
-                //             function (response) {
-                //                 var responseText = JSON.parse(response.responseText);
-                //                 console.log(responseText.error.message.value);
-                //             }
-                //         );
-                //     },
-                //     function (response) {
-                //         var responseText = JSON.parse(response.responseText);
-                //         console.log(responseText.error.message.value);
-                //     }
-                // );
+                        spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                            function (response) {
+                                context.items.Aprobador = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.Aprobador = true;
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
 
                 //Obtengo el periodo actual para imputar
                 spo.getListInfo('Periodo',

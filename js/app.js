@@ -8,6 +8,8 @@ var mainView = null;
 var XHRrequests = [];
 var translations = {};
 var plantaAdmin = null;
+var showAlert = true;
+var clipboard = null;
 var spo = new EnvisionSPO({
     tenantUrl: global.tenantUrl,
     siteUrl: global.siteUrl,

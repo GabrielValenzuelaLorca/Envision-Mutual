@@ -400,6 +400,14 @@ var uploadPlantaPage = {
                                                 return c.CodigoCC == fila.d_nro_cenc;                                            
                                             });
 
+                                            //Obtenemos el ID interno de Centro Costo
+                                            var Cargo = context.items.Cargo.filter(function(c){
+                                                return c.NombreCargo == fila.d_cargo;                                            
+                                            });
+
+                                            console.log('Cargo desde Excel', fila.d_cargo)
+                                            console.log('Cargo Obtenido', Cargo)
+
                                             //Validamos si se encontro. Si no se encontro se almacena la linea del error y el detalle
 
                                             //Validacion Para Categoria
@@ -445,6 +453,16 @@ var uploadPlantaPage = {
                                                 fila.d_nro_cenc = CC[0].ID;
                                             }
 
+                                            if(Cargo.length == 0){
+                                                // errores.push([{
+                                                //     "Linea" : linea,
+                                                //     "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_cargo
+                                                // }]);
+                                                return;
+                                            }else{
+                                                fila.d_cargo = Cargo[0].ID;
+                                            }
+
                                             Actualizar.push(PrepareToSend(fila));
                                         }else{
                                             SinCambios.push(existe[0]);
@@ -472,6 +490,11 @@ var uploadPlantaPage = {
                                         var CC = context.items.CentroCosto.filter(function(c){
                                             return c.CodigoCC == fila.d_nro_cenc;                                            
                                         });
+                                        
+                                        //Obtenemos el ID interno de Centro Costo
+                                        var Cargo = context.items.Cargo.filter(function(c){
+                                            return c.NombreCargo == fila.d_cargo;                                            
+                                        });
 
                                         //Validamos si se encontro. Si no se encontro se almacena la linea del error y el detalle
 
@@ -479,7 +502,7 @@ var uploadPlantaPage = {
                                         if(categoria.length == 0){
                                             errores.push([{
                                                 "Linea" : linea++, 
-                                                "error": "No se encontro la categoria en los registros de sharepoint. Categoria" + fila.d_catego
+                                                "error": "No se encontro la categoria en los registros de sharepoint. Categoria " + fila.d_catego
                                             }]);
                                             return;
                                         }else{
@@ -511,11 +534,21 @@ var uploadPlantaPage = {
                                         if(CC.length == 0){
                                             errores.push([{
                                                 "Linea" : linea,
-                                                "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_nro_cenc
+                                                "error": "No se encontro el Centro de en los registros de sharepoint. Numero CC: " + fila.d_nro_cenc
                                             }]);
                                             return;
                                         }else{
                                             fila.d_nro_cenc = CC[0].ID;
+                                        }
+
+                                        if(Cargo.length == 0){
+                                            // errores.push([{
+                                            //     "Linea Excel" : linea,
+                                            //     "error": "No se encontro el Centro de en los registros de sharepoint. Nombre Cargo Planta: " + fila.d_cargo
+                                            // }]);
+                                            return;
+                                        }else{
+                                            fila.d_cargo = Cargo[0].ID;
                                         }
 
                                 
@@ -586,7 +619,7 @@ var uploadPlantaPage = {
                                             buttons: [{
                                                 text: 'Aceptar',
                                                 onClick: function () {
-                                                    mainView.router.navigate('/liststream?title=Planta&listtitle=Planta&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                                    mainView.router.navigate('/plantaStream');
                                                 }
                                             }],
                                             verticalButtons: false
@@ -674,10 +707,47 @@ var uploadPlantaPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.lista && loaded.globalState && loaded.Planta && loaded.Isapre && loaded.AFP && loaded.Categoria && loaded.CentroCosto) {
+                    if (loaded.Cargo = true && loaded.lista && loaded.globalState && loaded.Planta && loaded.Isapre && loaded.AFP && loaded.Categoria && loaded.CentroCosto) {
                         initForm();
                     }
                 };
+
+                // Obtener información de lista
+                spo.getListInfo('Cargo',
+                function (response) {
+                    context.items.Cargo = [];
+                    context.lists.Cargo = response;
+                    //loaded.listaItemVariable = true;
+                    
+                    // Si existe el id de algún item a obtener
+
+                        var query = spo.encodeUrlListQuery(context.lists.Cargo, {
+                            view: 'Todos los elementos',
+                            odata: {
+                                'select': '*',
+                                'top': 5000
+                            }
+                        });
+
+                        spo.getListItems(spo.getSiteUrl(), 'Cargo', query,
+                            function (response) {
+                                context.items.Cargo = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.Cargo = true;
+                                console.log('Cargos', context.items.Cargo);
+                                shouldInitForms();
+                            },
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                            }
+                        );
+
+                },
+                function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                }
+                );
 
                 // Obtener información de lista
                 spo.getListInfo('ExcelPlanta',
