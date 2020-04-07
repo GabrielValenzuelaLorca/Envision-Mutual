@@ -396,9 +396,13 @@ var solicitantePage = {
                 context.forms.recepcion.inputs['Posicion'].params.onChange = function(comp, input, state, values){
                     if(values.length > 0){
                         if(values[0].text == "Vacante"){
+                            context.forms.posicion.inputs['PersonasAContratar'].setEditable(false);
+                            context.forms.posicion.inputs['PersonasAContratar'].setValue(1);
                             context.forms.vacante.show();
                         }else{
                             context.forms.vacante.hide();
+                            context.forms.posicion.inputs['PersonasAContratar'].setEditable(true);
+                            context.forms.posicion.inputs['PersonasAContratar'].setValue('');
                         }
                     }else{
 

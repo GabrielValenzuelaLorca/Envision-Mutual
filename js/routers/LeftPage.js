@@ -179,7 +179,7 @@ menuPage.methods.getListBlocksData = function(){
         let dias = moment(context.onPeriod.FechaTermino).diff( moment(), 'days')
         app.dialog.create({
             title: 'Atención',
-            text: `Recuerde que le quedan ${dias} para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`,
+            text: `Recuerde que le quedan ${dias} dia(s) para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`,
             buttons: [{
                 text: 'Aceptar',
                 onClick: function () {

@@ -261,7 +261,7 @@ var ItemVariablePage = {
 
                 let data = [];
 
-                listasharepoint.map(function(x){
+                context.items.ListadoItems.map(function(x){
                     data.push({
                         key: x.nombrehaber,
                         text: x.haber,
