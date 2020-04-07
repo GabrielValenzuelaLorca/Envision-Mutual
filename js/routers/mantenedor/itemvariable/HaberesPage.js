@@ -1,4 +1,4 @@
-var itemVariablePage = {
+var haberesPage = {
     template: '' +
         '<div class="page" data-page="FormPage">' +
             '<div class="navbar">' +
@@ -17,7 +17,7 @@ var itemVariablePage = {
                     '<div class="right">' +
                         '<a href="#" class="link update ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Save"></i>' +
-                            '<span class="ios-only">Actualizar</span>' +
+                            '<span class="ios-only">Imputar Haberes</span>' +
                         '</a>' +
                         '<a href="#" class="link generate-PDF ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PDF"></i>' +
@@ -37,7 +37,7 @@ var itemVariablePage = {
                         '</a>' +
                         '<a href="#" class="link send ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Send"></i>' +
-                            '<span class="ios-only">Enviar</span>' +
+                            '<span class="ios-only">Guardar</span>' +
                         '</a>' +
                         '<a href="#" class="link associate-proyect ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--IDBadge"></i>' +
@@ -51,37 +51,10 @@ var itemVariablePage = {
                 '</div>' +
             '</div>' +
             '<div class="page-content">' +
-
-
-            '<div id="tituloFormularioMuestra" class="ms-font-xl ms-slideRightIn10" style="padding: 20px 20px 0 20px;">Detalle Item Variable</div>' +
-            '<div class="list accordion-list">' +
-                '<ul>' +
-                    '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
-                        '<div class="item-inner">' +
-                          '<div class="item-title">Datos principales item variable</div>' +
-                        '</div></a>' +
-                      '<div class="accordion-item-content">' +
-                        '<div class="form-container"></div>' +
-                      '</div>' +
-                    '</li>' +
-                    '<li class="accordion-item check"><a href="#" class="item-content item-link">' +
-                        '<div class="item-inner">' +
-                          '<div class="item-title">Tipo de análisis a realizar</div>' +
-                        '</div></a>' +
-                      '<div class="accordion-item-content">' +
-                        '<div class="form2"></div>' +
-                      '</div>' +
-                    '</li>' +
-                    '<li class="accordion-item germinacion"><a href="#" class="item-content item-link">' +
-                        '<div class="item-inner">' +
-                          '<div class="item-title">Análisis: Germinación</div>' +
-                        '</div></a>' +
-                      '<div class="accordion-item-content">' +
-                        '<div class="block form-germinacion">' +
-                        '</div>' +
-                      '</div>' +
-                    '</li>' +
-                '</ul>' +
+                '<div>' +
+                    '<div class="form-container"></div>' +
+                    '<div class="formu2"></div>' +
+                '</div>' +
             '</div>' +
             
             '<div class="content-loader">' +
@@ -134,7 +107,7 @@ var itemVariablePage = {
 
         // obtener título de la lista de inspección
         getListTitle: function () {
-            return 'ListadoItemVariable';
+            return 'Planta';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -193,7 +166,8 @@ var itemVariablePage = {
             // variables
             var context = this.$options.data(),
                 mths = this.$options.methods,
-                listItemId = page.route.query.listItemId
+                listItemId = page.route.query.listItemId,
+                editable = page.route.query.editable;
 
             context.methods = mths;
 
@@ -206,7 +180,7 @@ var itemVariablePage = {
                 return context;
             };
 
-            function initForm() {
+            function initForm() {  
 
                 // containers
                 var $container = $(page.$el),
@@ -215,131 +189,131 @@ var itemVariablePage = {
                     $updateButton = $navbar.find('.link.update'),
                     $clearButton = $navbar.find('.link.clear');
 
-                // formulario de registro
-                context.forms.item = new EFWForm({
-                    container: $container.find('.form-container'),
-                    title: 'Listado Items Variables',
-                    editable: true,
-                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
-                    fields: spo.getViewFields(context.lists.ListadoItemVariable, 'Todos los elementos')
-                });
-
-                context.forms.dateForms = new EFWForms({
-                    container: $container.find('.form2'),
-                    title: '',
-                    editable: true,
-                    fields: [{ 
-                        Id: generateUUID(),
-                        Title: 'Campo fecha',
-                        InternalName: 'CampoFecha',
-                        TypeAsString: 'Text'
-                    }]
-                });
-
-                context.forms.item.inputs['GP'].params.onChange = function(comp, input, state, values){
-                    values ? '' : context.forms.item.inputs['CampoGP'].setValue([]);
-                    values ? context.forms.item.inputs['CampoGP'].show() : context.forms.item.inputs['CampoGP'].hide()
-                }
-
-
-                if (listItemId) {
-                    context.forms.item.setValues(context.items.ListadoItemVariable);
-
                     $updateButton.removeClass('hide');
+            
 
-                } else {
-                    $sendButton.removeClass('hide');
-                    $clearButton.removeClass('hide');
+                console.log('datoslistadohaberes',context.items.ListadoItemVariable);
 
-                }
-                console.log('context form', context)
-                $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Nuevo elemento';
+                let meruem = [];
+                context.items.ListadoItemVariable.map(function(jade){
+                    meruem.push({
+                        key: jade.NombreItem,
+                        text: jade.NombreItem,
+                        item: jade                        
+                    });
+                
+                })
 
-                    function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.item.getMetadata();
-                        metadata.Activo = true;
+                
 
-                        spo.saveListItem(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {
-                            dialog.close();
-
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Creado con éxito',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.navigate('/liststream?title=ListadoItemVariable&listtitle=ListadoItemVariable&listview=Todos los elementos&panel=filter-close&template=list-row&context=');
-                                        location.reload(true);
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
-
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        });
-                    }
-
-                    context.forms.item.checkFieldsRequired();
-                    var validate =  context.forms.item.getValidation();
-
-                    if (validate) {
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se creará una nuevo registro.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    }
-
+                context.forms.persona = new EFWForm({
+                    container: $container.find('.form-container'),
+                    title: 'Datos Coordinador',
+                    editable: false,
+                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                    fields: spo.getViewFields(context.lists.Planta, 'FormHaberes'),
                 });
+
+                context.forms.persona.inputs['Haberes'].hide();
+
+                context.forms.haberes = new CheckboxInput({
+                    container: $container.find('.formu2'),
+                    title: 'Marque o Desmarque los haberes que desea imputar',
+                    editable: true,
+                    multiSelect: true,
+                    choices: meruem
+                })        
+                console.log('formulario haberes', context.forms.haberes)        
+
+                if(listItemId){
+                    
+                    context.forms.persona.setValues(context.items.Planta);
+     
+                    var trabajador = context.items.Planta.HaberesId.results;
+                    var haberesitos = context.items.ListadoItemVariable;
+                    var guardado = []
+
+                    // console.log('trabajador', trabajador);
+                    // console.log('haberesitos', haberesitos);
+                
+                    for (var i = 0; i < haberesitos.length ; i++) {
+                        // console.log('id haberes', haberesitos[i].Id);
+                        var  paver = trabajador.includes(haberesitos[i].Id)
+                        // console.log('booss', paver )
+                        if(paver == true){
+                            guardado.push({
+                                key: haberesitos[i].NombreItem,
+                                text: haberesitos[i].NombreItem,
+                            })
+                        }
+                     }
+                    //  console.log('guardado', guardado)  
+                     
+                      context.forms.haberes.setValue(guardado)
+                    
+                    if(editable){
+                        context.forms.persona.inputs['Haberes'].setEditable(true);
+                        $updateButton.removeClass('hide');
+                    }
+                }
+
+                
+                // if(listItemId){
+                //     console.log('List Item', context.items.solicitudSDP)
+
+                //     context.forms.jefe.setValues(context.items.solicitudSDP)
+                //     context.forms.recepcion.setValues(context.items.solicitudSDP)
+                //     context.forms.posicion.setValues(context.items.solicitudSDP);
+                //     context.forms.recuperable.setValues(context.items.solicitudSDP)
+                //     context.forms.vacante.setValues(context.items.solicitudSDP)
+                  
 
                 $updateButton.on('click', function (e) {
-                    var dialogTitle = 'Editando elemento';
+                    var dialogTitle = 'Asignando Haberes';
+                                 
+
 
                     function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.item.getMetadata();
 
-                        spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
+                        //Mostrar la información del coordinador (la metadata son los datos que se ingresar en el form)
+                    console.log('Metadata formulario', context.forms.persona.getMetadata())
+                    var metadataPersona = context.forms.persona.getMetadata()
+
+                //Mostrar la informacion de los haberes
+                    console.log('Metadata haberes', context.forms.haberes)
+                    var metadataHaberes = context.forms.haberes.values
+                    console.log('Metadata largo', metadataHaberes.length);
+                    
+                    
+                    var doggy = [];
+                    for(var i = 0; i < metadataHaberes.length; i++){
+                        context.items.ListadoItemVariable.map(function(cacue){                            
+                            if(cacue.NombreItem == metadataHaberes[i].key){
+                                console.log('nombre items', cacue.NombreItem);
+                                doggy.push(cacue.ID);
+                            }                          
+                        })
+                    }
+                    
+                    metadataPersona.HaberesId.results = doggy;
+                    console.log('results', metadataPersona);
+
+
+                        
+                        var dialog = app.dialog.progress(dialogTitle);
+                        
+                        
+
+                        spo.updateListItem(spo.getSiteUrl(), 'Planta' ,metadataPersona.Id,metadataPersona, function (response) {
                             dialog.close();
 
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Elemento actualizado con éxito',
+                                text: 'Haberes asignados con éxito',
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
-                                        //mainView.router.navigate('/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
+                                        mainView.router.navigate('/cooStream?listItemId='+listItemId);
                                     }
                                 }],
                                 verticalButtons: false
@@ -352,7 +326,7 @@ var itemVariablePage = {
 
                             dialog.close();
                             app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
+                                title: 'Error al actualizar la lista de haberes ' + mths.getListTitle(),
                                 text: responseText.error.message.value,
                                 buttons: [{
                                     text: 'Aceptar'
@@ -362,14 +336,11 @@ var itemVariablePage = {
                         });
                     }
                     
-                    context.forms.item.checkFieldsRequired();
 
-                    var validate = context.forms.item.getValidation();
-
-                    if (validate) {
+                    
                         app.dialog.create({
                             title: dialogTitle,
-                            text: 'Se actualizará el elemento.',
+                            text: 'Se actualizarán los haberes',
                             buttons: [{
                                 text: 'Cancelar'
                             }, {
@@ -379,22 +350,13 @@ var itemVariablePage = {
                                 }
                             }],
                             verticalButtons: false
-                        }).open();
-                    } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    }
+                        }).open();              
+                        
+                    
 
                 });
 
                 $clearButton.on('click', function (e){
-                    context.forms.item.setValues([]);
                 });
 
                 // remover loader
@@ -408,48 +370,42 @@ var itemVariablePage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.ListadoItemVariable) {
+                    if (loaded.ListadoItemVariable && loaded.Trabajadores) {
                         initForm();
                     }
-                };
+                };             
 
-                // Obtener información de lista
-                spo.getListInfo('ListadoItemVariable',
+                // Obtengo los trabajadores asociados al coordinador
+                spo.getListInfo('Planta',
                     function (response) {
-                        console.log('Valor de mths.getListTitle()', mths.getListTitle());
-                        context.items.ListadoItemVariable = [];
-                        context.lists.ListadoItemVariable = response;
-                        loaded.ListadoItemVariable = true;
+                        context.items.Planta = [];
+                        //Guarda los valores de los campos de la lista. Solamente los campos
+                        context.lists.Planta = response; 
                         
-                        // Si existe el id de algún item a obtener
-                        if (listItemId) {
-
-                            var query = spo.encodeUrlListQuery(context.lists.ListadoItemVariable, {
+                        if(listItemId){
+                            // Genera la query basado en los campos que se obtubieron en la SPO anterior
+                            var query = spo.encodeUrlListQuery(context.lists.Planta, {
                                 view: 'Todos los elementos',
                                 odata: {
-                                    'filter': '(Id eq ' + listItemId + ')',
-                                    'select': '*',
+                                    'filter': '(ID eq ' + listItemId + ')',
                                 }
                             });
 
-                            spo.getListItems(spo.getSiteUrl(), 'ListadoItemVariable', query,
+                            spo.getListItems(spo.getSiteUrl(), 'Planta', query,
                                 function (response) {
-                                    context.items.ListadoItemVariable = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.ListadoItemVariable = true;
+                                    context.items.Planta = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    loaded.Trabajadores = true;
                                     shouldInitForms();
-
-
                                 },
                                 function (response) {
                                     var responseText = JSON.parse(response.responseText);
                                     console.log(responseText.error.message.value);
                                 }
                             );
-                        } else {
-                            loaded.ListadoItemVariable = true;
+                        }else{
+                            loaded.Trabajadores = true;
                             shouldInitForms();
                         }
-
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);
@@ -457,25 +413,24 @@ var itemVariablePage = {
                     }
                 );
 
-                // Obtengo el listado de categorias completa
-                spo.getListInfo('Categoria',
+                //Obtengo el listado de haberes para ser filtrados
+                spo.getListInfo('ListadoItemVariable',
                     function (response) {
-                        context.items.Categorias = [];
-                        context.lists.Categorias = response;
+                        context.items.ListadoItemVariable = [];
+                        context.lists.ListadoItemVariable = response;
                         //loaded.listaItemVariable = true;
 
-                            var query = spo.encodeUrlListQuery(context.lists.Categorias, {
+                            var query = spo.encodeUrlListQuery(context.lists.ListadoItemVariable, {
                                 view: 'Todos los elementos',
                                 odata: {
-                                    'select': '*',
-                                    'top' : 5000
+                                    'select': '*'
                                 }
                             });
 
-                            spo.getListItems(spo.getSiteUrl(), 'Categoria', query,
+                            spo.getListItems(spo.getSiteUrl(), 'ListadoItemVariable', query,
                                 function (response) {
-                                    context.items.Categorias = response.d.results.length > 0 ? response.d.results : null;
-                                    loaded.Categorias = true;
+                                    context.items.ListadoItemVariable = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.ListadoItemVariable = true;
                                     shouldInitForms();
                                 },
                                 function (response) {

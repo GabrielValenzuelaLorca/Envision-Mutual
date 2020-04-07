@@ -59,7 +59,7 @@ var itemPage = {
                           '<div class="item-title">Datos del Trabajador</div>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
-                        '<div class="container form-persona"></div>' +
+                        '<div class="form-persona"></div>' +
                       '</div>' +
                     '</li>' +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
@@ -67,7 +67,15 @@ var itemPage = {
                           '<div class="item-title">Datos Item Variable</div>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
-                        '<div class="container form-item"></div>' +
+                        '<div class="form-item"></div>' +
+                      '</div>' +
+                    '</li>' +
+                    '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
+                        '<div class="item-inner">' +
+                          '<div class="item-title">Excepciones</div>' +
+                        '</div></a>' +
+                      '<div class="accordion-item-content">' +
+                        '<div class="form-ex"></div>' +
                       '</div>' +
                     '</li>' +
                 '</ul>' +
@@ -91,7 +99,7 @@ var itemPage = {
             tables: {},
             loader: {
                 text: 'Espere un momento por favor',
-                image: './assets/img/gifmutual.gif'
+                image: './assets/img/mutual.png'
             }
         };
     },
@@ -197,152 +205,12 @@ var itemPage = {
             };
 
             function initForm() {
-
-                var persona = null;
-                var current = null;
-                // containers
-                var $container = $(page.$el),
-                    $navbar = $(page.navbarEl),
-                    $sendButton = $navbar.find('.link.send'),
-                    $updateButton = $navbar.find('.link.update'),
-                    $clearButton = $navbar.find('.link.clear');
-
-                // formulario de registro Datos persona
-                context.forms.person = new EFWForm({
-                    container: $container.find('.form-persona'),
-                    title: '',
-                    editable: false,
-                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
-                    fields: spo.getViewFields(context.lists.ItemVariable, 'FormularioPersona'),
-                });
-                context.forms.person.inputs['Nombre'].setEditable(true);
-
-                // formulario de registro Item Variable
-                context.forms.item = new EFWForm({
-                    container: $container.find('.form-item'),
-                    title: '',
-                    editable: false,
-                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
-                    fields: spo.getViewFields(context.lists.ItemVariable, 'FormularioItem')
-                });
-
-                context.forms.item.inputs['CantidadMonto'].hide();
-                context.forms.item.inputs['Justificacion'].hide();
-                //Ocultar campos que son personalizados.
-                
-                // Filtrar trabajadores segun asignacion del coordinador
-                context.forms.person.inputs['Nombre'].params.source = function(dropdown, query, render){
-
-                    let data = [];
-                    if(context.items.Planta){
-                        context.items.Planta.map(function(array){
-                            data.push({
-                                "key": array.ID,
-                                "text": array.NombreCompleto,
-                                "item": array
-                            });
-                        })
-                    }else{
-                        data.push({
-                            "key": 0,
-                            "text": 'No dispone de trabajadores',
-                            "item": null
-                        });
-                    }
-                    render(data);
-                }                
-
-                //Establecer Valores de persona con el nombre
-                context.forms.person.inputs['Nombre'].params.onChange = function(comp, input, state, values){
-                    if(values[0].item == null){
-                        return;
-                    }
-                    if(current != null){
-                        return;
-                    }
-                    current = context.forms.item.inputs['Nombre'];
-                    persona = values;
-                    if (values.length == 0){
-                        //Restaura los valores a vacio.
-                        context.forms.person.inputs['Rut'].resetValue();
-                        context.forms.person.inputs['CodigoPayroll'].resetValue();
-                        context.forms.person.inputs['TipoContrato'].resetValue();
-                        context.forms.person.inputs['Categoria'].resetValue();
-                        context.forms.item.inputs['Haber'].resetValue();
-                        context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
-                        context.forms.person.inputs['CentroCosto'].resetValue();
-                        current = null;
-                        return;
-                    }
-
-                    //Carga los datos automaticaente Al alegir el Rut
-                    context.forms.person.inputs['CodigoPayroll'].setValue(values[0].item.Title);
-                    context.forms.person.inputs['Rut'].setValue(values[0].item.Rut);
-                    context.forms.person.inputs['TipoContrato'].setValue(values[0].item.TipoContrato);
-
-                    var CCActual = context.items.CentroCosto.filter(function(x){
-                        return x.ID == values[0].item.CentroCostoId;
-                    })[0];
-
-                    console.log('Centro de costo Actual', CCActual)
-
-                    var categoriaActual = context.items.Categorias.filter(function(x){
-                        return x.ID == values[0].item.CategoriaId;
-                    })[0];
-
-                    context.forms.person.inputs['CentroCosto'].setValue([{key: values[0].item.CentroCostoId, text: CCActual ? CCActual.CodigoCC : 'El trabajador no posee centro de costo asignado'}]);
-                    context.forms.person.inputs['Categoria'].setValue([{key: values[0].item.CategoriaId, text: categoriaActual ? categoriaActual.Categoria : 'No se cargo el String'}]);
-
-                    context.forms.item.inputs['Haber'].setEditable(true);
-                    context.forms.item.inputs['Haber_x003a_Codigo'].setEditable(true);
-                    context.forms.item.inputs['CantidadMonto'].hide();
-                    context.forms.item.inputs['Justificacion'].hide();
-                    current = null;
-                }
-
-                //Establecer Valores de Item segun el nombre del haber
-                context.forms.item.inputs['Haber'].params.onChange = function(comp, input, state, values){
-                    if(current != null){
-                        return;
-                    }
-                    current = context.forms.item.inputs['Haber'];
-
-                    //console.log(context.forms.item.inputs['Haber']);
-
-                    if (values.length == 0){
-                        context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
-                        context.forms.item.inputs['CantidadMonto'].hide();
-                        context.forms.item.inputs['Justificacion'].hide();
-                        current = null;
-                        return;
-                    }
-
-                    context.forms.item.inputs['Haber_x003a_Codigo'].setValue([{key: values[0].item.Title, text: values[0].item.Title}])
-                    context.forms.item.inputs['CantidadMonto'].setLabel(values[0].item.TipoIngreso == 'Cantidad' ? 'Cantidad' : 'Monto');
-                    context.forms.item.inputs['CantidadMonto'].setEditable(true);
-                    context.forms.item.inputs['Justificacion'].setEditable(true);
-
-                    if(values[0].item.ValorDefecto != null ){
-                        context.forms.item.inputs['CantidadMonto'].setValue(values[0].item.ValorDefecto);
-                        context.forms.item.inputs['CantidadMonto'].setEditable(true);                        
-                    }
-
-                    context.forms.item.inputs['CantidadMonto'].show();
-                    context.forms.item.inputs['Justificacion'].show();
-                    current = null;
-
-                }
-
-                context.forms.item.inputs['Haber'].params.beforeRenderSuggestions = function (items) {
-                    var arregloDatos = context.items.Coordinador[0].HaberesId.results;
+                function ValidateItem(items){
+                    let per = persona[0].item;
 
                     var dato = items.filter(function(item){
-                        return arregloDatos.includes(item.ID);
+                        return plantaAdmin.HaberesId.results.includes(item.ID);
                     });
-
-                    //console.log('Periodo Actual', context.items.Periodo);
-
-                    console.log('Periodo Actual', context.items.Periodo);
 
                     var resultado = [];
 
@@ -354,7 +222,7 @@ var itemPage = {
                         //Contrato Indefinido
                         if(haber['ContratoIndefinido']){
                             //que tipo de contrato tiene?
-                            if(persona[0].item.TipoContrato != 'Indefinido'){
+                            if(per.TipoContrato != 'Indefinido'){
                                 return;
                             }
                         }
@@ -362,14 +230,14 @@ var itemPage = {
                         //Validacion Capex
                         if(haber['Capex']){
                             //que tipo de contrato tiene?
-                            if(!persona[0].item.Capex){
+                            if(!per.Capex){
                                 return;
                             }
                         }
                        
                         //Trabajadores Excepto Art 22
                         if(haber['AplicaArt22']){
-                            if(persona[0].item.Jornada == 'Art. 22'){
+                            if(per.Jornada == 'Art. 22'){
                                 return;
                             }
                         }
@@ -385,7 +253,7 @@ var itemPage = {
                                 }                                
                                 let nombreMes = moment(x, 'DD/MM/YYYY').format("MMMM");
                                 nombreMes = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
-                                if(context.items.Periodo[0].Mes == nombreMes){
+                                if(context.items.Periodo.Mes == nombreMes){
                                     context.pertenece = true;
                                     return;
                                 }
@@ -396,19 +264,19 @@ var itemPage = {
                         }
 
                         if(haber['Pabellon']){
-                            if(!persona[0].item.Pabellon){
+                            if(!per.Pabellon){
                                 return;
                             }
                         }
 
                         //Validamos la GP y subGP correspondiente
                         if(haber['GP']){
-                            //Valida si el campo no esta vacio.
-                            if(haber['CampoGPId'] != null){
 
+                            //Valida si el campo no esta vacio.
+                            if(haber['CategoriaId'] != null){
                                 //Obtengo todos los valores de las categorias y las guardo en GPS
                                 var gps = [];
-                                haber['CampoGPId'].map(function(y){
+                                haber['CategoriaId'].map(function(y){
                                     gps.push(context.items.Categorias.filter(function(x){
                                         return x.ID == y
                                     })[0]);
@@ -416,22 +284,26 @@ var itemPage = {
 
                                 //Obtengo la categoria de la persona seleccionada y la guardo en categoria Actual
                                 var categoriaActual = context.items.Categorias.filter(function(x){
-                                    return x.ID == persona[0].item.CategoriaId;
+                                    return x.ID == per.CategoriaId;
                                 })[0];
 
                                 context.aprobado = false;
 
                                 //Recorrimos el listado de elementos para encontrar coincidencias en la categoria.
                                 gps.map(function(x){
+
+                                    if(x.Categoria.includes('P')){
+                                        console.log('Largo de categoria', x.Categoria.trim().length);
+                                    }
                                     if(context.aprobado){
                                         return;
                                     }
-                                    if(x.Title.length > 1){
-                                        if(x.Title === categoriaActual.Title){
+                                    if(x.Categoria.trim().length > 1){
+                                        if(x.Categoria.trim() === categoriaActual.Categoria.trim()){
                                             context.aprobado = true;
                                         }
-                                    }else if(x.Title.length == 1){
-                                        if(categoriaActual.Title.includes(x.Title)){
+                                    }else if(x.Categoria.trim().length == 1){
+                                        if(categoriaActual.Categoria.charAt(0) == x.Categoria.charAt(0)){
                                             context.aprobado = true;
                                         }
                                     }
@@ -453,9 +325,178 @@ var itemPage = {
                     console.log('Cantidad Haberes disponibles', resultado.length);
                     console.log('Cantidad Total Haberes', items.length);
 
-                    return resultado;
+                    return resultado
                 }
 
+                var persona = null;
+                var current = null;
+                // containers
+                var $container = $(page.$el),
+                    $navbar = $(page.navbarEl),
+                    $sendButton = $navbar.find('.link.send'),
+                    $clearButton = $navbar.find('.link.clear');
+
+                // formulario de registro Datos persona
+                context.forms.person = new EFWForm({
+                    container: $container.find('.form-persona'),
+                    title: '',
+                    editable: false,
+                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                    fields: spo.getViewFields(context.lists.ItemVariable, 'FormularioPersona').concat({
+                        Id: generateUUID(),
+                        Title: 'Categoria',
+                        InternalName: 'Categoria',
+                        TypeAsString: 'Text'
+                    },{
+                        Id: generateUUID(),
+                        Title: 'Centro de costo',
+                        InternalName: 'CentroCostoId',
+                        TypeAsString: 'Text'
+                    })
+                });
+                context.forms.person.inputs['Nombre'].setEditable(true);
+                context.forms.person.inputs['Cargo'].hide();
+                context.forms.person.inputs['CentroCostoId'].hide();
+
+                // formulario de registro Item Variable
+                context.forms.item = new EFWForm({
+                    container: $container.find('.form-item'),
+                    title: '',
+                    editable: false,
+                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                    fields: spo.getViewFields(context.lists.ItemVariable, 'FormularioItem')
+                });
+                //Ocultar campos que son personalizados.
+                context.forms.item.inputs['Haber_x003a_Codigo'].setRequired(true);
+                context.forms.item.inputs['CantidadMonto'].hide();
+                context.forms.item.inputs['Justificacion'].hide();
+
+                // formulario de registro de exepciones
+                let inputs = [{
+                    Id: generateUUID(),
+                    Title: '¿Aplica excepcion de Centro de costo?',
+                    InternalName: 'ExceptionCC',
+                    TypeAsString: 'Boolean'
+                },{
+                    Id: generateUUID(),
+                    Title: '¿Aplica excepcion de Minimos y maximos?',
+                    InternalName: 'ExceptionMM',
+                    TypeAsString: 'Boolean'
+                },{
+                    Id: generateUUID(),
+                    Title: 'Solicitudes aprobadas',
+                    InternalName: 'CentroCosto',
+                    TypeAsString: 'Choice',
+                    Choices: []
+                }];
+                context.forms.EX = new EFWForm({
+                    container: $container.find('.form-ex'),
+                    title: '',
+                    editable: false,
+                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                    fields: inputs
+                });
+                context.forms.EX.inputs['CentroCosto'].hide();                
+
+                // Filtrar trabajadores segun asignacion del coordinador
+                context.forms.person.inputs['Nombre'].params.source = function(dropdown, query, render){
+                    let data = [];
+                    if(context.items.Planta){
+                        context.items.Planta.map(function(array){
+                            data.push({
+                                "key": array.ID,
+                                "text": array.NombreCompleto,
+                                "item": array
+                            });
+                        })
+                    }else{
+                        data.push({
+                            "key": 0,
+                            "text": 'No dispone de trabajadores',
+                            "item": null
+                        });
+                    }
+                    render(data);
+                }                
+
+                //Establecer Valores de persona con el nombre
+                context.forms.person.inputs['Nombre'].params.onChange = function(comp, input, state, values){
+                    if(current != null){
+                        return;
+                    }
+                    current = context.forms.item.inputs['Nombre'];
+                    persona = values;
+                    if (values.length == 0){
+                        //Restaura los valores a vacio.
+                        context.forms.person.inputs['Rut'].resetValue();
+                        context.forms.person.inputs['CodigoPayroll'].resetValue();
+                        context.forms.person.inputs['TipoContrato'].resetValue();
+                        context.forms.person.inputs['Categoria'].resetValue();
+                        context.forms.item.inputs['Haber'].resetValue();
+                        context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
+                        context.forms.person.inputs['CentroCostoId'].resetValue();
+                        context.forms.item.inputs['Haber'].setEditable(false);
+                        context.forms.item.inputs['Haber_x003a_Codigo'].setEditable(false);
+                        context.forms.person.inputs['Cargo'].resetValue();
+
+                        current = null;
+                        return;
+                    }
+
+                    //Carga los datos automaticaente Al alegir el Rut
+                    context.forms.person.inputs['CodigoPayroll'].setValue(values[0].item.Title);
+                    context.forms.person.inputs['Rut'].setValue(values[0].item.Rut);
+                    context.forms.person.inputs['TipoContrato'].setValue(values[0].item.TipoContrato);
+                    context.forms.person.inputs['Categoria'].setValue(values[0].item.Categoria.Categoria.charAt(0));
+                    context.forms.person.inputs['Cargo'].setValue(values[0].item.d_cargo.NombreCargo)
+
+                    //Habilitamos el formulario siguiente
+                    context.forms.person.inputs['CentroCostoId'].setValue(values[0].item.CentroCostoId);
+                    context.forms.item.inputs['Haber'].setEditable(true);
+                    context.forms.item.inputs['Haber_x003a_Codigo'].setEditable(true);
+                    current = null;
+                }
+
+                context.forms.item.inputs['Haber'].params.beforeRenderSuggestions = function (items) {
+                    return ValidateItem(items);
+                }
+
+                //Establecer Valores de Item segun el nombre del haber
+                context.forms.item.inputs['Haber'].params.onChange = function(comp, input, state, values){
+                    if(current != null){
+                        return;
+                    }
+                    current = context.forms.item.inputs['Haber'];
+                    if (values.length == 0){
+                        context.forms.item.inputs['Haber_x003a_Codigo'].resetValue();
+                        context.forms.item.inputs['CantidadMonto'].hide();
+                        context.forms.item.inputs['Justificacion'].hide();
+                        context.forms.EX.setEditable(false)
+                        current = null;
+                        return;
+                    }
+
+                    context.forms.item.inputs['Haber_x003a_Codigo'].setValue([{key: values[0].item.Title, text: values[0].item.Title}])
+                    context.forms.item.inputs['CantidadMonto'].setLabel(values[0].item.TipoIngreso == 'Cantidad' ? 'Cantidad' : 'Monto');
+                    context.forms.item.inputs['CantidadMonto'].setEditable(true);
+                    context.forms.item.inputs['Justificacion'].setEditable(true);
+
+                    if(values[0].item.ValorDefecto != null ){
+                        context.forms.item.inputs['CantidadMonto'].setValue(values[0].item.ValorDefecto);
+                        context.forms.item.inputs['CantidadMonto'].setEditable(false);                        
+                    }
+
+                    context.forms.item.inputs['CantidadMonto'].show();
+                    context.forms.item.inputs['Justificacion'].show();
+
+                    context.forms.EX.setEditable(true)
+                    current = null;
+                }
+
+                context.forms.item.inputs['Haber_x003a_Codigo'].params.beforeRenderSuggestions = function (items) {
+                    return ValidateItem(items);
+                }
+                
                 context.forms.item.inputs['Haber_x003a_Codigo'].params.onChange = function(comp, input, state, values){
                     if(current != null){
                         return;
@@ -465,6 +506,7 @@ var itemPage = {
                         context.forms.item.inputs['Haber'].resetValue();
                         context.forms.item.inputs['CantidadMonto'].hide();
                         context.forms.item.inputs['Justificacion'].hide();
+                        context.forms.EX.setEditable(false)
                         current = null;
                         return;
                     }
@@ -474,132 +516,61 @@ var itemPage = {
                     context.forms.item.inputs['CantidadMonto'].setEditable(true);
                     context.forms.item.inputs['Justificacion'].setEditable(true);
 
+                    if(values[0].item.ValorDefecto != null ){
+                        context.forms.item.inputs['CantidadMonto'].setValue(values[0].item.ValorDefecto);
+                        context.forms.item.inputs['CantidadMonto'].setEditable(false);                        
+                    }
+
                     context.forms.item.inputs['CantidadMonto'].show();
                     context.forms.item.inputs['Justificacion'].show();
+
+                    context.forms.EX.setEditable(true)
                     current = null;
                 }
 
-                context.forms.item.inputs['Haber_x003a_Codigo'].params.beforeRenderSuggestions = function (items) {
-                    var arregloDatos = context.items.Coordinador[0].HaberesId.results;
+                //Activadores de form
+                context.forms.EX.inputs['ExceptionCC'].params.onChange = function(comp, input, state, values){
+                    if(values){
+                        context.forms.EX.inputs['CentroCosto'].show();
+                        context.forms.EX.inputs['CentroCosto'].setRequired(true);
 
-                    var dato = items.filter(function(item){
-                        return arregloDatos.includes(item.ID);
-                    });
-
-                    console.log('Periodo Actual', context.items.Periodo);
-
-                    var resultado = [];
-
-                    dato.map(function(haber){
-                        if(haber['TipoItem'] != 'Haber'){
-                            return;
-                        }
-
-                        //Contrato Indefinido
-                        if(haber['ContratoIndefinido']){
-                            //que tipo de contrato tiene?
-                            if(persona[0].item.TipoContrato != 'Indefinido'){
-                                return;
-                            }
-                        }
-                        
-                        //Validacion Capex
-                        if(haber['Capex']){
-                            //que tipo de contrato tiene?
-                            if(!persona[0].item.Capex){
-                                return;
-                            }
-                        }
-                       
-                        //Trabajadores Excepto Art 22
-                        if(haber['AplicaArt22']){
-                            if(persona[0].item.Jornada == 'Art. 22'){
-                                return;
-                            }
-                        }
-
-                        //Validamos las fechas especificas
-                        if(haber['FechasExcepcionales'] != null ){
-                            context.pertenece = false;
-                            let fechas = haber['FechasExcepcionales'].split(',');
-                            fechas.map(function(x){
-
-                                if(context.pertenece){
-                                    return;
-                                }                                
-                                let nombreMes = moment(x, 'DD/MM/YYYY').format("MMMM");
-                                nombreMes = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
-                                if(context.items.Periodo[0].Mes == nombreMes){
-                                    context.pertenece = true;
-                                    return;
-                                }
-                            });
-                            if(!context.pertenece){
-                                return;
-                            }
-                        }
-
-                        if(haber['Pabellon']){
-                            if(!persona[0].item.Pabellon){
-                                return;
-                            }
-                        }
-
-                        //Validamos la GP y subGP correspondiente
-                        if(haber['GP']){
-                            //Valida si el campo no esta vacio.
-                            if(haber['CampoGPId'] != null){
-
-                                //Obtengo todos los valores de las categorias y las guardo en GPS
-                                var gps = [];
-                                haber['CampoGPId'].map(function(y){
-                                    gps.push(context.items.Categorias.filter(function(x){
-                                        return x.ID == y
-                                    })[0]);
-                                });
-
-                                //Obtengo la categoria de la persona seleccionada y la guardo en categoria Actual
-                                var categoriaActual = context.items.Categorias.filter(function(x){
-                                    return x.ID == persona[0].item.CategoriaId;
-                                })[0];
-
-                                context.aprobado = false;
-
-                                //Recorrimos el listado de elementos para encontrar coincidencias en la categoria.
-                                gps.map(function(x){
-                                    if(context.aprobado){
-                                        return;
-                                    }
-                                    if(x.Title.length > 1){
-                                        if(x.Title === categoriaActual.Title){
-                                            context.aprobado = true;
-                                        }
-                                    }else if(x.Title.length == 1){
-                                        if(categoriaActual.Title.includes(x.Title)){
-                                            context.aprobado = true;
-                                        }
-                                    }
-                                });
-                                //Si la categoria no aparece en el listado no se considerara para agregarla al listado
-                                if(!context.aprobado){
-                                    return;
-                                }
-                            }else{
-                                console.log('El campoGP esta vacio y tiene habilitada las GP');
-                            }
-
-                            
-                        }
-
-                        resultado.push(haber);
-                    });
-
-                    console.log('Cantidad Haberes', resultado.length);
-                    console.log('Total Haberes', items.length);
-
-                    return resultado;
+                    }else{
+                        context.forms.EX.inputs['CentroCosto'].setRequired(false);
+                        context.forms.EX.inputs['CentroCosto'].hide();
+                        context.forms.EX.inputs['CentroCosto'].setValue([]);
+                    }
                 }
+
+                context.forms.EX.inputs['CentroCosto'].params.source = function(dropdown, query, render){
+                    var dataCC = []
+
+                    if(context.items.Solicitudes){
+                        context.items.Solicitudes.map(function(x){
+                            if(x.TipoSolicitud == "Centro de costo diferente" && x.Estado == "Aprobado"){
+                                if(x.Item.NombreItem == context.forms.item.inputs['Haber'].values[0].text && x.Trabajador.NombreCompleto == context.forms.person.inputs['Nombre'].values[0].text){
+                                    console.log('Solicitud actual', x)
+                                    dataCC.push({
+                                        "key": x.Centro_x0020_de_x0020_costoId,
+                                        "text": x.Item.NombreItem+' - '+x.Trabajador.NombreCompleto+' - '+x.Centro_x0020_de_x0020_costo.D_CC,
+                                        "item": x
+                                    });
+                                } 
+                            }
+                        });
+                    }
+
+                    if(dataCC.length > 0){
+                        render(dataCC)
+                    }else{
+                        render([{
+                            "key": 0,
+                            "text": 'No se encontraron solicitudes para el trabajador',
+                            "item": null
+                        }]);
+                    }
                     
+                }  
+                  
                 $sendButton.removeClass('hide');
                 $clearButton.removeClass('hide');
 
@@ -610,21 +581,36 @@ var itemPage = {
                         var dialog = app.dialog.progress(dialogTitle);
                         var metadataItem = context.forms.item.getMetadata();
                         var metadataPerson = context.forms.person.getMetadata();
+                        var metadataEX = context.forms.EX.getMetadata()
 
-                        var myJSON = JSON.stringify(metadataPerson);
+                        console.log('Metadata Item', metadataItem)
+                        console.log('Metadata Person', metadataPerson)
+                        console.log('MEtadataEX', metadataEX)
 
-                        myJSON = myJSON.replace('}',JSON.stringify(metadataItem).replace('{',','));
-                        var metadata = JSON.parse(myJSON);
+                        metadata = metadataPerson;
+                        metadata['HaberId'] = metadataItem.HaberId;
+                        metadata['CantidadMonto'] = metadataItem.CantidadMonto;
+                        metadata['Justificacion'] = metadataItem.Justificacion;
+                        console.log('Persona', persona[0].item.d_cargo.NombreCargo);
+                        metadata['Cargo'] = persona[0].item.d_cargo.NombreCargo;
+                        metadata['CentroCostoId'] = persona[0].item.CentroCostoId;
 
-                        metadata.PeriodoId = context.items.Periodo[0].Id;
-                        metadata.CoordinadorId = context.items.Coordinador[0].Id;
+                        if(context.forms.EX.inputs['ExceptionCC'].value){
+                            metadata['CentroCostoId'] = metadataEX.CentroCosto
+                            metadata.Excepcion = 'Centro de costo diferente'
+                        }
+
+                        metadata.PeriodoId = context.items.Periodo.ID;
+                        metadata.CoordinadorId = plantaAdmin.ID;
+
+                        delete metadata.Categoria;
+
+                        console.log('MetadataFinal', metadata)
 
                         spo.saveListItem(spo.getSiteUrl(), 'ItemVariable', metadata, function (response) {
                             var formularioId = response.d.Id;
                             dialog.close();
 
-                            
-                            console.log('Metadata', metadata);
 
                             app.dialog.create({
                                 title: dialogTitle,
@@ -653,11 +639,36 @@ var itemPage = {
                         });
                     }
 
+                    function validateMINMAX(value){
+                        let item = context.items.ListadoItemVariable.filter(x => x.Title == context.forms.item.inputs['Haber_x003a_Codigo'].values[0].text)[0];
+                        value = parseInt(value);
+
+                        if(item.Minino && item.Maximo){
+                            if(item.Minimo > value && item.Maximo < value){
+                                return false;
+                            }
+                        }
+                        if(item.Minimo){
+                            if(item.Minimo > value){
+                                return false;
+                            }
+                        }
+                        if(item.Maximo){
+                            if (item.Maximo < value){
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }
+                    
                     context.forms.person.checkFieldsRequired();
                     context.forms.item.checkFieldsRequired();
+                    context.forms.EX.checkFieldsRequired();
                     
                     var validatePerson =  context.forms.person.getValidation();
                     var validateItem =  context.forms.item.getValidation();
+                    var validateEX =  context.forms.EX.getValidation();
 
                     if(context.forms.item.inputs['Justificacion'].value.length< 10){
                         app.dialog.create({
@@ -668,96 +679,29 @@ var itemPage = {
                             }],
                             verticalButtons: false
                         }).open();
-                    }else if (validateItem && validatePerson) {
+                    }else if(!validateMINMAX(context.forms.item.inputs['CantidadMonto'].value)){
                         app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se creará una nuevo item.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo item debe completar todos los campos obligatorios.',
+                            title: 'Datos mal ingresados',
+                            text: 'El valor ingresado como cantidad o monto infringe el mínimo o máximo permitido.',
                             buttons: [{
                                 text: 'Aceptar'
                             }],
                             verticalButtons: false
                         }).open();
-                    }
-
-                });
-
-                $updateButton.on('click', function (e) {
-                    var dialogTitle = 'Editando Item';
-
-                    function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
-                        var metadataItem = context.forms.item.getMetadata();
-                        var metadataPerson = context.forms.person.getMetadata();
-
-                        var myJSON = JSON.stringify(metadataPerson);
-
-                        myJSON = myJSON.replace('}',JSON.stringify(metadataItem).replace('{',','));
-                        var metadata = JSON.parse(myJSON);
-
-                        spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
-                            dialog.close();
-
+                    }else if (validateItem && validatePerson && validateEX) {
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Item actualizado con éxito',
+                                text: 'Se creará una nuevo item.',
                                 buttons: [{
+                                    text: 'Cancelar'
+                                }, {
                                     text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.refreshPage();
+                                    onClick: function onClick() {
+                                        save();
                                     }
                                 }],
                                 verticalButtons: false
                             }).open();
-
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        });
-                    }
-
-                    context.forms.person.checkFieldsRequired();
-                    context.forms.item.checkFieldsRequired();
-
-                    var validatePerson =  context.forms.item.getValidation();
-                    var validateItem =  context.forms.item.getValidation();
-
-                    if (validateItem && validatePerson) {
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se actualizará el Item.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
                     } else {
                         app.dialog.create({
                             title: 'Datos insuficientes',
@@ -774,6 +718,7 @@ var itemPage = {
                 $clearButton.on('click', function (e){
                     context.forms.item.setValues([]);
                     context.forms.person.setValues([]);
+                    context.forms.EX.setValues([]);
                 });
 
                 // remover loader
@@ -787,48 +732,18 @@ var itemPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.ItemVariable && loaded.Categorias && loaded.ListadoItemVariable && loaded.Coordinador && loaded.Periodo && loaded.CentroCosto) {
+                    if (loaded.Solicitudes && loaded.ItemVariable && loaded.Categorias && loaded.ListadoItemVariable && loaded.Trabajadores && loaded.Periodo && loaded.CentroCosto) {
                         initForm();
                     }
-                };
+                };             
 
                 // Obtener información de lista
                 spo.getListInfo('ItemVariable',
                     function (response) {
                         context.items.ItemVariable = [];
                         context.lists.ItemVariable = response;
-                        //loaded.listaItemVariable = true;
-                        
-                        // Si existe el id de algún item a obtener
-                        if (listItemId) {
-
-                            var query = spo.encodeUrlListQuery(context.lists.ItemVariable, {
-                                view: 'Todos los elementos',
-                                odata: {
-                                    'filter': '(Id eq ' + listItemId + ')',
-                                    'select': '*,AttachmentFiles',
-                                    'expand': 'AttachmentFiles'
-                                }
-                            });
-
-                            spo.getListItems(spo.getSiteUrl(), 'ItemVariable', query,
-                                function (response) {
-                                    context.items.ItemVariable = response.d.results.length > 0 ? response.d.results : null;
-                                    loaded.ItemVariable = true;
-                                    shouldInitForms();
-
-
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
-                        } else {
-                            loaded.ItemVariable = true;
-                            shouldInitForms();
-                        }
-
+                        loaded.ItemVariable = true;
+                        shouldInitForms();
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);
@@ -836,56 +751,25 @@ var itemPage = {
                     }
                 );
 
-                // Obtener información de lista 
-                spo.getListInfo('Coordinador',
+                // Obtengo los trabajadores asociados al coordinador
+                spo.getListInfo('Planta',
                     function (response) {
-                        context.items.Coordinador = [];
-                        context.lists.Coordinador = response;                        
+                        context.items.Planta = [];
+                        context.lists.Planta = response;                        
 
-                        var query = spo.encodeUrlListQuery(context.lists.Coordinador, {
+                        var query = spo.encodeUrlListQuery(context.lists.Planta, {
                             view: 'Todos los elementos',
                             odata: {
-                                'filter': '(UsuarioId eq \'' + spo.getCurrentUserId() + '\')',
-                                'select': '*',
+                                'filter': '(EstadoContrato ne \'Suspendido\' and CoordinadorId eq \'' + plantaAdmin.ID + '\')',
                                 'top': 5000,
                             }
                         });
 
-                        spo.getListItems(spo.getSiteUrl(), 'Coordinador', query,
+                        spo.getListItems(spo.getSiteUrl(), 'Planta', query,
                             function (response) {
-                                context.items.Coordinador = response.d.results.length > 0 ? response.d.results : null;
-                                // Obtengo los trabajadores asociados al coordinador
-                                spo.getListInfo('Planta',
-                                    function (response) {
-                                        context.items.Planta = [];
-                                        context.lists.Planta = response;                        
-
-                                        var query = spo.encodeUrlListQuery(context.lists.Planta, {
-                                            view: 'Todos los elementos',
-                                            odata: {
-                                                'filter': '(EstadoContrato ne \'Suspendido\' and CoordinadorId eq \'' + context.items.Coordinador[0].ID + '\')',
-                                                'top': 5000,
-                                            }
-                                        });
-
-                                        spo.getListItems(spo.getSiteUrl(), 'Planta', query,
-                                            function (response) {
-                                                context.items.Planta = response.d.results.length > 0 ? response.d.results : null;
-                                                loaded.Coordinador = true;
-                                                console.log('Planta', context.items.Planta);
-                                                shouldInitForms();
-                                            },
-                                            function (response) {
-                                                var responseText = JSON.parse(response.responseText);
-                                                console.log(responseText.error.message.value);
-                                            }
-                                        );
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                    }
-                                );
+                                context.items.Planta = response.d.results.length > 0 ? response.d.results : null;
+                                loaded.Trabajadores = true;
+                                shouldInitForms();
                             },
                             function (response) {
                                 var responseText = JSON.parse(response.responseText);
@@ -898,6 +782,7 @@ var itemPage = {
                         console.log(responseText.error.message.value);
                     }
                 );
+
                 // Obtengo el listado de categorias completa
                 spo.getListInfo('Categoria',
                     function (response) {
@@ -982,9 +867,40 @@ var itemPage = {
 
                             spo.getListItems(spo.getSiteUrl(), 'Periodo', query,
                                 function (response) {
-                                    context.items.Periodo = response.d.results.length > 0 ? response.d.results : null;
+                                    context.items.Periodo = response.d.results.length > 0 ? response.d.results[0] : null;
                                     loaded.Periodo = true;
-                                    shouldInitForms();
+                                    //Obtengo las solicitudes del periodo actual
+                                    spo.getListInfo('Solicitudes',
+                                        function (response) {
+                                            context.items.Solicitudes = [];
+                                            context.lists.Solicitudes = response;
+                                                var query = spo.encodeUrlListQuery(context.lists.Solicitudes, {
+                                                    view: 'Todos los elementos',
+                                                    odata: {
+                                                        'select': '*',
+                                                        'top': 5000,
+                                                        'filter': '(PeriodoId eq ' + context.items.Periodo.ID + ' and CoordinadorId eq \'' + plantaAdmin.ID + '\')'
+                                                    }
+                                                });
+
+                                                spo.getListItems(spo.getSiteUrl(), 'Solicitudes', query,
+                                                    function (response) {
+                                                        context.items.Solicitudes = response.d.results.length > 0 ? response.d.results : null;
+                                                        loaded.Solicitudes = true;
+                                                        shouldInitForms();
+                                                    },
+                                                    function (response) {
+                                                        var responseText = JSON.parse(response.responseText);
+                                                        console.log(responseText.error.message.value);
+                                                    }
+                                                );
+
+                                        },
+                                        function (response) {
+                                            var responseText = JSON.parse(response.responseText);
+                                            console.log(responseText.error.message.value);
+                                        }
+                                    );
                                 },
                                 function (response) {
                                     var responseText = JSON.parse(response.responseText);

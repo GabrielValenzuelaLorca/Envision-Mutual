@@ -2,139 +2,123 @@ var menuPage = $.extend(true, {}, indexPage);
 
 menuPage.methods.beforeStartComponent = function(success, failure){
     var context = this._getPageContext();
+    loaded = {}
+
+    function shouldStart(){
+        if (loaded.Informe && loaded.Planta && loaded.Categoria && loaded.Item) {
+            if (success) success();   
+        }
+    }
+
     function informesCoordinador(){
-        spo.getListInfo('Coordinador',
+        //Carga Informe Haberes
+        spo.getListInfo('Informe Haberes',
             function (response) {
                 var query = spo.encodeUrlListQuery(response, {
                     view: 'Todos los elementos',
                     odata: {
-                        'filter': '(UsuarioId eq '+spo.getCurrentUserId()+')',
+                        'filter': '(CoordinadorId eq ' + plantaAdmin.ID + ' and PeriodoId eq '+context.onPeriod.ID+')'
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), "Informe Haberes", query,
+                    function (response) {
+                        context.informes = response.d.results;
+                        loaded.Informe = true;
+                        shouldStart();
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        if (failure) failure();
+                    }
+                );
+            },
+            function(response){
+                var responseText = JSON.parse(response.responseText);
+                console.log(responseText.error.message.value);
+                resolve(failCond);
+                if (failure) failure();
+            }
+        );
+
+        //Carga Planta del coordinador
+        spo.getListInfo('Planta',
+            function (response) {
+                var query = spo.encodeUrlListQuery(response, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'filter': '(Coordinador eq ' + plantaAdmin.ID + ')',
+                        'top': 5000
+                        
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), "Planta", query,
+                    function (response) {
+                        context.planta = response.d.results;
+                        loaded.Planta = true;
+                        shouldStart();                                 
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        if (failure) failure();
+                    }
+                );
+            },
+            function(response){
+                var responseText = JSON.parse(response.responseText);
+                console.log(responseText.error.message.value);
+                resolve(failCond);
+                if (failure) failure();
+            }
+        );
+
+        //Carga Categorias del coordinador
+        spo.getListInfo('Categoria',
+            function (response) {
+                var query = spo.encodeUrlListQuery(response, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'top': 5000
+                        
+                    }
+                });
+                spo.getListItems(spo.getSiteUrl(), "Categoria", query,
+                    function (response) {
+                        context.Categoria = response.d.results;
+                        loaded.Categoria = true;
+                        shouldStart();                                  
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                        if (failure) failure();
+                    }
+                );
+            },
+            function(response){
+                var responseText = JSON.parse(response.responseText);
+                console.log(responseText.error.message.value);
+                resolve(failCond);
+                if (failure) failure();
+            }
+        );
+
+        //Carga Haberes del coordinador
+        spo.getListInfo('ListadoItemVariable',
+            function (response) {
+                var query = spo.encodeUrlListQuery(response, {
+                    view: 'Todos los elementos',
+                    odata: {
+                        'top': 5000,
                         'select': '*'
                     }
                 });
-                spo.getListItems(spo.getSiteUrl(), "Coordinador", query,
+                spo.getListItems(spo.getSiteUrl(), "ListadoItemVariable", query,
                     function (response) {
-                        context.coordinadorId = response.d.results.length>0 ? response.d.results[0] : false;
-                        //Carga Informe Haberes
-                        spo.getListInfo('Informe Haberes',
-                            function (response) {
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'filter': '(CoordinadorId eq ' + context.coordinadorId.ID + ' and PeriodoId eq '+context.onPeriod+')'
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "Informe Haberes", query,
-                                    function (response) {
-                                        context.informes = response.d.results;
-                                        if (success) success();                                   
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                        if (failure) failure();
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                                resolve(failCond);
-                                if (failure) failure();
-                            }
-                        );
-
-                        //Carga Planta del coordinador
-                        spo.getListInfo('Planta',
-                            function (response) {
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'filter': '(Coordinador eq ' + context.coordinadorId.ID + ')',
-                                        'top': 5000
-                                        
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "Planta", query,
-                                    function (response) {
-                                        context.planta = response.d.results;
-                                        if (success) success();                                   
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                        if (failure) failure();
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                                resolve(failCond);
-                                if (failure) failure();
-                            }
-                        );
-
-                        //Carga Categorias del coordinador
-                        spo.getListInfo('Categoria',
-                            function (response) {
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'top': 5000
-                                        
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "Categoria", query,
-                                    function (response) {
-                                        context.Categoria = response.d.results;
-                                        if (success) success();                                   
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                        if (failure) failure();
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                                resolve(failCond);
-                                if (failure) failure();
-                            }
-                        );
-
-                        //Carga Haberes del coordinador
-                        spo.getListInfo('ListadoItemVariable',
-                            function (response) {
-                                var query = spo.encodeUrlListQuery(response, {
-                                    view: 'Todos los elementos',
-                                    odata: {
-                                        'top': 5000,
-                                        'select': '*'
-                                    }
-                                });
-                                spo.getListItems(spo.getSiteUrl(), "ListadoItemVariable", query,
-                                    function (response) {
-                                        context.haber = response.d.results;
-                                        if (success) success();                                   
-                                    },
-                                    function (response) {
-                                        var responseText = JSON.parse(response.responseText);
-                                        console.log(responseText.error.message.value);
-                                        if (failure) failure();
-                                    }
-                                );
-                            },
-                            function(response){
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                                resolve(failCond);
-                                if (failure) failure();
-                            }
-                        );
-
+                        context.haber = response.d.results;
+                        loaded.Item = true;
+                        shouldStart();                      
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);
@@ -162,8 +146,8 @@ menuPage.methods.beforeStartComponent = function(success, failure){
             });
             spo.getListItems(spo.getSiteUrl(), "Periodo", query,
                 function (response) {
-                    context.onPeriod = response.d.results.length>0 ? response.d.results[0].ID : false;
-                    if (admin == "Coordinador"){
+                    context.onPeriod = response.d.results.length>0 ? response.d.results[0] : false;
+                    if (plantaAdmin.Rol == "Coordinador" && context.onPeriod){
                         informesCoordinador();    
                     } else {
                         if (success) success();
@@ -185,16 +169,35 @@ menuPage.methods.beforeStartComponent = function(success, failure){
     );
 }
 
-// {array} obtiene las optiones de configuración para el menú
+// {array} obtiene las opciones de configuración para el menú
 menuPage.methods.getListBlocksData = function(){
     var page = this._getPage();
     var app = page.app;
     var context = this._getPageContext();
 
-    // configuración de menú
+    function showAlertFirstOpened(){
+        let dias = moment(context.onPeriod.FechaTermino).diff( moment(), 'days')
+        app.dialog.create({
+            title: 'Atención',
+            text: `Recuerde que le quedan ${dias} dia(s) para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`,
+            buttons: [{
+                text: 'Aceptar',
+                onClick: function () {
+                    return
+                }
+            }],
+            verticalButtons: false
+        }).open();
+    }    
+    
+    /*** 
+     * Seccion Item Variable
+     * ***/
+
     var settings = []
-    if (admin == "Coordinador"){
+    if (plantaAdmin.Rol == "Coordinador"){
         let canSendInform = true;
+        let outPeriod = false;
         let coorSection = {
             inset: true,
             header: 'Coordinación',
@@ -208,12 +211,21 @@ menuPage.methods.getListBlocksData = function(){
             options: []
         };
         
-        if (context.informes.length > 0 ) {
-            if (context.informes[0].Estado != "Desaprobado") 
-            canSendInform = false;    
+        if (context.informes){
+            if (context.informes.length > 0 ) {
+                canSendInform = context.informes[0].Estado == "Desaprobado" ? true : false
+            }
         }
-        
-        if (canSendInform && context.onPeriod) {
+
+        if(moment(context.onPeriod.FechaTermino).diff( moment(), 'days') <=0){
+            outPeriod = true;
+        }
+
+        if (canSendInform && context.onPeriod && !outPeriod) {
+            if(plantaAdmin.Rol == "Coordinador" && showAlert == true && canSendInform){
+                showAlertFirstOpened()
+                showAlert = false;
+            }
             coorSection.options = coorSection.options.concat([ 
                 {
                     href: '/item',
@@ -227,7 +239,7 @@ menuPage.methods.getListBlocksData = function(){
                     media: '<i class="ms-Icon ms-Icon--BoxAdditionSolid"></i>',
                 },
                 {
-                    href: '/liststream?title=Items variables&listtitle=ItemVariable&listview=Coordinador&panel=filter-close&template=list-row&context=',
+                    href: '/itemVariableStream',
                     title: 'Items Variables',
                     after: '',
                     header: '',
@@ -236,8 +248,32 @@ menuPage.methods.getListBlocksData = function(){
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--CheckList"></i>',
+                },
+                {
+                    href: '/uploadItems',
+                    title: 'Carga Masiva Items',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--ExcelLogo"></i>',
+                },
+                {
+                    href: '/Solicitudes?panel=filter-open',
+                    title: 'Solicitudes',
+                    after: '',
+                    header: '',
+                    footer: 'Centro de costos',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--DocumentApproval"></i>',
                 }
             ]);
+        } else if(outPeriod){
+            coorSection.footer = 'Se ha vencido el periodo de envio. Contactese con el administrador';
         } else if(!canSendInform) {
             coorSection.footer = 'Tu informe ya ha sido enviado';
         } else if(!context.onPeriod){
@@ -247,7 +283,7 @@ menuPage.methods.getListBlocksData = function(){
         if (context.onPeriod) {
             coorSection.options = coorSection.options.concat([ 
                 {
-                    href: '/liststream?title=Informes Desaprobados&listtitle=Informe Haberes&listview=Pendientes&panel=filter-close&template=list-row&context=',
+                    href: '/informeDesaprobado',
                     title: 'Informes',
                     after: '',
                     header: '',
@@ -256,13 +292,24 @@ menuPage.methods.getListBlocksData = function(){
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--TimeEntry"></i>',
+                },
+                {
+                    href: '/licenciaHistorico',
+                    title: 'Ingreso Licencias',
+                    after: '',
+                    header: '',
+                    footer: 'En Periodo',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
                 }
             ]);
         }
 
         coorSection.options = coorSection.options.concat([
             {
-                href: '/liststream?title=Informes Históricos&listtitle=Informe Haberes&listview=Historico Coordinador&panel=filter-close&template=list-row&context=',
+                href: '/informeHistorico',
                 title: 'Informes',
                 after: '',
                 header: '',
@@ -302,14 +349,17 @@ menuPage.methods.getListBlocksData = function(){
                 media: '<i class="ms-Icon ms-Icon--ExcelLogo"></i>',
                 onClick: function(){
                     //Almacenamos todos los haberes asignados a el coordinador.
-                    var selfHaber = context.coordinadorId.HaberesId.results.map(function(y){
+                    var selfHaber = plantaAdmin.HaberesId.results.map(function(y){
                             let encontrado = context.haber.filter(function(x){
                                 return x.ID == y
                             })[0]
+                            console.log('Haber disponible', encontrado)
                             return {
                                 "Codigo Item Variable": encontrado.Title,
                                 "Nombre Item Variable": encontrado.NombreItem,
                                 "Tipo de ingreso": encontrado.TipoIngreso,
+                                "Minimo": encontrado.Minimo,
+                                "Maximo": encontrado.Maximo
                             };
                     });
                     let selfJobs = context.planta.map(function(x){
@@ -319,8 +369,8 @@ menuPage.methods.getListBlocksData = function(){
                             "Codigo Payroll": x.Title,
                             "Nombre Completo": x.NombreCompleto,
                             "Tipo Contrato": x.TipoContrato,
-                            "Categoria": categoria.Categoria,
-                            "Cargo": x.d_cargo
+                            "Categoria": categoria.Categoria.charAt(0),
+                            "Cargo": x.d_cargo.NombreCargo
                         }
                     });
 
@@ -347,7 +397,7 @@ menuPage.methods.getListBlocksData = function(){
         settings.push(coorSection2); 
     }
 
-    if (admin == "Aprobador"){
+    if (plantaAdmin.Rol == "Aprobador"){
         let aprobSection = {
             inset: true,
             header: 'Aprobación',
@@ -357,7 +407,7 @@ menuPage.methods.getListBlocksData = function(){
         if (context.onPeriod){
             aprobSection.options = aprobSection.options.concat([ 
                 {
-                    href: '/liststream?title=Informes&listtitle=Informe Haberes&listview=Aprobador&panel=filter-close&template=list-row&context=',
+                    href: '/informePeriodo',
                     title: 'Informes',
                     after: '',
                     header: '',
@@ -376,10 +426,16 @@ menuPage.methods.getListBlocksData = function(){
         settings.push(aprobSection);
     } 
 
-    if (admin == "Administrador"){
+    if (plantaAdmin.Rol == "Administrador"){
         let admSection = {
             inset: true,
             header: 'Administración',
+            footer: '',
+            options: []
+        };
+        let admSection2 = {
+            inset: true,
+            header: 'Mantenedores',
             footer: '',
             options: []
         };
@@ -387,8 +443,8 @@ menuPage.methods.getListBlocksData = function(){
         if (context.onPeriod){
             admSection.options = admSection.options.concat([
                 {
-                    href: '/liststream?title=Informes&listtitle=Informe Haberes&listview=Administrador&panel=filter-close&template=list-row&context=',
-                    title: 'Informes Pendientes',
+                    href: '/sendStatusStream',
+                    title: 'Estados de envio',
                     after: '',
                     header: '',
                     footer: 'Items Variables',
@@ -396,17 +452,37 @@ menuPage.methods.getListBlocksData = function(){
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--TimeEntry"></i>',
-                }
+                },
+                {
+                    href: '/Solicitudes?panel=filter-open',
+                    title: 'Solicitudes',
+                    after: '',
+                    header: '',
+                    footer: 'Centro de costos',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--DocumentApproval"></i>',
+                },
+                {
+                    href: '/licenciaHistorico?panel=filter-open',
+                    title: 'Licencias',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
+                },
             ]);
         } else {
-
             admSection.footer = 'No hay un periodo vigente para mostrar informes por aprobar';
-
         }
 
         admSection.options = admSection.options.concat([
             {
-                href: '/liststream?title=Planta&listtitle=Planta&listview=Planta Usuario&panel=filter-close&template=list-row&context=',
+                href: '/plantaStream',
                 title: 'Planta',
                 after: '',
                 header: '',
@@ -417,7 +493,7 @@ menuPage.methods.getListBlocksData = function(){
                 media: '<i class="ms-Icon ms-Icon--People"></i>',
             },
             {
-                href: '/liststream?title=Periodos&listtitle=Periodo&listview=Todos los elementos&panel=filter-open&template=list-row&context=',
+                href: '/periodoStream',
                 title: 'Periodos',
                 after: '',
                 header: '',
@@ -427,19 +503,9 @@ menuPage.methods.getListBlocksData = function(){
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
             },
+            
             {
-                href: '/liststream?title=ItemsVariables&listtitle=ListadoItemVariable&listview=Todos los elementos&panel=filter-close&template=list-row&context=',
-                title: 'Mantenedor Haberes',
-                after: '',
-                header: '',
-                footer: '',
-                panelClose: true,
-                externalLink: false,
-                f7view: '.view-main',
-                media: '<i class="ms-Icon ms-Icon--EventDate"></i>',
-            },
-            {
-                href: '/liststream?title=Informes Históricos&listtitle=Informe Haberes&listview=Historico&panel=filter-open&template=list-row&context=&',
+                href: '/informeHistorico?&panel=filter-open',
                 title: 'Informes',
                 after: '',
                 header: '',
@@ -448,9 +514,189 @@ menuPage.methods.getListBlocksData = function(){
                 externalLink: false,
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--ActivateOrders"></i>',
-            }
+            },
+            
+            
         ]);
         settings.push(admSection);
+
+
+        admSection2.options = admSection2.options.concat([
+            {
+                href: '/rolStream',
+                title: 'Mantenedor Roles',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--AccountManagement"></i>',
+            },
+            {
+                href: '/liststream?title=Mantenedor Items Variables&listtitle=ListadoItemVariable&listview=Todos los elementos&template=list-row&panel=filter-close',
+                title: 'Mantenedor Haberes',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--Archive"></i>',
+            },
+            {
+                href: '/liststream?title=Mantenedor Convenio Capex&listtitle=Planta&listview=Capex&template=list-row&panel=filter-close',
+                title: 'Mantenedor Capex',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--Accounts"></i>',
+            },
+            {
+                href: '/coordinadorStream',
+                title: 'Mantenedor Coordinador',
+                after: '',
+                header: '',
+                footer: 'haberes y trabajadores',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
+            },
+            // {
+            //     href: '/cooStream',
+            //     title: 'Mantenedor Haberes',
+            //     after: '',
+            //     header: '',
+            //     footer: 'por coordinador',
+            //     panelClose: true,
+            //     externalLink: false,
+            //     f7view: '.view-main',
+            //     media: '<i class="ms-Icon ms-Icon--Archive"></i>',
+            // },
+        ]);
+
+        settings.push(admSection2);
+    }
+
+    if (plantaAdmin.Rol == "Encargado de Licencias Médicas"){
+        let licSection = {
+            inset: true,
+            header: 'Encargado de Licencias Médicas',
+            footer: '',
+            options: []
+        };
+
+        licSection.options = licSection.options.concat([
+            {
+                href: '/licenciaHistorico?panel=filter-open',
+                title: 'Licencias',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
+            },
+        ]);
+      
+        settings.push(licSection);
+    }
+
+    /*** 
+     * Seccion Solicitud de Personal
+     * ***/
+
+    if(plantaAdmin.RolSDP){
+        if (plantaAdmin.RolSDP.results.includes("Jefe Solicitante")){
+            let solSection = {
+                inset: true,
+                header: 'Solicitud de permisos',
+                footer: '',
+                options: []
+            };
+    
+            solSection.options = solSection.options.concat([
+                {
+                    href: '/formSolicitante',
+                    title: 'Crear Solicitud',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
+                },
+                {
+                    href: '/SolicitudStream',
+                    title: 'Solicitudes SDP',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
+                },
+            ]);
+          
+            settings.push(solSection);
+        }
+    
+        if (plantaAdmin.RolSDP.results.includes("Validador")){
+            let valSection = {
+                inset: true,
+                header: 'Validación de solicitudes',
+                footer: '',
+                options: []
+            };
+    
+            valSection.options = valSection.options.concat([
+                {
+                    href: '/SolicitudesPorValidar',
+                    title: 'Solicitudes SDP',
+                    after: '',
+                    header: '',
+                    footer: 'Por aprobar',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--AwayStatus"></i>',
+                },
+            ]);
+          
+            settings.push(valSection);
+        }
+    
+        if (plantaAdmin.RolSDP.results.includes("CyE")){
+            let cyeSection = {
+                inset: true,
+                header: 'CyE',
+                footer: '',
+                options: []
+            };
+    
+            cyeSection.options = cyeSection.options.concat([
+                {
+                    href: '/SolicitudesCyE',
+                    title: 'Solicitudes',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--DocumentSet"></i>',
+                },
+            ]);
+          
+            settings.push(cyeSection);
+        }
     }
 
     return settings;
