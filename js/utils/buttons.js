@@ -516,6 +516,21 @@ localButtons.addHaberButton = function(context, id){
 }
 
 /*
+    Todos los botones relacionados con CecoStreamPage y CecoPage
+*/
+localButtons.addCecoButton = function(context, id){
+    button = {
+        text: 'Añadir Centro de costo',
+        class: 'addCeco',
+        icon: 'Add',
+        onClick: function(component, item){
+            mainView.router.navigate(encodeURI('/haberTemporal?listItemId='+id));
+        }
+    }
+    return button
+}
+
+/*
     Todos los botones relacionados con PeriodosPage
 */
 
