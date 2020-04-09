@@ -52,8 +52,7 @@ var cecoPage = {
             '</div>' +
             '<div class="page-content">' +
                 '<div>' +
-                    '<div class="form-container"></div>' +
-                    '<div class="formu2"></div>' +
+                    '<div class="form-container"></div>' +                    
                 '</div>' +
             '</div>' +
             
@@ -107,7 +106,7 @@ var cecoPage = {
 
         // obtener título de la lista de inspección
         getListTitle: function () {
-            return 'Planta';
+            return 'CentroCosto';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -166,8 +165,7 @@ var cecoPage = {
             // variables
             var context = this.$options.data(),
                 mths = this.$options.methods,
-                listItemId = page.route.query.listItemId,
-                editable = page.route.query.editable;
+                listItemId = page.route.query.listItemId
 
             context.methods = mths;
 
@@ -190,82 +188,40 @@ var cecoPage = {
                     $clearButton = $navbar.find('.link.clear');
 
                     $updateButton.removeClass('hide');
-            
 
-                console.log('datoslistadohaberes',context.items.ListadoItemVariable);
+                    var inputs = spo.getViewFields(context.lists.CentroCosto, 'Mantenedor Ceco')
 
-                let meruem = [];
-                context.items.ListadoItemVariable.map(function(jade){
-                    meruem.push({
-                        key: jade.NombreItem,
-                        text: jade.NombreItem,
-                        item: jade                        
+                    context.forms.item = new EFWListTable({
+                        container: $container.find('.form-container'),
+                        title: 'Nuevos Centros de costo',
+                        editable: true,
+                        fields: inputs
                     });
-                
-                })
 
-                
 
-                context.forms.persona = new EFWForm({
-                    container: $container.find('.form-container'),
-                    title: 'Datos Coordinador',
-                    editable: false,
-                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
-                    fields: spo.getViewFields(context.lists.Planta, 'FormHaberes'),
-                });
 
-                context.forms.persona.inputs['Haberes'].hide();
 
-                context.forms.haberes = new CheckboxInput({
-                    container: $container.find('.formu2'),
-                    title: 'Marque o Desmarque los haberes que desea imputar',
-                    editable: true,
-                    multiSelect: true,
-                    choices: meruem
-                })        
-                console.log('formulario haberes', context.forms.haberes)        
+                //     // formulario de registro
+                // context.forms.item = new EFWForm({
+                //     container: $container.find('.form-container'),
+                //     title: mths.getListTitle(),
+                //     editable: true,
+                //     fields: spo.getViewFields(context.lists.CentroCosto, 'Mantenedor Ceco')
+                // });
 
-                if(listItemId){
-                    
-                    context.forms.persona.setValues(context.items.Planta);
-     
-                    var trabajador = context.items.Planta.HaberesId.results;
-                    var haberesitos = context.items.ListadoItemVariable;
-                    var guardado = []
 
-                    // console.log('trabajador', trabajador);
-                    // console.log('haberesitos', haberesitos);
-                
-                    for (var i = 0; i < haberesitos.length ; i++) {
-                        // console.log('id haberes', haberesitos[i].Id);
-                        var  paver = trabajador.includes(haberesitos[i].Id)
-                        // console.log('booss', paver )
-                        if(paver == true){
-                            guardado.push({
-                                key: haberesitos[i].NombreItem,
-                                text: haberesitos[i].NombreItem,
-                            })
-                        }
-                     }
-                    //  console.log('guardado', guardado)  
-                     
-                      context.forms.haberes.setValue(guardado)
-                    
-                    if(editable){
-                        context.forms.persona.inputs['Haberes'].setEditable(true);
-                        $updateButton.removeClass('hide');
-                    }
-                }
+                // if (listItemId) {
+                //     context.forms.item.setValues(context.items.CentroCosto);                                      
 
-                
-                // if(listItemId){
-                //     console.log('List Item', context.items.solicitudSDP)
+                //     $updateButton.removeClass('hide');
 
-                //     context.forms.jefe.setValues(context.items.solicitudSDP)
-                //     context.forms.recepcion.setValues(context.items.solicitudSDP)
-                //     context.forms.posicion.setValues(context.items.solicitudSDP);
-                //     context.forms.recuperable.setValues(context.items.solicitudSDP)
-                //     context.forms.vacante.setValues(context.items.solicitudSDP)
+                // } else {
+                   
+
+                //     $sendButton.removeClass('hide');
+                //     $clearButton.removeClass('hide');
+                // }
+            
                   
 
                 $updateButton.on('click', function (e) {
@@ -370,67 +326,30 @@ var cecoPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.ListadoItemVariable && loaded.Trabajadores) {
+                    if (loaded.CentroCosto) {
                         initForm();
                     }
                 };             
 
-                // Obtengo los trabajadores asociados al coordinador
-                spo.getListInfo('Planta',
+                
+                //Obtengo el listado de centro de costos para ser filtrados
+                spo.getListInfo('CentroCosto',
                     function (response) {
-                        context.items.Planta = [];
-                        //Guarda los valores de los campos de la lista. Solamente los campos
-                        context.lists.Planta = response; 
-                        
-                        if(listItemId){
-                            // Genera la query basado en los campos que se obtubieron en la SPO anterior
-                            var query = spo.encodeUrlListQuery(context.lists.Planta, {
-                                view: 'Todos los elementos',
-                                odata: {
-                                    'filter': '(ID eq ' + listItemId + ')',
-                                }
-                            });
-
-                            spo.getListItems(spo.getSiteUrl(), 'Planta', query,
-                                function (response) {
-                                    context.items.Planta = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.Trabajadores = true;
-                                    shouldInitForms();
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
-                        }else{
-                            loaded.Trabajadores = true;
-                            shouldInitForms();
-                        }
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                    }
-                );
-
-                //Obtengo el listado de haberes para ser filtrados
-                spo.getListInfo('ListadoItemVariable',
-                    function (response) {
-                        context.items.ListadoItemVariable = [];
-                        context.lists.ListadoItemVariable = response;
+                        context.items.CentroCosto = [];
+                        context.lists.CentroCosto = response;
                         //loaded.listaItemVariable = true;
 
-                            var query = spo.encodeUrlListQuery(context.lists.ListadoItemVariable, {
+                            var query = spo.encodeUrlListQuery(context.lists.CentroCosto, {
                                 view: 'Todos los elementos',
                                 odata: {
                                     'select': '*'
                                 }
                             });
 
-                            spo.getListItems(spo.getSiteUrl(), 'ListadoItemVariable', query,
+                            spo.getListItems(spo.getSiteUrl(), 'CentroCosto', query,
                                 function (response) {
-                                    context.items.ListadoItemVariable = response.d.results.length > 0 ? response.d.results : null;
-                                    loaded.ListadoItemVariable = true;
+                                    context.items.CentroCosto = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.CentroCosto= true;
                                     shouldInitForms();
                                 },
                                 function (response) {

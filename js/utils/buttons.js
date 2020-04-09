@@ -524,7 +524,7 @@ localButtons.addCecoButton = function(context, id){
         class: 'addCeco',
         icon: 'Add',
         onClick: function(component, item){
-            mainView.router.navigate(encodeURI('/haberTemporal?listItemId='+id));
+            mainView.router.navigate(encodeURI('/cecoTemporal?listItemId='+id));
         }
     }
     return button

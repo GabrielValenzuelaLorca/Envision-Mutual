@@ -16,9 +16,9 @@ cecoStreamPage.methods.getListTitle = function(){
     return "CentroCosto"
 }
 
-cecoStreamPage.methods.onItemDblClick = function(item){
-    mainView.router.navigate('/cecoTemporal?listItemId='+item.ID+'&editable=true');
-}
+// cecoStreamPage.methods.onItemDblClick = function(item){
+//     mainView.router.navigate('/cecoTemporal?listItemId='+item.ID+'&editable=true');
+// }
 
 cecoStreamPage.methods.getOneItemSelectedButtons = function(){
     return false;
@@ -26,6 +26,17 @@ cecoStreamPage.methods.getOneItemSelectedButtons = function(){
 //console para saber que metodos puedo usar
 cecoStreamPage.methods.getMultiItemsSelectedButtons = function(){
     return false;
+}
+
+cecoStreamPage.methods.getNoItemsSelectedButtons = function(){
+    var self = this,
+        page = self._getPage(),
+        context = self._getPageContext(),
+        buttons = [];
+
+    buttons.push(localButtons.addCecoButton(context));
+
+    return buttons;
 }
 
 // cecoStreamPage.methods.getCamlQueryConditions = function(){
