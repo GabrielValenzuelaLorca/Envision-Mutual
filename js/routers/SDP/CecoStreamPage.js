@@ -21,7 +21,14 @@ cecoStreamPage.methods.getListTitle = function(){
 // }
 
 cecoStreamPage.methods.getOneItemSelectedButtons = function(){
-    return false;
+    var self = this,
+        page = self._getPage(),
+        context = self._getPageContext(),
+        buttons = [];
+
+    buttons.push(localButtons.editCecoButton(context));
+
+    return buttons;
 }
 //console para saber que metodos puedo usar
 cecoStreamPage.methods.getMultiItemsSelectedButtons = function(){
