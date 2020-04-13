@@ -252,13 +252,13 @@ var uploadPlantaPage = {
 
                     function PrepareToSend(item){
                         return {
-                            "ID": item.ID ? item.ID : '0',
+                            "ID": item.ID ? ''+item.ID : '0',
                             "Title": item.codigo.trim(),
                             "Rut": item.rut1.trim(),
                             "Nombre": item.nombre.trim(),
                             "ApellidoPaterno": item.paterno.trim(),
                             "ApellidoMaterno": item.materno.trim(),
-                            "Email": item['Correo Mutual'],
+                            "Email": item['Correo Mutual'] ? item['Correo Mutual'] : "",
                             "FechaNacimiento": numeroAFecha(item.fecha_nac),
                             "Sexo": item.sexo.trim().toUpperCase(),
                             "Direccion": item.direccion,
@@ -368,8 +368,8 @@ var uploadPlantaPage = {
                                     //Validamos si se encontro la fila en la planta segun el codigo ingresado
                                     if(existe.length > 0){
                                         //Valida si existen cambios en el contrato. Si hay cambios actualiza los datos de la fila.
-
                                         
+                                        if(existe[0].TipoContrato.charAt(0).toLowerCase() != fila.tipcon.trim().charAt(0).toLowerCase() ||  existe[0].cargo == null ){
                                         if(existe[0].TipoContrato.charAt(0).toLowerCase() != fila.tipcon.trim().charAt(0).toLowerCase()){
                                             //Validacion del bug de Reemplazo que en excel se trata como F
                                             if((existe[0].TipoContrato.charAt(0).toLowerCase() == 'r') && (fila.tipcon.trim().charAt(0).toLowerCase() == 'f') ){
@@ -402,11 +402,8 @@ var uploadPlantaPage = {
 
                                             //Obtenemos el ID interno de Centro Costo
                                             var Cargo = context.items.Cargo.filter(function(c){
-                                                return c.NombreCargo == fila.d_cargo;                                            
+                                                return c.CodigoPayroll == fila.cargo;                                            
                                             });
-
-                                            console.log('Cargo desde Excel', fila.d_cargo)
-                                            console.log('Cargo Obtenido', Cargo)
 
                                             //Validamos si se encontro. Si no se encontro se almacena la linea del error y el detalle
 
@@ -454,10 +451,10 @@ var uploadPlantaPage = {
                                             }
 
                                             if(Cargo.length == 0){
-                                                // errores.push([{
-                                                //     "Linea" : linea,
-                                                //     "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_cargo
-                                                // }]);
+                                                errores.push([{
+                                                    "Linea" : linea,
+                                                    "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_cargo
+                                                }]);
                                                 return;
                                             }else{
                                                 fila.d_cargo = Cargo[0].ID;
@@ -493,7 +490,7 @@ var uploadPlantaPage = {
                                         
                                         //Obtenemos el ID interno de Centro Costo
                                         var Cargo = context.items.Cargo.filter(function(c){
-                                            return c.NombreCargo == fila.d_cargo;                                            
+                                            return c.CodigoPayroll == fila.cargo;                                            
                                         });
 
                                         //Validamos si se encontro. Si no se encontro se almacena la linea del error y el detalle
@@ -542,10 +539,10 @@ var uploadPlantaPage = {
                                         }
 
                                         if(Cargo.length == 0){
-                                            // errores.push([{
-                                            //     "Linea Excel" : linea,
-                                            //     "error": "No se encontro el Centro de en los registros de sharepoint. Nombre Cargo Planta: " + fila.d_cargo
-                                            // }]);
+                                            errores.push([{
+                                                "Linea Excel" : linea,
+                                                "error": "No se encontro el Centro de en los registros de sharepoint. Nombre Cargo Planta: " + fila.d_cargo
+                                            }]);
                                             return;
                                         }else{
                                             fila.d_cargo = Cargo[0].ID;
@@ -562,8 +559,6 @@ var uploadPlantaPage = {
                                 //Filtramos los que no estan en excel y si en sharepoint
                                 context.items.Planta.map(function(item){
                                     let existe = response[0].filter(fila => item.Title == fila.codigo.trim());
-
-                                    console.log('Modificado fecha', item.EstadoContrato)
 
                                     //Si no hay coincidencias se agrega el ID para actualizar el registro a suspendido.0
                                     if(existe.length == 0 && item.EstadoContrato == 'Activo'){        
@@ -733,7 +728,6 @@ var uploadPlantaPage = {
                             function (response) {
                                 context.items.Cargo = response.d.results.length > 0 ? response.d.results : null;
                                 loaded.Cargo = true;
-                                console.log('Cargos', context.items.Cargo);
                                 shouldInitForms();
                             },
                             function (response) {
