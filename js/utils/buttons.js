@@ -211,7 +211,7 @@ localButtons.ToHaberesPage = function(){
     button = {
         text: 'Ir al Mantenedor de Haberes',
         class: 'uploadPlanta',
-        icon: 'ExcelLogo',
+        icon: 'Group',
         onClick: function(component, item){
             mainView.router.navigate('/haberTemporal?listItemId='+item.ID+'&editable=true');
         }
@@ -223,7 +223,7 @@ localButtons.ToAsociateTrabajadorPage = function(){
     button = {
         text: 'Ver trabajadores asignados',
         class: 'uploadPlanta',
-        icon: 'ExcelLogo',
+        icon: 'Group',
         onClick: function(component, item){
             mainView.router.navigate('/trabajadorPorCoordinador?listItemId='+item.ID);
         }
