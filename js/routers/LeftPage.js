@@ -560,23 +560,12 @@ menuPage.methods.getListBlocksData = function(){
                 title: 'Mantenedor Coordinador',
                 after: '',
                 header: '',
-                footer: 'haberes y trabajadores',
+                footer: 'Haberes y Trabajadores',
                 panelClose: true,
                 externalLink: false,
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
             },
-            // {
-            //     href: '/cooStream',
-            //     title: 'Mantenedor Haberes',
-            //     after: '',
-            //     header: '',
-            //     footer: 'por coordinador',
-            //     panelClose: true,
-            //     externalLink: false,
-            //     f7view: '.view-main',
-            //     media: '<i class="ms-Icon ms-Icon--Archive"></i>',
-            // },
         ]);
 
         settings.push(admSection2);

@@ -207,10 +207,6 @@ function getRoutes(){
             component: coordinadorStreamPage
         },
         {
-            path: '/cooStream',
-            component: cooStreamPage
-        },
-        {
             path: '/trabajadorPorCoordinador',
             component: trabajadoresStreamPage
         },
