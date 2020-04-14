@@ -2087,14 +2087,51 @@ localButtons.deleteRol = function(context){
 
                 spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, metadata, function (response) {
                     dialog.close();
+                    
+                    console.log('Item.rol', item.rol)
 
-                    dialogs.confirmDialog(
-                        dialogTitle,
-                        'Rol removido con éxito',
-                        refresh,
-                        false
-                    );
+                    if(context.selfWorkers && item.Rol == "Coordinador"){
+                        var metadata2 = context.selfWorkers.map(function(x){
+                            return {
+                                Id: x.ID,
+                                CoordinadorId: null
+                            }
+                        })
 
+                        spo.updateListItems(spo.getSiteUrl(), "Planta", metadata2, function (response) {
+                            dialogs.confirmDialog(
+                                dialogTitle,
+                                'Rol removido con éxito',
+                                refresh,
+                                false
+                            );
+                        }, function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log('responseText', responseText);
+        
+                            dialog.close();
+                            dialogs.infoDialog(
+                                "Error",
+                                'Hubo un problema al remover el rol'
+                            )
+                        });
+                        
+                    }else if(context.selfWorkers && item.Rol == "Aprobador"){
+                        console.log('Ejecuto cono Aprobador')
+                            dialogs.confirmDialog(
+                                'Atención',
+                                'Existen coordinadores asignados al aprobador que desea eliminar. Actualice los coordinadores antes de proceder a eliminar este rol.',
+                                refresh,
+                                false
+                            );
+                    }else{
+                        dialogs.confirmDialog(
+                            dialogTitle,
+                            'Rol removido con éxito',
+                            refresh,
+                            false
+                        );
+                    }
                 }, function (response) {
                     var responseText = JSON.parse(response.responseText);
                     console.log('responseText', responseText);
@@ -2106,12 +2143,91 @@ localButtons.deleteRol = function(context){
                     )
                 });
             }
+
+            function getInformation(){
+                var loaded = {};
+                function shouldInit(){
+                    if(loaded.selfWorkers){
+                        remove();
+                    }
+                }
+
+                if(item.Rol == "Coordinador"){
+                    spo.getListInfo('Planta',
+                        function (response) {
+                            var planta = response;
+                            var query4 = spo.encodeUrlListQuery(planta, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'filter': '(CoordinadorId eq ' + item.ID + ')'
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), 'Planta', query4,
+                                function (response) {
+                                    context.selfWorkers = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.selfWorkers = true;
+                                    shouldInit();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
+                    );
+                }if(item.Rol == "Aprobador"){
+                    spo.getListInfo('Planta',
+                        function (response) {
+                            var planta = response;
+                            var query4 = spo.encodeUrlListQuery(planta, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'filter': '(AprobadorId eq ' + item.ID + ')'
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), 'Planta', query4,
+                                function (response) {
+                                    context.selfWorkers = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.selfWorkers = true;
+                                    console.log('Coordinadores', context.selfWorkers)
+                                    shouldInit();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
+                    );
+                }else{
+                    loaded.selfWorkers = true;
+                    shouldInit();
+                }
+            }
             
-            dialogs.confirmDialog(
-                dialogTitle,
-                'Se quitará el rol de este usuario',
-                remove
-            )
+            app.dialog.create({
+                title: dialogTitle,
+                text: 'Se quitará el rol de este usuario',
+                buttons: [{
+                    text: 'Cancelar'
+                }, {
+                    text: 'Aceptar',
+                    onClick: function () {
+                        getInformation();
+                    }
+                }],
+                verticalButtons: false
+            }).open();
             
         }
     }

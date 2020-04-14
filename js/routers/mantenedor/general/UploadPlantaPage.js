@@ -252,13 +252,13 @@ var uploadPlantaPage = {
 
                     function PrepareToSend(item){
                         return {
-                            "ID": item.ID ? item.ID : '0',
+                            "ID": item.ID ? ''+item.ID : '0',
                             "Title": item.codigo.trim(),
                             "Rut": item.rut1.trim(),
                             "Nombre": item.nombre.trim(),
                             "ApellidoPaterno": item.paterno.trim(),
                             "ApellidoMaterno": item.materno.trim(),
-                            "Email": item['Correo Mutual'],
+                            "Email": item['Correo Mutual'] ? item['Correo Mutual'] : "",
                             "FechaNacimiento": numeroAFecha(item.fecha_nac),
                             "Sexo": item.sexo.trim().toUpperCase(),
                             "Direccion": item.direccion,
@@ -370,7 +370,7 @@ var uploadPlantaPage = {
                                         //Valida si existen cambios en el contrato. Si hay cambios actualiza los datos de la fila.
 
                                         
-                                        if(existe[0].TipoContrato.charAt(0).toLowerCase() != fila.tipcon.trim().charAt(0).toLowerCase()){
+                                        if(existe[0].TipoContrato.charAt(0).toLowerCase() != fila.tipcon.trim().charAt(0).toLowerCase() ||  existe[0].cargo == null){
                                             //Validacion del bug de Reemplazo que en excel se trata como F
                                             if((existe[0].TipoContrato.charAt(0).toLowerCase() == 'r') && (fila.tipcon.trim().charAt(0).toLowerCase() == 'f') ){
                                                 SinCambios.push(existe[0]);
@@ -402,7 +402,7 @@ var uploadPlantaPage = {
 
                                             //Obtenemos el ID interno de Centro Costo
                                             var Cargo = context.items.Cargo.filter(function(c){
-                                                return c.NombreCargo == fila.d_cargo;                                            
+                                                return c.CodigoPayroll == fila.cargo;      
                                             });
 
                                             console.log('Cargo desde Excel', fila.d_cargo)
@@ -454,10 +454,10 @@ var uploadPlantaPage = {
                                             }
 
                                             if(Cargo.length == 0){
-                                                // errores.push([{
-                                                //     "Linea" : linea,
-                                                //     "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_cargo
-                                                // }]);
+                                                errores.push([{
+                                                    "Linea" : linea,
+                                                    "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_cargo
+                                                }]);
                                                 return;
                                             }else{
                                                 fila.d_cargo = Cargo[0].ID;
@@ -493,7 +493,7 @@ var uploadPlantaPage = {
                                         
                                         //Obtenemos el ID interno de Centro Costo
                                         var Cargo = context.items.Cargo.filter(function(c){
-                                            return c.NombreCargo == fila.d_cargo;                                            
+                                            return c.CodigoPayroll == fila.cargo;        
                                         });
 
                                         //Validamos si se encontro. Si no se encontro se almacena la linea del error y el detalle
@@ -542,10 +542,10 @@ var uploadPlantaPage = {
                                         }
 
                                         if(Cargo.length == 0){
-                                            // errores.push([{
-                                            //     "Linea Excel" : linea,
-                                            //     "error": "No se encontro el Centro de en los registros de sharepoint. Nombre Cargo Planta: " + fila.d_cargo
-                                            // }]);
+                                            errores.push([{
+                                                "Linea Excel" : linea,
+                                                "error": "No se encontro el Centro de en los registros de sharepoint. Nombre Cargo Planta: " + fila.d_cargo
+                                            }]);
                                             return;
                                         }else{
                                             fila.d_cargo = Cargo[0].ID;
