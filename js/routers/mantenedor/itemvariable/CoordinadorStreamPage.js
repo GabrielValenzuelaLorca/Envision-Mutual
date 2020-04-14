@@ -9,7 +9,7 @@ coordinadorStreamPage.methods.getListView = function(){
 }
 
 coordinadorStreamPage.methods.getTitle = function(){
-    return "Seleccióne un coordinador para ver las opciónes"
+    return "Seleccione un coordinador para ver las opciones"
 }
 
 coordinadorStreamPage.methods.getListTitle = function(){
