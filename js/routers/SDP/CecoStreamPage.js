@@ -27,6 +27,7 @@ cecoStreamPage.methods.getOneItemSelectedButtons = function(){
         buttons = [];
 
     buttons.push(localButtons.editCecoButton(context));
+    buttons.push(localButtons.deleteCeco());
 
     return buttons;
 }
