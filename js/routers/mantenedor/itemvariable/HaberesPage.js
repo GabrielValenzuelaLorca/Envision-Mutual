@@ -313,7 +313,7 @@ var haberesPage = {
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
-                                        mainView.router.navigate('/cooStream?listItemId='+listItemId);
+                                        mainView.router.navigate('/coordinadorStream');
                                     }
                                 }],
                                 verticalButtons: false

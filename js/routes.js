@@ -207,10 +207,6 @@ function getRoutes(){
             component: coordinadorStreamPage
         },
         {
-            path: '/cooStream',
-            component: cooStreamPage
-        },
-        {
             path: '/cecoStream',
             component: cecoStreamPage
         },
@@ -280,10 +276,6 @@ function getRoutes(){
         {
             path: '/SolicitudesCyE',
             component: solicitudCyEStream
-        },
-        {
-            path: '/Ejemplo',
-            component: EjemploPage
         },
         {
             path: '/EjemploStream',

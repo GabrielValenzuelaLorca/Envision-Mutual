@@ -370,7 +370,6 @@ var uploadPlantaPage = {
                                         //Valida si existen cambios en el contrato. Si hay cambios actualiza los datos de la fila.
                                         
                                         if(existe[0].TipoContrato.charAt(0).toLowerCase() != fila.tipcon.trim().charAt(0).toLowerCase() ||  existe[0].cargo == null ){
-                                        if(existe[0].TipoContrato.charAt(0).toLowerCase() != fila.tipcon.trim().charAt(0).toLowerCase()){
                                             //Validacion del bug de Reemplazo que en excel se trata como F
                                             if((existe[0].TipoContrato.charAt(0).toLowerCase() == 'r') && (fila.tipcon.trim().charAt(0).toLowerCase() == 'f') ){
                                                 SinCambios.push(existe[0]);

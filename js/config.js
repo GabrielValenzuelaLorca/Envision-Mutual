@@ -41,7 +41,6 @@ var AppScriptsArray = [
     "js/routers/mantenedor/itemVariable/RolPage.js",
     "js/routers/mantenedor/itemVariable/RolStreamPage.js",
     "js/routers/mantenedor/itemVariable/CoordinadorStreamPage.js",
-    "js/routers/mantenedor/itemVariable/CooStreamPage.js",
     "js/routers/mantenedor/itemVariable/HaberesPage.js",
     "js/routers/mantenedor/itemVariable/TrabajadoresPage.js",
     "js/routers/mantenedor/itemVariable/TrabajadoresStreamPage.js",

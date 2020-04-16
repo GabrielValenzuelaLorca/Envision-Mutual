@@ -577,17 +577,6 @@ menuPage.methods.getListBlocksData = function(){
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--Archive"></i>',
             },
-            // {
-            //     href: '/cooStream',
-            //     title: 'Mantenedor Haberes',
-            //     after: '',
-            //     header: '',
-            //     footer: 'por coordinador',
-            //     panelClose: true,
-            //     externalLink: false,
-            //     f7view: '.view-main',
-            //     media: '<i class="ms-Icon ms-Icon--Archive"></i>',
-            // },
         ]);
 
         settings.push(admSection2);

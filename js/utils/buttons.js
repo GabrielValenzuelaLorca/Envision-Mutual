@@ -248,9 +248,6 @@ localButtons.toSeeDetailsSolicitud = function(){
     return button
 }
 
-localButtons.toCecosCrud = function(){
-
-
 /*
     Todos los botones relacionados con CoordinadorStreamPage, TrabajadorPage y TrabajadorStreamPage
 */
