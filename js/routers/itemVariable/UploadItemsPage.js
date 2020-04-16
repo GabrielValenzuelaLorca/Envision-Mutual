@@ -190,7 +190,7 @@ var uploadItemsPage = {
                     editable: listItemId ? false : true,
                     // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
                     fields: spo.getViewFields(context.lists.Excel, 'Todos los elementos')
-                });s
+                });
 
                 context.forms.errorsList = new EFWListTable({
                     container: $container.find('.error-container'),
