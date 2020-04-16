@@ -53,7 +53,7 @@ var AppScriptsArray = [
     "js/routers/SDP/SolicitudCyE.js",
     "js/routers/SDP/CecoPage.js",
     "js/routers/SDP/CecoStreamPage.js",
-   
+    "js/routers/SDP/AproveSolicitudStreamPage.js",
     
     //Carpeta Principal
     "js/routers/HomePage.js",

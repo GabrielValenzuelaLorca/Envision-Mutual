@@ -75,7 +75,7 @@ var solicitantePage = {
                     '<ul>'+
                         '<li class="accordion-item accordion-item-opened"><a href="#" class="item-content item-link">'+
                             '<div class="item-inner">'+
-                                '<div class="item-title"><strong>Identificación del jefe Solicitante</strong></div>'+
+                                '<div class="item-title"><strong>I. Identificación Jefatura</strong></div>'+
                             '</div></a>'+
                             '<div class="accordion-item-content">'+
                                 '<div class="form-container form1"></div>' +
@@ -83,15 +83,15 @@ var solicitantePage = {
                         '</li>'+
                         '<li class="accordion-item accordion-item-opened"><a href="#" class="item-content item-link">'+
                             '<div class="item-inner">'+
-                                '<div class="item-title"><strong>Recepcion de la solicitud</strong></div>'+
+                                '<div class="item-title"><strong>II. Solicitud contrato planta</strong></div>'+
                             '</div></a>'+
                             '<div class="accordion-item-content">'+
-                                '<div class="form-container form2"></div>'+
+                                '<div class="form2"></div>'+
                             '</div>'+
                         '</li>'+
                         '<li class="accordion-item accordion-item-opened"><a href="#" class="item-content item-link">'+
                             '<div class="item-inner">'+
-                                '<div class="item-title"><strong>Antecedentes Posicion</strong></div>'+
+                                '<div class="item-title"><strong>III. Antecedentes del Cargo</strong></div>'+
                             '</div></a>'+
                             '<div class="accordion-item-content">'+
                                 '<div class="form-container form3"></div>' +
@@ -100,7 +100,7 @@ var solicitantePage = {
                             '</div>'+
                         '</li>'+
                     '</ul>'+
-                    '<div class="history"></div>' +
+                    '<div class="form-container table-compact-row history"></div>' +
                 '</div>'+
             '<div class="content-loader">' +
                 '<div class="content-loader-inner">' +
@@ -275,6 +275,95 @@ var solicitantePage = {
                 },
             });
             commentPopup.open();
+        },
+
+        initInputs (list){
+            let inputs = [];
+
+            //Inputs para Formulario Jefe
+            inputs.push(spo.getViewFields(list.solicitudSDP, 'FormSolicitante'));
+
+            //Inputs para formulario Recepcion
+            inputs.push([
+                spo.getViewFields(list.solicitudSDP, 'FormRecepcionSolicitud')[0],
+                spo.getViewFields(list.solicitudSDP, 'FormVacante')[0],
+                spo.getViewFields(list.solicitudSDP, 'FormRecepcionSolicitud')[1],
+                spo.getViewFields(list.solicitudSDP, 'FormRecepcionSolicitud')[2],
+                spo.getViewFields(list.solicitudSDP, 'FormRecepcionSolicitud')[3],
+                spo.getViewFields(list.solicitudSDP, 'FormRecepcionSolicitud')[4],
+                {
+                    Id: generateUUID(),
+                    Title: 'Cotización del mandante',
+                    InternalName: 'CotizaciónMandante',
+                    TypeAsString: 'Attachments',
+                },
+            ]);
+
+            //Inputs para formulario Antecedentes del cargo
+            inputs.push([
+                spo.getViewFields(list.solicitudSDP, 'AntecedentesPosicion')[0],
+                    {
+                        Id: generateUUID(),
+                        Title: '¿Otro?',
+                        InternalName: 'otroCargo',
+                        TypeAsString: 'Boolean',
+                    },
+                    spo.getViewFields(list.solicitudSDP, 'AntecedentesPosicion')[1],
+                    {
+                        Id: generateUUID(),
+                        Title: 'Descriptor de cargo',
+                        InternalName: 'DocDescriptor de cargo',
+                        TypeAsString: 'Attachments',
+                        required: true,
+                    },
+                    spo.getViewFields(list.solicitudSDP, 'AntecedentesPosicion')[2],
+                    spo.getViewFields(list.solicitudSDP, 'AntecedentesPosicion')[3],
+                    spo.getViewFields(list.solicitudSDP, 'FormContratoRecuperable')[0],
+                    spo.getViewFields(list.solicitudSDP, 'FormContratoRecuperable')[1],
+                    spo.getViewFields(list.solicitudSDP, 'FormContratoRecuperable')[2],
+                    spo.getViewFields(list.solicitudSDP, 'FormVacante')[1]
+                ]); 
+                
+            inputs.push([{
+                Id: generateUUID(),
+                Title: '',
+                InternalName: 'Aprobador',
+                TypeAsString: 'Text',
+                Required: false,
+            },{
+                Id: generateUUID(),
+                Title: 'Cargo Aprobador',
+                InternalName: 'CargoAprobador',
+                TypeAsString: 'Text',
+                Required: false,
+            },{
+                Id: generateUUID(),
+                Title: 'Email Aprobador',
+                InternalName: 'EmailAprobador',
+                TypeAsString: 'Text',
+                Required: false,
+            },{
+                Id: generateUUID(),
+                Title: 'Estado',
+                InternalName: 'Status',
+                TypeAsString: 'Text',
+                Required: false,
+            },
+            {
+                Id: generateUUID(),
+                Title: 'Fecha',
+                InternalName: 'Fecha',
+                TypeAsString: 'Text',
+                Required: false,
+            },{
+                Id: generateUUID(),
+                Title: 'Observación',
+                InternalName: 'Observación',
+                TypeAsString: 'Text',
+                Required: false,
+            }])
+
+            return inputs
         }
     },
     on: {
@@ -282,7 +371,8 @@ var solicitantePage = {
             // variables
             var context = this.$options.data(),
                 mths = this.$options.methods,
-                listItemId = page.route.query.listItemId;
+                listItemId = page.route.query.listItemId,
+                step = 1;
 
             context.methods = mths;
 
@@ -306,21 +396,14 @@ var solicitantePage = {
                     $refuse = $navbar.find('.link.doc-reject')
                     $finalApprove = $navbar.find('.link.final-approve');
                     $forceClose = $navbar.find('.link.force-close');
-
-                // context.forms.busqueda.inputs['busqueda'].params.onChange = function(comp, input, state, values){
-                //     if(values.length == 0){
-                //         context.forms.jefe.reset();
-                //     }else{
-                //         var work = context.items.Planta.filter( x => x.BusquedaPlanta == values[0].key)[0];
-                //         context.forms.jefe.inputs['Rut'].setValue([{key: work.ID, text: work.Rut, item: work}])
-                //     }
-                // }
+                
+                var inputs = context.methods.initInputs(context.lists);
 
                 context.forms.jefe = new EFWForm({
                     container: $container.find('.form1'),
                     title: '',
                     editable: false,
-                    fields: spo.getViewFields(context.lists.solicitudSDP, 'FormSolicitante')
+                    fields: inputs[0]
                 }); 
                 
                 
@@ -346,98 +429,92 @@ var solicitantePage = {
                             context.forms.jefe.inputs['Gerencia'].setValue(values[0].item.Nivel_Org_1 ? values[0].item.Nivel_Org_1 : '');
                             context.forms.jefe.inputs['CentroCosto'].setValue(values[0].item.d_centro_d ? values[0].item.d_centro_d : '')
                             context.forms.jefe.inputs['Aprobadores'].setValue(aprobadores.length ? JSON.stringify(aprobadores) : '');
+
+                            if(aprobadores.length == 0){
+                                app.dialog.create({
+                                    title: 'Atención',
+                                    text: `El jefe solicitante seleccionado no cuenta con el flujo de aprovación activo`,
+                                    buttons: [{
+                                        text: 'Aceptar',
+                                        onClick: function () {
+                                            return
+                                        }
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            }
                         }
                     }
                 }
-
-                var input1 = [
-                    spo.getViewFields(context.lists.solicitudSDP, 'FormRecepcionSolicitud')[0],
-                    spo.getViewFields(context.lists.solicitudSDP, 'FormRecepcionSolicitud')[1],
-                    spo.getViewFields(context.lists.solicitudSDP, 'FormRecepcionSolicitud')[2],
-                    {
-                        Id: generateUUID(),
-                        Title: 'Cotización del mandante',
-                        InternalName: 'CotizaciónMandante',
-                        TypeAsString: 'Attachments',
-                    },
-                    spo.getViewFields(context.lists.solicitudSDP, 'FormRecepcionSolicitud')[3],
-                    spo.getViewFields(context.lists.solicitudSDP, 'FormRecepcionSolicitud')[4]
-                ]
 
                 //Form Parte 2
                 context.forms.recepcion = new EFWForm({
                     container: $container.find('.form2'),
                     title: '',
                     editable: listItemId ? false : true,
-                    fields: input1
+                    fields: inputs[1]
                 });
 
+                //Ocultar Botones
+                context.forms.recepcion.inputs['Reemplazo'].hide();
                 context.forms.recepcion.inputs['CPRFechaDesde'].hide();
                 context.forms.recepcion.inputs['CPRFechaHasta'].hide();
                 context.forms.recepcion.inputs['CotizaciónMandante'].hide();
 
-                //Ocultar Botones
+                
                 context.forms.recepcion.inputs['ContratoMutualProyRecuperable'].params.onChange = function(comp, input, state, values){
-                    if(values){
-                        context.forms.recepcion.inputs['CPRFechaDesde'].show();
-                        context.forms.recepcion.inputs['CPRFechaHasta'].show();
-                        context.forms.recepcion.inputs['CotizaciónMandante'].show();
-
-                        context.forms.recuperable.show();
-                    }else{
-                        context.forms.recepcion.inputs['CPRFechaDesde'].hide();
-                        context.forms.recepcion.inputs['CPRFechaHasta'].hide();
-                        context.forms.recepcion.inputs['CotizaciónMandante'].hide();
-
-                        context.forms.recuperable.hide();
+                    if(values.length > 0){
+                        if(values[0].text == "Mutual (Proyecto Recuperable)"){
+                            context.forms.recepcion.inputs['CPRFechaDesde'].show();
+                            context.forms.recepcion.inputs['CPRFechaHasta'].show();
+                            context.forms.recepcion.inputs['CotizaciónMandante'].show();
+                            context.forms.recepcion.inputs['CotizaciónMandante'].setRequired(true);
+                            context.forms.posicion.inputs['NombreProyecto'].show();
+                            context.forms.posicion.inputs['DependenciaDirecta'].show();
+                            context.forms.posicion.inputs['Renta'].show();
+                        }else{
+                            context.forms.recepcion.inputs['CPRFechaDesde'].hide();
+                            context.forms.recepcion.inputs['CPRFechaHasta'].hide();
+                            context.forms.recepcion.inputs['CotizaciónMandante'].hide();
+                            context.forms.recepcion.inputs['CotizaciónMandante'].setRequired(false);
+                            context.forms.posicion.inputs['NombreProyecto'].hide();
+                            context.forms.posicion.inputs['DependenciaDirecta'].hide();
+                            context.forms.posicion.inputs['Renta'].hide();
+                        }
                     }
                 }
 
                 context.forms.recepcion.inputs['Posicion'].params.onChange = function(comp, input, state, values){
                     if(values.length > 0){
                         if(values[0].text == "Vacante"){
-                            context.forms.posicion.inputs['PersonasAContratar'].setEditable(false);
-                            context.forms.posicion.inputs['PersonasAContratar'].setValue(1);
-                            context.forms.vacante.show();
+                            if(!listItemId){
+                                context.forms.posicion.inputs['PersonasAContratar'].setEditable(false);
+                                context.forms.posicion.inputs['PersonasAContratar'].setValue(1);
+                            }
+                            context.forms.recepcion.inputs['Reemplazo'].show();
                         }else{
-                            context.forms.vacante.hide();
-                            context.forms.posicion.inputs['PersonasAContratar'].setEditable(true);
-                            context.forms.posicion.inputs['PersonasAContratar'].setValue('');
+                            context.forms.recepcion.inputs['Reemplazo'].hide();
+                            if(!listItemId){
+                                context.forms.posicion.inputs['PersonasAContratar'].resetValue();
+                                context.forms.posicion.inputs['PersonasAContratar'].setEditable(true);
+                            }   
                         }
-                    }else{
-
                     }
                 }
-
-                var input2 = [
-                    spo.getViewFields(context.lists.solicitudSDP, 'AntecedentesPosicion')[0],
-                    {
-                        Id: generateUUID(),
-                        Title: '¿Otro?',
-                        InternalName: 'otroCargo',
-                        TypeAsString: 'Boolean',
-                    },
-                    spo.getViewFields(context.lists.solicitudSDP, 'AntecedentesPosicion')[1],
-                    {
-                        Id: generateUUID(),
-                        Title: 'Descriptor de cargo',
-                        InternalName: 'DocDescriptor de cargo',
-                        TypeAsString: 'Attachments',
-                        required: true,
-                    },
-                    spo.getViewFields(context.lists.solicitudSDP, 'AntecedentesPosicion')[2],
-                    spo.getViewFields(context.lists.solicitudSDP, 'AntecedentesPosicion')[3]
-                ];
 
                 //Form Parte 3
                 context.forms.posicion = new EFWForm({
                     container: $container.find('.form3'),
                     title: '',
                     editable: listItemId ? false : true,
-                    fields: input2
+                    fields: inputs[2]
                 });
+
                 context.forms.posicion.inputs['DocDescriptor de cargo'].hide()
                 context.forms.posicion.inputs['NombreNewCargo'].hide()
+                context.forms.posicion.inputs['NombreProyecto'].hide();
+                context.forms.posicion.inputs['DependenciaDirecta'].hide();
+                context.forms.posicion.inputs['Renta'].hide();
                 
 
                 context.forms.posicion.inputs['otroCargo'].params.onChange = function(comp, input, state, values){
@@ -462,64 +539,73 @@ var solicitantePage = {
                     }
                 }
 
-                //Form Parte 3
-                context.forms.recuperable = new EFWForm({
-                    container: $container.find('.form4'),
-                    title: 'Datos contrato Mutual proy. recuperable',
-                    editable: listItemId ? false : true,
-                    fields: spo.getViewFields(context.lists.solicitudSDP, 'FormContratoRecuperable')
-                });
-
-                context.forms.recuperable.hide()
-
-                //Form Parte 3
-                context.forms.vacante = new EFWForm({
-                    container: $container.find('.form5'),
-                    title: 'Datos de posicion vacante',
-                    editable: listItemId ? false : true,
-                    fields:spo.getViewFields(context.lists.solicitudSDP, 'FormVacante')
-                });
-
-                //Ocultamos el formulario
-                context.forms.vacante.hide();
-
-
-                //Form Parte 3
-                context.forms.history = new EFWForm({
-                    container: $container.find('.history'),
-                    title: 'Historial de la solicitud',
-                    editable: false,
-                    fields: [
-                        spo.getViewFields(context.lists.solicitudSDP, 'History')[0],
-                        {
-                            Id: generateUUID(),
-                            Title: 'Siguiente Aprobador',
-                            InternalName: 'NextApprove',
-                            TypeAsString: 'Text',
-                        },
-                        spo.getViewFields(context.lists.solicitudSDP, 'History')[1]
-                    ]
-                });
-                context.forms.history.hide();
-
                 if(listItemId){
                     context.forms.jefe.setValues(context.items.solicitudSDP)
                     context.forms.recepcion.setValues(context.items.solicitudSDP)
-                    context.forms.posicion.setValues(context.items.solicitudSDP);
-                    context.forms.recuperable.setValues(context.items.solicitudSDP)
-                    context.forms.vacante.setValues(context.items.solicitudSDP)
-                    context.forms.history.setValues(context.items.solicitudSDP)
+                    context.forms.posicion.setValues(context.items.solicitudSDP)
+                    if(context.items.solicitudSDP.otroCargo){
+                        context.forms.posicion.inputs['NombreCargoSolicitado'].setValue([{key: context.items.solicitudSDP.NombreCargoSolicitadoId, text: context.items.solicitudSDP.NombreCargoSolicitado.NombreCargo }])
+                    }
                     context.forms.jefe.inputs["Aprobadores"].hide()
                     context.forms.jefe.inputs["NextVal"].hide()
 
-                    //Mostramos el historial
-                    context.forms.history.show();
-                    context.forms.history.inputs['HistorialAprobacion'].setEditable(true);
-                    context.forms.history.inputs['HistorialAprobacion'].setReadOnly(true);
-                    context.forms.history.inputs['NextApprove'].setValue(context.items.solicitudSDP.NextVal);
+                    //Generar una tabla para inputs dinamicamente, como el de arriba pero mas ordenado
+                    context.forms.history = new EFWListTable({
+                        container: $container.find('.history'),
+                        title: 'Historial de aprobaciones',
+                        editable: false,
+                        // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
+                        fields: inputs[3],
+                        multiItemsSelectedButtons: function(table, item){return []},
+                        noItemsSelectedButtons: function(table){return []},
+                        oneItemSelectedButtons: function(table, item){return []},
+                        description: '',
+                        sortable: false,
+                        editable: false,
+                        disabled: true,
+                        tableLayout: 'fixed',
+                        formCssClass: 'tablaCoordinadores',
+                        emptyTableText: 'El jefe solicitante no cuenta con aprobadores.',
+                    });
+
+
+                    //Formulario Historial de aprobaciones
+                    if(context.items.Aprobadores){
+                        var values = JSON.parse(context.items.solicitudSDP.Aprobadores).map(function(a, i){
+                            let current =  context.items.Aprobadores.filter(x => x.Email == a)[0];
+                            i = i+1
+                            
+                            if(current){
+                                return {
+                                    Aprobador: 'Aprobador '+i,
+                                    CargoAprobador: current.d_cargo.NombreCargo ? current.d_cargo.NombreCargo : 'No posee cargo',
+                                    EmailAprobador: a,
+                                    Status: context.items.History['V_x00b0_B_x00b0__x0028_'+i+'_x0029_'] ? 'Aprobado': 'Pendiente',
+                                    Fecha: context.items.History['FechadeV_x00b0_B_x00b0__x0028_'+i+'_'] ? moment(context.items.History['FechadeV_x00b0_B_x00b0__x0028_'+i+'_']).format("DD/MM/YYYY hh:mm") : '',
+                                    Observación: context.items.History['Observacion_x0028_'+i+'_x0029_'] ? context.items.History['Observacion_x0028_'+i+'_x0029_'] : ''                                
+                                }
+                            }else{
+                                return {
+                                    Aprobador: 'Aprobador '+i,
+                                    CargoAprobador: 'No se encontro el trabajador con el email indicado',
+                                    EmailAprobador: a,
+                                    Status: context.items.History['V_x00b0_B_x00b0__x0028_'+i+'_x0029_'] ? 'Aprobado': 'Pendiente',
+                                    Fecha: context.items.History['FechadeV_x00b0_B_x00b0__x0028_'+i+'_'] ? moment(context.items.History['FechadeV_x00b0_B_x00b0__x0028_'+i+'_']).format("DD/MM/YYYY hh:mm") : '',
+                                    Observación: context.items.History['Observacion_x0028_'+i+'_x0029_'] ? context.items.History['Observacion_x0028_'+i+'_x0029_'] : ''                                
+                                }
+                            }
+                            
+                        });
+                        context.forms.history.setValues(values)
+
+                        $container.find('.card-content thead tr th:nth-child(1)').addClass('hide');
+                        $container.find('.card-content tbody tr td.checkbox-cell').addClass('hide');
+                        $container.find('.card-content thead tr th:nth-child(1)').addClass('hide');
+                        $('.checkbox-cell').addClass('hide')
+                    }
+
 
                     if(context.items.solicitudSDP.Adjuntos){
-                        console.log('Adjuntos', context.items.solicitudSDP)
                         if(context.items.solicitudSDP.Adjuntos.results.length > 0){
                             context.forms.recepcion.inputs['CotizaciónMandante'].resetValue();
                             context.forms.posicion.inputs['DocDescriptor de cargo'].resetValue();
@@ -639,16 +725,7 @@ var solicitantePage = {
                         var dialog = app.dialog.progress(dialogTitle);
                         var metadataJefe = context.forms.jefe.getMetadata(),
                             metadataRecepcion = context.forms.recepcion.getMetadata(),
-                            metadataPocicion = context.forms.posicion.getMetadata(),
-                            metadataRecuperable = [],
-                            metadataVacante = [];
-                            
-                        if(context.forms.recepcion.inputs['ContratoMutualProyRecuperable'].value){
-                            metadataRecuperable = context.forms.recuperable.getMetadata()
-                        }
-                        if(context.forms.recepcion.inputs['Posicion'].values[0].key == 'Vacante'){
-                            metadataVacante = context.forms.vacante.getMetadata()
-                        }
+                            metadataPocicion = context.forms.posicion.getMetadata();
 
                         var metadata = [];
 
@@ -672,7 +749,7 @@ var solicitantePage = {
                         metadata.Cargo = metadataJefe.Cargo;
                         metadata.Gerencia = metadataJefe.Gerencia;
                         metadata.Posicion = metadataRecepcion.Posicion;
-                        metadata.AumentoPresupuesto = metadataRecepcion.ContratoMutualProyRecuperable;
+                        metadata.AumentoPresupuesto = metadataRecepcion.AumentoPresupuesto;
                         metadata.ContratoMutualProyRecuperable = metadataRecepcion.ContratoMutualProyRecuperable;
                         metadata.CPRFechaDesde = metadataRecepcion.CPRFechaDesde;
                         metadata.CPRFechaHasta = metadataRecepcion.CPRFechaHasta;
@@ -681,18 +758,22 @@ var solicitantePage = {
                         metadata.NombreNewCargo = metadataPocicion.NombreNewCargo;
                         metadata.PersonasAContratar = metadataPocicion.PersonasAContratar;
                         metadata.JefaturaDirectaId = metadataPocicion.JefaturaDirectaId;
-                        metadata.NombreProyecto = metadataRecuperable.NombreProyecto
-                        metadata.DependenciaDirectaId = metadataRecuperable.DependenciaDirectaId
-                        metadata.Renta = metadataRecuperable.Renta;
-                        metadata.ReemplazoId = metadataVacante.ReemplazoId;
+                        metadata.NombreProyecto = metadataPocicion.NombreProyecto
+                        metadata.DependenciaDirectaId = metadataPocicion.DependenciaDirectaId
+                        metadata.Renta = metadataPocicion.Renta;
+                        metadata.ReemplazoId = metadataRecepcion.ReemplazoId;
                         metadata.CentroCosto = metadataJefe.CentroCosto
-                        metadata.Observacion = metadataVacante.Observacion;
+                        metadata.Observacion = metadataPocicion.Observacion;
                         metadata.Attachments = Attachments;
                         metadata.Adjuntos = {};
                         metadata.Adjuntos.results = Adjuntos;
                         metadata.Estado = '1ra Validación';
                         metadata.Aprobadores = context.forms.jefe.inputs["Aprobadores"].value;
-                        metadata.NextVal = JSON.parse(metadata.Aprobadores)[0]
+                        metadata.NextVal = metadata.Aprobadores.length > 0 ? JSON.parse(metadata.Aprobadores)[0] : null
+                        metadata.TipoSolicitud = 'Planta';
+                        metadata.RutSolicitante = plantaAdmin.Rut ? plantaAdmin.Rut : '';
+                        metadata.NombreSolicitante = plantaAdmin.NombreCompleto ? plantaAdmin.NombreCompleto : '';
+                        metadata.CargoSolicitante = plantaAdmin.d_cargo.NombreCargo ? plantaAdmin.d_cargo.NombreCargo : '';
 
                         spo.saveListItem(spo.getSiteUrl(), 'SolicitudSDP', metadata, function (response) {
                                 dialog.close();
@@ -728,27 +809,11 @@ var solicitantePage = {
                     context.forms.jefe.checkFieldsRequired();
                     context.forms.recepcion.checkFieldsRequired();
                     context.forms.posicion.checkFieldsRequired();
-                    if(context.forms.recepcion.inputs['ContratoMutualProyRecuperable'].value){
-                        context.forms.recuperable.checkFieldsRequired();
-                    }
-                    if(context.forms.recepcion.inputs['Posicion'].values[0].key == 'Vacante'){
-                        context.forms.vacante.checkFieldsRequired();
-                    }
                     
                     var validate = false 
 
                     if(context.forms.jefe.getValidation() && context.forms.recepcion.getValidation() && context.forms.posicion.getValidation()){
                         validate = true;
-                        if(context.forms.recepcion.inputs['ContratoMutualProyRecuperable'].value){
-                            if(!context.forms.recuperable.getValidation()){
-                                validate = false;
-                            }
-                        }
-                        if(context.forms.recepcion.inputs['Posicion'].values[0].key == 'Vacante'){
-                            if(!context.forms.vacante.getValidation()){
-                                validate = false;
-                            }
-                        }
                     }
                     
                     if (validate) {
@@ -1126,7 +1191,7 @@ var solicitantePage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.Solicitud && loaded.Cargo && loaded.ListPlanta) {
+                    if (loaded.Solicitud && loaded.Cargo && loaded.ListPlanta && loaded.DependenciaDirecta && loaded.Reemplazo && loaded.history) {
                         initForm();
                     }
                 };
@@ -1145,11 +1210,158 @@ var solicitantePage = {
                                 }
                             });
 
+                            var query1 = spo.encodeUrlListQuery(context.lists.solicitudSDP, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'filter': '(ID eq '+listItemId+')',
+                                    'select': 
+                                    'FechadeV_x00b0_B_x00b0__x0028_1_,'+
+                                    'FechadeV_x00b0_B_x00b0__x0028_2_,'+
+                                    'FechadeV_x00b0_B_x00b0__x0028_3_,'+
+                                    'FechadeV_x00b0_B_x00b0__x0028_4_,'+
+                                    'FechadeV_x00b0_B_x00b0__x0028_5_,'+
+                                    'FechadeV_x00b0_B_x00b0__x0028_6_,'+
+                                    'FechadeV_x00b0_B_x00b0__x0028_7_,'+
+                                    'FechadeV_x00b0_B_x00b0__x0028_8_,'+
+                                    'V_x00b0_B_x00b0__x0028_1_x0029_,'+
+                                    'V_x00b0_B_x00b0__x0028_2_x0029_,'+
+                                    'V_x00b0_B_x00b0__x0028_3_x0029_,'+
+                                    'V_x00b0_B_x00b0__x0028_4_x0029_,'+
+                                    'V_x00b0_B_x00b0__x0028_5_x0029_,'+
+                                    'V_x00b0_B_x00b0__x0028_6_x0029_,'+
+                                    'V_x00b0_B_x00b0__x0028_7_x0029_,'+
+                                    'V_x00b0_B_x00b0__x0028_8_x0029_,'+
+                                    'Observacion_x0028_1_x0029_,'+
+                                    'Observacion_x0028_2_x0029_,'+
+                                    'Observacion_x0028_3_x0029_,'+
+                                    'Observacion_x0028_4_x0029_,'+
+                                    'Observacion_x0028_5_x0029_,'+
+                                    'Observacion_x0028_6_x0029_,'+
+                                    'Observacion_x0028_7_x0029_,'+
+                                    'Observacion_x0028_8_x0029_' ,
+                                    'top': 5000
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), 'SolicitudSDP', query1,
+                                function (response) {
+                                    context.items.History = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    loaded.history = true;
+                                    shouldInitForms();
+                                },function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+
+
                             spo.getListItems(spo.getSiteUrl(), 'SolicitudSDP', query,
                                 function (response) {
                                     context.items.solicitudSDP = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.Solicitud = true;
-                                    shouldInitForms();
+                                    spo.getListInfo("Planta",
+                                        function (response) {
+                                            context.lists.planta = response;
+
+                                            if(context.items.solicitudSDP.ReemplazoId){
+                                                var query = spo.encodeUrlListQuery(context.lists.planta, {
+                                                    view: 'Todos los elementos',
+                                                    odata: {
+                                                        'filter': '(ID eq '+context.items.solicitudSDP.ReemplazoId+')',
+                                                        'select': '*',
+                                                        'top': 5000
+                                                    }
+                                                });
+
+                                                spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                                                    function (response) {
+                                                        context.items.solicitudSDP.Reemplazo = response.d.results.length > 0 ? response.d.results[0] : null;
+                                                        loaded.Reemplazo = true;
+                                                        shouldInitForms();
+                                                    },
+                                                    function (response) {
+                                                        var responseText = JSON.parse(response.responseText);
+                                                        console.log(responseText.error.message.value);
+                                                    }
+                                                );
+                                            }else{
+                                                loaded.Reemplazo = true;
+                                                shouldInitForms();
+                                            }
+                                            
+                                            if(context.items.solicitudSDP.DependenciaDirectaId){
+                                                var query2 = spo.encodeUrlListQuery(context.lists.planta, {
+                                                    view: 'Todos los elementos',
+                                                    odata: {
+                                                        'filter': '(ID eq '+context.items.solicitudSDP.DependenciaDirectaId+')',
+                                                        'select': '*',
+                                                        'top': 5000
+                                                    }
+                                                });
+
+                                                spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                                                    function (response) {
+                                                        context.items.solicitudSDP.DependenciaDirecta = response.d.results.length > 0 ? response.d.results[0] : null;
+                                                        loaded.DependenciaDirecta = true;
+                                                        shouldInitForms();
+                                                    },
+                                                    function (response) {
+                                                        var responseText = JSON.parse(response.responseText);
+                                                        console.log(responseText.error.message.value);
+                                                    }
+                                                );
+                                            }else{
+                                                loaded.DependenciaDirecta = true;
+                                                shouldInitForms();
+                                            }
+
+                                            if(context.items.solicitudSDP.Aprobadores){
+
+                                                let aprobadores = JSON.parse(context.items.solicitudSDP.Aprobadores);
+                                                var busqueda = "";
+                                                aprobadores.map(function(aprobador, i){
+                                                    if(i+1 == aprobadores.length){
+                                                        busqueda += 'Email eq \''+ aprobador +'\' )'
+                                                    }else if(i == 0){
+                                                        busqueda += '(Email eq \''+ aprobador +'\' or '
+                                                    }else{
+                                                        busqueda += 'Email eq \''+ aprobador +'\' or '
+                                                    }
+                                                    
+                                                });
+                                                var query = spo.encodeUrlListQuery(context.lists.planta, {
+                                                    view: 'Todos los elementos',
+                                                    odata: {
+                                                        'filter': busqueda,
+                                                        'select': '*',
+                                                        'top': 5000
+                                                    }
+                                                });
+
+                                                spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                                                    function (response) {
+                                                        context.items.Aprobadores = response.d.results.length > 0 ? response.d.results : null;
+                                                        loaded.aprobadores = true;
+                                                        shouldInitForms();
+                                                    },
+                                                    function (response) {
+                                                        var responseText = JSON.parse(response.responseText);
+                                                        console.log(responseText.error.message.value);
+                                                    }
+                                                );
+
+                                            }else{
+                                                loaded.aprobadores = true;
+                                                shouldInitForms()
+                                            }
+                                        },
+                                        function (response) {
+                                            var responseText = JSON.parse(response.responseText);
+                                            console.log(responseText.error.message.value);
+                                        }
+                                    );
+
+                                loaded.Solicitud = true;
+                                shouldInitForms();
                                 },
                                 function (response) {
                                     var responseText = JSON.parse(response.responseText);
@@ -1158,6 +1370,10 @@ var solicitantePage = {
                             );
                         }else{
                             loaded.Solicitud = true;
+                            loaded.Reemplazo = true;
+                            loaded.aprobadores = true;
+                            loaded.DependenciaDirecta = true;
+                            loaded.history = true;
                             shouldInitForms();
                         }
                     },

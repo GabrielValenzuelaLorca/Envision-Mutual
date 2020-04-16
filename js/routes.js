@@ -275,11 +275,19 @@ function getRoutes(){
         },
         {
             path: '/SolicitudesPorValidar',
-            component: solicitudStreamPage
+            component: aproveSolicitudStreamPage
         },
         {
             path: '/SolicitudesCyE',
             component: solicitudCyEStream
+        },
+        {
+            path: '/Ejemplo',
+            component: EjemploPage
+        },
+        {
+            path: '/EjemploStream',
+            component: cecoStreamPage
         },
     ]
 

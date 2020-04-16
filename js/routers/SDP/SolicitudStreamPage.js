@@ -29,26 +29,81 @@ solicitudStreamPage.methods.getMultiItemsSelectedButtons = function(){
 }
 
 solicitudStreamPage.methods.getCamlQueryConditions = function(){
-    var page = this._getPage();
-    var url = page.route.url
-    
-    if (url == "/SolicitudesPorValidar"){
-        if (plantaAdmin.Confianza){
-            return ''+
-                '<Or><Eq>'+
-                    '<FieldRef Name="Estado" />'+
-                        '<Value Type="Choice">Última Validación</Value>'+
-                '</Eq>'+
-                    '<Contains><FieldRef Name="NextVal" />' +
-                        '<Value Type="Text">'+ plantaAdmin.Email +'</Value>' +
-                    '</Contains>' +
-                '</Or>'  
-        } else {
-            return ''+
-                '<Contains><FieldRef Name="NextVal" />' +
-                    '<Value Type="Text">'+ plantaAdmin.Email +'</Value>' +
-                '</Contains>'               
+    return `<Or>
+                <Eq><FieldRef Name="Rut" LookupId="TRUE"/><Value Type="Lookup">${plantaAdmin.ID}</Value></Eq>
+                <Contains><FieldRef Name="RutSolicitante" /><Value Type="Text">${plantaAdmin.Rut}</Value></Contains>
+            </Or>`
+}
+
+solicitudStreamPage.methods.renderHeader = function($header){
+    // core vars
+    var self = this,
+        page = this._getPage(),
+        url = page.route.url
+
+    // use vars
+    var title = self.getTitle() || page.route.query.title,
+        description = '',
+        tabChoices = [
+            {id : 1, text: 'En validación', segment: 'En Validación'},
+            {id : 2, text: 'Enviada/No Validada', segment: 'Enviada/No Validada'}
+        ];
+
+    // tempalte con titulo, descripción opcional y un tabs
+    var templateHtml = `
+        <div class="form-header">
+            <div class="Title" style="margin-left: 42%; margin-right: 42%; margin-top: 8px; font-size: 20px; font-weight: 600;">` + title +  `</div>
+            <div class="ms-Form-Description">` + description + `</div>
+            <div class="segmented" style="margin:20px auto; max-width:600px">
+                <a class="button" segment-id="` + tabChoices[0].id + `" segment-text="` + tabChoices[0].segment + `">` + tabChoices[0].text + `</a>
+                <a class="button" segment-id="` + tabChoices[1].id + `" segment-text="` + tabChoices[1].segment + `">` + tabChoices[1].text + `</a>
+            </div>
+        </div>
+    `;
+
+    // agregar html
+    $header.html(templateHtml);
+
+    // agregar al hacer click sobre botón
+    $header.find('.segmented .button').on('click', function(e){
+        var choice = this.getAttribute('segment-text');
+            query = "";
+        switch(choice){
+            case 'En Validación':{
+                query = `
+                    <And>
+                        <And>
+                            <Neq><FieldRef Name="Estado" /><Value Type="Choice">No Validada</Value></Neq>
+                            <Neq><FieldRef Name="Estado" /><Value Type="Choice">Enviada a Compensación</Value></Neq>
+                        </And>
+                        <Or>
+                            <Eq><FieldRef Name="Rut" LookupId="TRUE"/><Value Type="Lookup">${plantaAdmin.ID}</Value></Eq>
+                            <Contains><FieldRef Name="RutSolicitante" /><Value Type="Text">${plantaAdmin.Rut}</Value></Contains>
+                        </Or>
+                    </And>`;
+                break;
+            }
+            case 'Enviada/No Validada':{
+                query = `
+                    <And>
+                        <Or>
+                            <Eq><FieldRef Name="Estado" /><Value Type="Choice">No Validada</Value></Eq>
+                            <Eq><FieldRef Name="Estado" /><Value Type="Choice">Enviada a Compensación</Value></Eq>
+                        </Or> 
+                        <Or>
+                            <Eq><FieldRef Name="Rut" LookupId="TRUE"/><Value Type="Lookup">${plantaAdmin.ID}</Value></Eq>
+                            <Contains><FieldRef Name="RutSolicitante" /><Value Type="Text">${plantaAdmin.Rut}</Value></Contains>
+                        </Or>
+                    </And>`;
+                break;
+            }
         }
+        // manejar lógica para ver botón seleccionado
+        $header.find('.segmented .button').removeClass('button-active');
+        $(this).addClass('button-active');
         
-    }
+
+        // self.requestItems() acepta como parametro una consulta CAML
+        self.requestItems(query);
+    });
 }
