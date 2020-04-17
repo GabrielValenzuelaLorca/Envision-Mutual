@@ -560,23 +560,23 @@ menuPage.methods.getListBlocksData = function(){
                 title: 'Mantenedor Coordinador',
                 after: '',
                 header: '',
-                footer: 'haberes y trabajadores',
+                footer: 'Haberes y trabajadores',
                 panelClose: true,
                 externalLink: false,
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
             },
-            // {
-            //     href: '/cooStream',
-            //     title: 'Mantenedor Haberes',
-            //     after: '',
-            //     header: '',
-            //     footer: 'por coordinador',
-            //     panelClose: true,
-            //     externalLink: false,
-            //     f7view: '.view-main',
-            //     media: '<i class="ms-Icon ms-Icon--Archive"></i>',
-            // },
+            {
+                href: '/EjemploStream',
+                title: 'Mantenedor Centro de costo',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--Archive"></i>',
+            },
         ]);
 
         settings.push(admSection2);
@@ -671,6 +671,31 @@ menuPage.methods.getListBlocksData = function(){
             ]);
           
             settings.push(valSection);
+        }
+
+        if (plantaAdmin.RolSDP.results.includes("Encargado CeCo")){
+            let cecoSection = {
+                inset: true,
+                header: 'Panel de Centros de Costos',
+                footer: '',
+                options: []
+            };
+    
+            cecoSection.options = cecoSection.options.concat([
+                {
+                    href: '/cecoStream',                    
+                    title: 'Mantenedor de CeCo',                    
+                    after: '',
+                    header: '',
+                    footer: 'Centro de costo',                    
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--Archive"></i>',
+                },
+            ]);
+          
+            settings.push(cecoSection);
         }
     
         if (plantaAdmin.RolSDP.results.includes("CyE")){

@@ -1,4 +1,4 @@
-var haberesPage = {
+var cecoPage = {
     template: '' +
         '<div class="page" data-page="FormPage">' +
             '<div class="navbar">' +
@@ -17,7 +17,11 @@ var haberesPage = {
                     '<div class="right">' +
                         '<a href="#" class="link update ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Save"></i>' +
-                            '<span class="ios-only">Imputar Haberes</span>' +
+                            '<span class="ios-only">Actualizar</span>' +
+                        '</a>' +
+                        '<a href="#" class="link create ms-fadeIn100 hide">' +
+                            '<i class="ms-Icon ms-Icon--Save"></i>' +
+                            '<span class="ios-only">Añadir Centros de Costo</span>' +
                         '</a>' +
                         '<a href="#" class="link generate-PDF ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PDF"></i>' +
@@ -52,8 +56,7 @@ var haberesPage = {
             '</div>' +
             '<div class="page-content">' +
                 '<div>' +
-                    '<div class="form-container"></div>' +
-                    '<div class="formu2"></div>' +
+                    '<div class="form-container table-compact-row history"></div>' +              
                 '</div>' +
             '</div>' +
             
@@ -64,10 +67,11 @@ var haberesPage = {
                 '</div>' +
             '</div>' +
         '</div>' +
-        '',
-    style:  '.form-container .ms-FormField {width: 45%; float:left} ',
+        '',        
+    style:  '.form-container .ms-FormField {width: 45%; float:left} ' + 
+    '.ms-Button.ms-Button--primary {background-color: #4caf50 !important; border-color: #4caf50 !important;} ',            
     data: function () {
-        var self = this;
+        var self = this; 
         return {
             title: '',
             forms: {},
@@ -107,7 +111,7 @@ var haberesPage = {
 
         // obtener título de la lista de inspección
         getListTitle: function () {
-            return 'Planta';
+            return 'CentroCosto';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -166,8 +170,8 @@ var haberesPage = {
             // variables
             var context = this.$options.data(),
                 mths = this.$options.methods,
-                listItemId = page.route.query.listItemId,
-                editable = page.route.query.editable;
+                listItemId = page.route.query.listItemId
+                console.log('itemid',listItemId);
 
             context.methods = mths;
 
@@ -184,127 +188,114 @@ var haberesPage = {
 
                 // containers
                 var $container = $(page.$el),
-                    $navbar = $(page.navbarEl),
-                    $sendButton = $navbar.find('.link.send'),
-                    $updateButton = $navbar.find('.link.update'),
+                    $navbar = $(page.navbarEl),                    
+                    $createButton = $navbar.find('.link.create'),
                     $clearButton = $navbar.find('.link.clear');
+                    $updateButton = $navbar.find('.link.update');                    
+                                    
 
-                    $updateButton.removeClass('hide');
-            
 
-                console.log('datoslistadohaberes',context.items.ListadoItemVariable);
 
-                let meruem = [];
-                context.items.ListadoItemVariable.map(function(jade){
-                    meruem.push({
-                        key: jade.NombreItem,
-                        text: jade.NombreItem,
-                        item: jade                        
-                    });
-                
-                })
-
-                
-
-                context.forms.persona = new EFWForm({
+                    // formulario de registro
+                context.forms.ceco = new EFWForms({
                     container: $container.find('.form-container'),
-                    title: 'Datos Coordinador',
-                    editable: false,
-                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
-                    fields: spo.getViewFields(context.lists.Planta, 'FormHaberes'),
+                    title: mths.getListTitle(),
+                    editable: true,
+                    fields: spo.getViewFields(context.lists.CentroCosto, 'Cequitos')
                 });
 
-                context.forms.persona.inputs['Haberes'].hide();
+                context.forms.ceco.addRow();
 
-                context.forms.haberes = new CheckboxInput({
-                    container: $container.find('.formu2'),
-                    title: 'Marque o Desmarque los haberes que desea imputar',
-                    editable: true,
-                    multiSelect: true,
-                    choices: meruem
-                })        
-                console.log('formulario haberes', context.forms.haberes)        
-
-                if(listItemId){
-                    
-                    context.forms.persona.setValues(context.items.Planta);
-     
-                    var trabajador = context.items.Planta.HaberesId.results;
-                    var haberesitos = context.items.ListadoItemVariable;
-                    var guardado = []
-
-                    // console.log('trabajador', trabajador);
-                    // console.log('haberesitos', haberesitos);
-                
-                    for (var i = 0; i < haberesitos.length ; i++) {
-                        // console.log('id haberes', haberesitos[i].Id);
-                        var  paver = trabajador.includes(haberesitos[i].Id)
-                        // console.log('booss', paver )
-                        if(paver == true){
-                            guardado.push({
-                                key: haberesitos[i].NombreItem,
-                                text: haberesitos[i].NombreItem,
-                            })
-                        }
-                     }
-                    //  console.log('guardado', guardado)  
+                if (listItemId) {
+                    context.forms.ceco.setValues(context.items.CentroCosto); 
+                    $('.ms-Button.ms-Button--primary').addClass('hide');
+                    $('.ms-Button.ms-Button--remove').addClass('hide');
+                    $updateButton.removeClass('hide');
                      
-                      context.forms.haberes.setValue(guardado)
-                    
-                    if(editable){
-                        context.forms.persona.inputs['Haberes'].setEditable(true);
-                        $updateButton.removeClass('hide');
-                    }
+                } else {
+                    $createButton.removeClass('hide');  
                 }
 
-                
-                // if(listItemId){
-                //     console.log('List Item', context.items.solicitudSDP)
-
-                //     context.forms.jefe.setValues(context.items.solicitudSDP)
-                //     context.forms.recepcion.setValues(context.items.solicitudSDP)
-                //     context.forms.posicion.setValues(context.items.solicitudSDP);
-                //     context.forms.recuperable.setValues(context.items.solicitudSDP)
-                //     context.forms.vacante.setValues(context.items.solicitudSDP)
-                  
-
                 $updateButton.on('click', function (e) {
-                    var dialogTitle = 'Asignando Haberes';
-                                 
+                    var dialogTitle = 'Editando elemento';
+
+                    function save() {
+                        var dialog = app.dialog.progress(dialogTitle);
+                        var metadata = context.forms.ceco.getMetadata();                        
+
+                        spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId,metadata, function (response) {
+                            dialog.close();
+
+                            app.dialog.create({
+                                title: dialogTitle,
+                                text: 'Elemento actualizado con éxito',
+                                buttons: [{
+                                    text: 'Aceptar',
+                                    onClick: function () {
+                                        mainView.router.navigate('/cecoStream');
+                                    }
+                                }],
+                                verticalButtons: false
+                            }).open();
+
+
+                        }, function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log('responseText', responseText);
+
+                            dialog.close();
+                            app.dialog.create({
+                                title: 'Error al guardar en lista ' + mths.getListTitle(),
+                                text: responseText.error.message.value,
+                                buttons: [{
+                                    text: 'Aceptar'
+                                }],
+                                verticalButtons: false
+                            }).open();
+                        });
+                    }
+                    
+                    context.forms.item.checkFieldsRequired();
+
+                    var validate = context.forms.item.getValidation();
+
+                    if (validate) {
+                        app.dialog.create({
+                            title: dialogTitle,
+                            text: 'Se actualizará el elemento.',
+                            buttons: [{
+                                text: 'Cancelar'
+                            }, {
+                                text: 'Aceptar',
+                                onClick: function onClick() {
+                                    save();
+                                }
+                            }],
+                            verticalButtons: false
+                        }).open();
+                    } else {
+                        app.dialog.create({
+                            title: 'Datos insuficientes',
+                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
+                            buttons: [{
+                                text: 'Aceptar'
+                            }],
+                            verticalButtons: false
+                        }).open();
+                    }
+
+                });
+
+                $createButton.on('click', function (e) {
+                    var dialogTitle = 'Asignando Haberes'; 
 
 
                     function save() {
-
-                        //Mostrar la información del coordinador (la metadata son los datos que se ingresar en el form)
-                    console.log('Metadata formulario', context.forms.persona.getMetadata())
-                    var metadataPersona = context.forms.persona.getMetadata()
-
-                //Mostrar la informacion de los haberes
-                    console.log('Metadata haberes', context.forms.haberes)
-                    var metadataHaberes = context.forms.haberes.values
-                    console.log('Metadata largo', metadataHaberes.length);
-                    
-                    
-                    var doggy = [];
-                    for(var i = 0; i < metadataHaberes.length; i++){
-                        context.items.ListadoItemVariable.map(function(cacue){                            
-                            if(cacue.NombreItem == metadataHaberes[i].key){
-                                console.log('nombre items', cacue.NombreItem);
-                                doggy.push(cacue.ID);
-                            }                          
-                        })
-                    }
-                    
-                    metadataPersona.HaberesId.results = doggy;
-                    console.log('results', metadataPersona);
-
-
-                        
+                        // Mostrar la información del coordinador (la metadata son los datos que se ingresar en el form)                    
+                        var metadataCeco = context.forms.ceco.getMetadata()
                         var dialog = app.dialog.progress(dialogTitle);
-                        
-                        
 
-                        spo.updateListItem(spo.getSiteUrl(), 'Planta' ,metadataPersona.Id,metadataPersona, function (response) {
+                        spo.saveListItems(spo.getSiteUrl(), 'CentroCosto' ,metadataCeco, function (response) {
                             dialog.close();
 
                             app.dialog.create({
@@ -313,7 +304,7 @@ var haberesPage = {
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
-                                        mainView.router.navigate('/coordinadorStream');
+                                        mainView.router.navigate('/cecoStream');
                                     }
                                 }],
                                 verticalButtons: false
@@ -335,22 +326,23 @@ var haberesPage = {
                             }).open();
                         });
                     }
-                    
 
-                    
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se actualizarán los haberes',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();              
+                        context.forms.ceco.checkFieldsRequired();
+                        var validateCeco =  context.forms.ceco.getValidation();
+    
+                        if (validateCeco){
+                            dialogs.confirmDialog(
+                                dialogTitle,
+                                'Se guardara el Ceco',
+                                save
+                            )
+                        } else {
+                            dialogs.infoDialog(
+                                "Datos mal ingresados",
+                                'Rellene todos los campos correctamente'
+                            )
+                        } 
+                        
                         
                     
 
@@ -370,31 +362,32 @@ var haberesPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.ListadoItemVariable && loaded.Trabajadores) {
+                    if (loaded.CentroCosto) {
                         initForm();
                     }
                 };             
 
-                // Obtengo los trabajadores asociados al coordinador
-                spo.getListInfo('Planta',
+                
+                //Obtengo el listado de centro de costos para ser filtrados
+                spo.getListInfo('CentroCosto',
                     function (response) {
-                        context.items.Planta = [];
-                        //Guarda los valores de los campos de la lista. Solamente los campos
-                        context.lists.Planta = response; 
-                        
+                        context.items.CentroCosto = [];
+                        context.lists.CentroCosto = response;
+                        console.log('datos centrocosto', context.lists.CentroCosto);
+
                         if(listItemId){
-                            // Genera la query basado en los campos que se obtubieron en la SPO anterior
-                            var query = spo.encodeUrlListQuery(context.lists.Planta, {
+                            var query = spo.encodeUrlListQuery(context.lists.CentroCosto, {
                                 view: 'Todos los elementos',
                                 odata: {
-                                    'filter': '(ID eq ' + listItemId + ')',
+                                    'select': '*',
+                                    'filter' : '(Id eq '+listItemId+')'
                                 }
                             });
 
-                            spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                            spo.getListItems(spo.getSiteUrl(), 'CentroCosto', query,
                                 function (response) {
-                                    context.items.Planta = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.Trabajadores = true;
+                                    context.items.CentroCosto = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.CentroCosto= true;
                                     shouldInitForms();
                                 },
                                 function (response) {
@@ -402,43 +395,11 @@ var haberesPage = {
                                     console.log(responseText.error.message.value);
                                 }
                             );
+
                         }else{
-                            loaded.Trabajadores = true;
+                            loaded.CentroCosto= true;
                             shouldInitForms();
                         }
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                    }
-                );
-
-                //Obtengo el listado de haberes para ser filtrados
-                spo.getListInfo('ListadoItemVariable',
-                    function (response) {
-                        context.items.ListadoItemVariable = [];
-                        context.lists.ListadoItemVariable = response;
-                        //loaded.listaItemVariable = true;
-
-                            var query = spo.encodeUrlListQuery(context.lists.ListadoItemVariable, {
-                                view: 'Todos los elementos',
-                                odata: {
-                                    'select': '*'
-                                }
-                            });
-
-                            spo.getListItems(spo.getSiteUrl(), 'ListadoItemVariable', query,
-                                function (response) {
-                                    context.items.ListadoItemVariable = response.d.results.length > 0 ? response.d.results : null;
-                                    loaded.ListadoItemVariable = true;
-                                    shouldInitForms();
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
-
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);

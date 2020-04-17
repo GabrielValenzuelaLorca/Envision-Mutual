@@ -41,8 +41,6 @@ function generateXLSX(sheetnames, filename, aoa, protected, colSizes, success, f
                 }
             }
 
-            console.log('WS', ws);
-            console.log('WS c1', ws["A1"].v)
 
             XLSX.utils.book_append_sheet(wb, ws, sheetname);
         });
@@ -249,8 +247,6 @@ localButtons.toSeeDetailsSolicitud = function(){
     }
     return button
 }
-
-
 
 /*
     Todos los botones relacionados con CoordinadorStreamPage, TrabajadorPage y TrabajadorStreamPage
@@ -514,6 +510,275 @@ localButtons.addHaberButton = function(context, id){
     }
     return button
 }
+
+/*
+    Todos los botones relacionados con CecoStreamPage y CecoPage
+*/
+localButtons.addCecoButton = function(context, id){
+    button = {
+        text: 'Añadir Centro de costo',
+        class: 'addCeco',
+        icon: 'Add',
+        onClick: function(component, item){
+            mainView.router.navigate(encodeURI('/cecoTemporal'));
+        }
+    }
+    return button
+}
+
+localButtons.editCecoButton = function(){
+    button = {
+        text: 'Editar',
+        class: 'editCeco',
+        icon: 'Edit',
+        onClick: function(component, item){
+            mainView.router.navigate('/cecoTemporal?listItemId='+item.ID);        
+        }
+    }
+    return button
+}
+ 
+localButtons.deleteCeco = function(){
+    button = {
+        text: 'Eliminar Centro de costo',
+        class: 'deleteCeco',
+        icon: 'Delete',
+        onClick: function(component, item){
+            var dialog = app.dialog.progress('Procesando...');
+ 
+            var list = {},
+                items = {},
+                loaded = {};
+ 
+                console.log('Item', item)
+ 
+                function save(CentroCosto = null){
+                    dialog = app.dialog.progress('Procesando...');
+                    var metadata = {}
+                    metadata.activo = false;
+ 
+                    spo.updateListItem(spo.getSiteUrl(), 'CentroCosto', item.ID, metadata, function (response) {
+                        if(CentroCosto!=null && items.Planta != null){
+                            var toUpdate = items.Planta.map(function(x){
+                                return {
+                                    ID: x.ID,
+                                    CentroCostoId: CentroCosto.ID
+                                }
+                            })
+ 
+                            spo.updateListItems(spo.getSiteUrl(), 'Planta', toUpdate, function (response) {
+                            }, function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log('responseText', responseText);
+       
+                                dialog.close();
+                                app.dialog.create({
+                                    title: 'Error al guardar en lista CentroCosto',
+                                    text: responseText.error.message.value,
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            });
+                        }
+                        dialog.close();
+                        app.dialog.create({
+                            title: 'Eliminar de centro de costo',
+                            text: 'Centro de costo eliminado correctamente',
+                            buttons: [{
+                                text: 'Aceptar',
+                                onClick: function () {
+                                refresh()
+                                }
+                            }],
+                            verticalButtons: false
+                        }).open();
+ 
+                    }, function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log('responseText', responseText);
+ 
+                        dialog.close();
+                        app.dialog.create({
+                            title: 'Error al guardar en lista CentroCosto',
+                            text: responseText.error.message.value,
+                            buttons: [{
+                                text: 'Aceptar'
+                            }],
+                            verticalButtons: false
+                        }).open();
+                    });
+                }
+ 
+                function abrirPopup(){
+                    dialog.close();
+                        // Inyectar HTML
+                    var dynamicPopup = app.popup.create({
+                        content: `
+                            <div class="popup send-email-popup" style="overflow:auto">
+                                <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                                <div class="block">
+                                    <div class="update-form" style="margin-top: 10px !important;"></div>
+                                    <div class="buttons-container ms-slideLeftIn10 hide">
+                                        <button class="button button-fill close-popup">Volver</button>
+                                        <button class="button button-fill send">Solicitar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `,
+                        // Events
+                        on: {
+                            opened: function (popup) {
+                                var $container = $(popup.el),
+                                    $sendButton = $container.find('.send'),
+                                    $closeButton = $container.find('.close-popup'),
+                                    $buttonsContainer = $container.find('.buttons-container');
+ 
+                                var choices = items.CentroCosto.map(function(x){
+                                    return x.D_CC
+                                })
+                               
+                                var campos =[{
+                                    Title: 'Nuevo centro de costo',
+                                    Id: generateUUID(),
+                                    TypeAsString: 'Choice',
+                                    InternalName: 'CC',
+                                    Required: true,
+                                    Choices: choices
+                                }]
+                                // formulario de actualización
+                                form = new EFWForm({
+                                    container: $container.find('.update-form'),
+                                    title: 'Solicitud de Justificación'.bold(),
+                                    editable: true,
+                                    description: 'Ingrese la razón para pedir justificación.',
+                                    fields: campos
+                                });
+                               
+                                $buttonsContainer.removeClass('hide');
+   
+                                // {event} cerrar popup
+                                $closeButton.on('click', function(e){
+                                    popup.close();
+                                });
+   
+                                // {event} enviar correo
+                                $sendButton.on('click', function(e){
+                                    form.checkFieldsRequired();
+                                    if(form.getValidation()){
+                                        var selected = form.getMetadata();                                                                  
+                                        popup.close();
+                                        var newCC = items.CentroCosto.filter(x => x.D_CC == selected.CC)[0]
+                                        save(newCC);
+                                    } else {
+                                        dialogs.infoDialog(
+                                            "Hubo un error",
+                                            "Seleccione un Centro de costo del listado"
+                                        )
+                                    }
+                                   
+                                })
+                            },
+                            closed: function (popup) {
+                                if (form) form.destroy();
+                            },
+                        },
+                    });
+   
+                    dynamicPopup.open();                    
+                }            
+ 
+                function getInformation(){
+ 
+                    function shouldRender(){
+                        if(loaded.CentroCosto && loaded.Planta){
+                            if(items.Planta != null){
+                                abrirPopup();
+                            }else{
+                                save();
+                            }
+                        }
+                    }
+ 
+                    //Obtener Los trabajadores que cuentan con el centro de costo a eliminar
+                    spo.getListInfo('Planta',
+                        function (response) {
+                            items.Planta = [];
+                            list.Planta = response;
+ 
+                            var query = spo.encodeUrlListQuery(list.Planta, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'select': '*',
+                                    'filter': 'CentroCostoId eq '+item.ID,
+                                    'top': 5000
+                                }
+                            });
+ 
+                            spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                                function (response) {
+                                    items.Planta = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.Planta = true;
+                                    if(items.Planta != null){
+                                        // Obtener información de lista
+                                        spo.getListInfo('CentroCosto',
+                                            function (response) {
+                                                items.CentroCosto = [];
+                                                list.CentroCosto = response;
+                                                var query = spo.encodeUrlListQuery(list.CentroCosto, {
+                                                    view: 'Todos los elementos',
+                                                    odata: {
+                                                        'select': '*',
+                                                        'top': 5000
+                                                    }
+                                                });
+ 
+                                                spo.getListItems(spo.getSiteUrl(), 'CentroCosto', query,
+                                                    function (response) {
+                                                        items.CentroCosto = response.d.results.length > 0 ? response.d.results : null;
+                                                        loaded.CentroCosto = true;                                  
+                                                        shouldRender();
+ 
+                                                    },
+                                                    function (response) {
+                                                        var responseText = JSON.parse(response.responseText);
+                                                        console.log(responseText.error.message.value);
+                                                    }
+                                                );
+ 
+                                            },
+                                            function (response) {
+                                                var responseText = JSON.parse(response.responseText);
+                                                console.log(responseText.error.message.value);
+                                            }
+                                        );
+                                    }else{
+                                        loaded.CentroCosto = true;                                  
+                                        shouldRender();
+                                    }
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+ 
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
+                    );
+                }
+ 
+                getInformation();
+        }
+    }
+    return button
+}
+
+
 
 /*
     Todos los botones relacionados con PeriodosPage
@@ -2087,14 +2352,51 @@ localButtons.deleteRol = function(context){
 
                 spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, metadata, function (response) {
                     dialog.close();
+                    
+                    console.log('Item.rol', item.rol)
 
-                    dialogs.confirmDialog(
-                        dialogTitle,
-                        'Rol removido con éxito',
-                        refresh,
-                        false
-                    );
+                    if(context.selfWorkers && item.Rol == "Coordinador"){
+                        var metadata2 = context.selfWorkers.map(function(x){
+                            return {
+                                Id: x.ID,
+                                CoordinadorId: null
+                            }
+                        })
 
+                        spo.updateListItems(spo.getSiteUrl(), "Planta", metadata2, function (response) {
+                            dialogs.confirmDialog(
+                                dialogTitle,
+                                'Rol removido con éxito',
+                                refresh,
+                                false
+                            );
+                        }, function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log('responseText', responseText);
+        
+                            dialog.close();
+                            dialogs.infoDialog(
+                                "Error",
+                                'Hubo un problema al remover el rol'
+                            )
+                        });
+                        
+                    }else if(context.selfWorkers && item.Rol == "Aprobador"){
+                        console.log('Ejecuto cono Aprobador')
+                            dialogs.confirmDialog(
+                                'Atención',
+                                'Existen coordinadores asignados al aprobador que desea eliminar. Actualice los coordinadores antes de proceder a eliminar este rol.',
+                                refresh,
+                                false
+                            );
+                    }else{
+                        dialogs.confirmDialog(
+                            dialogTitle,
+                            'Rol removido con éxito',
+                            refresh,
+                            false
+                        );
+                    }
                 }, function (response) {
                     var responseText = JSON.parse(response.responseText);
                     console.log('responseText', responseText);
@@ -2106,12 +2408,91 @@ localButtons.deleteRol = function(context){
                     )
                 });
             }
-            
-            dialogs.confirmDialog(
-                dialogTitle,
-                'Se quitará el rol de este usuario',
-                remove
-            )
+
+            function getInformation(){
+                var loaded = {};
+                function shouldInit(){
+                    if(loaded.selfWorkers){
+                        remove();
+                    }
+                }
+
+                if(item.Rol == "Coordinador"){
+                    spo.getListInfo('Planta',
+                        function (response) {
+                            var planta = response;
+                            var query4 = spo.encodeUrlListQuery(planta, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'filter': '(CoordinadorId eq ' + item.ID + ')'
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), 'Planta', query4,
+                                function (response) {
+                                    context.selfWorkers = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.selfWorkers = true;
+                                    shouldInit();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
+                    );
+                }if(item.Rol == "Aprobador"){
+                    spo.getListInfo('Planta',
+                        function (response) {
+                            var planta = response;
+                            var query4 = spo.encodeUrlListQuery(planta, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'filter': '(AprobadorId eq ' + item.ID + ')'
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), 'Planta', query4,
+                                function (response) {
+                                    context.selfWorkers = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.selfWorkers = true;
+                                    console.log('Coordinadores', context.selfWorkers)
+                                    shouldInit();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
+                    );
+                }else{
+                    loaded.selfWorkers = true;
+                    shouldInit();
+                }
+            }
+
+            app.dialog.create({
+                title: dialogTitle,
+                text: 'Se quitará el rol de este usuario',
+                buttons: [{
+                    text: 'Cancelar'
+                }, {
+                    text: 'Aceptar',
+                    onClick: function () {
+                        getInformation();
+                    }
+                }],
+                verticalButtons: false
+            }).open();
             
         }
     }
