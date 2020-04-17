@@ -544,16 +544,13 @@ localButtons.deleteCeco = function(){
         class: 'deleteCeco',
         icon: 'Delete',
         onClick: function(component, item){
-            var dialog = app.dialog.progress('Procesando...');
+            var dialog = app.dialog.progress('Eliminando centro de costo');
  
             var list = {},
                 items = {},
                 loaded = {};
  
-                console.log('Item', item)
- 
                 function save(CentroCosto = null){
-                    dialog = app.dialog.progress('Procesando...');
                     var metadata = {}
                     metadata.activo = false;
  
@@ -570,8 +567,6 @@ localButtons.deleteCeco = function(){
                             }, function (response) {
                                 var responseText = JSON.parse(response.responseText);
                                 console.log('responseText', responseText);
-       
-                                dialog.close();
                                 app.dialog.create({
                                     title: 'Error al guardar en lista CentroCosto',
                                     text: responseText.error.message.value,
@@ -650,9 +645,9 @@ localButtons.deleteCeco = function(){
                                 // formulario de actualización
                                 form = new EFWForm({
                                     container: $container.find('.update-form'),
-                                    title: 'Solicitud de Justificación'.bold(),
+                                    title: 'Atención'.bold(),
                                     editable: true,
-                                    description: 'Ingrese la razón para pedir justificación.',
+                                    description: 'El centro de costo.',
                                     fields: campos
                                 });
                                
@@ -730,6 +725,7 @@ localButtons.deleteCeco = function(){
                                                     view: 'Todos los elementos',
                                                     odata: {
                                                         'select': '*',
+                                                        'filter': 'activo eq 1',
                                                         'top': 5000
                                                     }
                                                 });

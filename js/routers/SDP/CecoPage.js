@@ -194,6 +194,139 @@ var cecoPage = {
                     $updateButton = $navbar.find('.link.update');                    
                                     
 
+                    $updateButton.on('click', function (e) {
+                        var dialogTitle = 'Editando elemento';
+    
+                        function save() {
+                            var dialog = app.dialog.progress(dialogTitle);
+                            var metadata = context.forms.ceco.getMetadata();   
+                            
+                            console.log('Metadata', metadata)                     
+    
+                            spo.updateListItems(spo.getSiteUrl(), 'CentroCosto', metadata, function (response) {
+                                dialog.close();
+    
+                                app.dialog.create({
+                                    title: dialogTitle,
+                                    text: 'Elemento actualizado con éxito',
+                                    buttons: [{
+                                        text: 'Aceptar',
+                                        onClick: function () {
+                                            mainView.router.navigate('/cecoStream');
+                                        }
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+    
+    
+                            }, function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log('responseText', responseText);
+    
+                                dialog.close();
+                                app.dialog.create({
+                                    title: 'Error al guardar en lista ' + mths.getListTitle(),
+                                    text: responseText.error.message.value,
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            });
+                        }
+                        
+                        context.forms.ceco.checkFieldsRequired();
+    
+                        var validate = context.forms.ceco.getValidation();
+    
+                        if (validate) {
+                            app.dialog.create({
+                                title: dialogTitle,
+                                text: 'Se actualizará el elemento.',
+                                buttons: [{
+                                    text: 'Cancelar'
+                                }, {
+                                    text: 'Aceptar',
+                                    onClick: function onClick() {
+                                        save();
+                                    }
+                                }],
+                                verticalButtons: false
+                            }).open();
+                        } else {
+                            app.dialog.create({
+                                title: 'Datos insuficientes',
+                                text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
+                                buttons: [{
+                                    text: 'Aceptar'
+                                }],
+                                verticalButtons: false
+                            }).open();
+                        }
+    
+                    });
+    
+                    $createButton.on('click', function (e) {
+                        var dialogTitle = 'Asignando Haberes'; 
+    
+    
+                        function save() {
+                            // Mostrar la información del coordinador (la metadata son los datos que se ingresar en el form)                    
+                            var metadataCeco = context.forms.ceco.getMetadata()
+                            var dialog = app.dialog.progress(dialogTitle);
+    
+                            spo.saveListItems(spo.getSiteUrl(), 'CentroCosto' ,metadataCeco, function (response) {
+                                dialog.close();
+    
+                                app.dialog.create({
+                                    title: dialogTitle,
+                                    text: 'Centro de costo agregado correctamente.',
+                                    buttons: [{
+                                        text: 'Aceptar',
+                                        onClick: function () {
+                                            mainView.router.navigate('/cecoStream');
+                                        }
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+    
+    
+                            }, function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log('responseText', responseText);
+    
+                                dialog.close();
+                                app.dialog.create({
+                                    title: 'Error al actualizar la lista de haberes ' + mths.getListTitle(),
+                                    text: responseText.error.message.value,
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            });
+                        }
+    
+                            context.forms.ceco.checkFieldsRequired();
+                            var validateCeco =  context.forms.ceco.getValidation();
+        
+                            if (validateCeco){
+                                dialogs.confirmDialog(
+                                    dialogTitle,
+                                    'Se guardara el Ceco',
+                                    save
+                                )
+                            } else {
+                                dialogs.infoDialog(
+                                    "Datos mal ingresados",
+                                    'Rellene todos los campos correctamente'
+                                )
+                            } 
+                            
+                            
+                        
+    
+                    });
 
 
                     // formulario de registro
@@ -215,138 +348,6 @@ var cecoPage = {
                 } else {
                     $createButton.removeClass('hide');  
                 }
-
-                $updateButton.on('click', function (e) {
-                    var dialogTitle = 'Editando elemento';
-
-                    function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.ceco.getMetadata();                        
-
-                        spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId,metadata, function (response) {
-                            dialog.close();
-
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Elemento actualizado con éxito',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.navigate('/cecoStream');
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-
-
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
-
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        });
-                    }
-                    
-                    context.forms.item.checkFieldsRequired();
-
-                    var validate = context.forms.item.getValidation();
-
-                    if (validate) {
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se actualizará el elemento.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    } else {
-                        app.dialog.create({
-                            title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    }
-
-                });
-
-                $createButton.on('click', function (e) {
-                    var dialogTitle = 'Asignando Haberes'; 
-
-
-                    function save() {
-                        // Mostrar la información del coordinador (la metadata son los datos que se ingresar en el form)                    
-                        var metadataCeco = context.forms.ceco.getMetadata()
-                        var dialog = app.dialog.progress(dialogTitle);
-
-                        spo.saveListItems(spo.getSiteUrl(), 'CentroCosto' ,metadataCeco, function (response) {
-                            dialog.close();
-
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Haberes asignados con éxito',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.navigate('/cecoStream');
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-
-
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
-
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al actualizar la lista de haberes ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        });
-                    }
-
-                        context.forms.ceco.checkFieldsRequired();
-                        var validateCeco =  context.forms.ceco.getValidation();
-    
-                        if (validateCeco){
-                            dialogs.confirmDialog(
-                                dialogTitle,
-                                'Se guardara el Ceco',
-                                save
-                            )
-                        } else {
-                            dialogs.infoDialog(
-                                "Datos mal ingresados",
-                                'Rellene todos los campos correctamente'
-                            )
-                        } 
-                        
-                        
-                    
-
-                });
 
                 $clearButton.on('click', function (e){
                 });
@@ -373,8 +374,6 @@ var cecoPage = {
                     function (response) {
                         context.items.CentroCosto = [];
                         context.lists.CentroCosto = response;
-                        console.log('datos centrocosto', context.lists.CentroCosto);
-
                         if(listItemId){
                             var query = spo.encodeUrlListQuery(context.lists.CentroCosto, {
                                 view: 'Todos los elementos',
