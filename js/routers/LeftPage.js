@@ -566,6 +566,17 @@ menuPage.methods.getListBlocksData = function(){
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
             },
+            {
+                href: '/EjemploStream',
+                title: 'Mantenedor Centro de costo',
+                after: '',
+                header: '',
+                footer: '',
+                panelClose: true,
+                externalLink: false,
+                f7view: '.view-main',
+                media: '<i class="ms-Icon ms-Icon--Archive"></i>',
+            },
         ]);
 
         settings.push(admSection2);
@@ -660,6 +671,31 @@ menuPage.methods.getListBlocksData = function(){
             ]);
           
             settings.push(valSection);
+        }
+
+        if (plantaAdmin.RolSDP.results.includes("Encargado CeCo")){
+            let cecoSection = {
+                inset: true,
+                header: 'Panel de Centros de Costos',
+                footer: '',
+                options: []
+            };
+    
+            cecoSection.options = cecoSection.options.concat([
+                {
+                    href: '/cecoStream',                    
+                    title: 'Mantenedor de CeCo',                    
+                    after: '',
+                    header: '',
+                    footer: 'Centro de costo',                    
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--Archive"></i>',
+                },
+            ]);
+          
+            settings.push(cecoSection);
         }
     
         if (plantaAdmin.RolSDP.results.includes("CyE")){

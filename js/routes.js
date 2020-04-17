@@ -207,6 +207,14 @@ function getRoutes(){
             component: coordinadorStreamPage
         },
         {
+            path: '/cecoStream',
+            component: cecoStreamPage
+        },
+        {
+            path: '/cecoTemporal',
+            component: cecoPage
+        },
+        {
             path: '/trabajadorPorCoordinador',
             component: trabajadoresStreamPage
         },
@@ -217,7 +225,7 @@ function getRoutes(){
         {
             path: '/haberTemporal',
             component: haberesPage
-        },
+        },        
         {
             path: '/Solicitudes',
             component: SolicitudesStreamPage
@@ -263,11 +271,15 @@ function getRoutes(){
         },
         {
             path: '/SolicitudesPorValidar',
-            component: solicitudStreamPage
+            component: aproveSolicitudStreamPage
         },
         {
             path: '/SolicitudesCyE',
             component: solicitudCyEStream
+        },
+        {
+            path: '/EjemploStream',
+            component: cecoStreamPage
         },
     ]
 

@@ -368,9 +368,8 @@ var uploadPlantaPage = {
                                     //Validamos si se encontro la fila en la planta segun el codigo ingresado
                                     if(existe.length > 0){
                                         //Valida si existen cambios en el contrato. Si hay cambios actualiza los datos de la fila.
-
                                         
-                                        if(existe[0].TipoContrato.charAt(0).toLowerCase() != fila.tipcon.trim().charAt(0).toLowerCase() ||  existe[0].cargo == null){
+                                        if(existe[0].TipoContrato.charAt(0).toLowerCase() != fila.tipcon.trim().charAt(0).toLowerCase() ||  existe[0].cargo == null ){
                                             //Validacion del bug de Reemplazo que en excel se trata como F
                                             if((existe[0].TipoContrato.charAt(0).toLowerCase() == 'r') && (fila.tipcon.trim().charAt(0).toLowerCase() == 'f') ){
                                                 SinCambios.push(existe[0]);
@@ -402,11 +401,8 @@ var uploadPlantaPage = {
 
                                             //Obtenemos el ID interno de Centro Costo
                                             var Cargo = context.items.Cargo.filter(function(c){
-                                                return c.CodigoPayroll == fila.cargo;      
+                                                return c.CodigoPayroll == fila.cargo;                                            
                                             });
-
-                                            console.log('Cargo desde Excel', fila.d_cargo)
-                                            console.log('Cargo Obtenido', Cargo)
 
                                             //Validamos si se encontro. Si no se encontro se almacena la linea del error y el detalle
 
@@ -493,7 +489,7 @@ var uploadPlantaPage = {
                                         
                                         //Obtenemos el ID interno de Centro Costo
                                         var Cargo = context.items.Cargo.filter(function(c){
-                                            return c.CodigoPayroll == fila.cargo;        
+                                            return c.CodigoPayroll == fila.cargo;                                            
                                         });
 
                                         //Validamos si se encontro. Si no se encontro se almacena la linea del error y el detalle
@@ -562,8 +558,6 @@ var uploadPlantaPage = {
                                 //Filtramos los que no estan en excel y si en sharepoint
                                 context.items.Planta.map(function(item){
                                     let existe = response[0].filter(fila => item.Title == fila.codigo.trim());
-
-                                    console.log('Modificado fecha', item.EstadoContrato)
 
                                     //Si no hay coincidencias se agrega el ID para actualizar el registro a suspendido.0
                                     if(existe.length == 0 && item.EstadoContrato == 'Activo'){        
@@ -733,7 +727,6 @@ var uploadPlantaPage = {
                             function (response) {
                                 context.items.Cargo = response.d.results.length > 0 ? response.d.results : null;
                                 loaded.Cargo = true;
-                                console.log('Cargos', context.items.Cargo);
                                 shouldInitForms();
                             },
                             function (response) {
