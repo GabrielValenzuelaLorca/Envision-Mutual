@@ -587,6 +587,7 @@ var sendStatusPage = {
                             view: 'Todos los elementos',
                             odata: {
                                 'select': '*',
+                                'filter': '(Rol eq \'Aprobador\')',
                                 'top': 5000,
                             }
                         });
