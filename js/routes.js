@@ -276,11 +276,7 @@ function getRoutes(){
         {
             path: '/SolicitudesCyE',
             component: solicitudCyEStream
-        },
-        {
-            path: '/EjemploStream',
-            component: cecoStreamPage
-        },
+        }
     ]
 
     var routes = [];

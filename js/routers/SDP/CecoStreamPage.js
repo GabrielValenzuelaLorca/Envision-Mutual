@@ -50,3 +50,7 @@ cecoStreamPage.methods.getNoItemsSelectedButtons = function(){
 cecoStreamPage.methods.getCamlQueryConditions = function(){
     return `<Eq><FieldRef Name="activo" /><Value Type="Boolean">1</Value></Eq>`
 }
+
+cecoStreamPage.methods.onItemDblClick = function(item){
+    return null;
+}
