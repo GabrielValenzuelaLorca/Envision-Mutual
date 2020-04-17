@@ -267,7 +267,7 @@ var cecoPage = {
                     });
     
                     $createButton.on('click', function (e) {
-                        var dialogTitle = 'Asignando Haberes'; 
+                        var dialogTitle = 'Creacion de Centro de costo'; 
     
     
                         function save() {
@@ -313,7 +313,7 @@ var cecoPage = {
                             if (validateCeco){
                                 dialogs.confirmDialog(
                                     dialogTitle,
-                                    'Se guardara el Ceco',
+                                    'Se creara el centro de costo',
                                     save
                                 )
                             } else {
