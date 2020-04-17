@@ -550,7 +550,10 @@ localButtons.deleteCeco = function(){
                 items = {},
                 loaded = {};
  
-                function save(CentroCosto = null){
+                function save(CentroCosto = null){                    
+                    if(dialog.destroyed){
+                        dialog =  app.dialog.progress('Eliminando centro de costo');
+                    }
                     var metadata = {}
                     metadata.activo = false;
  
