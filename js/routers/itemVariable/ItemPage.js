@@ -378,11 +378,11 @@ var itemPage = {
                     InternalName: 'ExceptionCC',
                     TypeAsString: 'Boolean'
                 },{
-                    Id: generateUUID(),
-                    Title: '¿Aplica excepcion de Minimos y maximos?',
-                    InternalName: 'ExceptionMM',
-                    TypeAsString: 'Boolean'
-                },{
+                //     Id: generateUUID(),
+                //     Title: '¿Aplica excepcion de Minimos y maximos?',
+                //     InternalName: 'ExceptionMM',
+                //     TypeAsString: 'Boolean'
+                // },{
                     Id: generateUUID(),
                     Title: 'Solicitudes aprobadas',
                     InternalName: 'CentroCosto',

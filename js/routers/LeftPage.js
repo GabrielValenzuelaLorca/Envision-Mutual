@@ -560,7 +560,7 @@ menuPage.methods.getListBlocksData = function(){
                 title: 'Mantenedor Coordinador',
                 after: '',
                 header: '',
-                footer: 'Haberes y trabajadores',
+                footer: 'Haberes y Trabajadores',
                 panelClose: true,
                 externalLink: false,
                 f7view: '.view-main',
