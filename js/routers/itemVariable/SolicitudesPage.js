@@ -413,6 +413,7 @@ var solicitudesPage = {
                     context.forms.solicitud.inputs['Estado'].hide();
                     context.forms.solicitud.inputs['Estado'].setRequired(false);
                     context.forms.solicitud.inputs['Centro_x0020_de_x0020_costo'].hide();
+                    context.forms.solicitud.inputs['Argumento'].setRequired(true);
                     context.forms.solicitud.inputs['Argumento'].setLabel('Justificación');
 
                     $createButton.removeClass('hide');
@@ -477,29 +478,31 @@ var solicitudesPage = {
                     
                     var validate = context.forms.solicitud.getValidation();
 
-                    if(context.forms.solicitud.inputs['Argumento'].value.length< 10){
-                        app.dialog.create({
-                            title: 'Datos mal ingresados',
-                            text: 'La justificación debe tener un largo de al menos 10 caracteres.',
-                            buttons: [{
-                                text: 'Aceptar'
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    }else if (validate) {
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se creará una nueva solicitud.',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
+                    if (validate) {
+                        if(context.forms.solicitud.inputs['Argumento'].value.length< 10){
+                            app.dialog.create({
+                                title: 'Datos mal ingresados',
+                                text: 'La justificación debe tener un largo de al menos 10 caracteres.',
+                                buttons: [{
+                                    text: 'Aceptar'
+                                }],
+                                verticalButtons: false
+                            }).open();
+                        } else {
+                            app.dialog.create({
+                                title: dialogTitle,
+                                text: 'Se creará una nueva solicitud.',
+                                buttons: [{
+                                    text: 'Cancelar'
+                                }, {
+                                    text: 'Aceptar',
+                                    onClick: function onClick() {
+                                        save();
+                                    }
+                                }],
+                                verticalButtons: false
+                            }).open();
+                        }
                     } else {
                         app.dialog.create({
                             title: 'Datos insuficientes',
