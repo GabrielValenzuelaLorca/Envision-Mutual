@@ -47,6 +47,6 @@ cecoStreamPage.methods.getNoItemsSelectedButtons = function(){
     return buttons;
 }
 
-// cecoStreamPage.methods.getCamlQueryConditions = function(){
-//     return '<And><Eq><FieldRef Name="Rol"/><Value Type="Choice">Coordinador</Value></Eq><Eq><FieldRef Name="EstadoContrato"/><Value Type="Choice">Activo</Value></Eq></And>' 
-// }
+cecoStreamPage.methods.getCamlQueryConditions = function(){
+    return `<Eq><FieldRef Name="activo" /><Value Type="Boolean">1</Value></Eq>`
+}
