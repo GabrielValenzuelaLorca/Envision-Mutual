@@ -378,11 +378,11 @@ var itemPage = {
                     InternalName: 'ExceptionCC',
                     TypeAsString: 'Boolean'
                 },{
-                    Id: generateUUID(),
-                    Title: '¿Aplica excepcion de Minimos y maximos?',
-                    InternalName: 'ExceptionMM',
-                    TypeAsString: 'Boolean'
-                },{
+                //     Id: generateUUID(),
+                //     Title: '¿Aplica excepcion de Minimos y maximos?',
+                //     InternalName: 'ExceptionMM',
+                //     TypeAsString: 'Boolean'
+                // },{
                     Id: generateUUID(),
                     Title: 'Solicitudes aprobadas',
                     InternalName: 'CentroCosto',
@@ -447,7 +447,7 @@ var itemPage = {
                     context.forms.person.inputs['CodigoPayroll'].setValue(values[0].item.Title);
                     context.forms.person.inputs['Rut'].setValue(values[0].item.Rut);
                     context.forms.person.inputs['TipoContrato'].setValue(values[0].item.TipoContrato);
-                    context.forms.person.inputs['Categoria'].setValue(values[0].item.Categoria.ESC);
+                    context.forms.person.inputs['Categoria'].setValue(values[0].item.Categoria.ESC ? values[0].item.Categoria.ESC : values[0].item.Categoria.Categoria);
                     context.forms.person.inputs['Cargo'].setValue(values[0].item.d_cargo.NombreCargo)
 
                     //Habilitamos el formulario siguiente

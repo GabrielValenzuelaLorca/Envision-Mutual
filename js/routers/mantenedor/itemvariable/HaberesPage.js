@@ -17,7 +17,7 @@ var haberesPage = {
                     '<div class="right">' +
                         '<a href="#" class="link update ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Save"></i>' +
-                            '<span class="ios-only">Imputar Haberes</span>' +
+                            '<span class="ios-only">Actualizar Haberes</span>' +
                         '</a>' +
                         '<a href="#" class="link generate-PDF ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PDF"></i>' +
