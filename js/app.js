@@ -130,7 +130,7 @@ spo.getCurrentUserInformation().done(function(){
         function shouldStartApp(){
             if (loaded.Planta) {
                 if (plantaAdmin){
-                    if (plantaAdmin.Rol != null && plantaAdmin.EstadoContrato == "Activo"){
+                    if ((plantaAdmin.Rol != null || plantaAdmin.RolSDP != null) && plantaAdmin.EstadoContrato == "Activo"){
                         startApp();
                     } else {
                         startAppNoAccess();    
