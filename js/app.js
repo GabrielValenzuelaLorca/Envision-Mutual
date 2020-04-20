@@ -14,6 +14,35 @@ var spo = new EnvisionSPO({
     tenantUrl: global.tenantUrl,
     siteUrl: global.siteUrl,
 });
+spo.addNewUserGroup = function(site, groupname, loginame, success, failure) {
+    var self = this;
+    var metadata = {
+        __metadata: {  
+            'type': 'SP.User'  
+        },  
+        LoginName: loginame
+    };
+
+    $.ajax({  
+        url: site + '/_api/web/sitegroups/getbyname(\'' + groupname + '\')/users',  
+        type: "POST",  
+        headers: {  
+            "accept": "application/json;odata=verbose",  
+            "X-RequestDigest": self.formDigestValue,
+            "content-Type": "application/json;odata=verbose"
+        },  
+        data: JSON.stringify(metadata),  
+        success: function(data) {  
+            if (success) success(data);
+        },  
+        failure: function(error) {  
+            if (failure) failure(error);
+        },
+        error: function(error) {  
+            if (failure) failure(error);
+        }  
+    });  
+}
 
 spo.getCurrentUserInformation().done(function(){
     spo.getContextWebInformation().done(function(){

@@ -258,29 +258,44 @@ var rolPage = {
                         var dialog = app.dialog.progress(dialogTitle);
                         var metadata = context.forms.planta.getMetadata();
                         delete metadata.LinkTitle;
-
-                        spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
-                            dialog.close();
-
-                            dialogs.confirmDialog(
-                                dialogTitle,
-                                'Rol asignado con éxito',
-                                function () {
-                                    mainView.router.navigate('/rolStream');
-                                },
-                                false
-                            );
-
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
-
-                            dialog.close();
-                            dialogs.infoDialog(
-                                "Error",
-                                'Hubo un problema al asignar el rol'
-                            )
-                        });
+            
+                        spo.addNewUserGroup(spo.getSiteUrl(), "Usuarios App", "i:0#.f|membership|"+metadata.Email, 
+                            function(response){
+                                spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId, metadata, function (response) {
+                                    dialog.close();
+        
+                                    dialogs.confirmDialog(
+                                        dialogTitle,
+                                        'Rol asignado con éxito',
+                                        function () {
+                                            mainView.router.navigate('/rolStream');
+                                        },
+                                        false
+                                    );
+        
+                                }, function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log('responseText', responseText);
+        
+                                    dialog.close();
+                                    dialogs.infoDialog(
+                                        "Error",
+                                        'Hubo un problema al asignar el rol'
+                                    )
+                                });
+                            },
+                            function(response){
+                                var responseText = JSON.parse(response.responseText);
+                                    console.log('responseText', responseText);
+        
+                                    dialog.close();
+                                    dialogs.infoDialog(
+                                        "Error",
+                                        'Hubo un problema al asignar el rol o el usuario no existe'
+                                    )
+                            }
+                        );
+                        
                     }
                     
                     context.forms.planta.checkFieldsRequired();
