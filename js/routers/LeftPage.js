@@ -327,7 +327,7 @@ menuPage.methods.getListBlocksData = function(){
 
         coorSection2.options = coorSection2.options.concat([
             {
-                href: 'https://grupoenvision.sharepoint.com/sites/testMutual/_layouts/15/download.aspx?UniqueId=13641310%2Dd85c%2D4fa6%2Da163%2D3fa9e03702a3',
+                href: global.uris[global.env].excelCoord,
                 title: 'Excel Tipo',
                 after: '',
                 header: '',
@@ -729,5 +729,5 @@ menuPage.methods.getListBlocksData = function(){
 
 // {string} logo de empresa
 menuPage.methods.getPageComponentImage = function(){
-    return "https://grupoenvision.sharepoint.com/CDN/EFW/themes/" + global.theme + "/" + global.theme + ".png";
+    return global.uris[global.env].tema;
 };

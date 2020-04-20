@@ -398,7 +398,7 @@ var sendStatusPage = {
                                 verticalButtons: false
                             }).open();
                         }else{
-                            fetch('https://prod-56.westus.logic.azure.com:443/workflows/110553fb4b5345a0a6af184622fee095/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3Ypt3eyXmI3dML81jx1FHibucDD1qWjG_kEzs2iVDM0', {
+                            fetch(global.uris[global.env].status, {
                                 method: 'POST',
                                 headers: {
                                     'Accept': 'application/json',

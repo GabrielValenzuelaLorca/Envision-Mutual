@@ -11,8 +11,8 @@ var plantaAdmin = null;
 var showAlert = true;
 var clipboard = null;
 var spo = new EnvisionSPO({
-    tenantUrl: global.tenantUrl,
-    siteUrl: global.siteUrl,
+    tenantUrl: global.uris[global.env].tenantUrl,
+    siteUrl: global.uris[global.env].siteUrl,
 });
 spo.addNewUserGroup = function(site, groupname, loginame, success, failure) {
     var self = this;
