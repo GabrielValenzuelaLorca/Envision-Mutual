@@ -150,8 +150,8 @@
 
 				// load js
 				var EFWScriptsArray = [
-					"https://publiccdn.sharepointonline.com/grupoenvision.sharepoint.com/CDN/EFW/" + (global.efwDev ? 'developer/' : '') + global.efwVersion + "/EFWComponents.js",
-					"https://publiccdn.sharepointonline.com/grupoenvision.sharepoint.com/CDN/EFW/" + (global.efwDev ? 'developer/' : '') + global.efwVersion + "/EFWF7Components.js",
+					"https://publiccdn.sharepointonline.com/grupoenvision.sharepoint.com/CDN/EFW/" + (global.efwDev ? 'developer/' : '') + global.efwVersion + "/EFWComponents_17042020.js",
+					"https://publiccdn.sharepointonline.com/grupoenvision.sharepoint.com/CDN/EFW/" + (global.efwDev ? 'developer/' : '') + global.efwVersion + "/EFWF7Components_17042020.js",
 				];
 
 				function loadScripts(scriptsArray) {
