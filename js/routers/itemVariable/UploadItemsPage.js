@@ -367,7 +367,7 @@ var uploadItemsPage = {
 
                                 function callServiceCargaMasivaItems(body){
                                     console.log('Body', JSON.stringify(body))
-                                    fetch('https://prod-41.westus.logic.azure.com:443/workflows/7936281e1e9642b7bce907f3b5c79f98/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=M0U07-7TKCCEM1d_uwLaTyhGKUGed1dqJAwpJp-mBJg', {
+                                    fetch(global.uris[global.env].items, {
                                         method: 'POST',
                                         headers: {
                                             'Accept': 'application/json',

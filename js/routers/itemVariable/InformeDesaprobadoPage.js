@@ -8,10 +8,6 @@ informePendientePage.methods.getListView = function(){
     return "Pendientes"
 }
 
-informePendientePage.methods.getTitle = function(){
-    return "Informes Pendientes"
-}
-
 informePendientePage.methods.getListTitle = function(){
     return "Informe Haberes"
 }
@@ -54,7 +50,7 @@ informePendientePage.methods.beforeStartComponent = function(success,failure){
             });
             spo.getListItems(spo.getSiteUrl(), "Periodo", query,
                 function (response) {
-                    context.periodId = response.d.results.length>0 ? response.d.results[0].ID : null;
+                    context.periodo = response.d.results.length>0 ? response.d.results[0] : null;
                     console.log("El periodo actual es", response.d.results[0])
                     loaded.Periodo = true;
                     startPendingComponent()
@@ -108,6 +104,26 @@ informePendientePage.methods.getCamlQueryConditions = function(){
                 '<Value Type="Lookup">'+plantaAdmin.ID+'</Value>'+
         '</Eq><Eq>'+
             '<FieldRef Name="Periodo" LookupId="TRUE"/>'+
-                '<Value Type="Lookup">'+context.periodId+'</Value>'+
+                '<Value Type="Lookup">'+context.periodo.ID+'</Value>'+
         '</Eq></And>'  
+}
+
+informePendientePage.methods.renderHeader = function($header){
+    var context = this._getPageContext();
+    var name = '';
+    if(context.periodo){
+        name = context.periodo.PeriodoCompleto;
+    }
+
+    var title = "Informes Pendientes del periodo "+ name;
+
+// tempalte con titulo, descripción opcional y un tabs
+var templateHtml = `
+    <div class="form-header">
+        <div class="Title" style="margin-left: 5%; margin-right: 5%; margin-top: 8px; margin-buttom: 10px; font-size: 16px;">` + title +  `</div>
+    </div>
+`;
+
+// agregar html
+$header.html(templateHtml);
 }

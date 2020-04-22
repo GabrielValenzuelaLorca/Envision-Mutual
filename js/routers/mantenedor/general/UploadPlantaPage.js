@@ -318,7 +318,7 @@ var uploadPlantaPage = {
 
                     function callServiceCargaMasivaPlanta(body){
                         console.log('Body', JSON.stringify(body))
-                        fetch('https://prod-09.westus.logic.azure.com:443/workflows/ebee079485634fdeb4f5cd060b424663/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=2bv590n5l4kP0RSXvGeOtuqx3Gfvm5NnNk1Rmwt3g34', {
+                        fetch(global.uris[global.env].planta, {
                             method: 'POST',
                             headers: {
                                 'Accept': 'application/json',
