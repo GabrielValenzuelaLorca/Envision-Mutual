@@ -53,6 +53,7 @@ var haberesPage = {
             '<div class="page-content">' +
                 '<div>' +
                     '<div class="form-container"></div>' +
+                    '<div class="form-Title"><span class="ios-only">Marque o Desmarque los haberes que desea imputar</span></div>' +
                     '<div class="formu2"></div>' +
                 '</div>' +
             '</div>' +
@@ -65,7 +66,9 @@ var haberesPage = {
             '</div>' +
         '</div>' +
         '',
-    style:  '.form-container .ms-FormField {width: 45%; float:left} ',
+    style:  '.form-container .ms-FormField {width: 45%; float:left} ' +
+            '.form-Title {padding-left: 10px; background-color: white}'+
+            '.formu2.ms-FormField {margin-top: -15px}',
     data: function () {
         var self = this;
         return {
@@ -190,9 +193,6 @@ var haberesPage = {
                     $clearButton = $navbar.find('.link.clear');
 
                     $updateButton.removeClass('hide');
-            
-
-                console.log('datoslistadohaberes',context.items.ListadoItemVariable);
 
                 let meruem = [];
                 context.items.ListadoItemVariable.map(function(jade){
@@ -218,13 +218,12 @@ var haberesPage = {
 
                 context.forms.haberes = new CheckboxInput({
                     container: $container.find('.formu2'),
-                    title: 'Marque o Desmarque los haberes que desea imputar',
+                    title: '',
                     editable: true,
                     multiSelect: true,
                     choices: meruem
-                })        
-                console.log('formulario haberes', context.forms.haberes)        
-
+                })
+                
                 if(listItemId){
                     
                     context.forms.persona.setValues(context.items.Planta);
@@ -255,18 +254,7 @@ var haberesPage = {
                         context.forms.persona.inputs['Haberes'].setEditable(true);
                         $updateButton.removeClass('hide');
                     }
-                }
-
-                
-                // if(listItemId){
-                //     console.log('List Item', context.items.solicitudSDP)
-
-                //     context.forms.jefe.setValues(context.items.solicitudSDP)
-                //     context.forms.recepcion.setValues(context.items.solicitudSDP)
-                //     context.forms.posicion.setValues(context.items.solicitudSDP);
-                //     context.forms.recuperable.setValues(context.items.solicitudSDP)
-                //     context.forms.vacante.setValues(context.items.solicitudSDP)
-                  
+                }                  
 
                 $updateButton.on('click', function (e) {
                     var dialogTitle = 'Asignando Haberes';
@@ -423,7 +411,8 @@ var haberesPage = {
                             var query = spo.encodeUrlListQuery(context.lists.ListadoItemVariable, {
                                 view: 'Todos los elementos',
                                 odata: {
-                                    'select': '*'
+                                    'select': '*',
+                                    'orderby': 'NombreItem asc',
                                 }
                             });
 

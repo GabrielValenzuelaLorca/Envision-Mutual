@@ -175,11 +175,13 @@ menuPage.methods.getListBlocksData = function(){
     var app = page.app;
     var context = this._getPageContext();
 
-    function showAlertFirstOpened(){
-        let dias = moment(context.onPeriod.FechaTermino).diff( moment(), 'days')
+    function showAlertFirstOpened(dias){
+
+        let msg1 = `Recuerde que le quedan ${dias} dia(s) para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`;
+        let msg2 = `Recuerde que hoy es el ultimo dia para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`
         app.dialog.create({
             title: 'Atención',
-            text: `Recuerde que le quedan ${dias} dia(s) para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`,
+            text: dias > 0 ? msg1 : msg2,
             buttons: [{
                 text: 'Aceptar',
                 onClick: function () {
@@ -197,7 +199,7 @@ menuPage.methods.getListBlocksData = function(){
     var settings = []
     if (plantaAdmin.Rol == "Coordinador"){
         let canSendInform = true;
-        let outPeriod = false;
+        var outPeriod = false;
         let coorSection = {
             inset: true,
             header: 'Coordinación',
@@ -217,13 +219,24 @@ menuPage.methods.getListBlocksData = function(){
             }
         }
 
-        if(moment(context.onPeriod.FechaTermino).diff( moment(), 'days') <=0){
+        let formated1 = moment().format('YYYY-MM-DD');
+        let formated2 = moment(context.onPeriod.FechaTermino).format('YYYY-MM-DD');
+
+        let replaced1 = formated1.replace(/-/gi,'')
+        let replaced2 = formated2.replace(/-/gi,'')
+
+        let hasta = parseInt(replaced1);
+        let desde = parseInt(replaced2);
+        
+        var dias = desde - hasta;
+
+        if(dias < 0){
             outPeriod = true;
         }
 
         if (canSendInform && context.onPeriod && !outPeriod) {
             if(plantaAdmin.Rol == "Coordinador" && showAlert == true && canSendInform){
-                showAlertFirstOpened()
+                showAlertFirstOpened(dias)
                 showAlert = false;
             }
             coorSection.options = coorSection.options.concat([ 
