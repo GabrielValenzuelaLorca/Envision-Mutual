@@ -31,12 +31,16 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
 listStreamPage.methods.getNoItemsSelectedButtons = function(item){
     var page = this._getPage();
     var context = this._getPageContext();
-    var title = page.route.query.title
+    var title = page.route.query.title    
     var buttons = [];
     
     switch(title){
         case 'Mantenedor Convenio Capex':{
             buttons.push(localButtons.addCapexView(context));
+            break;
+        }
+        case 'Mantenedor Items Variables':{
+            buttons.push(localButtons.toAddItemVariable());
             break;
         }
     }
@@ -264,6 +268,10 @@ function getRoutes(){
         {
             path: '/licencia',
             component: licenciaPage
+        },
+        {
+            path: '/itemFormPage',
+            component: itemFormPage
         },
     ];
 

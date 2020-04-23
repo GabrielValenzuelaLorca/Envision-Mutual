@@ -97,6 +97,18 @@ localButtons.toItemVariablePage = function(){
     return button
 }
 
+localButtons.toAddItemVariable = function(){
+    button = {
+        text: 'Añadir Haber',
+        class: 'addHbr',
+        icon: 'Add',
+        onClick: function(component, item){
+            mainView.router.navigate('/itemVariable?editable=true');
+        }
+    }
+    return button
+}
+
 localButtons.toOpenInforme = function(item){
     button = {
         text: 'Ver Informe',
@@ -228,8 +240,6 @@ localButtons.ToAsociateTrabajadorPage = function(){
     }
     return button
 }
-
-
 
 
 /**

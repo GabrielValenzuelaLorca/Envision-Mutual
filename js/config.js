@@ -4,7 +4,7 @@ global.appName = 'Mutual - Item variable'
 global.theme = 'mutual';
 global.efwVersion = '3.0.8';
 global.efwDev = true;
-global.env = "DEVJOHAN" //DEV, MUTDSR, MUTQAS, MUTPRD
+global.env = "DEV" //DEV, MUTDSR, MUTQAS, MUTPRD
 global.showUserMenu = true;
 global.uris = {
     DEV: {
@@ -56,6 +56,7 @@ var AppScriptsArray = [
     "js/routers/itemVariable/InformePeriodoPage.js",
     "js/routers/itemVariable/ItemPage.js",
     "js/routers/itemVariable/ItemVariableStreamPage.js",
+    "js/routers/itemVariable/ItemFormPage.js",
     "js/routers/itemVariable/LicenciaPage.js",
     "js/routers/itemVariable/LicenciaStreamPage.js",
     "js/routers/itemVariable/PeriodoPage.js",
