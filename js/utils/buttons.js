@@ -248,15 +248,40 @@ localButtons.toSeeDetailsSolicitud = function(){
     return button
 }
 
+localButtons.toCreatePosition = function(){
+    button = {
+        text: 'Crear posición',
+        class: 'seeDetails',
+        icon: 'Add',
+        onClick: function(component, item){
+            mainView.router.navigate('/Posicion');
+        }
+    }
+    return button
+}
+
+localButtons.toEditPosition = function(){
+    button = {
+        text: 'Editar posición',
+        class: 'createPosition',
+        icon: 'Add',
+        onClick: function(component, item){
+            mainView.router.navigate('/Posicion?listItemId='+item.ID);
+        }
+    }
+    return button
+}
+
+
 /*
     Todos los botones relacionados con CoordinadorStreamPage, TrabajadorPage y TrabajadorStreamPage
 */
 
 localButtons.addTrabajadorButton = function(context, id){
     button = {
-        text: 'Asociar Trabajador',
-        class: 'addTranbajador',
-        icon: 'Add',
+        text: 'Editar posición',
+        class: 'editPosition',
+        icon: 'Edit',
         onClick: function(component, item){
             mainView.router.navigate(encodeURI('/trabajadorTemporal?listItemId='+id));
         }

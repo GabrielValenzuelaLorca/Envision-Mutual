@@ -4,12 +4,12 @@ global.appName = 'Mutual - Item variable'
 global.theme = 'mutual';
 global.efwVersion = '3.0.8';
 global.efwDev = true;
-global.env = "DEVJOHAN" //DEV, MUTDSR, MUTQAS, MUTPRD
+global.env = "DEV" //DEV, MUTDSR, MUTQAS, MUTPRD
 global.showUserMenu = true;
 global.uris = {
     DEV: {
         tenantUrl: 'https://grupoenvision.sharepoint.com/',
-        siteUrl: 'https://grupoenvision.sharepoint.com/sites/testMutual/',
+        siteUrl: 'https://grupoenvision.sharepoint.com/sites/testMutual/devjohan',
         tema: "https://grupoenvision.sharepoint.com/CDN/EFW/themes/mutual/mutual.png",
         excelCoord: 'https://grupoenvision.sharepoint.com/sites/testMutual/_layouts/15/download.aspx?UniqueId=13641310%2Dd85c%2D4fa6%2Da163%2D3fa9e03702a3',
         status: 'https://prod-56.westus.logic.azure.com:443/workflows/110553fb4b5345a0a6af184622fee095/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3Ypt3eyXmI3dML81jx1FHibucDD1qWjG_kEzs2iVDM0',
@@ -80,6 +80,10 @@ var AppScriptsArray = [
     "js/routers/SDP/CecoPage.js",
     "js/routers/SDP/CecoStreamPage.js",
     "js/routers/SDP/AproveSolicitudStreamPage.js",
+
+    //Mantenedores SDP
+    "js/routers/mantenedor/SDP/PosicionStreamPage.js",
+    "js/routers/mantenedor/SDP/PosicionPage.js",
     
     //Carpeta Principal
     "js/routers/HomePage.js",

@@ -246,10 +246,6 @@ function getRoutes(){
             component: ItemVariablePage
         },
         {
-            path: '/cecoTemporal',
-            component: cecoPage
-        },
-        {
             path: '/Solicitudes',
             component: SolicitudesStreamPage
         },
@@ -289,6 +285,20 @@ function getRoutes(){
             path: '/EjemploStream',
             component: cecoStreamPage
         },
+        {
+            path: '/cecoTemporal',
+            component: cecoPage
+        },
+        {
+            path: '/PosicionStream',
+            component: posicionStreamPage
+        },
+        {
+            path: '/Posicion',
+            component: posicionPage
+        },
+
+
     ]
 
     var routes = [];
