@@ -190,33 +190,27 @@ var posicionPage = {
                 // formulario de registro
                 context.forms.posicion = new EFWForms({
                     container: $container.find('.form'),
-                    title: mths.getListTitle(),
+                    title: listItemId ? 'Edición de posiciones' : 'Formulario de posición',
                     editable: true,
                     fields: listItemId ? spo.getViewFields(context.lists.Posicion, 'FormEdicion') : spo.getViewFields(context.lists.Posicion, 'FormCreacion'),
-                    onAddRow: listItemId ? null : function(EFWForm, UUID, item){
-                        if(context.forms.posicion.getRowCount() > 1 && currentID){
-                            let current = parseInt(currentID);
-                            currentID = current+1
-                        }else{
-                            var ultima = parseInt(context.items.Ultima.NPosicion);
-                            console.log('Ultima', ultima)
-                            currentID = context.items.Ultima ? ultima+1+"" : "1";
+                    onAddRow: function(EFWForm, UUID, item){
+                        if(!listItemId){
+                            if(context.forms.posicion.getRowCount() > 1 && currentID){
+                                let current = parseInt(currentID);
+                                currentID = current+1
+                            }else{
+                                var ultima = parseInt(context.items.Ultima.NPosicion);
+                                currentID = context.items.Ultima ? ultima+1+"" : "1";
+                            }
+                            EFWForm.inputs.NPosicion.setValue(currentID);
                         }
-                        console.log('ID actual', currentID)
-                        console.log('Fila', context.forms.posicion.rows[UUID])
-                        context.forms.posicion.rows[UUID].inputs.NPosicion.setValue(currentID);
-                        context.forms.posicion.rows[UUID].inputs.NPosicion.setEditable(false)
+                        EFWForm.inputs.NPosicion.setEditable(false)
                     }
                 });
 
 
                 if (listItemId) {
-                    context.forms.posicion.setValues(context.items.Posicion);
-
-                    context.forms.posicion.rows.map(function(fila){
-                        fila.inputs.NPosicion.setEditable(false);
-                    });
-                    
+                    context.forms.posicion.setValues(context.items.Posicion);                    
                     $updateButton.removeClass('hide');
                     $('.ms-Button.ms-Button--primary').addClass('hide');
                     $('.ms-Button.ms-Button--remove').addClass('hide');
@@ -397,7 +391,6 @@ var posicionPage = {
                                     }else if(i == 0){
                                         filter += '(Id eq ' + id +' or '
                                     }else{
-                                        console.log('Del Medio')
                                         filter += 'Id eq ' + id +' or '
                                     }
                                 });
