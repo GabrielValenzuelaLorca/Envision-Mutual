@@ -225,6 +225,10 @@ function getRoutes(){
             path: '/rol',
             component: rolPage
         },
+        {
+            path: '/Trabajadores',
+            component: TrabajadoresStreamPage
+        },
     ]
 
     //Routes compartidas de Item Variable

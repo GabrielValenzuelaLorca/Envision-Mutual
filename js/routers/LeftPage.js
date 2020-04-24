@@ -495,7 +495,7 @@ menuPage.methods.getListBlocksData = function(){
 
         admSection.options = admSection.options.concat([
             {
-                href: '/plantaStream',
+                href: '/Trabajadores',
                 title: 'Planta',
                 after: '',
                 header: '',

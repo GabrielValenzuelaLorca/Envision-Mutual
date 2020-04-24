@@ -62,7 +62,8 @@ var AppScriptsArray = [
     "js/routers/itemVariable/SendStatusPage.js",
     "js/routers/itemVariable/SolicitudesPage.js",
     "js/routers/itemVariable/SolicitudesStreamPage.js",
-    "js/routers/itemVariable/UploadItemsPage.js",    
+    "js/routers/itemVariable/UploadItemsPage.js",
+    "js/routers/itemVariable/TrabajadoresStreamPage.js",
     
     
     //Carpeta mantenedores general
