@@ -264,9 +264,16 @@ localButtons.toEditPosition = function(){
     button = {
         text: 'Editar posición',
         class: 'createPosition',
-        icon: 'Add',
+        icon: 'Edit',
         onClick: function(component, item){
-            mainView.router.navigate('/Posicion?listItemId='+item.ID);
+            if(item.ID){
+                mainView.router.navigate('/Posicion?listItemId='+item.ID);
+            }else{
+                var ids = item.map(function(x){
+                    return x.ID;
+                });
+                mainView.router.navigate('/Posicion?listItemId='+ids.join(','));
+            }
         }
     }
     return button
@@ -2377,8 +2384,6 @@ localButtons.deleteRol = function(context){
 
                 spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, metadata, function (response) {
                     dialog.close();
-                    
-                    console.log('Item.rol', item.rol)
 
                     if(context.selfWorkers && item.Rol == "Coordinador"){
                         var metadata2 = context.selfWorkers.map(function(x){

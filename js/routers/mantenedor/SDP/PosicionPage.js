@@ -190,13 +190,15 @@ var posicionPage = {
                     container: $container.find('.form'),
                     title: mths.getListTitle(),
                     editable: true,
-                    fields: listItemId ? spo.getViewFields(context.lists.Posicion, 'Todos los elementos') : spo.getViewFields(context.lists.Posicion, 'Form')
+                    fields: listItemId ? spo.getViewFields(context.lists.Posicion, 'FormEdicion') : spo.getViewFields(context.lists.Posicion, 'FormCreacion')
                 });
 
 
                 if (listItemId) {
-                    context.forms.posicion.setValues([context.items.Posicion]);
+                    context.forms.posicion.setValues(context.items.Posicion);
                     $updateButton.removeClass('hide');
+                    $('.ms-Button.ms-Button--primary').addClass('hide');
+                    $('.ms-Button.ms-Button--remove').addClass('hide');
                 } else {
                     $createButton.removeClass('hide');
                     $clearButton.removeClass('hide');
@@ -363,19 +365,35 @@ var posicionPage = {
                         context.lists.Posicion = response;
                         // Si existe el id de algún item a obtener
                         if (listItemId) {
-
+                            var filter = '(Id eq ' + listItemId + ')';
+                            if(listItemId.includes(',')){
+                                filter = "";
+                                var ids = listItemId.split(',');
+                                ids.map(function(id, i){
+                                    console.log('ID', id)
+                                    if(i+1 == ids.length){
+                                        filter += 'Id eq ' + id +' )'
+                                    }else if(i == 0){
+                                        filter += '(Id eq ' + id +' or '
+                                    }else{
+                                        console.log('Del Medio')
+                                        filter += 'Id eq ' + id +' or '
+                                    }
+                                });
+                            }
                             var query = spo.encodeUrlListQuery(context.lists.Posicion, {
                                 view: 'Todos los elementos',
                                 odata: {
-                                    'filter': '(Id eq ' + listItemId + ')',
+                                    'filter': filter,
                                     'select': '*'
                                 }
                             });
 
                             spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
                                 function (response) {
-                                    context.items.Posicion = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    context.items.Posicion = response.d.results.length > 0 ? response.d.results : null;
                                     loaded.Posicion = true;
+                                    console.log('Posiciones', context.items.Posicion)
                                     shouldInitForms();
 
 

@@ -279,15 +279,18 @@
     margin-top: 5px;
     position: absolute;
     right: -82px;
+    background-color: whitesmoke;
 }
  
 .table-compact-row .ms-Form-container {
     white-space: normal;
+    background-color: white;
 }
  
 .table-compact-row .ms-EnvisionSerializeForm-row:last-child .ms-Form-content {
     /* padding-right: 0; */
     border-right: initial !important;
+    background-color: white;
 }
  
 .table-compact-row .ms-Form-content {

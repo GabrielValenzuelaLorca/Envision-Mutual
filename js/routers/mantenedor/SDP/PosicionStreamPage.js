@@ -46,7 +46,9 @@ posicionStreamPage.methods.getMultiItemsSelectedButtons = function(items){
     var page = this._getPage();
     var self = this, buttons = [],
     context = self._getPageContext(),
-    buttons = [];
+    buttons = [
+        localButtons.toEditPosition(),
+    ];
 
     return buttons;
 }
