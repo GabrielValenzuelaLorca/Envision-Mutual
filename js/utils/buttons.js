@@ -279,6 +279,19 @@ localButtons.toEditPosition = function(){
     return button
 }
 
+localButtons.toGestionar = function(context){
+    button = {
+        text: 'Gestionar',
+        class: 'gestionar',
+        icon: 'PageEdit',
+        onClick: function(component, item){
+            mainView.router.navigate('/Posicion?gestion='+item.ID);
+            //Crear Mostrar formulario con 
+        }
+    }
+    return button
+}
+
 
 /*
     Todos los botones relacionados con CoordinadorStreamPage, TrabajadorPage y TrabajadorStreamPage
@@ -2764,13 +2777,14 @@ localButtons.downloadLicenciaPeriodo = function(context){
     Todos los botones relacionados con CyE
 */
 
-localButtons.gestionar = function(context){
+localButtons.toGestionar = function(context){
     button = {
         text: 'Gestionar',
         class: 'gestionar',
         icon: 'PageEdit',
         onClick: function(component, item){
             console.log("Gestionar")
+            //Crear Mostrar formulario con 
         }
     }
     return button

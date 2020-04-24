@@ -185,17 +185,38 @@ var posicionPage = {
                     $updateButton = $navbar.find('.link.update'),
                     $clearButton = $navbar.find('.link.clear');
 
+                    var currentID = null;
+
                 // formulario de registro
                 context.forms.posicion = new EFWForms({
                     container: $container.find('.form'),
                     title: mths.getListTitle(),
                     editable: true,
-                    fields: listItemId ? spo.getViewFields(context.lists.Posicion, 'FormEdicion') : spo.getViewFields(context.lists.Posicion, 'FormCreacion')
+                    fields: listItemId ? spo.getViewFields(context.lists.Posicion, 'FormEdicion') : spo.getViewFields(context.lists.Posicion, 'FormCreacion'),
+                    onAddRow: listItemId ? null : function(EFWForm, UUID, item){
+                        if(context.forms.posicion.getRowCount() > 1 && currentID){
+                            let current = parseInt(currentID);
+                            currentID = current+1
+                        }else{
+                            var ultima = parseInt(context.items.Ultima.NPosicion);
+                            console.log('Ultima', ultima)
+                            currentID = context.items.Ultima ? ultima+1+"" : "1";
+                        }
+                        console.log('ID actual', currentID)
+                        console.log('Fila', context.forms.posicion.rows[UUID])
+                        context.forms.posicion.rows[UUID].inputs.NPosicion.setValue(currentID);
+                        context.forms.posicion.rows[UUID].inputs.NPosicion.setEditable(false)
+                    }
                 });
 
 
                 if (listItemId) {
                     context.forms.posicion.setValues(context.items.Posicion);
+
+                    context.forms.posicion.rows.map(function(fila){
+                        fila.inputs.NPosicion.setEditable(false);
+                    });
+                    
                     $updateButton.removeClass('hide');
                     $('.ms-Button.ms-Button--primary').addClass('hide');
                     $('.ms-Button.ms-Button--remove').addClass('hide');
@@ -210,7 +231,7 @@ var posicionPage = {
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle); 
-                        let metadata = context.forms.posicion.getMetadata();                     
+                        let metadata = context.forms.posicion.getMetadata();    
 
                         spo.saveListItems(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {
                             dialog.close();
@@ -393,7 +414,6 @@ var posicionPage = {
                                 function (response) {
                                     context.items.Posicion = response.d.results.length > 0 ? response.d.results : null;
                                     loaded.Posicion = true;
-                                    console.log('Posiciones', context.items.Posicion)
                                     shouldInitForms();
 
 
@@ -404,8 +424,28 @@ var posicionPage = {
                                 }
                             );
                         } else {
-                            loaded.Posicion = true;
-                            shouldInitForms();
+                            var query = spo.encodeUrlListQuery(context.lists.Posicion, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'orderby': 'ID desc',
+                                    'select': '*',
+                                    'top': 1
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
+                                function (response) {
+                                    context.items.Ultima = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    loaded.Posicion = true;
+                                    shouldInitForms();
+
+
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
                         }
 
                     },
