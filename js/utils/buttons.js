@@ -248,15 +248,60 @@ localButtons.toSeeDetailsSolicitud = function(){
     return button
 }
 
+localButtons.toCreatePosition = function(){
+    button = {
+        text: 'Crear posición',
+        class: 'seeDetails',
+        icon: 'Add',
+        onClick: function(component, item){
+            mainView.router.navigate('/Posicion');
+        }
+    }
+    return button
+}
+
+localButtons.toEditPosition = function(){
+    button = {
+        text: 'Editar posición',
+        class: 'createPosition',
+        icon: 'Edit',
+        onClick: function(component, item){
+            if(item.ID){
+                mainView.router.navigate('/Posicion?listItemId='+item.ID);
+            }else{
+                var ids = item.map(function(x){
+                    return x.ID;
+                });
+                mainView.router.navigate('/Posicion?listItemId='+ids.join(','));
+            }
+        }
+    }
+    return button
+}
+
+localButtons.toGestionar = function(context){
+    button = {
+        text: 'Gestionar',
+        class: 'gestionar',
+        icon: 'PageEdit',
+        onClick: function(component, item){
+            mainView.router.navigate('/Posicion?gestion='+item.ID);
+            //Crear Mostrar formulario con 
+        }
+    }
+    return button
+}
+
+
 /*
     Todos los botones relacionados con CoordinadorStreamPage, TrabajadorPage y TrabajadorStreamPage
 */
 
 localButtons.addTrabajadorButton = function(context, id){
     button = {
-        text: 'Asociar Trabajador',
-        class: 'addTranbajador',
-        icon: 'Add',
+        text: 'Editar posición',
+        class: 'editPosition',
+        icon: 'Edit',
         onClick: function(component, item){
             mainView.router.navigate(encodeURI('/trabajadorTemporal?listItemId='+id));
         }
@@ -2352,8 +2397,6 @@ localButtons.deleteRol = function(context){
 
                 spo.updateListItem(spo.getSiteUrl(), "Planta", item.ID, metadata, function (response) {
                     dialog.close();
-                    
-                    console.log('Item.rol', item.rol)
 
                     if(context.selfWorkers && item.Rol == "Coordinador"){
                         var metadata2 = context.selfWorkers.map(function(x){
@@ -2734,13 +2777,14 @@ localButtons.downloadLicenciaPeriodo = function(context){
     Todos los botones relacionados con CyE
 */
 
-localButtons.gestionar = function(context){
+localButtons.toGestionar = function(context){
     button = {
         text: 'Gestionar',
         class: 'gestionar',
         icon: 'PageEdit',
         onClick: function(component, item){
             console.log("Gestionar")
+            //Crear Mostrar formulario con 
         }
     }
     return button
