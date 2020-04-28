@@ -253,14 +253,7 @@ var homePage = {
                 context = self.$options.data();
             
             // blocks
-            var $container = $(page.$el),
-                $bodyContent = $container.find('.page-content-body'),
-                $headerContent = $container.find('.page-content-header'),
-                $footerContent = $container.find('.page-content-footer');
-
-            // definir un uuid único por página y contexto
-            context.uuid = generateUUID();
-            $container[0].setAttribute('data-uuid', context.uuid);
+            var $container = $(page.$el);
 
             // definir entra de valores de página
             mths._getPage = function(){
@@ -272,125 +265,12 @@ var homePage = {
                 return context;
             };
 
-            // renderizar HTML de header y footer
-            mths.renderHeader($headerContent);
-            mths.renderFooter($footerContent);
+            // console.log('LeftView', leftView.disableSwipe()
 
-            var tilesHtml = '<img id="env-gif" src="assets/img/env2.gif">';
-            var menus = [
-                /*{
-                    Title: 'Nuevo Formulario',
-                    Href: '/form'
-                },
-                {
-                    Title: 'Listado de productos',
-                    Href: '/liststream?title=Productos&listtitle=sodimacProductos&listview=Todos los elementos&template=list-row'
-                }*/
-            ];
 
-            for (var i = 0; i < menus.length; i++){
-                tilesHtml += mths.renderTile(menus[i]);
-            }
-
-            $bodyContent.html(tilesHtml);
             mths.removePageLoader();
-            $container.find('img.lazy, div.lazy').each(function(index, el){
-                app.lazy.loadImage(el);
-            });
-
-            /* test */
-
-            /*var params = {
-                paging: '',
-                rowLimit: 100,
-                datesInUtc: 'true',
-                renderOptions: 4103,
-                inplaceSearchQuery: '',
-                recursiveScope: false,
-                folderServerRelativeUrl: null,
-                viewFields: '<FieldRef Name="Title"/>' + 
-                            '<FieldRef Name="nivelA"/>' +
-                            '<FieldRef Name="nivelB"/>' +
-                            '<FieldRef Name="ID"/>',
-                camlOrder: '<FieldRef Name="ID" Ascending="False" />',
-                camlWhere: '',
-                camlGroup: '<GroupBy Collapse="TRUE">' + 
-                                '<FieldRef Name="nivelA"/>' +
-                            '</GroupBy>',
-            };*/
-
-            /*
-            var url = 'https://grupoenvision.sharepoint.com/Proyectos/sistema/',
-                listTitle = 'metabrowser',
-                listViewId = '';*/
-            /*spo.getItemsAsStream(url, listTitle, listViewId, params, function(results){
-                console.log(results);
-            }, function(results){
-                console.log('fail')
-            })*/
-
-            /*
-            var minId, maxId;
-
-            var params2 = {
-                rowLimit: 5000,
-                renderOptions: 4103,
-                inplaceSearchQuery: '',
-                recursiveScope: false,
-                folderServerRelativeUrl: null,
-                viewFields: '<FieldRef Name="ID"/>',
-                camlOrder: '<FieldRef Name="ID" Ascending="True" />',
-                camlWhere: ''
-            };
-
-            console.log('id min!!!');
-            spo.getListItemsAsStream(url, listTitle, listViewId, params2, function(data){
-                console.log('minId data',data);
-            }, function(data){
-                console.log('fail3', data);
-            })
 
 
-            var params3 = {
-                rowLimit: 5000,
-                renderOptions: 4103,
-                inplaceSearchQuery: '',
-                recursiveScope: false,
-                folderServerRelativeUrl: null,
-                viewFields: '<FieldRef Name="ID"/>',
-                camlOrder: '<FieldRef Name="ID" Ascending="False" />',
-                camlWhere: ''
-            };
-
-            spo.getListItemsAsStream(url, listTitle, listViewId, params3, function(data){
-                console.log('maxId data',data);
-            }, function(data){
-                console.log('fail4', data);
-            })
-            spo.getListInfo(listTitle,
-                function (response) {
-                    var query = spo.encodeUrlListQuery(response, {
-                        view: 'Todos los elementos',
-                        odata: {
-                            'filter': '',
-                            'select': 'ID',
-                            'expand': '',
-                            'orderby': 'ID desc',
-                            'top':1,
-
-                        }
-                    });
-
-
-                    spo.getListItems(url, listTitle, query, function(data){
-                        console.log('odata ok', data)
-                    }, function(data){
-                        console.log('odata fail', data)
-                    });
-            });*/
-
-
-            /* fin test */
         },
         pageBeforeIn: function(e, page) {
             // console.log('pageBeforeIn', page);
