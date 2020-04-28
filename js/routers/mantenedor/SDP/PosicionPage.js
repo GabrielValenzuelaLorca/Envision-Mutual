@@ -193,7 +193,7 @@ var posicionPage = {
                     container: $container.find('.form'),
                     title: listItemId ? 'Edición de posiciones' : 'Formulario de posición',
                     editable: true,
-                    fields: listItemId ? spo.getViewFields(context.lists.Posicion, 'FormEdicion') : spo.getViewFields(context.lists.Posicion, 'FormCreacion'),
+                    fields: spo.getViewFields(context.lists.Posicion, 'Form'),
                     onAddRow: function(EFWForm, UUID, item){
                         if(!listItemId){
                             if(context.forms.posicion.getRowCount() > 1 && currentID){
@@ -209,14 +209,29 @@ var posicionPage = {
 
                         //Autocomplete data to gestionar
 
+                        EFWForm.inputs.CentroCosto.params.onChange = function(comp, input, state, values){
+
+                            console.log('Values', values)
+
+                            if (values.length == 0){
+                                EFWForm.inputs.CentroCosto_x003a_Area_UN.resetValue();
+                                EFWForm.inputs.CentroCosto_x003a_Nivel_Org_1.resetValue();
+                                EFWForm.inputs.CentroCosto_x003a_UB.resetValue();
+                                EFWForm.inputs.CentroCosto_x003a_D_UB.resetValue();
+                                return;
+                            }
+
+                            let CentroCosto = values[0].item;
+                            EFWForm.inputs.CentroCosto_x003a_Area_UN.setValue([{key: CentroCosto.ID, text: CentroCosto.Area_UN}])
+                            EFWForm.inputs.CentroCosto_x003a_Nivel_Org_1.setValue([{key: CentroCosto.ID, text: CentroCosto.Nivel_Org_1}])
+                            EFWForm.inputs.CentroCosto_x003a_UB.setValue([{key: CentroCosto.ID, text: CentroCosto.UB}])
+                            EFWForm.inputs.CentroCosto_x003a_D_UB.setValue([{key: CentroCosto.ID, text: CentroCosto.D_UB}])
+                        }
+
                         if(gestion){
                             var solicitud = context.items.SolicitudSDP;
-                            console.log('Datos solicitud', context.items.SolicitudSDP)
-
                             //Centro de costo y valores por defecto
-                            EFWForm.inputs.CentroCosto.setValue([{key: solicitud.CentroCosto.ID, text: solicitud.CentroCosto.D_CC}])
-                            EFWForm.inputs.CentroCosto_x003a_Area_UN.setValue([{key: solicitud.CentroCosto.ID, text: solicitud.CentroCosto.Area_UN}])
-                            EFWForm.inputs.CentroCosto_x003a_Nivel_Org_1.setValue([{key: solicitud.CentroCosto.ID, text: solicitud.CentroCosto.Nivel_Org_1}])
+                            EFWForm.inputs.CentroCosto.setValue([{key: solicitud.CentroCosto.ID, text: solicitud.CentroCosto.D_CC, item: solicitud.CentroCosto}])
 
                             if(solicitud.AumentoPresupuesto == "Aumento presupuesto"){
                                 //Activar aumento presupuesto
@@ -231,12 +246,18 @@ var posicionPage = {
                             }
                             //Fecha expiracion proyecto recuperable
                             if(solicitud.NombreProyecto){
-                                console.log('Modifico la fecha')
                                 EFWForm.inputs.FechaExpiracion.setValue(solicitud.CPRFechaHasta)
                             }
-
-                            
                         }
+
+                        EFWForm.inputs.CentroCosto.params.beforeRenderSuggestions = function (items) {
+                            return items.filter(x=> x.activo == true)
+                        }
+
+                        EFWForm.inputs.CentroCosto_x003a_Area_UN.setEditable(false);
+                        EFWForm.inputs.CentroCosto_x003a_Nivel_Org_1.setEditable(false);
+                        EFWForm.inputs.CentroCosto_x003a_UB.setEditable(false);
+                        EFWForm.inputs.CentroCosto_x003a_D_UB.setEditable(false);                        
                     }
                 });
 
@@ -265,9 +286,8 @@ var posicionPage = {
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle); 
-                        let metadatas = context.forms.posicion.getMetadata();    
+                        let metadatas = context.forms.posicion.getMetadata();
 
-                        console.log('Metadata', metadatas)
                         spo.saveListItems(spo.getSiteUrl(), mths.getListTitle(), metadatas, function (response) {
                             dialog.close();
                             dialogs.confirmDialog(
@@ -279,7 +299,6 @@ var posicionPage = {
                                 false
                             )
                         }, function (response) {
-                            console.log('Response', response)
                             var responseText = JSON.parse(response.responseText);
                             console.log('responseText', responseText);
 
@@ -427,7 +446,6 @@ var posicionPage = {
                                 filter = "";
                                 var ids = listItemId.split(',');
                                 ids.map(function(id, i){
-                                    console.log('ID', id)
                                     if(i+1 == ids.length){
                                         filter += 'Id eq ' + id +' )'
                                     }else if(i == 0){
