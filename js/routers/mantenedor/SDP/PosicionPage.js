@@ -163,7 +163,8 @@ var posicionPage = {
             // variables
             var context = this.$options.data(),
                 mths = this.$options.methods,
-                listItemId = page.route.query.listItemId
+                listItemId = page.route.query.listItemId,
+                gestion = page.route.query.gestion
 
             context.methods = mths;
 
@@ -192,12 +193,12 @@ var posicionPage = {
                     container: $container.find('.form'),
                     title: listItemId ? 'Edición de posiciones' : 'Formulario de posición',
                     editable: true,
-                    fields: listItemId ? spo.getViewFields(context.lists.Posicion, 'FormEdicion') : spo.getViewFields(context.lists.Posicion, 'FormCreacion'),
+                    fields: spo.getViewFields(context.lists.Posicion, 'Form'),
                     onAddRow: function(EFWForm, UUID, item){
                         if(!listItemId){
                             if(context.forms.posicion.getRowCount() > 1 && currentID){
                                 let current = parseInt(currentID);
-                                currentID = current+1
+                                currentID = current+1+""
                             }else{
                                 var ultima = parseInt(context.items.Ultima.NPosicion);
                                 currentID = context.items.Ultima ? ultima+1+"" : "1";
@@ -205,9 +206,60 @@ var posicionPage = {
                             EFWForm.inputs.NPosicion.setValue(currentID);
                         }
                         EFWForm.inputs.NPosicion.setEditable(false)
+
+                        //Autocomplete data to gestionar
+
+                        EFWForm.inputs.CentroCosto.params.onChange = function(comp, input, state, values){
+
+                            console.log('Values', values)
+
+                            if (values.length == 0){
+                                EFWForm.inputs.CentroCosto_x003a_Area_UN.resetValue();
+                                EFWForm.inputs.CentroCosto_x003a_Nivel_Org_1.resetValue();
+                                EFWForm.inputs.CentroCosto_x003a_UB.resetValue();
+                                EFWForm.inputs.CentroCosto_x003a_D_UB.resetValue();
+                                return;
+                            }
+
+                            let CentroCosto = values[0].item;
+                            EFWForm.inputs.CentroCosto_x003a_Area_UN.setValue([{key: CentroCosto.ID, text: CentroCosto.Area_UN}])
+                            EFWForm.inputs.CentroCosto_x003a_Nivel_Org_1.setValue([{key: CentroCosto.ID, text: CentroCosto.Nivel_Org_1}])
+                            EFWForm.inputs.CentroCosto_x003a_UB.setValue([{key: CentroCosto.ID, text: CentroCosto.UB}])
+                            EFWForm.inputs.CentroCosto_x003a_D_UB.setValue([{key: CentroCosto.ID, text: CentroCosto.D_UB}])
+                        }
+
+                        if(gestion){
+                            var solicitud = context.items.SolicitudSDP;
+                            //Centro de costo y valores por defecto
+                            EFWForm.inputs.CentroCosto.setValue([{key: solicitud.CentroCosto.ID, text: solicitud.CentroCosto.D_CC, item: solicitud.CentroCosto}])
+
+                            if(solicitud.AumentoPresupuesto == "Aumento presupuesto"){
+                                //Activar aumento presupuesto
+                                EFWForm.inputs.ExtraPresupuesto.setValue(true);
+                            }
+                            //Nombre del cargo seleccionado
+                            if(!solicitud.otroCargo){
+                                EFWForm.inputs.Cargo.setValue([{key: solicitud.NombreCargoSolicitadoId, text:solicitud.NombreCargoSolicitado.NombreCargo }])
+                            }else{
+                                //Mostrar que solicito otro cargo
+                                EFWForm.inputs.Cargo.setValue([{key: 0, text: solicitud.NombreNewCargo}])
+                            }
+                            //Fecha expiracion proyecto recuperable
+                            if(solicitud.NombreProyecto){
+                                EFWForm.inputs.FechaExpiracion.setValue(solicitud.CPRFechaHasta)
+                            }
+                        }
+
+                        EFWForm.inputs.CentroCosto.params.beforeRenderSuggestions = function (items) {
+                            return items.filter(x=> x.activo == true)
+                        }
+
+                        EFWForm.inputs.CentroCosto_x003a_Area_UN.setEditable(false);
+                        EFWForm.inputs.CentroCosto_x003a_Nivel_Org_1.setEditable(false);
+                        EFWForm.inputs.CentroCosto_x003a_UB.setEditable(false);
+                        EFWForm.inputs.CentroCosto_x003a_D_UB.setEditable(false);                        
                     }
                 });
-
 
                 if (listItemId) {
                     context.forms.posicion.setValues(context.items.Posicion);                    
@@ -216,8 +268,17 @@ var posicionPage = {
                     $('.ms-Button.ms-Button--remove').addClass('hide');
                 } else {
                     $createButton.removeClass('hide');
-                    $clearButton.removeClass('hide');
-                    context.forms.posicion.addRow()
+                    
+                    if(gestion){
+                        for(let i = 0; i < context.items.SolicitudSDP.PersonasAContratar; i++){
+                            context.forms.posicion.addRow()
+                        }
+                        $('.ms-Button.ms-Button--primary').addClass('hide');
+                        $('.ms-Button.ms-Button--remove').addClass('hide');
+                    }else{
+                        context.forms.posicion.addRow()
+                        $clearButton.removeClass('hide');
+                    }
                 }
 
                 $createButton.on('click', function (e) {
@@ -225,9 +286,9 @@ var posicionPage = {
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle); 
-                        let metadata = context.forms.posicion.getMetadata();    
+                        let metadatas = context.forms.posicion.getMetadata();
 
-                        spo.saveListItems(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {
+                        spo.saveListItems(spo.getSiteUrl(), mths.getListTitle(), metadatas, function (response) {
                             dialog.close();
                             dialogs.confirmDialog(
                                 dialogTitle,
@@ -368,7 +429,7 @@ var posicionPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.Posicion) {
+                    if (loaded.Posicion && loaded.SolicitudSDP) {
                         initForm();
                     }
                 };
@@ -385,7 +446,6 @@ var posicionPage = {
                                 filter = "";
                                 var ids = listItemId.split(',');
                                 ids.map(function(id, i){
-                                    console.log('ID', id)
                                     if(i+1 == ids.length){
                                         filter += 'Id eq ' + id +' )'
                                     }else if(i == 0){
@@ -447,6 +507,73 @@ var posicionPage = {
                         console.log(responseText.error.message.value);
                     }
                 );
+
+                if(gestion){
+                    // Obtener información de lista
+                    spo.getListInfo('SolicitudSDP',
+                        function (response) {
+                            context.items.SolicitudSDP = [];
+                            context.lists.SolicitudSDP = response;
+                            // Si existe el id de algún item a obtener
+                                var query = spo.encodeUrlListQuery(context.lists.SolicitudSDP, {
+                                    view: 'Todos los elementos',
+                                    odata: {
+                                        'filter': 'Id eq '+gestion,
+                                        'select': '*'
+                                    }
+                                });
+
+                                spo.getListItems(spo.getSiteUrl(), 'SolicitudSDP', query,
+                                    function (response) {
+                                        context.items.SolicitudSDP = response.d.results.length > 0 ? response.d.results[0] : null;
+
+                                        spo.getListInfo('CentroCosto',
+                                            function (response) {
+                                                context.lists.CentroCosto = response;
+                                                // Si existe el id de algún item a obtener
+                                                    var query = spo.encodeUrlListQuery(context.lists.CentroCosto, {
+                                                        view: 'Todos los elementos',
+                                                        odata: {
+                                                            'filter': '( D_CC eq \''+ context.items.SolicitudSDP.CentroCosto +'\' )',
+                                                            'select': '*'
+                                                        }
+                                                    });
+
+                                                    spo.getListItems(spo.getSiteUrl(), 'CentroCosto', query,
+                                                        function (response) {
+                                                            context.items.SolicitudSDP.CentroCosto = response.d.results.length > 0 ? response.d.results[0] : null;
+                                                            loaded.SolicitudSDP = true;
+                                                            shouldInitForms();
+
+
+                                                        },
+                                                        function (response) {
+                                                            var responseText = JSON.parse(response.responseText);
+                                                            console.log(responseText.error.message.value);
+                                                        }
+                                                    );
+                                            },
+                                            function (response) {
+                                                var responseText = JSON.parse(response.responseText);
+                                                console.log(responseText.error.message.value);
+                                            }
+                                        );
+                                    },
+                                    function (response) {
+                                        var responseText = JSON.parse(response.responseText);
+                                        console.log(responseText.error.message.value);
+                                    }
+                                );
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
+                    );
+                }else{
+                    loaded.SolicitudSDP = true;
+                    shouldInitForms();
+                }
             }
 
             getListInformation();

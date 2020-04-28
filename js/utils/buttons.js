@@ -2776,16 +2776,3 @@ localButtons.downloadLicenciaPeriodo = function(context){
 /*
     Todos los botones relacionados con CyE
 */
-
-localButtons.toGestionar = function(context){
-    button = {
-        text: 'Gestionar',
-        class: 'gestionar',
-        icon: 'PageEdit',
-        onClick: function(component, item){
-            console.log("Gestionar")
-            //Crear Mostrar formulario con 
-        }
-    }
-    return button
-}

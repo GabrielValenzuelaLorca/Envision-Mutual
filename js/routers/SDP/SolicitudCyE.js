@@ -21,7 +21,7 @@ solicitudCyEStream.methods.onItemDblClick = function(item){
 }
 
 solicitudCyEStream.methods.getOneItemSelectedButtons = function(){
-    return [localButtons.toSeeDetailsSolicitud(), localButtons.gestionar()]
+    return [localButtons.toSeeDetailsSolicitud(), localButtons.toGestionar()]
 }
 
 solicitudCyEStream.methods.getMultiItemsSelectedButtons = function(){
