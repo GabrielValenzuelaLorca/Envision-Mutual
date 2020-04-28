@@ -8,10 +8,6 @@ trabajadoresStreamPage.methods.getListView = function(){
     return "Trabajadores por Coordinadores"
 }
 
-trabajadoresStreamPage.methods.getTitle = function(){
-    return "Trabajadores por Coordinadores"
-}
-
 trabajadoresStreamPage.methods.getListTitle = function(){
     return "Planta"
 }
@@ -38,6 +34,7 @@ trabajadoresStreamPage.methods.getMultiItemsSelectedButtons = function(){
 
     return buttons;
 }
+
 trabajadoresStreamPage.methods.getOneItemSelectedButtons = function(){
     var self = this,
     page = self._getPage(),
@@ -48,6 +45,7 @@ trabajadoresStreamPage.methods.getOneItemSelectedButtons = function(){
 
     return buttons;
 }
+
 trabajadoresStreamPage.methods.getNoItemsSelectedButtons = function(){
     var self = this,
         page = self._getPage(),
@@ -59,3 +57,65 @@ trabajadoresStreamPage.methods.getNoItemsSelectedButtons = function(){
 
     return buttons;
 }
+
+trabajadoresStreamPage.methods.beforeStartComponent = function(success,failure){
+    var page = this._getPage();
+    var context = this._getPageContext();
+    var listItemId = page.route.query.listItemId;
+    loaded = {};
+    var shouldInitForms = function () {
+        if (loaded.coo){
+            if (success) success();
+        } 
+    }
+    spo.getListInfo('Planta',
+        function (response) {
+            var query = spo.encodeUrlListQuery(response, {
+                view: 'Todos los elementos',
+                odata: {
+                    'filter': '(ID eq '+listItemId+')'
+                }
+            });
+            spo.getListItems(spo.getSiteUrl(), "Planta", query,
+                function (response) {
+                    context.coo = response.d.results.length>0 ? response.d.results[0] : null;
+                    loaded.coo = true;
+                    shouldInitForms()
+                },
+                function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log(responseText.error.message.value);
+                    if (failure) failure();
+                }
+            );
+        },
+        function(response){
+            var responseText = JSON.parse(response.responseText);
+            console.log(responseText.error.message.value);
+            resolve(failCond);
+            if (failure) failure();
+        }
+    );
+}
+
+trabajadoresStreamPage.methods.renderHeader = function($header){
+        var context = this._getPageContext();
+        var name = '';
+        if(context.coo){
+            name = context.coo.Nombre+' '+context.coo.ApellidoPaterno+' '+context.coo.ApellidoMaterno;
+        }
+
+        var title = "Trabajadores por Coordinador: "+ name;
+
+    // tempalte con titulo, descripción opcional y un tabs
+    var templateHtml = `
+        <div class="form-header">
+            <div class="Title" style="margin-left: 5%; margin-right: 5%; margin-top: 8px; margin-buttom: 10px; font-size: 20px;">` + title +  `</div>
+        </div>
+    `;
+
+    // agregar html
+    $header.html(templateHtml);
+}
+
+

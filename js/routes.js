@@ -128,6 +128,9 @@ listStreamPage.methods.getCamlQueryConditions = function(){
 }
 
 function getRoutes(){
+
+    console.log('Usuario', plantaAdmin)
+    //Routes Excenciales para el sistema
     var mainRoutes = [
         {
             path: '/liststream',
@@ -148,12 +151,28 @@ function getRoutes(){
         },
     ]
 
-    var itemRoutes = [
-        
+    //Routes de uso exclusivo a usuario coordinador
+    var cooRoutes = [
         {
             path: '/item',
             component: itemPage
         },
+        {
+            path: '/informeDesaprobado',
+            component: informePendientePage
+        },
+        {
+            path: '/itemVariableStream',
+            component: itemVariableStreamPage
+        },
+        {
+            path: '/uploadItems',
+            component: uploadItemsPage
+        },
+    ];
+
+    //Routes de uso exclusivo de Administrador item variable
+    var adminIVRoutes = [
         {
             path: '/periodo',
             component: periodoPage
@@ -161,30 +180,6 @@ function getRoutes(){
         {
             path: '/uploadPlanta',
             component: uploadPlantaPage
-        },
-        {
-            path: '/informe',
-            component: informePage
-        },
-        {
-            path: '/uploadItems',
-            component: uploadItemsPage
-        },
-        {
-            path: '/informeHistorico',
-            component: informeHistoricoPage
-        },
-        {
-            path: '/informeDesaprobado',
-            component: informePendientePage
-        },
-        {
-            path: '/informePeriodo',
-            component: informePeriodoPage
-        },
-        {
-            path: '/itemVariableStream',
-            component: itemVariableStreamPage
         },
         {
             path: '/periodoStream',
@@ -197,22 +192,10 @@ function getRoutes(){
         {
             path: '/sendStatusStream',
             component: sendStatusPage
-        },
-        {
-            path: '/itemVariable',
-            component: ItemVariablePage
-        },
+        },        
         {
             path: '/coordinadorStream',
             component: coordinadorStreamPage
-        },
-        {
-            path: '/cecoStream',
-            component: cecoStreamPage
-        },
-        {
-            path: '/cecoTemporal',
-            component: cecoPage
         },
         {
             path: '/trabajadorPorCoordinador',
@@ -225,14 +208,6 @@ function getRoutes(){
         {
             path: '/haberTemporal',
             component: haberesPage
-        },        
-        {
-            path: '/Solicitudes',
-            component: SolicitudesStreamPage
-        },
-        {
-            path: '/Solicitud',
-            component: solicitudesPage
         },
         {
             path: '/newEmployee',
@@ -251,6 +226,42 @@ function getRoutes(){
             component: rolPage
         },
         {
+            path: '/Trabajadores',
+            component: TrabajadoresStreamPage
+        },
+    ]
+
+    //Routes compartidas de Item Variable
+    var sharedItemRoutes = [
+        {
+            path: '/informe',
+            component: informePage
+        },
+        {
+            path: '/informeHistorico',
+            component: informeHistoricoPage
+        },
+        {
+            path: '/informePeriodo',
+            component: informePeriodoPage
+        },
+        {
+            path: '/itemVariable',
+            component: ItemVariablePage
+        },
+        {
+            path: '/cecoTemporal',
+            component: cecoPage
+        },
+        {
+            path: '/Solicitudes',
+            component: SolicitudesStreamPage
+        },
+        {
+            path: '/Solicitud',
+            component: solicitudesPage
+        },
+        {
             path: '/licenciaHistorico',
             component: licenciaStreamPage
         },
@@ -260,6 +271,7 @@ function getRoutes(){
         },
     ];
 
+    //Routes compartidas SDP
     var SDPRoutes = [
         {
             path: '/formSolicitante',
@@ -280,9 +292,22 @@ function getRoutes(){
     ]
 
     var routes = [];
-    
-    routes = routes.concat(itemRoutes);
 
+    //Agregamos las rutas de coordinador
+    if(plantaAdmin.Rol == "Coordinador"){
+        routes = routes.concat(cooRoutes);
+    }
+
+    //Agregamos las rutas de Administrador Item Variable
+    if(plantaAdmin.Rol == "Administrador"){
+        routes = routes.concat(adminIVRoutes);
+    }
+
+    //Asignamos las rutas compartidos 
+    if(plantaAdmin.Rol){
+        routes = routes.concat(sharedItemRoutes);
+    }
+    
     if(plantaAdmin.RolSDP){
         routes = routes.concat(SDPRoutes);
     }
