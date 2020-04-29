@@ -416,7 +416,8 @@ menuPage.methods.getListBlocksData = function(){
             header: 'Aprobación',
             footer: '',
             options: []
-        };
+        };       
+        
         if (context.onPeriod){
             aprobSection.options = aprobSection.options.concat([ 
                 {
@@ -602,7 +603,7 @@ menuPage.methods.getListBlocksData = function(){
             footer: '',
             options: []
         };
-
+       
         licSection.options = licSection.options.concat([
             {
                 href: '/licenciaHistorico?panel=filter-open',
@@ -632,7 +633,7 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
-    
+               
             solSection.options = solSection.options.concat([
                 {
                     href: '/formSolicitante',
@@ -668,6 +669,7 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
+           
     
             valSection.options = valSection.options.concat([
                 {
@@ -693,7 +695,7 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
-    
+           
             cecoSection.options = cecoSection.options.concat([
                 {
                     href: '/EjemploStream',                    

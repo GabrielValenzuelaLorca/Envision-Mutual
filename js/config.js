@@ -9,7 +9,7 @@ global.showUserMenu = true;
 global.uris = {
     DEV: {
         tenantUrl: 'https://grupoenvision.sharepoint.com/',
-        siteUrl: 'https://grupoenvision.sharepoint.com/sites/testMutual/devjohan',
+        siteUrl: 'https://grupoenvision.sharepoint.com/sites/testMutual/',
         tema: "https://grupoenvision.sharepoint.com/CDN/EFW/themes/mutual/mutual.png",
         excelCoord: 'https://grupoenvision.sharepoint.com/sites/testMutual/_layouts/15/download.aspx?UniqueId=13641310%2Dd85c%2D4fa6%2Da163%2D3fa9e03702a3',
         status: 'https://prod-56.westus.logic.azure.com:443/workflows/110553fb4b5345a0a6af184622fee095/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3Ypt3eyXmI3dML81jx1FHibucDD1qWjG_kEzs2iVDM0',
@@ -46,6 +46,7 @@ var AppScriptsArray = [
     "js/routers/itemVariable/InformePeriodoPage.js",
     "js/routers/itemVariable/ItemPage.js",
     "js/routers/itemVariable/ItemVariableStreamPage.js",
+    "js/routers/itemVariable/ItemFormPage.js",
     "js/routers/itemVariable/LicenciaPage.js",
     "js/routers/itemVariable/LicenciaStreamPage.js",
     "js/routers/itemVariable/PeriodoPage.js",
