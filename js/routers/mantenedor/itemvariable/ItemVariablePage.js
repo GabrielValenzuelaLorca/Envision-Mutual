@@ -456,7 +456,7 @@ var ItemVariablePage = {
                 });    
                 
                 $createButton.on('click', function (e) {
-                    var dialogTitle = 'Asignando Haberes'; 
+                    var dialogTitle = 'Creando Elemento'; 
 
 
                     function save() {
@@ -497,7 +497,7 @@ var ItemVariablePage = {
 
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Haberes asignados con éxito',
+                                text: 'Elemento creado con éxito',
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
@@ -513,7 +513,7 @@ var ItemVariablePage = {
                             console.log('responseText', responseText);
                             dialog.close();
                             app.dialog.create({
-                                title: 'Error al actualizar la lista de haberes ' + mths.getListTitle(),
+                                title: 'Error al crear elemento ' + mths.getListTitle(),
                                 text: responseText.error.message.value,
                                 buttons: [{
                                     text: 'Aceptar'
@@ -559,7 +559,7 @@ var ItemVariablePage = {
                         if (validate) {
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Se creará una nueva solicitud.',
+                                text: 'Se creará un elemento.',
                                 buttons: [{
                                     text: 'Cancelar'
                                 }, {
@@ -573,7 +573,7 @@ var ItemVariablePage = {
                         } else {
                             app.dialog.create({
                                 title: 'Datos insuficientes',
-                                text: 'Para crear una nueva solicitud debe completar todos los campos obligatorios.',
+                                text: 'Para crear una nuevo elemento debe completar todos los campos obligatorios.',
                                 buttons: [{
                                     text: 'Aceptar'
                                 }],
