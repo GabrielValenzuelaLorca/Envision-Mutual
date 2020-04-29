@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <!--<html manifest="app2.appcache" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">-->
+<%@ Register Tagprefix="SharePoint" Namespace="Microsoft.SharePoint.WebControls" Assembly="Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" %>
 <html xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 	<%@ Register Tagprefix="SharePoint" Namespace="Microsoft.SharePoint.WebControls" Assembly="Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" %>
 <head>
@@ -26,7 +27,7 @@
 	<mso:Order msdt:dt="string">1100.00000000000</mso:Order>
 	<mso:FSObjType msdt:dt="string">0</mso:FSObjType>
 	<mso:FileDirRef msdt:dt="string">sites/envision365/efw/app/DSR3.0</mso:FileDirRef>
-	<mso:ContentTypeId msdt:dt="string">0x0101005CA03F08D642A1428CCFF2516A2631C7</mso:ContentTypeId>
+	<mso:ContentTypeId msdt:dt="string">0x010100F1D2CF9E68F1FC47AC57C21949958FE1</mso:ContentTypeId>
 	<mso:FileLeafRef msdt:dt="string">index.aspx</mso:FileLeafRef>
 	<mso:ContentType msdt:dt="string">Documento</mso:ContentType>
 	</mso:CustomDocumentProperties>

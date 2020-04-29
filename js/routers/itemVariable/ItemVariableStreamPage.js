@@ -97,7 +97,7 @@ itemVariableStreamPage.methods.getNoItemsSelectedButtons = function(){
         if (context.informes[0].Estado == "Desaprobado"){
             buttons.push(localButtons.sendButton(context));
         }
-    }
+    }    
     return buttons;
 }
 

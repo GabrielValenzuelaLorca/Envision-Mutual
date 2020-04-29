@@ -416,7 +416,8 @@ menuPage.methods.getListBlocksData = function(){
             header: 'Aprobación',
             footer: '',
             options: []
-        };
+        };       
+        
         if (context.onPeriod){
             aprobSection.options = aprobSection.options.concat([ 
                 {
@@ -591,7 +592,7 @@ menuPage.methods.getListBlocksData = function(){
             footer: '',
             options: []
         };
-
+       
         licSection.options = licSection.options.concat([
             {
                 href: '/licenciaHistorico?panel=filter-open',
@@ -621,7 +622,7 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
-    
+               
             solSection.options = solSection.options.concat([
                 {
                     href: '/formSolicitante',
@@ -657,6 +658,7 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
+           
     
             valSection.options = valSection.options.concat([
                 {
@@ -682,10 +684,10 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
-    
+           
             cecoSection.options = cecoSection.options.concat([
                 {
-                    href: '/cecoStream',                    
+                    href: '/EjemploStream',                    
                     title: 'Mantenedor de CeCo',                    
                     after: '',
                     header: '',
@@ -707,6 +709,13 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
+
+            let cyeMantenedorSection = {
+                inset: true,
+                header: 'Mantenedores CyE',
+                footer: '',
+                options: []
+            };
     
             cyeSection.options = cyeSection.options.concat([
                 {
@@ -723,6 +732,22 @@ menuPage.methods.getListBlocksData = function(){
             ]);
           
             settings.push(cyeSection);
+
+            cyeMantenedorSection.options = cyeMantenedorSection.options.concat([
+                {
+                    href: '/PosicionStream',
+                    title: 'Posiciones',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--DocumentSet"></i>',
+                },
+            ]);
+          
+            settings.push(cyeMantenedorSection);
         }
     }
 
