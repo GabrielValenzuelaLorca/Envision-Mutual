@@ -256,6 +256,12 @@ var ItemVariablePage = {
                     fields: spo.getViewFields(context.lists.ListadoItems, 'Categoria'),
                 });
 
+                console.log('form', context.forms.categoria)
+
+                context.forms.categoria.inputs.Categoria.params.beforeRenderSuggestions = function (items) {
+                    console.log('items', items)
+                    return items.filter(x=> x.Categoria.length < 3)
+                }
                 //Formulario de minimo y maximo
                 context.forms.MinMax = new EFWForm({
                     container: $container.find('.form2'),

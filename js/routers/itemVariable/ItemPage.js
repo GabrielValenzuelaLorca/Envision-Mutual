@@ -205,6 +205,8 @@ var itemPage = {
             };
 
             function initForm() {
+
+                console.log('Hola Mundo')
                 function ValidateItem(items){
                     let per = persona[0].item;
 

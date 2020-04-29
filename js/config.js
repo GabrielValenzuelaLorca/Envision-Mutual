@@ -1,15 +1,24 @@
 // <CONFIG>
 var global = {};
-global.appName = 'Mutual - Item variable'
+global.appName = 'Mutual - Item variable';
 global.theme = 'mutual';
 global.efwVersion = '3.0.8';
 global.efwDev = true;
-global.env = "DEV" //DEV, MUTDSR, MUTQAS, MUTPRD
+global.env = "TEST" //DEV, MUTDSR, MUTQAS, MUTPRD
 global.showUserMenu = true;
 global.uris = {
     DEV: {
         tenantUrl: 'https://grupoenvision.sharepoint.com/',
         siteUrl: 'https://grupoenvision.sharepoint.com/sites/testMutual/',
+        tema: "https://grupoenvision.sharepoint.com/CDN/EFW/themes/mutual/mutual.png",
+        excelCoord: 'https://grupoenvision.sharepoint.com/sites/testMutual/_layouts/15/download.aspx?UniqueId=13641310%2Dd85c%2D4fa6%2Da163%2D3fa9e03702a3',
+        status: 'https://prod-56.westus.logic.azure.com:443/workflows/110553fb4b5345a0a6af184622fee095/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3Ypt3eyXmI3dML81jx1FHibucDD1qWjG_kEzs2iVDM0',
+        items: 'https://prod-41.westus.logic.azure.com:443/workflows/7936281e1e9642b7bce907f3b5c79f98/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=M0U07-7TKCCEM1d_uwLaTyhGKUGed1dqJAwpJp-mBJg',
+        planta: 'https://prod-09.westus.logic.azure.com:443/workflows/ebee079485634fdeb4f5cd060b424663/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=2bv590n5l4kP0RSXvGeOtuqx3Gfvm5NnNk1Rmwt3g34',
+    },
+    TEST: {
+        tenantUrl: 'https://grupoenvision.sharepoint.com/',
+        siteUrl: 'https://grupoenvision.sharepoint.com/sites/testMutual/test',
         tema: "https://grupoenvision.sharepoint.com/CDN/EFW/themes/mutual/mutual.png",
         excelCoord: 'https://grupoenvision.sharepoint.com/sites/testMutual/_layouts/15/download.aspx?UniqueId=13641310%2Dd85c%2D4fa6%2Da163%2D3fa9e03702a3',
         status: 'https://prod-56.westus.logic.azure.com:443/workflows/110553fb4b5345a0a6af184622fee095/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3Ypt3eyXmI3dML81jx1FHibucDD1qWjG_kEzs2iVDM0',
