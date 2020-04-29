@@ -224,6 +224,7 @@ var homePage = {
 
             return image[title] || image['default'];
         },
+        
 
         // {string} template de tile de tipo de solicitudes
         renderTile: function(item){

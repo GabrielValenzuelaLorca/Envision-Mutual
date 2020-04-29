@@ -226,6 +226,13 @@ menuPage.methods.getListBlocksData = function(){
                 showAlertFirstOpened()
                 showAlert = false;
             }
+
+            //Set default route
+            coorSection.options = coorSection.options.concat([ 
+                {
+                    href:'/homepage'
+                }
+            ]);
             coorSection.options = coorSection.options.concat([ 
                 {
                     href: '/item',
@@ -404,6 +411,13 @@ menuPage.methods.getListBlocksData = function(){
             footer: '',
             options: []
         };
+        //Set default route
+        aprobSection.options = aprobSection.options.concat([ 
+            {
+                href:'/homepage'
+            }
+        ]);
+        
         if (context.onPeriod){
             aprobSection.options = aprobSection.options.concat([ 
                 {
@@ -439,6 +453,12 @@ menuPage.methods.getListBlocksData = function(){
             footer: '',
             options: []
         };
+        //Set default route
+        admSection.options = admSection.options.concat([ 
+            {
+                href:'/homepage'
+            }
+        ]);
 
         if (context.onPeriod){
             admSection.options = admSection.options.concat([
@@ -589,6 +609,12 @@ menuPage.methods.getListBlocksData = function(){
             footer: '',
             options: []
         };
+        //Set default route
+        licSection.options = licSection.options.concat([ 
+            {
+                href:'/homepage'
+            }
+        ]);
 
         licSection.options = licSection.options.concat([
             {
@@ -619,6 +645,12 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
+            //Set default route
+            solSection.options = solSection.options.concat([ 
+                {
+                    href:'/homepage'
+                }
+            ]);
     
             solSection.options = solSection.options.concat([
                 {
@@ -655,6 +687,12 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
+            //Set default route
+            valSection.options = valSection.options.concat([ 
+                {
+                    href:'/homepage'
+                }
+            ]);
     
             valSection.options = valSection.options.concat([
                 {
@@ -680,6 +718,12 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
+            //Set default route
+            cecoSection.options = cecoSection.options.concat([ 
+                {
+                    href:'/homepage'
+                }
+            ]);
     
             cecoSection.options = cecoSection.options.concat([
                 {
@@ -705,6 +749,12 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
+            //Set default route
+            cyeSection.options = cyeSection.options.concat([ 
+                {
+                    href:'/homepage'
+                }
+            ]);
     
             cyeSection.options = cyeSection.options.concat([
                 {
