@@ -200,7 +200,7 @@ var posicionPage = {
                                 let current = parseInt(currentID);
                                 currentID = current+1+""
                             }else{
-                                var ultima = parseInt(context.items.Ultima.NPosicion);
+                                var ultima = context.items.Ultima ? parseInt(context.items.Ultima.NPosicion) : 0;
                                 currentID = context.items.Ultima ? ultima+1+"" : "1";
                             }
                             EFWForm.inputs.NPosicion.setValue(currentID);
