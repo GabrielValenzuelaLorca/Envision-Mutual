@@ -55,6 +55,7 @@ var AppScriptsArray = [
     "js/routers/itemVariable/InformePeriodoPage.js",
     "js/routers/itemVariable/ItemPage.js",
     "js/routers/itemVariable/ItemVariableStreamPage.js",
+    "js/routers/itemVariable/ItemFormPage.js",
     "js/routers/itemVariable/LicenciaPage.js",
     "js/routers/itemVariable/LicenciaStreamPage.js",
     "js/routers/itemVariable/PeriodoPage.js",
@@ -90,6 +91,10 @@ var AppScriptsArray = [
     "js/routers/SDP/CecoPage.js",
     "js/routers/SDP/CecoStreamPage.js",
     "js/routers/SDP/AproveSolicitudStreamPage.js",
+
+    //Mantenedores SDP
+    "js/routers/mantenedor/SDP/PosicionStreamPage.js",
+    "js/routers/mantenedor/SDP/PosicionPage.js",
     
     //Carpeta Principal
     "js/routers/HomePage.js",

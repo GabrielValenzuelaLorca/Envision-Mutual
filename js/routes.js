@@ -31,12 +31,16 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
 listStreamPage.methods.getNoItemsSelectedButtons = function(item){
     var page = this._getPage();
     var context = this._getPageContext();
-    var title = page.route.query.title
+    var title = page.route.query.title    
     var buttons = [];
     
     switch(title){
         case 'Mantenedor Convenio Capex':{
             buttons.push(localButtons.addCapexView(context));
+            break;
+        }
+        case 'Mantenedor Items Variables':{
+            buttons.push(localButtons.toAddItemVariable());
             break;
         }
     }
@@ -250,10 +254,6 @@ function getRoutes(){
             component: ItemVariablePage
         },
         {
-            path: '/cecoTemporal',
-            component: cecoPage
-        },
-        {
             path: '/Solicitudes',
             component: SolicitudesStreamPage
         },
@@ -268,6 +268,10 @@ function getRoutes(){
         {
             path: '/licencia',
             component: licenciaPage
+        },
+        {
+            path: '/itemFormPage',
+            component: itemFormPage
         },
     ];
 
@@ -288,7 +292,25 @@ function getRoutes(){
         {
             path: '/SolicitudesCyE',
             component: solicitudCyEStream
-        }
+        },
+        {
+            path: '/EjemploStream',
+            component: cecoStreamPage
+        },
+        {
+            path: '/cecoTemporal',
+            component: cecoPage
+        },
+        {
+            path: '/PosicionStream',
+            component: posicionStreamPage
+        },
+        {
+            path: '/Posicion',
+            component: posicionPage
+        },
+
+
     ]
 
     var routes = [];
