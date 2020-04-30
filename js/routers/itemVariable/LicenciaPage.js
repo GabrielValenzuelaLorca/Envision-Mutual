@@ -247,7 +247,7 @@ var licenciaPage = {
                         var metadata = context.forms.licencia.getMetadata();
                         var fecha = new Date(metadata.INICIO);
                         metadata.RUT_RESPId = plantaAdmin.ID;
-                        metadata.N_DIAS = parseInt(metadata.N_DIAS);
+                        metadata.N_DIAS = metadata.N_DIAS
                         metadata.PeriodoId = context.items.periodo.ID
                         fecha.setDate(fecha.getDate() + metadata.N_DIAS);
                         metadata.FIN = fecha.toISOString()

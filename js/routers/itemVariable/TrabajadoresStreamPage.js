@@ -34,11 +34,8 @@ TrabajadoresStreamPage.methods.getMultiItemsSelectedButtons = function(items){
 
 TrabajadoresStreamPage.methods.getCamlQueryConditions = function(){
     return `
-        <And>
             <Eq>
                 <FieldRef Name="EstadoContrato" /><Value Type="Choice">Activo</Value>
             </Eq>
-            <IsNotNull><FieldRef Name="Coordinador"/></IsNotNull>
-        </And>
         `
 }
