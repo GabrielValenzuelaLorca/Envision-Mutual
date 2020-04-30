@@ -4,7 +4,7 @@ global.appName = 'Mutual - Item variable';
 global.theme = 'mutual';
 global.efwVersion = '3.0.8';
 global.efwDev = true;
-global.env = "TEST" //DEV, MUTDSR, MUTQAS, MUTPRD
+global.env = "MUTQAS" //DEV, MUTDSR, MUTQAS, MUTPRD
 global.showUserMenu = true;
 global.uris = {
     DEV: {
@@ -29,6 +29,9 @@ global.uris = {
         tenantUrl: 'https://mutualcl.sharepoint.com/',
         siteUrl: 'https://mutualcl.sharepoint.com/sites/aplicativoPersonasDSR/AplicativoPersona1.1/',
         excelCoord: 'https://mutualcl.sharepoint.com/sites/aplicativoPersonasDSR/AplicativoPersona1.1/_layouts/15/download.aspx?UniqueId=8f555238%2Dfb9c%2D48f3%2Da6da%2De641a010c989',
+        status: 'https://prod-49.westus.logic.azure.com:443/workflows/6761e82bdb3b441e99f9e4e2b6fc5993/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=W5f_dNiAv3VKYwzLvXO-wFdyoEjG27KFpTuKapq5xFk',
+        items: 'https://prod-47.westus.logic.azure.com:443/workflows/2314b1f41f084a5189d150b1be49b8fe/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=o2eoHEZ_QharIQB4d-66fWukuqyzuAO0ql1q_i9DZEc',
+        planta: 'https://prod-69.westus.logic.azure.com:443/workflows/fb9da6ff0c04494b8245bc4355cf008e/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KcV5CEc5UYabUzvgnCCkF10tofwZLwiRZA4lO7AVSVs',
     }, 
     MUTQAS: {
         tenantUrl: 'https://mutualcl.sharepoint.com/',
