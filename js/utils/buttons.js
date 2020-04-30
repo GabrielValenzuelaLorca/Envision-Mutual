@@ -200,7 +200,7 @@ localButtons.addLicencia = function(context){
         icon: 'ActivateOrders',
         onClick: function(component, item){
             mainView.router.navigate('/licencia');
-        }
+        },
     }
     return button;
 }
@@ -309,9 +309,9 @@ localButtons.toGestionar = function(context){
 
 localButtons.addTrabajadorButton = function(context, id){
     button = {
-        text: 'Editar posición',
-        class: 'editPosition',
-        icon: 'Edit',
+        text: 'Agregar Trabajadores',
+        class: 'addTrabajador',
+        icon: 'AddFriend',
         onClick: function(component, item){
             mainView.router.navigate(encodeURI('/trabajadorTemporal?listItemId='+id));
         }
