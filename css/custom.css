@@ -264,11 +264,6 @@
     display: unset;
 }
  
-.table-compact-row .ms-EnvisionSerializeForm-row:first-child .ms-Form-container .ms-Label::after{
-    content: ' *';
-    color: red;
-}
- 
 .table-compact-row .ms-Form-header {
     /* display: none; */
     /* display: flex; */
@@ -279,15 +274,18 @@
     margin-top: 5px;
     position: absolute;
     right: -82px;
+    background-color: whitesmoke;
 }
  
 .table-compact-row .ms-Form-container {
     white-space: normal;
+    background-color: white;
 }
  
 .table-compact-row .ms-EnvisionSerializeForm-row:last-child .ms-Form-content {
     /* padding-right: 0; */
     border-right: initial !important;
+    background-color: white;
 }
  
 .table-compact-row .ms-Form-content {
@@ -392,9 +390,20 @@
 .table-compact-row .ms-FormField[data-field-internalname="Hours"] {
     width: 140px !important;
 }
+
+.table-compact-row .ms-FormField[data-field-internalname="NPosicion"] .ms-TextField-value{
+    text-align: center;
+}
+
+.table-compact-row .ms-FormField[data-field-typeasstring="Boolean"] .ms-BooleanField-fieldGroup {
+    text-align: center !important;
+    display: inline-block !important;
+    width: 100%;
+}
  
 .table-compact-row .ms-EnvisionSerializeForm-row:nth-of-type(1) .ms-Form-header {
     margin-top: 60px;
+    min-width: auto !important;
 }
  
 .table-compact-row label.ms-Button.ms-Button--remove {
@@ -415,21 +424,30 @@
     margin: 5px;
 }
 
+.ms-Button.ms-Button--primary{
+    background-color: #8EBD00 !important;
+    border-color: #8EBD00 !important;
+}
+
+/* .table-compact-row .ms-BooleanField-fieldGroup {
+    float: center !important;
+} */
+
 /* Cambio a los formularios */
 
 .form-container .ms-FormField{
     min-height: 80px !important;
-    
 }
 
 div.list.no-hairlines.no-hairlines-between ul li{
-    float: left !important;
-    min-width: 50% !important;
-    max-width: 99% !important;
-    background-color: #ffffff!important;
-    
+    display: inline-block !important;  
+}
+
+li{
+    min-width: 45% !important;;
 }
 
 .ios .ms-FormField.editable label.item-checkbox input[type="checkbox"]:checked ~ .icon-checkbox, .ios .checkbox input[type="checkbox"]:checked ~ i{
     background: #8EBD00 !important;
 }
+

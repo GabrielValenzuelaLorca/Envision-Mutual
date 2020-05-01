@@ -1,4 +1,4 @@
-var licenciaPage = {
+var itemFormPage = {
     template: '' +
         '<div class="page" data-page="FormPage">' +
             '<div class="navbar">' +
@@ -19,6 +19,10 @@ var licenciaPage = {
                             '<i class="ms-Icon ms-Icon--Save"></i>' +
                             '<span class="ios-only">Actualizar</span>' +
                         '</a>' +
+                        '<a href="#" class="link create ms-fadeIn100 hide">' +
+                            '<i class="ms-Icon ms-Icon--Save"></i>' +
+                            '<span class="ios-only">Añadir Centros de Costo</span>' +
+                        '</a>' +
                         '<a href="#" class="link generate-PDF ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PDF"></i>' +
                             '<span class="ios-only">Generar PDF</span>' +
@@ -37,7 +41,7 @@ var licenciaPage = {
                         '</a>' +
                         '<a href="#" class="link send ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Send"></i>' +
-                            '<span class="ios-only">Enviar</span>' +
+                            '<span class="ios-only">Guardar</span>' +
                         '</a>' +
                         '<a href="#" class="link associate-proyect ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--IDBadge"></i>' +
@@ -51,7 +55,9 @@ var licenciaPage = {
                 '</div>' +
             '</div>' +
             '<div class="page-content">' +
-                '<div class="form-container"></div>' +
+                '<div>' +
+                    '<div class="form-container table-compact-row history"></div>' +              
+                '</div>' +
             '</div>' +
             
             '<div class="content-loader">' +
@@ -61,10 +67,11 @@ var licenciaPage = {
                 '</div>' +
             '</div>' +
         '</div>' +
-        '',
-    style:  '.form-container .ms-FormField {width: 45%; float:left} ',
+        '',        
+    style:  '.form-container .ms-FormField {width: 45%; float:left} ' + 
+    '.ms-Button.ms-Button--primary {background-color: #4caf50 !important; border-color: #4caf50 !important;} ',            
     data: function () {
-        var self = this;
+        var self = this; 
         return {
             title: '',
             forms: {},
@@ -104,7 +111,7 @@ var licenciaPage = {
 
         // obtener título de la lista de inspección
         getListTitle: function () {
-            return 'Licencia';
+            return 'ListadoItemVariable';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -163,7 +170,8 @@ var licenciaPage = {
             // variables
             var context = this.$options.data(),
                 mths = this.$options.methods,
-                listItemId = page.route.query.listItemId;
+                listItemId = page.route.query.listItemId
+                // console.log('itemid',listItemId);
 
             context.methods = mths;
 
@@ -176,121 +184,171 @@ var licenciaPage = {
                 return context;
             };
 
-            function initForm() {
+            function initForm() {  
 
                 // containers
                 var $container = $(page.$el),
-                    $navbar = $(page.navbarEl),
-                    $sendButton = $navbar.find('.link.send');
+                    $navbar = $(page.navbarEl),                    
+                    $createButton = $navbar.find('.link.create'),
+                    $clearButton = $navbar.find('.link.clear');
+                    $updateButton = $navbar.find('.link.update');                    
+                                    
 
-                // formulario de registro
-                let form = {
+
+
+                    // formulario de registro
+                context.forms.hbr = new EFWForms({
                     container: $container.find('.form-container'),
                     title: mths.getListTitle(),
-                }
+                    editable: true,
+                    fields: spo.getViewFields(context.lists.ListadoItems, 'Vista general')
+                });
 
-                if (listItemId){
-                    form.editable = false;
-                    if (plantaAdmin.Rol == "Coordinador") {
-                        form.fields = spo.getViewFields(context.lists.licencia, "Form");
-                    } else if (plantaAdmin.Rol == "Administrador" || plantaAdmin.Rol == "Encargado de Licencias Médicas") {
-                        form.fields = spo.getViewFields(context.lists.licencia, "Todos los elementos");
-                    }
+                context.forms.hbr.addRow();
+
+                if (listItemId) {
+                    context.forms.hbr.setValues(context.items.ListadoItems); 
+                    $('.ms-Button.ms-Button--primary').addClass('hide');
+                    $('.ms-Button.ms-Button--remove').addClass('hide');
+                    $updateButton.removeClass('hide');
+                     
                 } else {
-                    $sendButton.removeClass('hide');
-                    form.editable = true;
-                    form.fields = spo.getViewFields(context.lists.licencia, "Form");
+                    $createButton.removeClass('hide');  
                 }
 
-                context.forms.licencia = new EFWForm(form);
+                // $updateButton.on('click', function (e) {
+                //     var dialogTitle = 'Editando elemento';
 
-                if (listItemId){
-                    context.forms.licencia.setValues(context.items.licencia);
+                //     function save() {
+                //         var dialog = app.dialog.progress(dialogTitle);
+                //         var metadata = context.forms.hbr.getMetadata();                        
 
-                } else {
-                    context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].setRequired(true);
-                    context.forms.licencia.inputs['Rut'].setEditable(false);
-                    context.forms.licencia.inputs['FIN'].hide();
-                    context.forms.licencia.inputs['FIN'].setRequired(false);
+                //         spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId,metadata, function (response) {
+                //             dialog.close();
 
-                    context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].params.source = function(dropdown, query, render){
-                        let data = [];
-                        if(context.items.trabajadores){
-                            context.items.trabajadores.map(function(item){
-                                data.push({
-                                    "key": item.ID,
-                                    "text": item.NombreCompleto,
-                                    "item": item
-                                });
-                            })
-                        } else {
-                            context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].input.placeholder = "No hay trabajadores disponibles"
-                        }
-                        render(data);
-                    }  
+                //             app.dialog.create({
+                //                 title: dialogTitle,
+                //                 text: 'Elemento actualizado con éxito',
+                //                 buttons: [{
+                //                     text: 'Aceptar',
+                //                     onClick: function () {
+                //                         mainView.router.navigate('/itemVariableStream');
+                //                     }
+                //                 }],
+                //                 verticalButtons: false
+                //             }).open();
 
-                    context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].params.onChange = function(comp, input, state, values){
-                        if (values.length > 0){
-                            let person = context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].getValue()[0]
-                            context.forms.licencia.inputs['Rut'].setValue([{key:person.item.ID, text:person.item.Rut}])
-                        } else {
-                            context.forms.licencia.inputs['Rut'].resetValue();
-                        }
-                    }
-                }
 
-                $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Envío de licencia';
+                //         }, function (response) {
+                //             var responseText = JSON.parse(response.responseText);
+                //             console.log('responseText', responseText);
+
+                //             dialog.close();
+                //             app.dialog.create({
+                //                 title: 'Error al guardar en lista ' + mths.getListTitle(),
+                //                 text: responseText.error.message.value,
+                //                 buttons: [{
+                //                     text: 'Aceptar'
+                //                 }],
+                //                 verticalButtons: false
+                //             }).open();
+                //         });
+                //     }
+                    
+                //     context.forms.item.checkFieldsRequired();
+
+                //     var validate = context.forms.item.getValidation();
+
+                //     if (validate) {
+                //         app.dialog.create({
+                //             title: dialogTitle,
+                //             text: 'Se actualizará el elemento.',
+                //             buttons: [{
+                //                 text: 'Cancelar'
+                //             }, {
+                //                 text: 'Aceptar',
+                //                 onClick: function onClick() {
+                //                     save();
+                //                 }
+                //             }],
+                //             verticalButtons: false
+                //         }).open();
+                //     } else {
+                //         app.dialog.create({
+                //             title: 'Datos insuficientes',
+                //             text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
+                //             buttons: [{
+                //                 text: 'Aceptar'
+                //             }],
+                //             verticalButtons: false
+                //         }).open();
+                //     }
+
+                // });
+
+                $createButton.on('click', function (e) {
+                    var dialogTitle = 'Añadiendo Haber'; 
+
 
                     function save() {
+                        // Mostrar la información del coordinador (la metadata son los datos que se ingresar en el form)                    
+                        var metadataHbr = context.forms.hbr.getMetadata()
                         var dialog = app.dialog.progress(dialogTitle);
-                        var metadata = context.forms.licencia.getMetadata();
-                        var fecha = new Date(metadata.INICIO);
-                        metadata.RUT_RESPId = plantaAdmin.ID;
-                        metadata.N_DIAS = metadata.N_DIAS
-                        metadata.PeriodoId = context.items.periodo.ID
-                        fecha.setDate(fecha.getDate() + metadata.N_DIAS);
-                        metadata.FIN = fecha.toISOString()
 
-                        spo.saveListItem(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {
+                        spo.saveListItems(spo.getSiteUrl(), 'ListadoItems' ,metadataHbr, function (response) {
                             dialog.close();
 
-                            dialogs.confirmDialog(
-                                dialogTitle,
-                                'Licencia enviada con éxito',
-                                function () {
-                                    mainView.router.navigate('/licenciaHistorico');
-                                },
-                                false
-                            );
+                            app.dialog.create({
+                                title: dialogTitle,
+                                text: 'Haber creado con éxito',
+                                buttons: [{
+                                    text: 'Aceptar',
+                                    onClick: function () {
+                                        mainView.router.navigate('/itemVariable');
+                                    }
+                                }],
+                                verticalButtons: false
+                            }).open();
+
 
                         }, function (response) {
                             var responseText = JSON.parse(response.responseText);
                             console.log('responseText', responseText);
 
                             dialog.close();
-                            dialogs.infoDialog(
-                                "Error",
-                                'Hubo un problema al enviar la licencia'
-                            )
+                            app.dialog.create({
+                                title: 'Error al añadir el haber ' + mths.getListTitle(),
+                                text: responseText.error.message.value,
+                                buttons: [{
+                                    text: 'Aceptar'
+                                }],
+                                verticalButtons: false
+                            }).open();
                         });
                     }
-                    
-                    context.forms.licencia.checkFieldsRequired();
-                    var validateLicencia =  context.forms.licencia.getValidation();
 
-                    if (validateLicencia){
-                        dialogs.confirmDialog(
-                            dialogTitle,
-                            'Se enviará esta licencia médica',
-                            save
-                        )
-                    } else {
-                        dialogs.infoDialog(
-                            "Datos mal ingresados",
-                            'Rellene todos los campos correctamente'
-                        )
-                    }
+                        context.forms.hbr.checkFieldsRequired();
+                        var validateHbr =  context.forms.hbr.getValidation();
+    
+                        if (validateHbr){
+                            dialogs.confirmDialog(
+                                dialogTitle,
+                                'Se añadira el haber',
+                                save
+                            )
+                        } else {
+                            dialogs.infoDialog(
+                                "Datos mal ingresados",
+                                'Rellene todos los campos correctamente'
+                            )
+                        } 
+                        
+                        
+                    
+
+                });
+
+                $clearButton.on('click', function (e){
                 });
 
                 // remover loader
@@ -304,34 +362,32 @@ var licenciaPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (listItemId){
-                        if (loaded.licencia) {
-                            initForm();
-                        }
-                    } else {
-                        if (loaded.trabajadores && loaded.periodo && loaded.licenciaInfo) {
-                            initForm();
-                        }
+                    if (loaded.ListadoItems) {
+                        initForm();
                     }
-                };
+                };             
 
-                spo.getListInfo(mths.getListTitle(),
+                
+                //Obtengo el listado de centro de costos para ser filtrados
+                spo.getListInfo('ListadoItems',
                     function (response) {
-                        context.lists.licencia = response;
-                        loaded.licenciaInfo = true
-                        shouldInitForms();
+                        context.items.ListadoItems = [];
+                        context.lists.ListadoItems = response;
+                        // console.log('datos centrocosto', context.lists.CentroCosto);
 
-                        if (listItemId){
-                            var query = spo.encodeUrlListQuery(response, {
+                        if(listItemId){
+                            var query = spo.encodeUrlListQuery(context.lists.ListadoItems, {
                                 view: 'Todos los elementos',
                                 odata: {
-                                    'filter': '(Id eq ' + listItemId + ')'
+                                    'select': '*',
+                                    'filter' : '(Id eq '+listItemId+')'
                                 }
                             });
-                            spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
+
+                            spo.getListItems(spo.getSiteUrl(), 'ListadoItems', query,
                                 function (response) {
-                                    context.items.licencia = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.licencia = true;
+                                    context.items.ListadoItems = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.ListadoItems= true;
                                     shouldInitForms();
                                 },
                                 function (response) {
@@ -339,68 +395,17 @@ var licenciaPage = {
                                     console.log(responseText.error.message.value);
                                 }
                             );
+
+                        }else{
+                            loaded.ListadoItems= true;
+                            shouldInitForms();
                         }
-                    }, 
+                    },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);
                         console.log(responseText.error.message.value);
                     }
                 );
-
-                if (!listItemId){
-                    spo.getListInfo("Periodo",
-                        function (response) {
-                            var query = spo.encodeUrlListQuery(response, {
-                                view: 'Todos los elementos',
-                                odata: {
-                                    'filter': '(Activo eq 1)'
-                                }
-                            });
-
-                            spo.getListItems(spo.getSiteUrl(), "Periodo", query,
-                                function (response) {
-                                    context.items.periodo = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.periodo = true;
-                                    shouldInitForms();
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
-                        }, 
-                        function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log(responseText.error.message.value);
-                        }
-                    );
-                    spo.getListInfo("Planta",
-                        function (response) {
-                            var query = spo.encodeUrlListQuery(response, {
-                                view: 'Todos los elementos',
-                                odata: {
-                                    'filter': '(CoordinadorId eq '+ plantaAdmin.ID +' and EstadoContrato eq \'Activo\')'
-                                }
-                            });
-
-                            spo.getListItems(spo.getSiteUrl(), "Planta", query,
-                                function (response) {
-                                    context.items.trabajadores = response.d.results.length > 0 ? response.d.results : null;
-                                    loaded.trabajadores = true;
-                                    shouldInitForms();
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
-                        }, 
-                        function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log(responseText.error.message.value);
-                        }
-                    );
-                } 
             }
 
             getListInformation();

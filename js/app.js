@@ -11,9 +11,38 @@ var plantaAdmin = null;
 var showAlert = true;
 var clipboard = null;
 var spo = new EnvisionSPO({
-    tenantUrl: global.tenantUrl,
-    siteUrl: global.siteUrl,
+    tenantUrl: global.uris[global.env].tenantUrl,
+    siteUrl: global.uris[global.env].siteUrl,
 });
+spo.addNewUserGroup = function(site, groupname, loginame, success, failure) {
+    var self = this;
+    var metadata = {
+        __metadata: {  
+            'type': 'SP.User'  
+        },  
+        LoginName: loginame
+    };
+
+    $.ajax({  
+        url: site + '/_api/web/sitegroups/getbyname(\'' + groupname + '\')/users',  
+        type: "POST",  
+        headers: {  
+            "accept": "application/json;odata=verbose",  
+            "X-RequestDigest": self.formDigestValue,
+            "content-Type": "application/json;odata=verbose"
+        },  
+        data: JSON.stringify(metadata),  
+        success: function(data) {  
+            if (success) success(data);
+        },  
+        failure: function(error) {  
+            if (failure) failure(error);
+        },
+        error: function(error) {  
+            if (failure) failure(error);
+        }  
+    });  
+}
 
 spo.getCurrentUserInformation().done(function(){
     spo.getContextWebInformation().done(function(){
@@ -130,7 +159,7 @@ spo.getCurrentUserInformation().done(function(){
         function shouldStartApp(){
             if (loaded.Planta) {
                 if (plantaAdmin){
-                    if (plantaAdmin.Rol != null && plantaAdmin.EstadoContrato == "Activo"){
+                    if ((plantaAdmin.Rol != null || plantaAdmin.RolSDP != null) && plantaAdmin.EstadoContrato == "Activo"){
                         startApp();
                     } else {
                         startAppNoAccess();    

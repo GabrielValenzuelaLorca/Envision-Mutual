@@ -175,11 +175,13 @@ menuPage.methods.getListBlocksData = function(){
     var app = page.app;
     var context = this._getPageContext();
 
-    function showAlertFirstOpened(){
-        let dias = moment(context.onPeriod.FechaTermino).diff( moment(), 'days')
+    function showAlertFirstOpened(dias){
+
+        let msg1 = `Recuerde que le quedan ${dias} dia(s) para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`;
+        let msg2 = `Recuerde que hoy es el ultimo dia para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`
         app.dialog.create({
             title: 'Atención',
-            text: `Recuerde que le quedan ${dias} dia(s) para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`,
+            text: dias > 0 ? msg1 : msg2,
             buttons: [{
                 text: 'Aceptar',
                 onClick: function () {
@@ -197,7 +199,7 @@ menuPage.methods.getListBlocksData = function(){
     var settings = []
     if (plantaAdmin.Rol == "Coordinador"){
         let canSendInform = true;
-        let outPeriod = false;
+        var outPeriod = false;
         let coorSection = {
             inset: true,
             header: 'Coordinación',
@@ -217,13 +219,24 @@ menuPage.methods.getListBlocksData = function(){
             }
         }
 
-        if(moment(context.onPeriod.FechaTermino).diff( moment(), 'days') <=0){
+        let formated1 = moment().format('YYYY-MM-DD');
+        let formated2 = moment(context.onPeriod.FechaTermino).format('YYYY-MM-DD');
+
+        let replaced1 = formated1.replace(/-/gi,'')
+        let replaced2 = formated2.replace(/-/gi,'')
+
+        let hasta = parseInt(replaced1);
+        let desde = parseInt(replaced2);
+        
+        var dias = desde - hasta;
+
+        if(dias < 0){
             outPeriod = true;
         }
 
         if (canSendInform && context.onPeriod && !outPeriod) {
             if(plantaAdmin.Rol == "Coordinador" && showAlert == true && canSendInform){
-                showAlertFirstOpened()
+                showAlertFirstOpened(dias)
                 showAlert = false;
             }
             coorSection.options = coorSection.options.concat([ 
@@ -327,7 +340,7 @@ menuPage.methods.getListBlocksData = function(){
 
         coorSection2.options = coorSection2.options.concat([
             {
-                href: 'https://grupoenvision.sharepoint.com/sites/testMutual/_layouts/15/download.aspx?UniqueId=13641310%2Dd85c%2D4fa6%2Da163%2D3fa9e03702a3',
+                href: global.uris[global.env].excelCoord,
                 title: 'Excel Tipo',
                 after: '',
                 header: '',
@@ -403,7 +416,8 @@ menuPage.methods.getListBlocksData = function(){
             header: 'Aprobación',
             footer: '',
             options: []
-        };
+        };       
+        
         if (context.onPeriod){
             aprobSection.options = aprobSection.options.concat([ 
                 {
@@ -482,7 +496,7 @@ menuPage.methods.getListBlocksData = function(){
 
         admSection.options = admSection.options.concat([
             {
-                href: '/plantaStream',
+                href: '/Trabajadores',
                 title: 'Planta',
                 after: '',
                 header: '',
@@ -560,23 +574,12 @@ menuPage.methods.getListBlocksData = function(){
                 title: 'Mantenedor Coordinador',
                 after: '',
                 header: '',
-                footer: 'haberes y trabajadores',
+                footer: 'Haberes y Trabajadores',
                 panelClose: true,
                 externalLink: false,
                 f7view: '.view-main',
                 media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
-            },
-            // {
-            //     href: '/cooStream',
-            //     title: 'Mantenedor Haberes',
-            //     after: '',
-            //     header: '',
-            //     footer: 'por coordinador',
-            //     panelClose: true,
-            //     externalLink: false,
-            //     f7view: '.view-main',
-            //     media: '<i class="ms-Icon ms-Icon--Archive"></i>',
-            // },
+            }
         ]);
 
         settings.push(admSection2);
@@ -589,7 +592,7 @@ menuPage.methods.getListBlocksData = function(){
             footer: '',
             options: []
         };
-
+       
         licSection.options = licSection.options.concat([
             {
                 href: '/licenciaHistorico?panel=filter-open',
@@ -619,7 +622,7 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
-    
+               
             solSection.options = solSection.options.concat([
                 {
                     href: '/formSolicitante',
@@ -655,6 +658,7 @@ menuPage.methods.getListBlocksData = function(){
                 footer: '',
                 options: []
             };
+           
     
             valSection.options = valSection.options.concat([
                 {
@@ -672,11 +676,43 @@ menuPage.methods.getListBlocksData = function(){
           
             settings.push(valSection);
         }
+
+        if (plantaAdmin.RolSDP.results.includes("Encargado CeCo")){
+            let cecoSection = {
+                inset: true,
+                header: 'Panel de Centros de Costos',
+                footer: '',
+                options: []
+            };
+           
+            cecoSection.options = cecoSection.options.concat([
+                {
+                    href: '/EjemploStream',                    
+                    title: 'Mantenedor de CeCo',                    
+                    after: '',
+                    header: '',
+                    footer: 'Centro de costo',                    
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--Archive"></i>',
+                },
+            ]);
+          
+            settings.push(cecoSection);
+        }
     
         if (plantaAdmin.RolSDP.results.includes("CyE")){
             let cyeSection = {
                 inset: true,
                 header: 'CyE',
+                footer: '',
+                options: []
+            };
+
+            let cyeMantenedorSection = {
+                inset: true,
+                header: 'Mantenedores CyE',
                 footer: '',
                 options: []
             };
@@ -696,6 +732,22 @@ menuPage.methods.getListBlocksData = function(){
             ]);
           
             settings.push(cyeSection);
+
+            cyeMantenedorSection.options = cyeMantenedorSection.options.concat([
+                {
+                    href: '/PosicionStream',
+                    title: 'Posiciones',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--DocumentSet"></i>',
+                },
+            ]);
+          
+            settings.push(cyeMantenedorSection);
         }
     }
 
@@ -704,5 +756,5 @@ menuPage.methods.getListBlocksData = function(){
 
 // {string} logo de empresa
 menuPage.methods.getPageComponentImage = function(){
-    return "https://grupoenvision.sharepoint.com/CDN/EFW/themes/" + global.theme + "/" + global.theme + ".png";
+    return global.uris[global.env].tema;
 };

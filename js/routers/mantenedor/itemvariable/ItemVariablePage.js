@@ -19,6 +19,10 @@ var ItemVariablePage = {
                             '<i class="ms-Icon ms-Icon--Save"></i>' +
                             '<span class="ios-only">Actualizar</span>' +
                         '</a>' +
+                        '<a href="#" class="link create ms-fadeIn100 hide">' +
+                            '<i class="ms-Icon ms-Icon--Save"></i>' +
+                            '<span class="ios-only">Crear Item</span>' +
+                        '</a>' +
                         '<a href="#" class="link generate-PDF ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PDF"></i>' +
                             '<span class="ios-only">Generar PDF</span>' +
@@ -214,6 +218,8 @@ var ItemVariablePage = {
                     $sendButton = $navbar.find('.link.send'),
                     $updateButton = $navbar.find('.link.update'),
                     $clearButton = $navbar.find('.link.clear');
+                    $createButton = $navbar.find('.link.create');
+                    
 
 
                 //prepare custom inputs
@@ -250,6 +256,12 @@ var ItemVariablePage = {
                     fields: spo.getViewFields(context.lists.ListadoItems, 'Categoria'),
                 });
 
+                console.log('form', context.forms.categoria)
+
+                context.forms.categoria.inputs.Categoria.params.beforeRenderSuggestions = function (items) {
+                    console.log('items', items)
+                    return items.filter(x=> x.Categoria.length < 3)
+                }
                 //Formulario de minimo y maximo
                 context.forms.MinMax = new EFWForm({
                     container: $container.find('.form2'),
@@ -259,29 +271,21 @@ var ItemVariablePage = {
                     fields: spo.getViewFields(context.lists.ListadoItems, 'MinimoMaximo'),
                 });
 
-                let data = [];
-
-                context.items.ListadoItems.map(function(x){
-                    data.push({
-                        key: x.nombrehaber,
-                        text: x.haber,
-                        item: x
-                    })
-                })
-
                 //Formulario Fechas excepcionales
                 var inputs2 = [{
                     Id: generateUUID(),
                     Title: 'Día',
                     InternalName: 'Day',
                     TypeAsString: 'Choice',
-                    Choices: data
+                    Choices: ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31'],
+                    Required: true
                 },{
                     Id: generateUUID(),
                     Title: 'Mes',
                     InternalName: 'Month',
                     TypeAsString: 'Choice',
-                    Choices: [ "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+                    Choices: [ "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+                    Required: true
 
                 }]
 
@@ -343,6 +347,9 @@ var ItemVariablePage = {
                     if(editable){
                         $updateButton.removeClass('hide');
                     }
+                }else{
+                    $createButton.removeClass('hide');
+
                 }
 
                 context.forms.main.inputs.GP.params.onChange = function (self, input, state, value) {
@@ -452,9 +459,139 @@ var ItemVariablePage = {
                         }],
                         verticalButtons: false
                     }).open();
+                });    
+                
+                $createButton.on('click', function (e) {
+                    var dialogTitle = 'Creando Elemento'; 
+
+
+                    function save() {
+                        // Mostrar la información del coordinador (la metadata son los datos que se ingresar en el form)                    
+                        var metadata = context.forms.main.getMetadata(),
+                        categoria = context.forms.categoria.getMetadata(),
+                        MinMax = context.forms.MinMax.getMetadata(),
+                        fechas = context.forms.fechas.getMetadata();
+                        var dialog = app.dialog.progress(dialogTitle);
+
+                        if(metadata.GP){
+                            //Concatenamos el metadata de categorias
+                            metadata['CategoriaId'] = categoria.CategoriaId;
+                        }
+                        if(metadata.MinMax){
+                            //Concatenamos minmax
+                            metadata['Minimo'] = MinMax.Minimo;
+                            metadata['Maximo'] = MinMax.Maximo;
+                        }
+                        if(metadata.FechasEspeciales){
+                            //Concatenamos fechas especiales
+                            var valor = "";
+
+                            for(var i = 0; i< fechas.length; i++){
+                                if(i == (fechas.length-1)){
+                                    valor+= fechas[i].Day+'/'+fechas[i].Month+'/2000';
+                                }else{
+                                    valor+= fechas[i].Day+'/'+fechas[i].Month+'/2000,';
+                                }
+                            }
+                            metadata['FechasExcepcionales'] = valor;
+                        }
+                        delete metadata['FechasEspeciales'];
+                        delete metadata['MinMax'];
+
+                        spo.saveListItems(spo.getSiteUrl(), 'ListadoItemVariable' ,metadata, function (response) {
+                            dialog.close();
+
+                            app.dialog.create({
+                                title: dialogTitle,
+                                text: 'Elemento creado con éxito',
+                                buttons: [{
+                                    text: 'Aceptar',
+                                    onClick: function () {
+                                        mainView.router.navigate('/liststream?title=Mantenedor%20Items%20Variables&listtitle=ListadoItemVariable&listview=Todos%20los%20elementos&template=list-row&panel=filter-close');
+                                    }
+                                }],
+                                verticalButtons: false
+                            }).open();
+
+
+                        }, function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log('responseText', responseText);
+                            dialog.close();
+                            app.dialog.create({
+                                title: 'Error al crear elemento ' + mths.getListTitle(),
+                                text: responseText.error.message.value,
+                                buttons: [{
+                                    text: 'Aceptar'
+                                }],
+                                verticalButtons: false
+                            }).open();
+                        });
+                    }
+                        context.forms.main.checkFieldsRequired();
+                        console.log('metadata main', context.forms.main.getMetadata())
+                        context.forms.categoria.checkFieldsRequired();
+                        context.forms.MinMax.checkFieldsRequired();
+                        context.forms.fechas.checkFieldsRequired();
+
+                        var metadata = context.forms.main.getMetadata();
+                        
+                        var validateMain = context.forms.main.getValidation();
+                        var validateCategoria = true
+                        var validateMinMax = true
+                        var validateFecha = true
+                        var validate = false
+
+                        if(metadata.GP == true){
+                            if(!context.forms.categoria.getValidation()){
+                                validateCategoria = false;
+                            }                            
+                        }
+                        if(metadata.MinMax == true){
+                            if(!context.forms.MinMax.getValidation()){
+                                validateMinMax = false;
+                            } 
+                        }
+                        if(metadata.FechasEspeciales == true){
+                            if(!context.forms.fechas.getValidation()){
+                                validateFecha = false;
+                            } 
+                        }
+    
+                        if(validateMain && validateCategoria && validateFecha && validateMinMax){
+                            validate = true;
+                        }
+                        
+                        if (validate) {
+                            app.dialog.create({
+                                title: dialogTitle,
+                                text: 'Se creará un elemento.',
+                                buttons: [{
+                                    text: 'Cancelar'
+                                }, {
+                                    text: 'Aceptar',
+                                    onClick: function onClick() {
+                                        save();
+                                    }
+                                }],
+                                verticalButtons: false
+                            }).open();
+                        } else {
+                            app.dialog.create({
+                                title: 'Datos insuficientes',
+                                text: 'Para crear una nuevo elemento debe completar todos los campos obligatorios.',
+                                buttons: [{
+                                    text: 'Aceptar'
+                                }],
+                                verticalButtons: false
+                            }).open();
+                        }
+
+
+                        
+
                 });
-
-
+                
                 $clearButton.on('click', function (e){
                     context.forms.main.setValues([]);
                     context.forms.categoria.setValues([]);
@@ -510,7 +647,7 @@ var ItemVariablePage = {
                                 }
                             );
                         } else {
-                            loaded.Periodo = true;
+                            loaded.ListadoItems = true;
                             shouldInitForms();
                         }
 
