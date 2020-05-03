@@ -183,256 +183,9 @@ var sendStatusPage = {
                     $downloadExcel = $navbar.find('.link.informeFinalDownload');
                     $sendEmail.removeClass('hide');
 
-                    $downloadExcel.on('click', function(e){
-                        var dialogTitle = 'Descargando informe';
-                        console.log('Iniciando Descarga');
-                        function download() {
-                            // var dialog = app.dialog.progress(dialogTitle);
-                            let infoExcelGeneral = {}
-                            let infoExcelPrivado = {}
-                            var aprobados = [];
-                            if(context.items.InformeHaberes){
-                                aprobados = context.items.InformeHaberes.filter(function (informe) {
-                                    return informe.Estado == "Aprobado"
-                                });
-                            }
-
-                            aprobados.forEach(informe => {
-                                let haberes = JSON.parse(informe.Haberes).d.results;
-                                haberes.forEach(haber => {
-                                    if (haber.Nombre.ClaseVal == "Clase Rol General"){
-                                        if (!(haber.CodigoPayroll in infoExcelGeneral)){
-                                            infoExcelGeneral[haber.CodigoPayroll] = {}
-                                        } 
-                                        if (!(haber.Haber.Title in infoExcelGeneral[haber.CodigoPayroll])){
-                                            infoExcelGeneral[haber.CodigoPayroll][haber.Haber.Title] = []
-                                        } 
-                                        infoExcelGeneral[haber.CodigoPayroll][haber.Haber.Title].push(
-                                            {
-                                                Cantidad: haber.CantidadMonto,
-                                                CC: haber.CentroCosto.IdRG
-                                            }
-                                        )
-                                    } else if (haber.Nombre.ClaseVal == "Clase Rol Privado"){
-                                        if (!(haber.CodigoPayroll in infoExcelPrivado)){
-                                            infoExcelPrivado[haber.CodigoPayroll] = {}
-                                        } 
-                                        if (!(haber.Haber.Title in infoExcelPrivado[haber.CodigoPayroll])){
-                                            infoExcelPrivado[haber.CodigoPayroll][haber.Haber.Title] = []
-                                        } 
-                                        infoExcelPrivado[haber.CodigoPayroll][haber.Haber.Title].push(
-                                            {
-                                                Cantidad: haber.CantidadMonto,
-                                                CC: haber.CentroCosto.IdRP
-                                            }
-                                        )
-                                    }
-                                })
-                            });
-                            
-                            let headersItems = [[
-                                "Código Colaborador",
-                                "((ATMEDA)) Atención Médica Abierta", "Centro de costo (ATMEDA)",
-                                "((DIAES1)) Bono Dias Especiales 1.5UF", "Centro de costo (DIAES1)",
-                                "((BONLLA)) Bono Por Llamadas",	"Centro de costo (BONLLA)",	
-                                "((AVARPE)) Asig. Variable Perdida Caja", "Centro de costo (AVARPE)",
-                                "((HEXTRS)) Horas Extras 50% Sobrecar ****", "Centro de costo (HEXTRS)",
-                                "((HEXTVA)) Horas Extras 50%  R.Vacac****",	"Centro de costo (HEXTVA)",
-                                "((HEXTRL)) Horas Extras 50%  Rr.Licme****", "Centro de costo (HEXTRL)",
-                                "((HEXTRP)) Horas Extras 50%  R.Permi*****", "Centro de costo (HEXTRP)",
-                                "((HEXTLL)) Horas Extras 50%  Tllamad*****","Centro de costo (HEXTLL)",	
-                                "((HEXTPE)) Horas Extras 50%  Pendien*****","Centro de costo (HEXTPE)",	
-                                "((COMHOR)) Compensac Horas Festivos","Centro de costo (COMHOR)",	    
-                                "((HBONIF)) Horas Bonificadas","Centro de costo (HBONIF)",	        
-                                "((HEX100)) Horas Extras 100%","Centro de costo (HEX100)",	        
-                                "((HREMED)) Hrs Reemp. Medico (Extra)","Centro de costo (HREMED)",	    
-                                "((HREMSU)) Hrs Reemp. Medico (Sueld)","Centro de costo (HREMSU)",	    
-                                "((DESALM)) Almuerzo - Cena","Centro de costo (DESALM)",	            
-                                "((ONCCEN)) Once-Desayuno","Centro de costo (ONCCEN)",	            
-                                "((BEVEN1)) Bono por Evento Hasta 4hrs","Centro de costo (BEVEN1)",	    
-                                "((BEVEN2)) Bono Por Eventos hasta 7hrs","Centro de costo (BEVEN2)",	    
-                                "((BEVEN3)) Bono Por Eventos hasta 12hrs","Centro de costo (BEVEN3)",	    
-                                "((BONPER)) Bono Pernoctar","Centro de costo (BONPER)",	                
-                                "((HEXPAS)) Horas Pasivas","Centro de costo (HEXPAS)",	                     
-                                "((CLASES)) Valor Hora Clase","Centro de costo (CLASES)",	            
-                                "((BOASEO)) Bono Aseo","Centro de costo (BOASEO)",	                    
-                                "((AINVES)) Asignacion Investigacion PRP","Centro de costo (AINVES)",	    
-                                "((BONMIN)) Bono Incentivo Minero","Centro de costo (BONMIN)",	        
-                                "((EXTURN)) Extension Turno Llamada","Centro de costo (EXTURN)",	            
-                                "((HEXPAP)) Horas Pasivas Permanencia","Centro de costo (HEXPAP)",	        
-                                "((BOASCU)) Bono Asistencia Cuatrimestral","Centro de costo (BOASCU)",	        
-                                "((BOCUME)) Bono Cumplimiento de Meta","Centro de costo (BOCUME)",	        
-                                "((DIAES2)) Bono Dias Especiales 2UF","Centro de costo (DIAES2)",	            
-                                "((LLATUT)) Turno de Llamada","Centro de costo (LLATUT)",	                    
-                                "((COLSIN)) Colacion","Centro de costo (COLSIN)",	                            
-                                "((BONESP)) Bonifición Especial","Centro de costo (BONESP)",	                
-                                "((COMISI)) Comisiones","Centro de costo (COMISI)",	                    
-                                "((COMDEC)) Comision Decreto 67","Centro de costo (COMDEC)",	                
-                                "((HEXPAB)) Horas Extras 100% Pabellon","Centro de costo (HEXPAB)",	            
-                                "((DIFHPA)) Diferencia Horas Pasivas","Centro de costo (DIFHPA)",	            
-                                "((DIFHBO)) Diferencia Hrs. Bonificadas","Centro de costo (DIFHBO)",	            
-                                "((DIFHEX)) Diferencia Hrs. Extras","Centro de costo (DIFHEX)",	                
-                                "((DIFHPP)) Dif. Horas Pasivas Permanencia","Centro de costo (DIFHPP)",            	
-                                "((REFERI)) Referidos","Centro de costo (REFERI)"                  
-                            ]];     
-                            
-                            let headersPos = {
-                                "ATMEDA": 1, "DIAES1": 3, "BONLLA": 5, "AVARPE": 7, "HEXTRS": 9, "HEXTVA": 11,
-                                "HEXTRL": 13, "HEXTRP": 15, "HEXTLL": 17, "HEXTPE": 19, "COMHOR": 21,
-                                "HBONIF": 23, "HEX100": 25, "HREMED": 27, "HREMSU": 29, "DESALM": 31,
-                                "ONCCEN": 33, "BEVEN1": 35, "BEVEN2": 37, "BEVEN3": 39, "BONPER": 41,
-                                "HEXPAS": 43, "CLASES": 45, "BOASEO": 47, "AINVES": 49, "BONMIN": 51,
-                                "EXTURN": 53, "HEXPAP": 55, "BOASCU": 57, "BOCUME": 59, "DIAES2": 61,
-                                "LLATUT": 63, "COLSIN": 65, "BONESP": 67, "COMISI": 69, "COMDEC": 71,
-                                "HEXPAB": 73, "DIFHPA": 75, "DIFHBO": 77, "DIFHEX": 79, "DIFHPP": 81,
-                                "REFERI": 83
-                            };  
-                            
-                            let sheetItemsG = headersItems;
-                            let sheetItemsP = headersItems;
-
-                            // Excel para general
-                            // Crear Book y sheets
-                            var wbGeneral = XLSX.utils.book_new();
-
-                            // // Se extrae la informacion
-                            let periodoNameG = "Informe_General_Periodo_"+ context.items.Periodo.MesCalculado+"_"+context.items.Periodo.AnioCalculado;
-
-                            for (persona in infoExcelGeneral){
-                                let forDelete = [];
-                                let first = true;
-                                while (Object.keys(infoExcelGeneral[persona]).length > 0){
-                                    let line = [headersItems[0].map(function(){return ""})]
-                                    if (first){
-                                        line[0][0] = persona;
-                                        first = false;
-                                    }
-                                    for (haber in infoExcelGeneral[persona]){
-                                        let imput = infoExcelGeneral[persona][haber].pop()
-                                        line[0][headersPos[haber]] = imput.Cantidad
-                                        line[0][headersPos[haber]+1] = imput.CC
-                                        if (infoExcelGeneral[persona][haber].length == 0){
-                                            forDelete.push(haber)
-                                        }
-                                    }
-                                    forDelete.forEach(function(name){
-                                        delete infoExcelGeneral[persona][name]
-                                    })
-                                    sheetItemsG = sheetItemsG.concat(line)
-                                }
-                            }
-
-                            // Se crea la hoja
-                            let wsG = XLSX.utils.aoa_to_sheet(sheetItemsG);
-
-                            // Se crea la primera hoja
-                            XLSX.utils.book_append_sheet(wbGeneral, wsG, "Hoja1");
-
-                            XLSX.writeFile(wbGeneral, periodoNameG +'.xlsx');
-
-                            // Excel para privado
-                            // Crear Book y sheets
-                            var wbPrivado = XLSX.utils.book_new();
-
-                            // // Se extrae la informacion
-                            let periodoNameP = "Informe_Privado_Periodo_"+ context.items.Periodo.MesCalculado+"_"+context.items.Periodo.AnioCalculado;
-
-                            for (persona in infoExcelPrivado){
-                                let forDelete = [];
-                                let first = true;
-                                while (Object.keys(infoExcelPrivado[persona]).length > 0){
-                                    let line = [headersItems[0].map(function(){return ""})]
-                                    if (first){
-                                        line[0][0] = persona;
-                                        first = false;
-                                    }
-                                    for (haber in infoExcelPrivado[persona]){
-                                        let imput = infoExcelPrivado[persona][haber].pop()
-                                        line[0][headersPos[haber]] = imput.Cantidad
-                                        line[0][headersPos[haber]+1] = imput.CC
-                                        if (infoExcelPrivado[persona][haber].length == 0){
-                                            forDelete.push(haber)
-                                        }
-                                    }
-                                    forDelete.forEach(function(name){
-                                        delete infoExcelPrivado[persona][name]
-                                    })
-                                    sheetItemsP = sheetItemsP.concat(line)
-                                }
-                            }
-
-                            // Se crea la hoja
-                            let wsP = XLSX.utils.aoa_to_sheet(sheetItemsP);
-
-                            // Se crea la primera hoja
-                            XLSX.utils.book_append_sheet(wbPrivado, wsP, "Hoja1");
-
-                            XLSX.writeFile(wbPrivado, periodoNameP +'.xlsx');
-
-                        }
-
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: 'Se descargará un documento Excel con la información de todos los informes',
-                            buttons: [{
-                                text: 'Aceptar',
-                                onClick: function () {
-                                    download()
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();
-                    });
-
-                    $sendEmail.on('click', function (e) {
-                        console.log('Activo Enviar')
-                        let data = context.forms.sendStatus.values.filter( item => item.Status == "No enviado");
-    
-                        if(data.length == 0){
-                            app.dialog.create({
-                                title: 'Error al notificar a coordinadores',
-                                text: 'No se encontraron coordinadores sin envio de items',
-                                buttons: [{
-                                    text: 'OK'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        }else{
-                            fetch(global.uris[global.env].status, {
-                                method: 'POST',
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(data)
-                            })
-                            .then(function(response) {
-                                if (response.status >= 300) {
-                                    app.dialog.create({
-                                        title: 'Error al Iniciar Proceso',
-                                        text: 'Error al enviar los emails (Flow)',
-                                        buttons: [{
-                                            text: 'Aceptar'
-                                        }],
-                                        verticalButtons: false
-                                    }).open();
-                                }else{
-                                    app.dialog.create({
-                                        title: 'Notificación enviada exitosamente',
-                                        text: 'Se han enviado notificaciones a '+data.length+' coordinadores.',
-                                        buttons: [{
-                                            text: 'Aceptar'
-                                        }],
-                                        verticalButtons: false
-                                    }).open();
-                                }
-                            });                        
-                        }
-                    });
-
-                    if (context.items.Periodo){
+                if (context.items.Periodo){
                         $downloadExcel.removeClass('hide');
-                    }
+                }
 
                 context.forms.sendStatus = new EFWListTable({
                     container: $container.find('.error-container'),
@@ -529,6 +282,251 @@ var sendStatusPage = {
                     context.forms.sendStatus.setValues(data);
                 }
 
+                $downloadExcel.on('click', function(e){
+                    var dialogTitle = 'Descargando informe';
+                    function download() {
+                        // var dialog = app.dialog.progress(dialogTitle);
+                        let infoExcelGeneral = {}
+                        let infoExcelPrivado = {}
+                        var aprobados = [];
+                        if(context.items.InformeHaberes){
+                            aprobados = context.items.InformeHaberes.filter(function (informe) {
+                                return informe.Estado == "Aprobado"
+                            });
+                        }
+
+                        aprobados.forEach(informe => {
+                            let haberes = JSON.parse(informe.Haberes).d.results;
+                            haberes.forEach(haber => {
+                                if (haber.Nombre.ClaseVal == "Clase Rol General"){
+                                    if (!(haber.CodigoPayroll in infoExcelGeneral)){
+                                        infoExcelGeneral[haber.CodigoPayroll] = {}
+                                    } 
+                                    if (!(haber.Haber.Title in infoExcelGeneral[haber.CodigoPayroll])){
+                                        infoExcelGeneral[haber.CodigoPayroll][haber.Haber.Title] = []
+                                    } 
+                                    infoExcelGeneral[haber.CodigoPayroll][haber.Haber.Title].push(
+                                        {
+                                            Cantidad: haber.CantidadMonto,
+                                            CC: haber.CentroCosto.IdRG
+                                        }
+                                    )
+                                } else if (haber.Nombre.ClaseVal == "Clase Rol Privado"){
+                                    if (!(haber.CodigoPayroll in infoExcelPrivado)){
+                                        infoExcelPrivado[haber.CodigoPayroll] = {}
+                                    } 
+                                    if (!(haber.Haber.Title in infoExcelPrivado[haber.CodigoPayroll])){
+                                        infoExcelPrivado[haber.CodigoPayroll][haber.Haber.Title] = []
+                                    } 
+                                    infoExcelPrivado[haber.CodigoPayroll][haber.Haber.Title].push(
+                                        {
+                                            Cantidad: haber.CantidadMonto,
+                                            CC: haber.CentroCosto.IdRP
+                                        }
+                                    )
+                                }
+                            })
+                        });
+                        
+                        let headersItems = [[
+                            "Código Colaborador",
+                            "((ATMEDA)) Atención Médica Abierta", "Centro de costo (ATMEDA)",
+                            "((DIAES1)) Bono Dias Especiales 1.5UF", "Centro de costo (DIAES1)",
+                            "((BONLLA)) Bono Por Llamadas",	"Centro de costo (BONLLA)",	
+                            "((AVARPE)) Asig. Variable Perdida Caja", "Centro de costo (AVARPE)",
+                            "((HEXTRS)) Horas Extras 50% Sobrecar ****", "Centro de costo (HEXTRS)",
+                            "((HEXTVA)) Horas Extras 50%  R.Vacac****",	"Centro de costo (HEXTVA)",
+                            "((HEXTRL)) Horas Extras 50%  Rr.Licme****", "Centro de costo (HEXTRL)",
+                            "((HEXTRP)) Horas Extras 50%  R.Permi*****", "Centro de costo (HEXTRP)",
+                            "((HEXTLL)) Horas Extras 50%  Tllamad*****","Centro de costo (HEXTLL)",	
+                            "((HEXTPE)) Horas Extras 50%  Pendien*****","Centro de costo (HEXTPE)",	
+                            "((COMHOR)) Compensac Horas Festivos","Centro de costo (COMHOR)",	    
+                            "((HBONIF)) Horas Bonificadas","Centro de costo (HBONIF)",	        
+                            "((HEX100)) Horas Extras 100%","Centro de costo (HEX100)",	        
+                            "((HREMED)) Hrs Reemp. Medico (Extra)","Centro de costo (HREMED)",	    
+                            "((HREMSU)) Hrs Reemp. Medico (Sueld)","Centro de costo (HREMSU)",	    
+                            "((DESALM)) Almuerzo - Cena","Centro de costo (DESALM)",	            
+                            "((ONCCEN)) Once-Desayuno","Centro de costo (ONCCEN)",	            
+                            "((BEVEN1)) Bono por Evento Hasta 4hrs","Centro de costo (BEVEN1)",	    
+                            "((BEVEN2)) Bono Por Eventos hasta 7hrs","Centro de costo (BEVEN2)",	    
+                            "((BEVEN3)) Bono Por Eventos hasta 12hrs","Centro de costo (BEVEN3)",	    
+                            "((BONPER)) Bono Pernoctar","Centro de costo (BONPER)",	                
+                            "((HEXPAS)) Horas Pasivas","Centro de costo (HEXPAS)",	                     
+                            "((CLASES)) Valor Hora Clase","Centro de costo (CLASES)",	            
+                            "((BOASEO)) Bono Aseo","Centro de costo (BOASEO)",	                    
+                            "((AINVES)) Asignacion Investigacion PRP","Centro de costo (AINVES)",	    
+                            "((BONMIN)) Bono Incentivo Minero","Centro de costo (BONMIN)",	        
+                            "((EXTURN)) Extension Turno Llamada","Centro de costo (EXTURN)",	            
+                            "((HEXPAP)) Horas Pasivas Permanencia","Centro de costo (HEXPAP)",	        
+                            "((BOASCU)) Bono Asistencia Cuatrimestral","Centro de costo (BOASCU)",	        
+                            "((BOCUME)) Bono Cumplimiento de Meta","Centro de costo (BOCUME)",	        
+                            "((DIAES2)) Bono Dias Especiales 2UF","Centro de costo (DIAES2)",	            
+                            "((LLATUT)) Turno de Llamada","Centro de costo (LLATUT)",	                    
+                            "((COLSIN)) Colacion","Centro de costo (COLSIN)",	                            
+                            "((BONESP)) Bonifición Especial","Centro de costo (BONESP)",	                
+                            "((COMISI)) Comisiones","Centro de costo (COMISI)",	                    
+                            "((COMDEC)) Comision Decreto 67","Centro de costo (COMDEC)",	                
+                            "((HEXPAB)) Horas Extras 100% Pabellon","Centro de costo (HEXPAB)",	            
+                            "((DIFHPA)) Diferencia Horas Pasivas","Centro de costo (DIFHPA)",	            
+                            "((DIFHBO)) Diferencia Hrs. Bonificadas","Centro de costo (DIFHBO)",	            
+                            "((DIFHEX)) Diferencia Hrs. Extras","Centro de costo (DIFHEX)",	                
+                            "((DIFHPP)) Dif. Horas Pasivas Permanencia","Centro de costo (DIFHPP)",            	
+                            "((REFERI)) Referidos","Centro de costo (REFERI)"                  
+                        ]];     
+                        
+                        let headersPos = {
+                            "ATMEDA": 1, "DIAES1": 3, "BONLLA": 5, "AVARPE": 7, "HEXTRS": 9, "HEXTVA": 11,
+                            "HEXTRL": 13, "HEXTRP": 15, "HEXTLL": 17, "HEXTPE": 19, "COMHOR": 21,
+                            "HBONIF": 23, "HEX100": 25, "HREMED": 27, "HREMSU": 29, "DESALM": 31,
+                            "ONCCEN": 33, "BEVEN1": 35, "BEVEN2": 37, "BEVEN3": 39, "BONPER": 41,
+                            "HEXPAS": 43, "CLASES": 45, "BOASEO": 47, "AINVES": 49, "BONMIN": 51,
+                            "EXTURN": 53, "HEXPAP": 55, "BOASCU": 57, "BOCUME": 59, "DIAES2": 61,
+                            "LLATUT": 63, "COLSIN": 65, "BONESP": 67, "COMISI": 69, "COMDEC": 71,
+                            "HEXPAB": 73, "DIFHPA": 75, "DIFHBO": 77, "DIFHEX": 79, "DIFHPP": 81,
+                            "REFERI": 83
+                        };  
+                        
+                        let sheetItemsG = headersItems;
+                        let sheetItemsP = headersItems;
+
+                        // Excel para general
+                        // Crear Book y sheets
+                        var wbGeneral = XLSX.utils.book_new();
+
+                        // // Se extrae la informacion
+                        let periodoNameG = "Informe_General_Periodo_"+ context.items.Periodo.MesCalculado+"_"+context.items.Periodo.AnioCalculado;
+
+                        for (persona in infoExcelGeneral){
+                            let forDelete = [];
+                            let first = true;
+                            while (Object.keys(infoExcelGeneral[persona]).length > 0){
+                                let line = [headersItems[0].map(function(){return ""})]
+                                if (first){
+                                    line[0][0] = persona;
+                                    first = false;
+                                }
+                                for (haber in infoExcelGeneral[persona]){
+                                    let imput = infoExcelGeneral[persona][haber].pop()
+                                    line[0][headersPos[haber]] = imput.Cantidad
+                                    line[0][headersPos[haber]+1] = imput.CC
+                                    if (infoExcelGeneral[persona][haber].length == 0){
+                                        forDelete.push(haber)
+                                    }
+                                }
+                                forDelete.forEach(function(name){
+                                    delete infoExcelGeneral[persona][name]
+                                })
+                                sheetItemsG = sheetItemsG.concat(line)
+                            }
+                        }
+
+                        // Se crea la hoja
+                        let wsG = XLSX.utils.aoa_to_sheet(sheetItemsG);
+
+                        // Se crea la primera hoja
+                        XLSX.utils.book_append_sheet(wbGeneral, wsG, "Hoja1");
+
+                        XLSX.writeFile(wbGeneral, periodoNameG +'.xlsx');
+
+                        // Excel para privado
+                        // Crear Book y sheets
+                        var wbPrivado = XLSX.utils.book_new();
+
+                        // // Se extrae la informacion
+                        let periodoNameP = "Informe_Privado_Periodo_"+ context.items.Periodo.MesCalculado+"_"+context.items.Periodo.AnioCalculado;
+
+                        for (persona in infoExcelPrivado){
+                            let forDelete = [];
+                            let first = true;
+                            while (Object.keys(infoExcelPrivado[persona]).length > 0){
+                                let line = [headersItems[0].map(function(){return ""})]
+                                if (first){
+                                    line[0][0] = persona;
+                                    first = false;
+                                }
+                                for (haber in infoExcelPrivado[persona]){
+                                    let imput = infoExcelPrivado[persona][haber].pop()
+                                    line[0][headersPos[haber]] = imput.Cantidad
+                                    line[0][headersPos[haber]+1] = imput.CC
+                                    if (infoExcelPrivado[persona][haber].length == 0){
+                                        forDelete.push(haber)
+                                    }
+                                }
+                                forDelete.forEach(function(name){
+                                    delete infoExcelPrivado[persona][name]
+                                })
+                                sheetItemsP = sheetItemsP.concat(line)
+                            }
+                        }
+
+                        // Se crea la hoja
+                        let wsP = XLSX.utils.aoa_to_sheet(sheetItemsP);
+
+                        // Se crea la primera hoja
+                        XLSX.utils.book_append_sheet(wbPrivado, wsP, "Hoja1");
+
+                        XLSX.writeFile(wbPrivado, periodoNameP +'.xlsx');
+
+                    }
+
+                    app.dialog.create({
+                        title: dialogTitle,
+                        text: 'Se descargará un documento Excel con la información de todos los informes',
+                        buttons: [{
+                            text: 'Aceptar',
+                            onClick: function () {
+                                download()
+                            }
+                        }],
+                        verticalButtons: false
+                    }).open();
+                });
+
+                $sendEmail.on('click', function (e) {
+                    let data = context.forms.sendStatus.values.filter( item => item.Status == "No enviado" || item.Status == "Desaprobado");
+
+                    if(data.length == 0){
+                        app.dialog.create({
+                            title: 'Error al notificar a coordinadores',
+                            text: 'No se encontraron coordinadores sin envio de items',
+                            buttons: [{
+                                text: 'OK'
+                            }],
+                            verticalButtons: false
+                        }).open();
+                    }else{
+                        fetch(global.uris[global.env].status, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data)
+                        })
+                        .then(function(response) {
+                            if (response.status >= 300) {
+                                app.dialog.create({
+                                    title: 'Error al Iniciar Proceso',
+                                    text: 'Error al enviar los emails (Flow)',
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            }else{
+                                app.dialog.create({
+                                    title: 'Notificación enviada exitosamente',
+                                    text: 'Se han enviado notificaciones a '+data.length+' coordinadores.',
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            }
+                        });                        
+                    }
+                });
+
                 // remover loader
                 mths.removePageLoader();
             }
@@ -564,6 +562,7 @@ var sendStatusPage = {
                             function (response) {
                                 context.items.Coordinador = response.d.results.length > 0 ? response.d.results : null;
                                 loaded.Coordinador = true;
+                                shouldInitForms()
                             },
                             function (response) {
                                 var responseText = JSON.parse(response.responseText);
@@ -632,39 +631,36 @@ var sendStatusPage = {
                                 
                                 //Obtenemos todos los informes del periodo
                                 spo.getListInfo('Informe Haberes',
-                                function (response) {
-                                    context.items.InformeHaberes = [];
-                                    context.lists.InformeHaberes = response;                        
-            
-                                    var query = spo.encodeUrlListQuery(context.lists.InformeHaberes, {
-                                        view: 'Todos los elementos',
-                                        odata: {
-                                            'filter': 'PeriodoId eq '+context.items.Periodo.ID,
-                                            'select': '*',
-                                            'top': 5000,
-                                        }
-                                    });
-            
-                                    spo.getListItems(spo.getSiteUrl(), 'Informe Haberes', query,
-                                        function (response) {
-                                            context.items.InformeHaberes = response.d.results.length > 0 ? response.d.results : null;
-                                            loaded.InformeHaberes = true;
-                                            shouldInitForms();
-                                        },
-                                        function (response) {
-                                            var responseText = JSON.parse(response.responseText);
-                                            console.log(responseText.error.message.value);
-                                        }
-                                    );
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
-
-
-
+                                    function (response) {
+                                        context.items.InformeHaberes = [];
+                                        context.lists.InformeHaberes = response;                        
+                
+                                        var query = spo.encodeUrlListQuery(context.lists.InformeHaberes, {
+                                            view: 'Todos los elementos',
+                                            odata: {
+                                                'filter': 'PeriodoId eq '+context.items.Periodo.ID,
+                                                'select': '*',
+                                                'top': 5000,
+                                            }
+                                        });
+                
+                                        spo.getListItems(spo.getSiteUrl(), 'Informe Haberes', query,
+                                            function (response) {
+                                                context.items.InformeHaberes = response.d.results.length > 0 ? response.d.results : null;
+                                                loaded.InformeHaberes = true;
+                                                shouldInitForms();
+                                            },
+                                            function (response) {
+                                                var responseText = JSON.parse(response.responseText);
+                                                console.log(responseText.error.message.value);
+                                            }
+                                        );
+                                    },
+                                    function (response) {
+                                        var responseText = JSON.parse(response.responseText);
+                                        console.log(responseText.error.message.value);
+                                    }
+                                );
 
                             },
                             function (response) {
