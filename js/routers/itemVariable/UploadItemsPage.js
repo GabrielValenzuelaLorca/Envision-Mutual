@@ -390,6 +390,7 @@ var uploadItemsPage = {
                                 }
 
                                 function PrepareToSend(fila, trabajador, item){
+                                    console.log('trabajador', trabajador)
                                     return {
                                         "CantidadMonto": fila.CANT_$MONTO,
                                         "Rut": trabajador.ID,
@@ -398,6 +399,7 @@ var uploadItemsPage = {
                                         "Codigo": fila.COD_PAYROLL,
                                         "Item": item.ID,
                                         "Nombre": trabajador.Rut,
+                                        "Cargo": trabajador.d_cargo ? trabajador.d_cargo.NombreCargo : 'El trabajador no posee cargo.',
                                         "CentroCosto": fila.CCOSTO ? fila.CCOSTO : trabajador.CentroCostoId,
                                         "Excepcion" : fila.CCOSTO ? 'Centro de costo diferente' : ''
                                     }

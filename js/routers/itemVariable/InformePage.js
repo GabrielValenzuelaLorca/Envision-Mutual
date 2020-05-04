@@ -247,6 +247,7 @@ var informePage = {
                             
                         let haberes = JSON.parse(context.items.Informe.Haberes);
                         let periodoName = "Periodo_"+context.items.Informe.Periodo.MesCalculado+"_"+context.items.Informe.Periodo.AnioCalculado;
+                        console.log('haberes', haberes.d.results)
                         let arrayHaberes = haberes.d.results.map(function(haber){
                             return {
                                 "Item Variable": haber.Haber.NombreItem,
@@ -254,7 +255,7 @@ var informePage = {
                                 "Nombre": haber.Nombre.NombreCompleto,
                                 "Rut": haber.Rut,
                                 "Contrato": haber.TipoContrato,
-                                "Centro Costo": "Por Defecto",
+                                "Centro Costo": haber.Excepcion ? haber.Excepcion : "Por Defecto",
                                 "Justificación":haber.Justificacion
                             };
                         });
@@ -348,7 +349,7 @@ var informePage = {
                             'Se descargará un documento Excel con la información en pantalla',
                             adminSave
                         )
-                    } else if (plantaAdmin.Rol == "Coordinador"){
+                    } else if (plantaAdmin.Rol == "Coordinador" || plantaAdmin.Rol == "Aprobador"){
                         dialogs.confirmDialog(
                             dialogTitle,
                             'Se descargará un documento Excel con la información en pantalla',
