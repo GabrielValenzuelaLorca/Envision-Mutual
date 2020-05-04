@@ -243,13 +243,13 @@ var licenciaPage = {
                     var dialogTitle = 'Envío de licencia';
 
                     function save() {
+
                         var dialog = app.dialog.progress(dialogTitle);
                         var metadata = context.forms.licencia.getMetadata();
-                        var fecha = new Date(metadata.INICIO);
+                        var fecha = moment(metadata.INICIO.substring(0,10), 'YYYY-MM-DD').add(parseInt(metadata.N_DIAS), 'days')
                         metadata.RUT_RESPId = plantaAdmin.ID;
                         metadata.N_DIAS = metadata.N_DIAS
                         metadata.PeriodoId = context.items.periodo.ID
-                        fecha.setDate(fecha.getDate() + metadata.N_DIAS);
                         metadata.FIN = fecha.toISOString()
 
                         spo.saveListItem(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {

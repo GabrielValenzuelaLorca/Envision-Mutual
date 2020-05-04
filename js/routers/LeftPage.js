@@ -758,3 +758,7 @@ menuPage.methods.getListBlocksData = function(){
 menuPage.methods.getPageComponentImage = function(){
     return global.uris[global.env].tema;
 };
+
+menuPage.methods.getTitle = function(){
+    return plantaAdmin.NombreCompleto
+}
