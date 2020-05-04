@@ -50,6 +50,11 @@ spo.getCurrentUserInformation().done(function(){
         var loaded = {};
 
         function startApp(){
+            var roleHandler = new RoleHandler()
+            roleHandler.setItemVariableRol(plantaAdmin.Rol)
+            roleHandler.setSDPRol(plantaAdmin.RolSDP)
+            roleHandler.setModule(localStorage.getItem("rhandler"))
+
             app = new Framework7({
                 id: 'io.framework7.envision', // App bundle ID
                 root: '#app', // App root element
@@ -64,7 +69,8 @@ spo.getCurrentUserInformation().done(function(){
                     return {
                         siteUrl: spo.getSiteUrl(),
                         tenantUrl: spo.getTenantUrl(),
-                        currentUser: spo.getCurrentUser()
+                        currentUser: spo.getCurrentUser(),
+                        roleHandler: roleHandler
                     };
                 },
                 // App root methods
@@ -120,6 +126,7 @@ spo.getCurrentUserInformation().done(function(){
                 iosSwipeBackAnimateOpacity: false
             });
 
+            //Editar el menu lateral
             leftView.router.navigate(encodeURI('/menu'), {
                 animate: false
             });
