@@ -130,11 +130,11 @@ var homePage = {
 
         // {string} retorna el título del componente
         getTitle: function(){
-            return 'Home';
+            return 'Inicio';
         },
         // {string} retorna la descripción del componente
         getDescription: function(){
-            return 'asdfasdfasd';
+            return 'Por favor, seleccione un componente.';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -265,14 +265,15 @@ var homePage = {
             
 
             var tilesHtml = '';
-            
+            localStorage.setItem("rhandler", "")
+            app.data.roleHandler.setModule("")
+            app.data.roleHandler.getOptions({})
             var menus =  app.data.roleHandler.getModules()
 
             for (var i = 0; i < menus.length; i++){
                 tilesHtml += mths.renderTile(menus[i]);
             }
 
-           
             mths.removePageLoader();
             $container.find('img.lazy, div.lazy').each(function(index, el){
                 app.lazy.loadImage(el);

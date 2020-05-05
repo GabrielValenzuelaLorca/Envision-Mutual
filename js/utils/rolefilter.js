@@ -625,13 +625,15 @@ class RoleHandler{
     }
 
     getOptions(context){
+        app.panel.left.$el.show()
+        app.view.main.$el.css("margin-left", "260px")
+
         var defecto = [{
             inset: true,
-            header: 'Home',
             footer: '',
             options: [{
                 href: '/homePage',
-                title: 'Home',
+                title: 'Inicio',
                 after: '',
                 header: '',
                 footer: '',
@@ -643,13 +645,20 @@ class RoleHandler{
         }]
 
         if(this.module === "IV"){
-            return defecto.concat(this.IV.getButtons(context))
+            var aux = this.IV.getButtons(context)
+            mainView.router.navigate(aux[0].options[0].href)
+            return defecto.concat(aux)
         }
         else if(this.module === "SDP"){
-            return defecto.concat(this.SDP.getButtons(context))
+            var aux = this.SDP.getButtons(context)
+            mainView.router.navigate(aux[0].options[0].href)
+            return defecto.concat(aux)
         }
         else{
-            return defecto
+            app.panel.left.$el.hide()
+            app.view.main.$el.css("margin-left", 0) //260px
+            mainView.router.navigate("/homePage")
+            return []
         }
     }
 }
