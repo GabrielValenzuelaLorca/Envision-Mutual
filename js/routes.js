@@ -31,14 +31,12 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
 listStreamPage.methods.getNoItemsSelectedButtons = function(item){
     var page = this._getPage();
     var context = this._getPageContext();
-    var usuario = page.route.query.usuario    
+    var title = page.route.query.title  
     var buttons = [];
     
-    switch(usuario){
-        case 'control de noseque':{
-            if(shouldEdit()){
-                buttons.push(localButtons.addCapexView(context));
-            }
+    switch(title){
+        case 'Mantenedor Convenio Capex':{
+            buttons.push(localButtons.addCapexView(context));
             break;
         }
         case 'Mantenedor Items Variables':{
