@@ -37,7 +37,35 @@ itemVariableStreamPage.methods.beforeStartComponent = function(success,failure){
                     spo.getListItems(spo.getSiteUrl(), "Informe Haberes", query,
                         function (response) {
                             context.informes = response.d.results;
-                            if (success) success();
+                            spo.getListInfo('ItemVariable',
+                                function (response) {
+                                    var query = spo.encodeUrlListQuery(response, {
+                                        view: 'Todos los elementos',
+                                        odata: {
+                                            'filter': '(CoordinadorId eq ' + plantaAdmin.ID + ' and PeriodoId eq '+context.periodId+')',
+                                            'count': true
+                                        }
+                                    });
+                                    spo.getListItems(spo.getSiteUrl(), "ItemVariable", query,
+                                        function (response) {
+                                            context.items = response.d.results;
+                                            if(success) success();
+                                            
+                                        },
+                                        function (response) {
+                                            var responseText = JSON.parse(response.responseText);
+                                            console.log(responseText.error.message.value);
+                                            if (failure) failure();
+                                        }
+                                    );
+                                },
+                                function(response){
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                    resolve(failCond);
+                                    if (failure) failure();
+                                }
+                            );
                         },
                         function (response) {
                             var responseText = JSON.parse(response.responseText);
@@ -91,13 +119,16 @@ itemVariableStreamPage.methods.getNoItemsSelectedButtons = function(){
         context = self._getPageContext(),
         buttons = [];
     
-    if (context.informes.length == 0 ) {
-        buttons.push(localButtons.sendButton(context));
-    } else {
-        if (context.informes[0].Estado == "Desaprobado"){
+
+    if(context.items.length > 0){
+        if (context.informes.length == 0 ) {
             buttons.push(localButtons.sendButton(context));
+        } else {
+            if (context.informes[0].Estado == "Desaprobado"){
+                buttons.push(localButtons.sendButton(context));
+            }
         }
-    }    
+    }
     return buttons;
 }
 
@@ -105,7 +136,7 @@ itemVariableStreamPage.methods.getOneItemSelectedButtons = function(item){
     var page = this._getPage();
     var self = this, buttons = [],
     context = self._getPageContext(),
-    buttons = [];
+    buttons = [localButtons.deleteItemButton()];
     
     return buttons;
 }
@@ -114,7 +145,7 @@ itemVariableStreamPage.methods.getMultiItemsSelectedButtons = function(items){
     var page = this._getPage();
     var self = this, buttons = [],
     context = self._getPageContext(),
-    buttons = [];
+    buttons = [localButtons.deleteItemsButton()];
 
     return buttons;
 }
