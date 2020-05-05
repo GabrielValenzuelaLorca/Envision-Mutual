@@ -31,12 +31,14 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
 listStreamPage.methods.getNoItemsSelectedButtons = function(item){
     var page = this._getPage();
     var context = this._getPageContext();
-    var title = page.route.query.title    
+    var usuario = page.route.query.usuario    
     var buttons = [];
     
-    switch(title){
-        case 'Mantenedor Convenio Capex':{
-            buttons.push(localButtons.addCapexView(context));
+    switch(usuario){
+        case 'control de noseque':{
+            if(shouldEdit()){
+                buttons.push(localButtons.addCapexView(context));
+            }
             break;
         }
         case 'Mantenedor Items Variables':{
@@ -132,8 +134,6 @@ listStreamPage.methods.getCamlQueryConditions = function(){
 }
 
 function getRoutes(){
-
-    console.log('Usuario', plantaAdmin)
     //Routes Excenciales para el sistema
     var mainRoutes = [
         {
