@@ -203,9 +203,7 @@ var haberesPage = {
                     });
                 
                 })
-
                 
-
                 context.forms.persona = new EFWForm({
                     container: $container.find('.form-container'),
                     title: 'Datos Coordinador',

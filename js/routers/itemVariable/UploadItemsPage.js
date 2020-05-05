@@ -183,6 +183,7 @@ var uploadItemsPage = {
                     $sendButton = $navbar.find('.link.send')
                     $clearButton = $navbar.find('.link.clear')
 
+
                 // formulario de registro
                 context.forms.item = new EFWForm({
                     container: $container.find('.form-container'),
@@ -706,10 +707,17 @@ var uploadItemsPage = {
                 });
 
                 $clearButton.on('click', function (e){
-                    context.forms.errorsList.removeAllRows();
-                    context.forms.errorsList.hide();
-                    context.forms.item.inputs.Attachments.resetValue();
+                    // context.forms.errorsList.removeAllRows();
+                    // context.forms.errorsList.hide();
+                    // context.forms.item.inputs.Attachments.resetValue();
+                    mainView.router.refreshPage(); 
                 });
+
+                context.forms.item.inputs.Attachments.params.onChange = function(comp, input, state, values){
+                    $('div.item-after div.ms-Button-AttachEdit i.ms-Icon.ms-Icon--Cancel').hide()
+                }
+
+                console.log('Form', context.forms.item)
 
                 // remover loader
                 mths.removePageLoader();

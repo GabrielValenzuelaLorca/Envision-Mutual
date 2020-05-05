@@ -520,7 +520,7 @@ localButtons.deleteListTrabajadoresButton = function(context){
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
-                        'Trabajadores desvinculados con exito!',
+                        'Trabajadores desvinculados con exito.',
                         refresh,
                         false
                     )
@@ -531,7 +531,7 @@ localButtons.deleteListTrabajadoresButton = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al desvincular trabajadores, intente nuevamente',
+                        '¿Error al desvincular trabajadores, intente nuevamente',
                         responseText.error.message.value,
                     )
                 });
@@ -551,6 +551,104 @@ localButtons.deleteListTrabajadoresButton = function(context){
     }
     return button
 }
+
+localButtons.deleteItemButton = function(){
+    button = {
+        text:'Eliminar Item',
+        class:'deleteanyitem',
+        icon:'Delete',
+        onClick: function(component, item){
+
+            var dialogTitle = 'Eliminar Item';
+
+            //Ejecuta toda la funcion despues de la validacion de la alerta
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                spo.deleteListItem(spo.getSiteUrl(), "ItemVariable", item.ID, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Item eliminado con exito.',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al eliminar el item, intente nuevamente',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            dialogs.confirmDialog(
+                dialogTitle,
+                '¿Esta seguro que quiere eliminar el item seleccionado?',
+                save
+            )
+        }
+    }
+    return button
+}
+
+localButtons.deleteItemsButton = function(){
+    button = {
+        text:'Eliminar Items',
+        class:'deleteitems',
+        icon:'Delete',
+        onClick: function(component, item){
+
+            var dialogTitle = 'Eliminando items';
+
+            //Ejecuta toda la funcion despues de la validacion de la alerta
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                var metadata = item.map(function(x){
+                        return x.ID
+                });
+
+                spo.deleteListItems(spo.getSiteUrl(), "ItemVariable", metadata, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Items eliminados con exito.',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al eliminar los items, intente nuevamente',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            /* Alerta que se ejecuta al presionar el boton.
+            -   Si se presiona OK o aceptar se ejecuta el metodo save
+            -   Al cancelar no se ejecuta nada
+            */
+
+            dialogs.confirmDialog(
+                dialogTitle,
+                'Esta seguro que quiere eiminar los items seleccionados?',
+                save
+            )
+        }
+    }
+    return button
+}
+
 /*
     Todos los botones relacionados con HabaresStreamPage y CooStreamPage
 */
@@ -1636,6 +1734,7 @@ localButtons.deleteCapex = function(context){
         class: 'deleteCapex',
         icon: 'Delete',
         onClick: function(component, item){
+            var nombreCompleto = item.Nombre+' '+item.ApellidoPaterno+' '+item.ApellidoMaterno
             var dialogTitle = 'Eliminar convenio CAPEX';
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
@@ -1646,7 +1745,7 @@ localButtons.deleteCapex = function(context){
 
                     app.dialog.create({
                         title:  `Convenio CAPEX eliminado`,
-                        text:    `El trabajador ${item.NombreCompleto} ha sido eliminado del convenio capex correctamente`,
+                        text:    `El trabajador ${nombreCompleto} ha sido eliminado del convenio capex correctamente`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -1669,7 +1768,7 @@ localButtons.deleteCapex = function(context){
 
             app.dialog.create({
                 title: dialogTitle,
-                text:   `¿Esta seguro que desea quitar a ${item.NombreCompleto} de convenio CAPEX?`,
+                text:   `¿Esta seguro que desea quitar a ${nombreCompleto} de convenio CAPEX?`,
                 buttons: [
                 {
                     text: 'Cancelar',
@@ -1763,6 +1862,7 @@ localButtons.addCapex = function(context){
         class: 'createCapex',
         icon: 'Add',
         onClick: function(component, item){
+            var nombreCompleto = item.Nombre+' '+item.ApellidoPaterno+' '+item.ApellidoMaterno
             var dialogTitle = 'Registrar nuevo convenio CAPEX';
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
@@ -1773,7 +1873,7 @@ localButtons.addCapex = function(context){
                     dialog.close()
                     app.dialog.create({
                         title: dialogTitle,
-                        text:   `El trabajador ${item.NombreCompleto} ha sido agregado correctamente al Convenio Capex`,
+                        text:   `El trabajador ${nombreCompleto} ha sido agregado correctamente al Convenio Capex`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -1796,7 +1896,7 @@ localButtons.addCapex = function(context){
 
             app.dialog.create({
                 title: dialogTitle,
-                text:   `¿Esta seguro que desea agregar a ${item.NombreCompleto} al convenio CAPEX?`,
+                text:   `¿Esta seguro que desea agregar a ${nombreCompleto} al convenio CAPEX?`,
                 buttons: [
                 {
                     text: 'Cancelar',
