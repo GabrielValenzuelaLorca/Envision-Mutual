@@ -643,7 +643,6 @@ class RoleHandler{
                 media: '<i class="ms-Icon ms-Icon--Home"></i>',
             }]
         }]
-        debugger
 
         if(this.module === "IV"){
             var aux = this.IV.getButtons(context)
