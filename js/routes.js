@@ -119,9 +119,6 @@ listStreamPage.methods.getCamlQueryConditions = function(){
                         <Eq>
                             <FieldRef Name="Capex" /><Value Type="Boolean">0</Value>
                         </Eq>
-                        <Eq>
-                            <FieldRef Name="Categoria_x003a_ESC" /><Value Type="Lookup">E</Value>
-                        </Eq>
                     </And>
                 </And>
             `

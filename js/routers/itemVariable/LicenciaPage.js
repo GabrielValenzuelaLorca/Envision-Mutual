@@ -246,7 +246,7 @@ var licenciaPage = {
 
                         var dialog = app.dialog.progress(dialogTitle);
                         var metadata = context.forms.licencia.getMetadata();
-                        var fecha = moment(metadata.INICIO.substring(0,10), 'YYYY-MM-DD').add(parseInt(metadata.N_DIAS), 'days')
+                        var fecha = moment(metadata.INICIO.substring(0,10), 'YYYY-MM-DD').add((parseInt(metadata.N_DIAS)-1), 'days')
                         metadata.RUT_RESPId = plantaAdmin.ID;
                         metadata.N_DIAS = metadata.N_DIAS
                         metadata.PeriodoId = context.items.periodo.ID

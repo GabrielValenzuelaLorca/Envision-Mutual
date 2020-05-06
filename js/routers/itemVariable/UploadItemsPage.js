@@ -715,6 +715,7 @@ var uploadItemsPage = {
 
                 context.forms.item.inputs.Attachments.params.onChange = function(comp, input, state, values){
                     $('div.item-after div.ms-Button-AttachEdit i.ms-Icon.ms-Icon--Cancel').hide()
+                    context.forms.item.inputs.Attachments.setEditable(false)
                 }
 
                 console.log('Form', context.forms.item)
