@@ -517,7 +517,7 @@ var solicitudesPage = {
                 });
 
                 $aproveButton.on('click', function (e) { 
-                    var dialogTitle = 'Nueva solicitud';
+                    var dialogTitle = 'Aprobar solicitud';
                     function save(ComentarioVirtual) {
                         var cc = context.items.CentroCosto.filter(x => x.D_CC == ComentarioVirtual)[0];
                         var dialog = app.dialog.progress(dialogTitle);
@@ -1204,7 +1204,8 @@ var solicitudesPage = {
                                 view: 'Todos los elementos',
                                 odata: {
                                     'select': '*',
-                                    'top': 5000
+                                    'top': 5000,
+                                    'filter': 'activo eq 1',
                                 }
                             });
 

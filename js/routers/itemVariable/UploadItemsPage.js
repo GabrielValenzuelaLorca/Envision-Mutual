@@ -183,6 +183,7 @@ var uploadItemsPage = {
                     $sendButton = $navbar.find('.link.send')
                     $clearButton = $navbar.find('.link.clear')
 
+
                 // formulario de registro
                 context.forms.item = new EFWForm({
                     container: $container.find('.form-container'),
@@ -390,6 +391,7 @@ var uploadItemsPage = {
                                 }
 
                                 function PrepareToSend(fila, trabajador, item){
+                                    console.log('trabajador', trabajador)
                                     return {
                                         "CantidadMonto": fila.CANT_$MONTO,
                                         "Rut": trabajador.ID,
@@ -398,6 +400,7 @@ var uploadItemsPage = {
                                         "Codigo": fila.COD_PAYROLL,
                                         "Item": item.ID,
                                         "Nombre": trabajador.Rut,
+                                        "Cargo": trabajador.d_cargo ? trabajador.d_cargo.NombreCargo : 'El trabajador no posee cargo.',
                                         "CentroCosto": fila.CCOSTO ? fila.CCOSTO : trabajador.CentroCostoId,
                                         "Excepcion" : fila.CCOSTO ? 'Centro de costo diferente' : ''
                                     }
@@ -704,10 +707,17 @@ var uploadItemsPage = {
                 });
 
                 $clearButton.on('click', function (e){
-                    context.forms.errorsList.removeAllRows();
-                    context.forms.errorsList.hide();
-                    context.forms.item.inputs.Attachments.resetValue();
+                    // context.forms.errorsList.removeAllRows();
+                    // context.forms.errorsList.hide();
+                    // context.forms.item.inputs.Attachments.resetValue();
+                    mainView.router.refreshPage(); 
                 });
+
+                context.forms.item.inputs.Attachments.params.onChange = function(comp, input, state, values){
+                    $('div.item-after div.ms-Button-AttachEdit i.ms-Icon.ms-Icon--Cancel').hide()
+                }
+
+                console.log('Form', context.forms.item)
 
                 // remover loader
                 mths.removePageLoader();

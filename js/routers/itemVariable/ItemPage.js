@@ -206,7 +206,6 @@ var itemPage = {
 
             function initForm() {
 
-                console.log('Hola Mundo')
                 function ValidateItem(items){
                     let per = persona[0].item;
 
@@ -343,7 +342,6 @@ var itemPage = {
                     container: $container.find('.form-persona'),
                     title: '',
                     editable: false,
-                    // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
                     fields: spo.getViewFields(context.lists.ItemVariable, 'FormularioPersona').concat({
                         Id: generateUUID(),
                         Title: 'Categoria',
@@ -445,11 +443,13 @@ var itemPage = {
                         return;
                     }
 
+                    let categoria = context.items.Categorias.filter(x => x.ID == values[0].item.CategoriaId)[0];
+                    
                     //Carga los datos automaticaente Al alegir el Rut
                     context.forms.person.inputs['CodigoPayroll'].setValue(values[0].item.Title);
                     context.forms.person.inputs['Rut'].setValue(values[0].item.Rut);
                     context.forms.person.inputs['TipoContrato'].setValue(values[0].item.TipoContrato);
-                    context.forms.person.inputs['Categoria'].setValue(values[0].item.Categoria.ESC ? values[0].item.Categoria.ESC : values[0].item.Categoria.Categoria);
+                    context.forms.person.inputs['Categoria'].setValue(categoria ? categoria.ESC : 'El trabajador seleccionado no tiene categoria');
                     context.forms.person.inputs['Cargo'].setValue(values[0].item.d_cargo.NombreCargo)
 
                     //Habilitamos el formulario siguiente
@@ -583,17 +583,12 @@ var itemPage = {
                         var dialog = app.dialog.progress(dialogTitle);
                         var metadataItem = context.forms.item.getMetadata();
                         var metadataPerson = context.forms.person.getMetadata();
-                        var metadataEX = context.forms.EX.getMetadata()
-
-                        console.log('Metadata Item', metadataItem)
-                        console.log('Metadata Person', metadataPerson)
-                        console.log('MEtadataEX', metadataEX)
+                        var metadataEX = context.forms.EX.getMetadata();
 
                         metadata = metadataPerson;
                         metadata['HaberId'] = metadataItem.HaberId;
                         metadata['CantidadMonto'] = metadataItem.CantidadMonto;
                         metadata['Justificacion'] = metadataItem.Justificacion;
-                        console.log('Persona', persona[0].item.d_cargo.NombreCargo);
                         metadata['Cargo'] = persona[0].item.d_cargo.NombreCargo;
                         metadata['CentroCostoId'] = persona[0].item.CentroCostoId;
 
@@ -620,7 +615,7 @@ var itemPage = {
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
-                                        mainView.router.refreshPage();
+                                        refresh()
                                     }
                                 }],
                                 verticalButtons: false
@@ -642,7 +637,7 @@ var itemPage = {
                     }
 
                     function validateMINMAX(value){
-                        let item = context.items.ListadoItemVariable.filter(x => x.Title == context.forms.item.inputs['Haber_x003a_Codigo'].values[0].text)[0];
+                        let item = context.forms.item.inputs.Haber.values[0].item
                         value = parseInt(value);
 
                         if(item.Minino && item.Maximo){
@@ -671,6 +666,8 @@ var itemPage = {
                     var validatePerson =  context.forms.person.getValidation();
                     var validateItem =  context.forms.item.getValidation();
                     var validateEX =  context.forms.EX.getValidation();
+
+                    console.log('Formulario', context.forms.item.inputs)
 
                     if(context.forms.item.inputs['Justificacion'].value.length< 10){
                         app.dialog.create({
@@ -734,7 +731,7 @@ var itemPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.Solicitudes && loaded.ItemVariable && loaded.Categorias && loaded.ListadoItemVariable && loaded.Trabajadores && loaded.Periodo && loaded.CentroCosto) {
+                    if (loaded.Solicitudes && loaded.ItemVariable && loaded.Categorias && loaded.Trabajadores && loaded.Periodo && loaded.CentroCosto) {
                         initForm();
                     }
                 };             
@@ -742,7 +739,6 @@ var itemPage = {
                 // Obtener información de lista
                 spo.getListInfo('ItemVariable',
                     function (response) {
-                        context.items.ItemVariable = [];
                         context.lists.ItemVariable = response;
                         loaded.ItemVariable = true;
                         shouldInitForms();
@@ -804,39 +800,6 @@ var itemPage = {
                                 function (response) {
                                     context.items.Categorias = response.d.results.length > 0 ? response.d.results : null;
                                     loaded.Categorias = true;
-                                    shouldInitForms();
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
-
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                    }
-                );
-
-                //Obtengo el listado de haberes para ser filtrados
-                spo.getListInfo('ListadoItemVariable',
-                    function (response) {
-                        context.items.ListadoItemVariable = [];
-                        context.lists.ListadoItemVariable = response;
-                        //loaded.listaItemVariable = true;
-
-                            var query = spo.encodeUrlListQuery(context.lists.ListadoItemVariable, {
-                                view: 'Todos los elementos',
-                                odata: {
-                                    'select': '*'
-                                }
-                            });
-
-                            spo.getListItems(spo.getSiteUrl(), 'ListadoItemVariable', query,
-                                function (response) {
-                                    context.items.ListadoItemVariable = response.d.results.length > 0 ? response.d.results : null;
-                                    loaded.ListadoItemVariable = true;
                                     shouldInitForms();
                                 },
                                 function (response) {
@@ -928,6 +891,7 @@ var itemPage = {
                                 view: 'Todos los elementos',
                                 odata: {
                                     'select': '*',
+                                    'filter': 'activo eq 1',
                                     'top': 5000
                                 }
                             });

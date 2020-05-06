@@ -31,7 +31,7 @@ listStreamPage.methods.getOneItemSelectedButtons = function(item){
 listStreamPage.methods.getNoItemsSelectedButtons = function(item){
     var page = this._getPage();
     var context = this._getPageContext();
-    var title = page.route.query.title    
+    var title = page.route.query.title  
     var buttons = [];
     
     switch(title){
@@ -132,8 +132,6 @@ listStreamPage.methods.getCamlQueryConditions = function(){
 }
 
 function getRoutes(){
-
-    console.log('Usuario', plantaAdmin)
     //Routes Excenciales para el sistema
     var mainRoutes = [
         {

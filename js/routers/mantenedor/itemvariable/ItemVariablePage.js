@@ -446,19 +446,68 @@ var ItemVariablePage = {
                         });
                     }
 
-                    app.dialog.create({
-                        title: dialogTitle,
-                        text: 'Se actualizará el elemento.',
-                        buttons: [{
-                            text: 'Cancelar'
-                        }, {
-                            text: 'Aceptar',
-                            onClick: function onClick() {
-                                save();
-                            }
-                        }],
-                        verticalButtons: false
-                    }).open();
+                    context.forms.main.checkFieldsRequired();
+                        console.log('metadata main', context.forms.main.getMetadata())
+                        context.forms.categoria.checkFieldsRequired();
+                        context.forms.MinMax.checkFieldsRequired();
+                        context.forms.fechas.checkFieldsRequired();
+
+                        var metadata = context.forms.main.getMetadata();
+                        
+                        var validateMain = context.forms.main.getValidation();
+                        var validateCategoria = true
+                        var validateMinMax = true
+                        var validateFecha = true
+                        var validate = false
+
+                        if(metadata.GP == true){
+                            if(!context.forms.categoria.getValidation()){
+                                validateCategoria = false;
+                            }                            
+                        }
+                        if(metadata.MinMax == true){
+                            let md = context.forms.MinMax.getMetadata();
+                            if(md.Maximo < md.Minimo){
+                                validateMinMax = false;
+                            }else if(!context.forms.MinMax.getValidation()){
+                                validateMinMax = false;
+                            } 
+                        }
+                        if(metadata.FechasEspeciales == true){
+                            if(!context.forms.fechas.getValidation()){
+                                validateFecha = false;
+                            } 
+                        }
+    
+                        if(validateMain && validateCategoria && validateFecha && validateMinMax){
+                            validate = true;
+                        }
+                        
+                        if (validate) {
+                            app.dialog.create({
+                                title: dialogTitle,
+                                text: 'Se actualizará el elemento.',
+                                buttons: [{
+                                    text: 'Cancelar'
+                                }, {
+                                    text: 'Aceptar',
+                                    onClick: function onClick() {
+                                        save();
+                                    }
+                                }],
+                                verticalButtons: false
+                            }).open();
+                        } else {
+                            app.dialog.create({
+                                title: 'Datos mal ingresados o insuficientes',
+                                text: 'Para actualizar el item debe completar todos los campos obligatorios.',
+                                buttons: [{
+                                    text: 'Aceptar'
+                                }],
+                                verticalButtons: false
+                            }).open();
+                        }
+
                 });    
                 
                 $createButton.on('click', function (e) {
@@ -548,7 +597,11 @@ var ItemVariablePage = {
                             }                            
                         }
                         if(metadata.MinMax == true){
-                            if(!context.forms.MinMax.getValidation()){
+                            var md = context.forms.MinMax.getMetadata();
+                            if(md.Maximo < md.Minimo){
+                                console.log('Cayo en la excepcion')
+                                validateMinMax = false;
+                            }else if(!context.forms.MinMax.getValidation()){
                                 validateMinMax = false;
                             } 
                         }
@@ -578,8 +631,8 @@ var ItemVariablePage = {
                             }).open();
                         } else {
                             app.dialog.create({
-                                title: 'Datos insuficientes',
-                                text: 'Para crear una nuevo elemento debe completar todos los campos obligatorios.',
+                                title: 'Datos mal ingresados o insuficientes',
+                                text: 'Para crear una nuevo item debe completar todos los campos obligatorios.',
                                 buttons: [{
                                     text: 'Aceptar'
                                 }],

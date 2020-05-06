@@ -180,7 +180,8 @@ var uploadPlantaPage = {
                 // containers
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
-                    $sendButton = $navbar.find('.link.send')
+                    $sendButton = $navbar.find('.link.send'),
+                    $clearButton = $navbar.find('.link.clear')
 
                 // formulario de registro
                 context.forms.item = new EFWForm({
@@ -191,7 +192,12 @@ var uploadPlantaPage = {
                     fields: spo.getViewFields(context.lists.Excel, 'Todos los elementos')
                 });
 
+                context.forms.item.inputs.Attachments.params.onChange = function(comp, input, state, values){
+                    $('div.item-after div.ms-Button-AttachEdit i.ms-Icon.ms-Icon--Cancel').hide()
+                }
+
                 $sendButton.removeClass('hide');
+                $clearButton.removeClass('hide');
                 $sendButton.on('click', function (e) {
                     var dialogTitle = 'Nueva carga de planta';
                     file = $container.find('.attachmentInput')[0]
@@ -686,6 +692,10 @@ var uploadPlantaPage = {
                                 verticalButtons: false
                             }).open();
                     }
+                });
+
+                $clearButton.on('click', function (e) {
+                    mainView.router.refreshPage(); 
                 });
 
                 // remover loader
