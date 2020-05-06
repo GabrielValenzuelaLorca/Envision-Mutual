@@ -643,18 +643,21 @@ class RoleHandler{
                 media: '<i class="ms-Icon ms-Icon--Home"></i>',
             }]
         }]
+        debugger
 
         if(this.module === "IV"){
             var aux = this.IV.getButtons(context)
             mainView.router.navigate(aux[0].options[0].href,{
-                clearPreviousHistory:true
+                clearPreviousHistory:true,
+                reloadCurrent:true
             })
             return defecto.concat(aux)
         }
         else if(this.module === "SDP"){
             var aux = this.SDP.getButtons(context)
             mainView.router.navigate(aux[0].options[0].href,{
-                clearPreviousHistory:true
+                clearPreviousHistory:true,
+                reloadCurrent:true
             })
             return defecto.concat(aux)
         }

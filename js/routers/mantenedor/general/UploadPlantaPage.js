@@ -191,7 +191,6 @@ var uploadPlantaPage = {
                 });
 
                 $sendButton.removeClass('hide');
-                $sendButton.off('click');
                 $sendButton.on('click', function (e) {
                     var dialogTitle = 'Nueva carga de planta';
                     file = $container.find('.attachmentInput')[0]
