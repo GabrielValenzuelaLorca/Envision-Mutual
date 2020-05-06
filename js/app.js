@@ -127,7 +127,7 @@ spo.getCurrentUserInformation().done(function(){
             });
 
             //Editar el menu lateral
-            leftView.router.navigate(encodeURI('/menu'), {
+            leftView.router.navigate(encodeURI('/menuHome'), {
                 animate: false
             });
         }
