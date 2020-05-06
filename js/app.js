@@ -50,11 +50,6 @@ spo.getCurrentUserInformation().done(function(){
         var loaded = {};
 
         function startApp(){
-            var roleHandler = new RoleHandler()
-            roleHandler.setItemVariableRol(plantaAdmin.Rol)
-            roleHandler.setSDPRol(plantaAdmin.RolSDP)
-            roleHandler.setModule(localStorage.getItem("rhandler"))
-
             app = new Framework7({
                 id: 'io.framework7.envision', // App bundle ID
                 root: '#app', // App root element
@@ -69,8 +64,7 @@ spo.getCurrentUserInformation().done(function(){
                     return {
                         siteUrl: spo.getSiteUrl(),
                         tenantUrl: spo.getTenantUrl(),
-                        currentUser: spo.getCurrentUser(),
-                        roleHandler: roleHandler
+                        currentUser: spo.getCurrentUser()
                     };
                 },
                 // App root methods
@@ -92,6 +86,12 @@ spo.getCurrentUserInformation().done(function(){
                     leftBreakpoint: 700,
                 },
             });
+
+            var roleHandler = new RoleHandler()
+            roleHandler.setItemVariableRol(plantaAdmin.Rol)
+            roleHandler.setSDPRol(plantaAdmin.RolSDP)
+            roleHandler.setModule(localStorage.getItem("rhandler"))
+            app.data.roleHandler = roleHandler
 
             // router a la aplicación al componente correcto con sus parámetros
             var urlQuery = app.utils.parseUrlQuery(window.location.href);

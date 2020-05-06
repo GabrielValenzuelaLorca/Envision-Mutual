@@ -646,18 +646,21 @@ class RoleHandler{
 
         if(this.module === "IV"){
             var aux = this.IV.getButtons(context)
-            mainView.router.navigate(aux[0].options[0].href)
+            mainView.router.navigate(aux[0].options[0].href,{
+                clearPreviousHistory:true
+            })
             return defecto.concat(aux)
         }
         else if(this.module === "SDP"){
             var aux = this.SDP.getButtons(context)
-            mainView.router.navigate(aux[0].options[0].href)
+            mainView.router.navigate(aux[0].options[0].href,{
+                clearPreviousHistory:true
+            })
             return defecto.concat(aux)
         }
         else{
             app.panel.left.$el.hide()
             app.view.main.$el.css("margin-left", 0) //260px
-            mainView.router.navigate("/homePage")
             return []
         }
     }
