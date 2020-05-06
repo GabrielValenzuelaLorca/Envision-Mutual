@@ -1,4 +1,3 @@
-
 var homePage = {
     template: 
     '<div class="page" data-page="homePage" data-component="homePage">' +
@@ -33,6 +32,15 @@ var homePage = {
         '</div>' +
     '</div>',
     style: '' +
+        '.page[data-component="homePage"] {' +
+            'background: #555;' +
+            'background: url("assets/img/background.jpg") !important;' + 
+            'background-size: cover !important;' + 
+        '}' +
+        '.page[data-component="homePage"] .page-content{' +
+            'background: #555;' +
+            'background: linear-gradient(0, rgba(0,0,0,0.9), rgba(0,0,0,0.1)) !important;' + 
+        '}' +
         '#env-gif {height: 100px; position: absolute; bottom: 50px; right: 50px; opacity: 0.5;}' +
         '.home-card-header-pic {' +
             'float: left;' +
@@ -115,6 +123,9 @@ var homePage = {
             },
             navbar: {
                 backButton: {
+                    icon: 'Back',
+                    class: 'back',
+                    text: 'Cerrar',
                 },
             }
         };
@@ -130,11 +141,11 @@ var homePage = {
 
         // {string} retorna el título del componente
         getTitle: function(){
-            return 'Inicio';
+            return 'Managment System';
         },
         // {string} retorna la descripción del componente
         getDescription: function(){
-            return 'Por favor, seleccione un componente.';
+            return '';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -196,7 +207,7 @@ var homePage = {
 
         // {fn} retorna la imagen del carga del componente
         getLoadingImage: function(){
-            return '';
+            return './assets/img/arauco_loading.png';
         },
 
         // {fn} retorna el mensaje de carga del componente
@@ -225,7 +236,7 @@ var homePage = {
                 href = item.Href;
             
             return `
-                <a href="` + href + `" class="card home-card-header-pic moduloclick" data-idmodulo=`+item.IDModulo+`>
+                <a href="` + href + `" class="card home-card-header-pic">
                     <div data-background="` + image + `" class="card-header align-items-flex-end lazy lazy-fadein"></div>
                     <div class="card-content card-content-padding">
                         <div class="title">` + title + `</div>
@@ -243,11 +254,7 @@ var homePage = {
                 context = self.$options.data();
             
             // blocks
-            var $container = $(page.$el),
-            $bodyContent = $container.find('.page-content-body'),
-            $headerContent = $container.find('.page-content-header'),
-            $footerContent = $container.find('.page-content-footer');
-
+            var $container = $(page.$el);
 
             // definir entra de valores de página
             mths._getPage = function(){
@@ -259,36 +266,12 @@ var homePage = {
                 return context;
             };
 
-            // renderizar HTML de header y footer
-            mths.renderHeader($headerContent);
-            mths.renderFooter($footerContent);
-            
+            // console.log('LeftView', leftView.disableSwipe()
 
-            var tilesHtml = '';
-            localStorage.setItem("rhandler", "")
-            app.data.roleHandler.setModule("")
-            app.data.roleHandler.getOptions({})
-            var menus =  app.data.roleHandler.getModules()
-
-            for (var i = 0; i < menus.length; i++){
-                tilesHtml += mths.renderTile(menus[i]);
-            }
 
             mths.removePageLoader();
-            $container.find('img.lazy, div.lazy').each(function(index, el){
-                app.lazy.loadImage(el);
-            });
 
-            $bodyContent.html(tilesHtml);
-            $bodyContent.find(".moduloclick").on('click', function(){
-                localStorage.setItem("rhandler", $(this).data("idmodulo"))
-                app.data.roleHandler.setModule($(this).data("idmodulo"))
-                leftView.router.navigate(encodeURI('/menu?asdgasd'), {
-                    animate: false,
-                    reloadCurrent: true
-                });
-            })
-    
+
         },
         pageBeforeIn: function(e, page) {
             // console.log('pageBeforeIn', page);

@@ -143,10 +143,6 @@ function getRoutes(){
             component: menuPage
         },
         {
-            path: '/menuHome',
-            component: menuHomePage
-        },
-        {
             path: '/homepage',
             component: homePage
         },

@@ -87,12 +87,6 @@ spo.getCurrentUserInformation().done(function(){
                 },
             });
 
-            var roleHandler = new RoleHandler()
-            roleHandler.setItemVariableRol(plantaAdmin.Rol)
-            roleHandler.setSDPRol(plantaAdmin.RolSDP)
-            roleHandler.setModule(localStorage.getItem("rhandler"))
-            app.data.roleHandler = roleHandler
-
             // router a la aplicación al componente correcto con sus parámetros
             var urlQuery = app.utils.parseUrlQuery(window.location.href);
             if (urlQuery.hasOwnProperty('lang')) {
@@ -126,7 +120,6 @@ spo.getCurrentUserInformation().done(function(){
                 iosSwipeBackAnimateOpacity: false
             });
 
-            //Editar el menu lateral
             leftView.router.navigate(encodeURI('/menu'), {
                 animate: false
             });
