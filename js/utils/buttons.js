@@ -441,6 +441,7 @@ localButtons.deleteTrabajador = function(context){
         icon: 'Delete',
         onClick: function(component, item){
             var dialogTitle = 'Desvinculando trabajador';
+            var nombreCompleto = item.Nombre+' '+item.ApellidoPaterno+' '+item.ApellidoMaterno
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
                 var metadata = {"CoordinadorId": null};
@@ -449,7 +450,7 @@ localButtons.deleteTrabajador = function(context){
                     dialog.close()
                     app.dialog.create({
                         title:  `Desvinculacion Completada`,
-                        text:    `El trabajador ${item.NombreCompleto} ha sido desvinculado de la lista del coordinador`,
+                        text:    `El trabajador ${nombreCompleto} ha sido desvinculado de la lista del coordinador`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -473,7 +474,7 @@ localButtons.deleteTrabajador = function(context){
 
             app.dialog.create({
                 title: dialogTitle,
-                text:   `¿Esta seguro que desea desvincular la asociacion de ${item.NombreCompleto} al coordinador?`,
+                text:   `¿Esta seguro que desea desvincular la asociacion de ${nombreCompleto} al coordinador?`,
                 buttons: [
                 {
                     text: 'Cancelar',

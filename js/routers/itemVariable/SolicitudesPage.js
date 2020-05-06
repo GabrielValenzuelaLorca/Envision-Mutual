@@ -358,8 +358,6 @@ var solicitudesPage = {
                     return ValidateItem(items);
                 }
 
-                console.log('Metodos', context.forms.solicitud.inputs['Item'].params)
-
                 // Filtrar trabajadores segun asignacion del coordinador
                 context.forms.solicitud.inputs['Trabajador'].params.source = function(dropdown, query, render){
                     let data = [];
@@ -591,11 +589,9 @@ var solicitudesPage = {
                                         $closeButton = $container.find('.close-popup'),
                                         $buttonsContainer = $container.find('.buttons-container');
                                     
-                                    var centroCosto = [];
-
-                                    context.items.CentroCosto.map(function(x){
+                                    var centroCosto = context.items.CentroCosto ?  context.items.CentroCosto.map(function(x){
                                         centroCosto.push( x.D_CC != null ? x.D_CC : 'No tenia Nombre');
-                                    });
+                                    }) : ['No hay centros de costo disponibles.'];
                                     
                                     var campos = [{
                                         Id: generateUUID(),
