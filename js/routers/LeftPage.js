@@ -178,6 +178,7 @@ menuPage.methods.getListBlocksData = function(){
     /*** 
      * Seccion Item Variable
      * ***/
+    debugger
     return app.data.roleHandler.getOptions(context);
 };
 

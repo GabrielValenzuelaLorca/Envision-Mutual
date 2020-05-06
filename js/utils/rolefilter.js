@@ -663,7 +663,7 @@ class RoleHandler{
         else{
             app.panel.left.$el.hide()
             app.view.main.$el.css("margin-left", 0) //260px
-            return []
+            return defecto
         }
     }
 }
