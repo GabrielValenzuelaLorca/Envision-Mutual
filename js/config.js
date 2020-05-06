@@ -4,7 +4,7 @@ global.appName = 'Mutual - Item variable';
 global.theme = 'mutual';
 global.efwVersion = '3.0.8';
 global.efwDev = true;
-global.env = "MUTDSR" //DEV, MUTDSR, MUTQAS, MUTPRD
+global.env = "MUTQAS" //DEV, MUTDSR, MUTQAS, MUTPRD
 global.showUserMenu = true;
 global.uris = {
     DEV: {
