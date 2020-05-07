@@ -4,7 +4,7 @@ global.appName = 'Mutual - Item variable';
 global.theme = 'mutual';
 global.efwVersion = '3.0.8';
 global.efwDev = true;
-global.env = "TEST" //DEV, MUTDSR, MUTQAS, MUTPRD
+global.env = "DEV" //DEV, MUTDSR, MUTQAS, MUTPRD
 global.showUserMenu = true;
 global.uris = {
     DEV: {
@@ -50,6 +50,7 @@ var AppScriptsArray = [
     "js/utils/pdfImages.js",
     "js/utils/dialogs.js",
     "js/utils/buttons.js",
+    "js/utils/rolefilter.js",
 
     //Carpeta Item Variable
     "js/routers/itemVariable/InformeDesaprobadoPage.js",
