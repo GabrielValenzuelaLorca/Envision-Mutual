@@ -317,8 +317,7 @@ var uploadPlantaPage = {
                             "Aprobador6": item['Aprobador 6'],
                             "Aprobador7": item['Aprobador 7'],
                             "Aprobador8": item['Aprobador 8'],
-                            "CentroCostoId": item.d_nro_cenc,
-                            "RolSDP": item['Aprobador 1'] != "" || item['Aprobador 2'] != "" || item['Aprobador 3'] != "" || item['Aprobador 4'] != "" || item['Aprobador 5'] != ""  || item['Aprobador 6'] != ""  || item['Aprobador 7'] != "" || item['Aprobador 8'] != ""? "Jefe Solicitante":""
+                            "CentroCostoId": item.d_nro_cenc
                         }
                     }
 
@@ -362,11 +361,12 @@ var uploadPlantaPage = {
                                 var Quitar = [];
                                 var SinCambios = [];
 
+                                var asignarValidador = new Set()
+
                                 //Variable donde se guardan los errores
                                 var errores = [];
 
                                 //     --------- Inicio de proceso de filtrado----------- // 
-
                                 //Filtramos los que no existen en sharepoint y si en Excel
                                 response[0].map(function(fila){
                                     let existe = context.items.Planta.filter(planta => planta.Title.trim() == fila.codigo.trim());
@@ -464,8 +464,16 @@ var uploadPlantaPage = {
                                             }else{
                                                 fila.d_cargo = Cargo[0].ID;
                                             }
-
                                             Actualizar.push(PrepareToSend(fila));
+
+                                            asignarValidador.add(fila['Aprobador 1'])
+                                            asignarValidador.add(fila['Aprobador 2'])
+                                            asignarValidador.add(fila['Aprobador 3'])
+                                            asignarValidador.add(fila['Aprobador 4'])
+                                            asignarValidador.add(fila['Aprobador 5'])
+                                            asignarValidador.add(fila['Aprobador 6'])
+                                            asignarValidador.add(fila['Aprobador 7'])
+                                            asignarValidador.add(fila['Aprobador 8'])
                                         }else{
                                             SinCambios.push(existe[0]);
                                             return;
@@ -553,13 +561,20 @@ var uploadPlantaPage = {
                                             fila.d_cargo = Cargo[0].ID;
                                         }
 
-                                
                                         //Agregamos la fila al arreglo de creacion
                                         Agregar.push(PrepareToSend(fila));
                                         linea++;
+
+                                        asignarValidador.add(fila['Aprobador 1'])
+                                        asignarValidador.add(fila['Aprobador 2'])
+                                        asignarValidador.add(fila['Aprobador 3'])
+                                        asignarValidador.add(fila['Aprobador 4'])
+                                        asignarValidador.add(fila['Aprobador 5'])
+                                        asignarValidador.add(fila['Aprobador 6'])
+                                        asignarValidador.add(fila['Aprobador 7'])
+                                        asignarValidador.add(fila['Aprobador 8'])
                                     }
                                 });
-
 
                                 //Filtramos los que no estan en excel y si en sharepoint
                                 context.items.Planta.map(function(item){
@@ -571,12 +586,30 @@ var uploadPlantaPage = {
                                     }
                                 });
 
-                                let resultado = [];
+                                for (let index = 0; index < Agregar.length; index++) {
+                                    var element = Agregar[index];
+                                    var roles = element['Aprobador 1'] != "" || element['Aprobador 2'] != "" || element['Aprobador 3'] != "" || element['Aprobador 4'] != "" || element['Aprobador 5'] != ""  || element['Aprobador 6'] != ""  || element['Aprobador 7'] != "" || element['Aprobador 8'] != ""? [{Value:"Jefe Solicitante"}]:[]
+                                    if(asignarValidador.has(element.Email)){
+                                        roles.push({Value:"Validador"})
+                                    }
+                                    element.RolSDP = JSON.stringify(roles)
+                                }
 
+                                for (let index = 0; index < Actualizar.length; index++) {
+                                    var element = Actualizar[index];
+                                    var roles = element['Aprobador 1'] != "" || element['Aprobador 2'] != "" || element['Aprobador 3'] != "" || element['Aprobador 4'] != "" || element['Aprobador 5'] != ""  || element['Aprobador 6'] != ""  || element['Aprobador 7'] != "" || element['Aprobador 8'] != ""? [{Value:"Jefe Solicitante"}]:[]
+                                    if(asignarValidador.has(element.Email)){
+                                        roles.push({Value:"Validador"})
+                                    }
+                                    element.RolSDP = JSON.stringify(roles)
+                                }
+
+                                let resultado = [];
                                 resultado[0] = Agregar;
                                 resultado[1] = Quitar;
                                 resultado[2] = Actualizar;
                                 resultado[3] = {'Email': spo.getCurrentUser()['EMail']};
+
 
                                 if(resultado[0].length == 0 && resultado[1].length == 0 && resultado[2].length == 0){
                                     dialog.close();
@@ -710,7 +743,7 @@ var uploadPlantaPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.Cargo = true && loaded.lista && loaded.globalState && loaded.Planta && loaded.Isapre && loaded.AFP && loaded.Categoria && loaded.CentroCosto) {
+                    if (loaded.Cargo && loaded.lista && loaded.globalState && loaded.Planta && loaded.Isapre && loaded.AFP && loaded.Categoria && loaded.CentroCosto) {
                         initForm();
                     }
                 };

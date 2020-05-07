@@ -14,7 +14,7 @@ class RoleItemVariable extends Role{
 
     }
     getModuleCard(){
-        if(this.roles != undefined || this.roles != ""){
+        if(this.roles != undefined && this.roles != ""){
             return {
                 Title: 'Item Variables',
                 IDModulo:'IV',
@@ -687,7 +687,6 @@ class RoleHandler{
     getOptions(context){
         app.panel.left.$el.show()
         app.view.main.$el.css("margin-left", "260px")
-
         var defecto = [{
             inset: true,
             footer: '',
