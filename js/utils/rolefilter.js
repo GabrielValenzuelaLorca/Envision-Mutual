@@ -6,10 +6,11 @@ class Role{
 class RoleItemVariable extends Role{
     constructor(role){
         super()
+        debugger
         this.Administrador = role === "Administrador"? true:false
         this.Aprobador = role === "Aprobador"? true:false
         this.Coordinador = role === "Coordinador"? true:false
-        this.LicenciasMedicas = role === "LicenciasMedicas"? true:false
+        this.LicenciasMedicas = role === "Encargado de Licencias Médicas"? true:false
 
     }
     getModuleCard(){
@@ -200,7 +201,7 @@ class RoleItemVariable extends Role{
             
            
         }
-        if(this.Aprobador){
+        if(this.LicenciasMedicas){
             let licSection = {
                 inset: true,
                 header: 'Encargado de Licencias Médicas',
@@ -425,7 +426,7 @@ class RoleItemVariable extends Role{
     
             settings.push(coorSection2); 
         }
-        if(this.LicenciasMedicas){
+        if(this.Aprobador){
             let aprobSection = {
                 inset: true,
                 header: 'Aprobación',
@@ -541,7 +542,7 @@ class RoleSDP extends Role{
           
             settings.push(valSection);
         }
-        if (this.CyE){
+        if (this.CeCo){
             let cecoSection = {
                 inset: true,
                 header: 'Panel de Centros de Costos',
@@ -565,7 +566,7 @@ class RoleSDP extends Role{
           
             settings.push(cecoSection);
         }
-        if (this.CeCo){
+        if (this.CyE ){
             let cyeSection = {
                 inset: true,
                 header: 'CyE',
@@ -646,18 +647,36 @@ class RoleHandler{
 
         if(this.module === "IV"){
             var aux = this.IV.getButtons(context)
-            mainView.router.navigate(aux[0].options[0].href,{
-                clearPreviousHistory:true,
-                reloadCurrent:true
-            })
+            if(aux.length > 0){
+                mainView.router.navigate(aux[0].options[0].href,{
+                    clearPreviousHistory:true,
+                    reloadCurrent:true
+                })
+            }
+            else{
+                mainView.router.navigate(defecto[0].options[0].href,{
+                    clearPreviousHistory:true,
+                    reloadCurrent:true
+                })
+            }
+
             return defecto.concat(aux)
         }
         else if(this.module === "SDP"){
             var aux = this.SDP.getButtons(context)
-            mainView.router.navigate(aux[0].options[0].href,{
-                clearPreviousHistory:true,
-                reloadCurrent:true
-            })
+            if(aux.length > 0){
+                mainView.router.navigate(aux[0].options[0].href,{
+                    clearPreviousHistory:true,
+                    reloadCurrent:true
+                })
+            }
+            else{
+                mainView.router.navigate(defecto[0].options[0].href,{
+                    clearPreviousHistory:true,
+                    reloadCurrent:true
+                })
+            }
+
             return defecto.concat(aux)
         }
         else{
