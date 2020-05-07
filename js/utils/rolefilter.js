@@ -6,7 +6,6 @@ class Role{
 class RoleItemVariable extends Role{
     constructor(role){
         super()
-        debugger
         this.Administrador = role === "Administrador"? true:false
         this.Aprobador = role === "Aprobador"? true:false
         this.Coordinador = role === "Coordinador"? true:false
