@@ -332,12 +332,23 @@ var sendStatusPage = {
 
                                 let itemsI = ["Código Colaborador"]
                                 let itemPos = {}
-                                for (let i = 0; i < response.d.results.length; i++) {
-                                    const element = response.d.results[i];
-                                    itemsI.push(`((`+element.Title+`)) `+element.NombreItem)
+                                        
+                                var posicionFija = response.d.results.filter(c => c.Posicion != null).sort(function(a,b){return a.Posicion - b.Posicion})
+                                var posicionNuevos = response.d.results.filter(c => c.Posicion == null).sort(function(a,b){return a.ID - b.ID})
+
+                                for (let i = 0; i < posicionFija.length; i++) {
+                                    const element = posicionFija[i];
+                                    itemsI.push(`((`+element.Title+`)) `+element.NombreColumnaExcel)
                                     itemsI.push(`Centro de costo (`+element.Title+`)`)
                                     itemPos[element.Title] = ((i*2)+1)
                                 }
+                                for (let i = 0; i < posicionNuevos.length; i++) {
+                                    const element = posicionNuevos[i];
+                                    itemsI.push(`((`+element.Title+`)) `+element.NombreColumnaExcel)
+                                    itemsI.push(`Centro de costo (`+element.Title+`)`)
+                                    itemPos[element.Title] = ((i*2)+1)
+                                }
+
 
                                 let headersItems = [itemsI];     
                                 let headersPos = itemPos  
