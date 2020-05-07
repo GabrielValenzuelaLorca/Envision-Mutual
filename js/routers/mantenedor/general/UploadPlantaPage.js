@@ -176,7 +176,6 @@ var uploadPlantaPage = {
             };
 
             function initForm() {
-
                 // containers
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
@@ -318,7 +317,8 @@ var uploadPlantaPage = {
                             "Aprobador6": item['Aprobador 6'],
                             "Aprobador7": item['Aprobador 7'],
                             "Aprobador8": item['Aprobador 8'],
-                            "CentroCostoId": item.d_nro_cenc
+                            "CentroCostoId": item.d_nro_cenc,
+                            "RolSDP": item['Aprobador 1'] != "" || item['Aprobador 2'] != "" || item['Aprobador 3'] != "" || item['Aprobador 4'] != "" || item['Aprobador 5'] != ""  || item['Aprobador 6'] != ""  || item['Aprobador 7'] != "" || item['Aprobador 8'] != ""? "Jefe Solicitante":""
                         }
                     }
 
@@ -609,7 +609,7 @@ var uploadPlantaPage = {
                                             verticalButtons: false
                                         }).open();
                                     }else{
-                                        callServiceCargaMasivaPlanta(resultado);
+                                        //callServiceCargaMasivaPlanta(resultado);
                                         //Activamos el estado global de carga de planta
                                         activarCargaPendiente();
                                         dialog.close();
@@ -643,7 +643,6 @@ var uploadPlantaPage = {
                             }
                         );
                     }//Fin save()
-
                     switch(file.files.length) {
                         case 1:
                             let type = file.files[0].name.split('.').pop();
