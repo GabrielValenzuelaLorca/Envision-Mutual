@@ -574,6 +574,13 @@ class RoleSDP extends Role{
                 options: []
             };
     
+            let cyeMantenedorSection = {
+                inset: true,
+                header: 'Mantenedores CyE',
+                footer: '',
+                options: []
+            };
+    
             cyeSection.options = cyeSection.options.concat([
                 {
                     href: '/SolicitudesCyE',
@@ -589,6 +596,22 @@ class RoleSDP extends Role{
             ]);
           
             settings.push(cyeSection);
+
+            cyeMantenedorSection.options = cyeMantenedorSection.options.concat([
+                {
+                    href: '/PosicionStream',
+                    title: 'Posiciones',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--DocumentSet"></i>',
+                },
+            ]);
+          
+            settings.push(cyeMantenedorSection);
         }
 
         return settings
