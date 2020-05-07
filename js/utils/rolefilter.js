@@ -6,7 +6,6 @@ class Role{
 class RoleItemVariable extends Role{
     constructor(role){
         super()
-        debugger
         this.Administrador = role === "Administrador"? true:false
         this.Aprobador = role === "Aprobador"? true:false
         this.Coordinador = role === "Coordinador"? true:false
@@ -670,35 +669,44 @@ class RoleHandler{
 
         if(this.module === "IV"){
             var aux = this.IV.getButtons(context)
-            if(aux.length > 0){
-                mainView.router.navigate(aux[0].options[0].href,{
-                    clearPreviousHistory:true,
-                    reloadCurrent:true
-                })
-            }
-            else{
-                mainView.router.navigate(defecto[0].options[0].href,{
-                    clearPreviousHistory:true,
-                    reloadCurrent:true
-                })
-            }
+            var url = "/homePage"
 
+            if(aux.length > 0){
+                var allow = undefined
+                if(mainView.router.url === "/homePage"){
+                    url = aux[0].options[0].href
+                }
+                else{
+                    allow = aux.map(c => c.options).flat().map(c => c.href).find(c => c === mainView.router.url)
+                    url = allow!=undefined?allow:"/homePage"
+                } 
+            }
+            
+            mainView.router.navigate(url,{
+                clearPreviousHistory:true,
+                reloadCurrent:true
+            })
+           
             return defecto.concat(aux)
         }
         else if(this.module === "SDP"){
             var aux = this.SDP.getButtons(context)
+            var url = "/homePage"
             if(aux.length > 0){
-                mainView.router.navigate(aux[0].options[0].href,{
-                    clearPreviousHistory:true,
-                    reloadCurrent:true
-                })
+                var allow = undefined
+                if(mainView.router.url === "/homePage"){
+                    url = aux[0].options[0].href
+                }
+                else{
+                    allow = aux.map(c => c.options).flat().map(c => c.href).find(c => c === mainView.router.url)
+                    url = allow!=undefined?allow:"/homePage"
+                } 
             }
-            else{
-                mainView.router.navigate(defecto[0].options[0].href,{
-                    clearPreviousHistory:true,
-                    reloadCurrent:true
-                })
-            }
+            
+            mainView.router.navigate(url,{
+                clearPreviousHistory:true,
+                reloadCurrent:true
+            })
 
             return defecto.concat(aux)
         }
