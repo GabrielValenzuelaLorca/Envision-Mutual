@@ -6,7 +6,7 @@ class Role{
 class RoleItemVariable extends Role{
     constructor(role){
         super()
-        debugger
+        this.roles = role
         this.Administrador = role === "Administrador"? true:false
         this.Aprobador = role === "Aprobador"? true:false
         this.Coordinador = role === "Coordinador"? true:false
@@ -14,7 +14,7 @@ class RoleItemVariable extends Role{
 
     }
     getModuleCard(){
-        if(this.Administrador || this.Aprobador || this.Coordinador || this.LicenciasMedicas){
+        if(this.roles != undefined || this.roles != ""){
             return {
                 Title: 'Item Variables',
                 IDModulo:'IV',
@@ -461,13 +461,49 @@ class RoleItemVariable extends Role{
 class RoleSDP extends Role{
     constructor(role){
         super()
-        this.JefeSolicitante = role.includes("Jefe Solicitante")? true:false
-        this.Validador = role.includes("Validador")? true:false
-        this.CyE = role.includes("CyE")? true:false
-        this.CeCo = role.includes("Encargado CeCo")? true:false
+        this.roles = role
+        this.JefeSolicitante = role.includes("Jefe Solicitante")
+        this.Validador = role.includes("Validador")
+        this.Administrador = role.includes("Administrador")
+        this.Solicitante = role.includes("Solicitante")
+        this.SupervisorPractica = role.includes("Supervisor de Practica")
+
+        //CyE
+        this.CyE = role.includes("CyE")
+        this.JefeCyE = role.includes("Jefe CyE")
+        this.ValidadorAdicionalJefeCyE = role.includes("Validador Adicional Jefe CyE")
+        this.GrupoCyE = this.CyE || this.JefeCyE  || this.ValidadorAdicionalJefeCyE
+
+        //RyS
+        this.GestoresRyS = role.includes("Gestores RyS - Reclutadores")
+        this.AdministrativoRyS = role.includes("Administrativo RyS")
+        this.JefeRyS = role.includes("Jefe RyS")
+        this.GrupoRyS = this.GestoresRyS || this.AdministrativoRyS  || this.JefeRyS
+
+        //DL
+        this.DL = role.includes("DL")
+        this.JefeDL = role.includes("Jefe DL")
+        this.GrupoDL = this.DL || this.JefeDL
+        
+        //RRLL
+        this.RRLL = role.includes("Relaciones Laborales")
+        this.GrupoRRLL = this.RRLL 
+
+        //Mantenedores
+        this.CeCo = this.GrupoCyE
+        this.EncargadoPlanta = this.GrupoCyE
+        this.EncargadoCargos = this.GrupoCyE
+        this.EncargadoDesempenno = this.GrupoCyE
+        this.EncargadoEvaluaciones = this.GrupoRyS
+        this.EncargadoJornadas = this.GrupoDL
+        this.EncargadoPosicionEstructura = this.CyE
+        this.EncargadoPracticantes = this.JefeRyS
+        this.EncargadoReemplazos = this.JefeRyS
+        this.EncargadoEST = this.JefeRyS
+        this.EncargadoJornadasExepcionales = this.GrupoRRLL || this.GrupoCyE
     }
     getModuleCard(){
-        if(this.JefeSolicitante || this.Validador || this.CyE || this.CeCo){
+        if(this.roles.length > 0){
             return {
                 Title: 'Solicitud Personal',
                 IDModulo:'SDP',
