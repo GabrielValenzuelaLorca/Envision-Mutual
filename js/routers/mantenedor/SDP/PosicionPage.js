@@ -480,7 +480,7 @@ var posicionPage = {
                             var query = spo.encodeUrlListQuery(context.lists.Posicion, {
                                 view: 'Todos los elementos',
                                 odata: {
-                                    'orderby': 'ID desc',
+                                    'orderby': 'NPosicion desc',
                                     'select': '*',
                                     'top': 1
                                 }
