@@ -223,7 +223,7 @@ var licenciaPage = {
                                     "item": item
                                 });
                             })
-                        } else {
+                        } else { 
                             context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].input.placeholder = "No hay trabajadores disponibles"
                         }
                         render(data);
