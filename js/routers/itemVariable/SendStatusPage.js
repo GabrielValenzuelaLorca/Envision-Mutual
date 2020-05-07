@@ -332,64 +332,19 @@ var sendStatusPage = {
 
                                 let itemsI = ["Código Colaborador"]
                                 let itemPos = {}
-                                         
-                                let headersTitulos = [
-                                    "Atención Médica Abierta",
-                                    "Bono Dias Especiales 1.5UF",
-                                    "Bono Por Llamadas",
-                                    "Asig. Variable Perdida Caja",
-                                    "Horas Extras 50% Sobrecar ****",
-                                    "Horas Extras 50%  R.Vacac****",
-                                    "Horas Extras 50%  Rr.Licme****",
-                                    "Horas Extras 50%  R.Permi*****",
-                                    "Horas Extras 50%  Tllamad*****",
-                                    "Horas Extras 50%  Pendien*****",
-                                    "Compensac Horas Festivos",   
-                                    "Horas Bonificadas",
-                                    "Horas Extras 100%",   
-                                    "Hrs Reemp. Medico (Extra)",
-                                    "Hrs Reemp. Medico (Sueld)",	    
-                                    "Almuerzo - Cena",            
-                                    "Once-Desayuno",           
-                                    "Bono por Evento Hasta 4hrs",
-                                    "Bono Por Eventos hasta 7hrs",	    
-                                    "Bono Por Eventos hasta 12hrs",    
-                                    "Bono Pernoctar",
-                                    "Horas Pasivas",    
-                                    "Valor Hora Clase",
-                                    "Bono Aseo",
-                                    "Asignacion Investigacion PRP",
-                                    "Bono Incentivo Minero",
-                                    "Extension Turno Llamada",
-                                    "Horas Pasivas Permanencia",
-                                    "Bono Asistencia Cuatrimestral",
-                                    "Bono Cumplimiento de Meta",
-                                    "Bono Dias Especiales 2UF",    
-                                    "Turno de Llamada", 
-                                    "Colacion",      
-                                    "Bonifición Especial",
-                                    "Comisiones",
-                                    "Comision Decreto 67",
-                                    "Horas Extras 100% Pabellon",
-                                    "Diferencia Horas Pasivas",
-                                    "Diferencia Hrs. Bonificadas", 
-                                    "Diferencia Hrs. Extras",
-                                    "Dif. Horas Pasivas Permanencia",
-                                    "Referidos",
-                                ];  
-
+                                        
                                 var posicionFija = response.d.results.filter(c => c.Posicion != null).sort(function(a,b){return a.Posicion - b.Posicion})
                                 var posicionNuevos = response.d.results.filter(c => c.Posicion == null).sort(function(a,b){return a.ID - b.ID})
 
                                 for (let i = 0; i < posicionFija.length; i++) {
                                     const element = posicionFija[i];
-                                    itemsI.push(`((`+element.Title+`)) `+headersTitulos[i+1])
+                                    itemsI.push(`((`+element.Title+`)) `+element.NombreColumnaExcel)
                                     itemsI.push(`Centro de costo (`+element.Title+`)`)
                                     itemPos[element.Title] = ((i*2)+1)
                                 }
                                 for (let i = 0; i < posicionNuevos.length; i++) {
                                     const element = posicionNuevos[i];
-                                    itemsI.push(`((`+element.Title+`)) `+element.NombreItem)
+                                    itemsI.push(`((`+element.Title+`)) `+element.NombreColumnaExcel)
                                     itemsI.push(`Centro de costo (`+element.Title+`)`)
                                     itemPos[element.Title] = ((i*2)+1)
                                 }
