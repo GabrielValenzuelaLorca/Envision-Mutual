@@ -282,7 +282,7 @@ var posicionPage = {
                 }
 
                 $createButton.on('click', function (e) {
-                    var dialogTitle = 'Nuevo Posición';
+                    var dialogTitle = 'Nueva Posición';
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle); 
