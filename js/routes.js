@@ -296,7 +296,7 @@ function getRoutes(){
             component: solicitudCyEStream
         },
         {
-            path: '/EjemploStream',
+            path: '/cecoStream',
             component: cecoStreamPage
         },
         {
