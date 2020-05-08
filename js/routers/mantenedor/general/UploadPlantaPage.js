@@ -335,7 +335,7 @@ var uploadPlantaPage = {
                         .then(function(response) {
                             if (response.status >= 300) {
                                     app.dialog.create({
-                                        title: 'Error al Iniciar Proceso',
+                                        title: 'Error al iniciar proceso',
                                         text: 'Error al iniciar proceso de Carga Masiva (Flow)',
                                         buttons: [{
                                             text: 'Aceptar'
@@ -416,7 +416,7 @@ var uploadPlantaPage = {
                                             if(categoria.length == 0){
                                                 errores.push([{
                                                     "Linea" : linea++, 
-                                                    "error": "No se encontro la categoria en los registros de sharepoint. Categoria" + fila.d_catego
+                                                    "error": "No se encontro la categoría en los registros de sharepoint. Categoría" + fila.d_catego
                                                 }]);
                                                 return;
                                             }else{
@@ -448,7 +448,7 @@ var uploadPlantaPage = {
                                             if(CC.length == 0){
                                                 errores.push([{
                                                     "Linea" : linea,
-                                                    "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_nro_cenc
+                                                    "error": "No se encontro el Centro de costo en los registros de sharepoint" + fila.d_nro_cenc
                                                 }]);
                                                 return;
                                             }else{
@@ -458,7 +458,7 @@ var uploadPlantaPage = {
                                             if(Cargo.length == 0){
                                                 errores.push([{
                                                     "Linea" : linea,
-                                                    "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_cargo
+                                                    "error": "No se encontro el Cargo en los registros de sharepoint" + fila.d_cargo
                                                 }]);
                                                 return;
                                             }else{
@@ -504,7 +504,7 @@ var uploadPlantaPage = {
                                         if(categoria.length == 0){
                                             errores.push([{
                                                 "Linea" : linea++, 
-                                                "error": "No se encontro la categoria en los registros de sharepoint. Categoria " + fila.d_catego
+                                                "error": "No se encontro la categoría en los registros de sharepoint. Categoría " + fila.d_catego
                                             }]);
                                             return;
                                         }else{
@@ -536,7 +536,7 @@ var uploadPlantaPage = {
                                         if(CC.length == 0){
                                             errores.push([{
                                                 "Linea" : linea,
-                                                "error": "No se encontro el Centro de en los registros de sharepoint. Numero CC: " + fila.d_nro_cenc
+                                                "error": "No se encontro el Centro de costo en los registros de sharepoint. Numero CC: " + fila.d_nro_cenc
                                             }]);
                                             return;
                                         }else{
@@ -546,7 +546,7 @@ var uploadPlantaPage = {
                                         if(Cargo.length == 0){
                                             errores.push([{
                                                 "Linea Excel" : linea,
-                                                "error": "No se encontro el Centro de en los registros de sharepoint. Nombre Cargo Planta: " + fila.d_cargo
+                                                "error": "No se encontro el Cargo en los registros de sharepoint. Nombre Cargo Planta: " + fila.d_cargo
                                             }]);
                                             return;
                                         }else{
@@ -582,7 +582,7 @@ var uploadPlantaPage = {
                                     dialog.close();
                                     app.dialog.create({
                                         title: 'Completado',
-                                        text: 'No se encontraron cambios entre la planta actual y la cargada via Excel.',
+                                        text: 'No se encontraron cambios entre la planta actual y la cargada vía Excel.',
                                         buttons: [{
                                             text: 'Aceptar',
                                             onClick: function () {
@@ -598,7 +598,7 @@ var uploadPlantaPage = {
                                         dialog.close();
                                         app.dialog.create({
                                             title: 'Error',
-                                            text: 'Se Encontraron errores',
+                                            text: 'Se encontraron errores',
                                             buttons: [{
                                                 text: 'Aceptar',
                                                 onClick: function () {
@@ -615,7 +615,7 @@ var uploadPlantaPage = {
                                         dialog.close();
                                         app.dialog.create({
                                             title: dialogTitle,
-                                            text: 'En estos momentos se esta procesando su planta. Cuando finalice el proceso sera notificado via email',
+                                            text: 'En estos momentos se esta procesando su planta. Cuando finalice el proceso sera notificado vía email',
                                             buttons: [{
                                                 text: 'Aceptar',
                                                 onClick: function () {

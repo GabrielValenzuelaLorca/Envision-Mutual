@@ -189,14 +189,14 @@ var sendStatusPage = {
 
                 context.forms.sendStatus = new EFWListTable({
                     container: $container.find('.error-container'),
-                    title: 'Estado de Envio por coordinador',
+                    title: 'Estado de envío por coordinador',
                     editable: false,
                     description: '',
                     sortable: false,
                     editable: false,
                     disabled: true,
                     formCssClass: 'tablaCoordinadores',
-                    emptyTableText: 'No se encuenta ningun envio para el periodo vigente.',
+                    emptyTableText: 'No se encuentra ningún envío para el periodo vigente.',
                     fields: [{ 
                         Id: generateUUID(),
                         Title: 'Nombre Coordinador',
@@ -217,13 +217,13 @@ var sendStatusPage = {
                     },
                     { 
                         Id: generateUUID(),
-                        Title: 'Estado de envio',
+                        Title: 'Estado de envío',
                         InternalName: 'Status',
                         TypeAsString: 'Text'
                     },
                     { 
                         Id: generateUUID(),
-                        Title: 'Fecha Última actualización',
+                        Title: 'Fecha última actualización',
                         InternalName: 'FUA',
                         TypeAsString: 'Text'
                     }],
@@ -488,7 +488,7 @@ var sendStatusPage = {
                     if(data.length == 0){
                         app.dialog.create({
                             title: 'Error al notificar a coordinadores',
-                            text: 'No se encontraron coordinadores sin envio de items',
+                            text: 'No se encontraron coordinadores sin envío de ítems',
                             buttons: [{
                                 text: 'OK'
                             }],
@@ -506,7 +506,7 @@ var sendStatusPage = {
                         .then(function(response) {
                             if (response.status >= 300) {
                                 app.dialog.create({
-                                    title: 'Error al Iniciar Proceso',
+                                    title: 'Error al iniciar proceso',
                                     text: 'Error al enviar los emails (Flow)',
                                     buttons: [{
                                         text: 'Aceptar'
