@@ -625,7 +625,7 @@ var uploadItemsPage = {
                                     dialog.close();
                                     app.dialog.create({
                                         title: dialogTitle,
-                                        text: 'En estos momentos se están procesando los ítems. Cuando el proceso finalice, sera notificado vía email',
+                                        text: 'Espere un momento.. La carga de ítems esta en proceso. Recibira un e-mail cuando esten disponibles',
                                         buttons: [{
                                             text: 'Aceptar',
                                             onClick: function () {
