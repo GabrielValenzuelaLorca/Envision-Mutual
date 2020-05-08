@@ -835,37 +835,42 @@ var itemPage = {
                                     context.items.Periodo = response.d.results.length > 0 ? response.d.results[0] : null;
                                     loaded.Periodo = true;
                                     //Obtengo las solicitudes del periodo actual
-                                    spo.getListInfo('Solicitudes',
-                                        function (response) {
-                                            context.items.Solicitudes = [];
-                                            context.lists.Solicitudes = response;
-                                                var query = spo.encodeUrlListQuery(context.lists.Solicitudes, {
-                                                    view: 'Todos los elementos',
-                                                    odata: {
-                                                        'select': '*',
-                                                        'top': 5000,
-                                                        'filter': '(PeriodoId eq ' + context.items.Periodo.ID + ' and CoordinadorId eq \'' + plantaAdmin.ID + '\')'
-                                                    }
-                                                });
+                                    if(context.items.Periodo){
+                                        spo.getListInfo('Solicitudes',
+                                            function (response) {
+                                                context.items.Solicitudes = [];
+                                                context.lists.Solicitudes = response;
+                                                    var query = spo.encodeUrlListQuery(context.lists.Solicitudes, {
+                                                        view: 'Todos los elementos',
+                                                        odata: {
+                                                            'select': '*',
+                                                            'top': 5000,
+                                                            'filter': '(PeriodoId eq ' + context.items.Periodo.ID + ' and CoordinadorId eq \'' + plantaAdmin.ID + '\')'
+                                                        }
+                                                    });
 
-                                                spo.getListItems(spo.getSiteUrl(), 'Solicitudes', query,
-                                                    function (response) {
-                                                        context.items.Solicitudes = response.d.results.length > 0 ? response.d.results : null;
-                                                        loaded.Solicitudes = true;
-                                                        shouldInitForms();
-                                                    },
-                                                    function (response) {
-                                                        var responseText = JSON.parse(response.responseText);
-                                                        console.log(responseText.error.message.value);
-                                                    }
-                                                );
+                                                    spo.getListItems(spo.getSiteUrl(), 'Solicitudes', query,
+                                                        function (response) {
+                                                            context.items.Solicitudes = response.d.results.length > 0 ? response.d.results : null;
+                                                            loaded.Solicitudes = true;
+                                                            shouldInitForms();
+                                                        },
+                                                        function (response) {
+                                                            var responseText = JSON.parse(response.responseText);
+                                                            console.log(responseText.error.message.value);
+                                                        }
+                                                    );
 
-                                        },
-                                        function (response) {
-                                            var responseText = JSON.parse(response.responseText);
-                                            console.log(responseText.error.message.value);
-                                        }
-                                    );
+                                            },
+                                            function (response) {
+                                                var responseText = JSON.parse(response.responseText);
+                                                console.log(responseText.error.message.value);
+                                            }
+                                        );
+                                    }else{
+                                        loaded.Solicitudes = true;
+                                        shouldInitForms();
+                                    }
                                 },
                                 function (response) {
                                     var responseText = JSON.parse(response.responseText);
