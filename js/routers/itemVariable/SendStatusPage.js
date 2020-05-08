@@ -187,101 +187,7 @@ var sendStatusPage = {
                         $downloadExcel.removeClass('hide');
                 }
 
-                context.forms.sendStatus = new EFWListTable({
-                    container: $container.find('.error-container'),
-                    title: 'Estado de envío por coordinador',
-                    editable: false,
-                    description: '',
-                    sortable: false,
-                    editable: false,
-                    disabled: true,
-                    formCssClass: 'tablaCoordinadores',
-                    emptyTableText: 'No se encuentra ningún envío para el periodo vigente.',
-                    fields: [{ 
-                        Id: generateUUID(),
-                        Title: 'Nombre Coordinador',
-                        InternalName: 'Coordinador',
-                        TypeAsString: 'Text'
-                    },
-                    { 
-                        Id: generateUUID(),
-                        Title: 'Correo',
-                        InternalName: 'Correo',
-                        TypeAsString: 'Text'
-                    },
-                    { 
-                        Id: generateUUID(),
-                        Title: 'Jefe Aprobador',
-                        InternalName: 'Jefe',
-                        TypeAsString: 'Text'
-                    },
-                    { 
-                        Id: generateUUID(),
-                        Title: 'Estado de envío',
-                        InternalName: 'Status',
-                        TypeAsString: 'Text'
-                    },
-                    { 
-                        Id: generateUUID(),
-                        Title: 'Fecha última actualización',
-                        InternalName: 'FUA',
-                        TypeAsString: 'Text'
-                    }],
-                    noItemsSelectedButtons: function(table){return []},
-                    oneItemSelectedButtons: function(table, item){
-                        let btn = [];
-                        if (item.Status != "No enviado"){
-                            btn.push(localButtons.toOpenInforme(item));
-                        }
-                        if (item.Status == "Aprobado") {
-                            btn.push(localButtons.disableItemSendedAdmin(context, item));
-                        }
-                        return btn;
-                    },
-                    multiItemsSelectedButtons: function(table, item){return []}
-
-                });
-
-                var data = [];
-
-                if(!context.items.InformeHaberes){
-                    context.items.Coordinador.map(function(x){
-                        data.push({
-                            "Coordinador": x.NombreCompleto,
-                            "Correo": x.Email,
-                            "Jefe": x.Aprobador.NombreCompleto,
-                            "Status": 'No enviado',
-                            "FUA": moment(new Date()).format("DD/MM/YYYY hh:mm:ss")
-                        });
-                    });
-                    context.forms.sendStatus.setValues(data);
-                    return;
-                }else{
-                    context.items.Coordinador.map(function(x){
-                        let coo = context.items.InformeHaberes.filter(i => i.CoordinadorId == x.ID)[0];
-                        let apr = context.items.Aprobador.filter(a => a.ID == x.AprobadorId)[0];
-                        if(coo){
-                            data.push({
-                                "Coordinador": x.NombreCompleto,
-                                "Correo": x.Email,
-                                "Jefe": apr.NombreCompleto ? apr.NombreCompleto : 'No posee Aprobador',
-                                "Status": coo.Estado,
-                                "FUA": moment(coo.Modified).format("DD/MM/YYYY hh:mm:ss"),
-                                "ID": coo.ID
-                            });
-                        }else{
-                            data.unshift({
-                                "Coordinador": x.NombreCompleto,
-                                "Correo": x.Email,
-                                "Jefe": x.Aprobador.NombreCompleto,
-                                "Status": 'No enviado',
-                                "FUA": moment(new Date()).format("DD/MM/YYYY hh:mm:ss")
-                            });
-                        }
-                    });
-                    context.forms.sendStatus.setValues(data);
-                }
-
+                //Funciones de los metodos
                 $downloadExcel.on('click', function(e){
                     var dialogTitle = 'Descargando informe';
                     function download() {
@@ -526,6 +432,101 @@ var sendStatusPage = {
                         });                        
                     }
                 });
+                
+                context.forms.sendStatus = new EFWListTable({
+                    container: $container.find('.error-container'),
+                    title: 'Estado de envío por coordinador',
+                    editable: false,
+                    description: '',
+                    sortable: false,
+                    editable: false,
+                    disabled: true,
+                    formCssClass: 'tablaCoordinadores',
+                    emptyTableText: 'No se encuentra ningún envío para el periodo vigente.',
+                    fields: [{ 
+                        Id: generateUUID(),
+                        Title: 'Nombre Coordinador',
+                        InternalName: 'Coordinador',
+                        TypeAsString: 'Text'
+                    },
+                    { 
+                        Id: generateUUID(),
+                        Title: 'Correo',
+                        InternalName: 'Correo',
+                        TypeAsString: 'Text'
+                    },
+                    { 
+                        Id: generateUUID(),
+                        Title: 'Jefe Aprobador',
+                        InternalName: 'Jefe',
+                        TypeAsString: 'Text'
+                    },
+                    { 
+                        Id: generateUUID(),
+                        Title: 'Estado de envío',
+                        InternalName: 'Status',
+                        TypeAsString: 'Text'
+                    },
+                    { 
+                        Id: generateUUID(),
+                        Title: 'Fecha última actualización',
+                        InternalName: 'FUA',
+                        TypeAsString: 'Text'
+                    }],
+                    noItemsSelectedButtons: function(table){return []},
+                    oneItemSelectedButtons: function(table, item){
+                        let btn = [];
+                        if (item.Status != "No enviado"){
+                            btn.push(localButtons.toOpenInforme(item));
+                        }
+                        if (item.Status == "Aprobado") {
+                            btn.push(localButtons.disableItemSendedAdmin(context, item));
+                        }
+                        return btn;
+                    },
+                    multiItemsSelectedButtons: function(table, item){return []}
+
+                });
+
+                var data = [];
+
+                if(!context.items.InformeHaberes){
+                    context.items.Coordinador.map(function(x){
+                        data.push({
+                            "Coordinador": x.NombreCompleto,
+                            "Correo": x.Email,
+                            "Jefe": x.Aprobador.NombreCompleto,
+                            "Status": 'No enviado',
+                            "FUA": moment(new Date()).format("DD/MM/YYYY hh:mm:ss")
+                        });
+                    });
+                    context.forms.sendStatus.setValues(data);
+                    return;
+                }else{
+                    context.items.Coordinador.map(function(x){
+                        let coo = context.items.InformeHaberes.filter(i => i.CoordinadorId == x.ID)[0];
+                        let apr = context.items.Aprobador.filter(a => a.ID == x.AprobadorId)[0];
+                        if(coo){
+                            data.push({
+                                "Coordinador": x.NombreCompleto,
+                                "Correo": x.Email,
+                                "Jefe": apr.NombreCompleto ? apr.NombreCompleto : 'No posee Aprobador',
+                                "Status": coo.Estado,
+                                "FUA": moment(coo.Modified).format("DD/MM/YYYY hh:mm:ss"),
+                                "ID": coo.ID
+                            });
+                        }else{
+                            data.unshift({
+                                "Coordinador": x.NombreCompleto,
+                                "Correo": x.Email,
+                                "Jefe": x.Aprobador.NombreCompleto,
+                                "Status": 'No enviado',
+                                "FUA": moment(new Date()).format("DD/MM/YYYY hh:mm:ss")
+                            });
+                        }
+                    });
+                    context.forms.sendStatus.setValues(data);
+                }
 
                 // remover loader
                 mths.removePageLoader();
