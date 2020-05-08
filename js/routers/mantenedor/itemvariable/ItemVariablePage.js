@@ -60,7 +60,7 @@ var ItemVariablePage = {
                     '<ul>'+
                         '<li class="accordion-item accordion-item-opened categoria hide"><a href="#" class="item-content item-link">'+
                             '<div class="item-inner">'+
-                                '<div class="item-title">Categorias permitidas</div>'+
+                                '<div class="item-title">Categorías permitidas</div>'+
                             '</div></a>'+
                             '<div class="accordion-item-content">'+
                                 '<div class="form-container form1"></div>'+
@@ -68,7 +68,7 @@ var ItemVariablePage = {
                         '</li>'+
                         '<li class="accordion-item accordion-item-opened minmax hide"><a href="#" class="item-content item-link">'+
                             '<div class="item-inner">'+
-                                '<div class="item-title">Valores minimos y maximos</div>'+
+                                '<div class="item-title">Valores mínimos y máximos</div>'+
                             '</div></a>'+
                         '<div class="accordion-item-content">'+
                             '<div class="form-container form2"></div>'+
@@ -233,7 +233,7 @@ var ItemVariablePage = {
                     TypeAsString: 'Boolean'
                 },{
                     Id: generateUUID(),
-                    Title: '¿Tiene valores minimos y maximos?',
+                    Title: '¿Tiene valores mínimos y máximos?',
                     InternalName: 'MinMax',
                     TypeAsString: 'Boolean'
                 });
@@ -241,7 +241,7 @@ var ItemVariablePage = {
                 // formulario de datos generales
                 context.forms.main = new EFWForm({
                     container: $container.find('.main'),
-                    title: 'Formulario item Variable',
+                    title: 'Formulario ítem variable',
                     editable: editable ? true : false,
                     // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
                     fields: inputs,
@@ -500,7 +500,7 @@ var ItemVariablePage = {
                         } else {
                             app.dialog.create({
                                 title: 'Datos mal ingresados o insuficientes',
-                                text: 'Para actualizar el item debe completar todos los campos obligatorios.',
+                                text: 'Para actualizar el ítem debe completar todos los campos obligatorios.',
                                 buttons: [{
                                     text: 'Aceptar'
                                 }],
@@ -632,7 +632,7 @@ var ItemVariablePage = {
                         } else {
                             app.dialog.create({
                                 title: 'Datos mal ingresados o insuficientes',
-                                text: 'Para crear una nuevo item debe completar todos los campos obligatorios.',
+                                text: 'Para crear una nuevo ítem debe completar todos los campos obligatorios.',
                                 buttons: [{
                                     text: 'Aceptar'
                                 }],

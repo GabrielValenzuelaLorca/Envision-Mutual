@@ -21,7 +21,7 @@ var itemFormPage = {
                         '</a>' +
                         '<a href="#" class="link create ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Save"></i>' +
-                            '<span class="ios-only">Añadir Centros de Costo</span>' +
+                            '<span class="ios-only">Añadir Centro de Costo</span>' +
                         '</a>' +
                         '<a href="#" class="link generate-PDF ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PDF"></i>' +
@@ -287,7 +287,7 @@ var itemFormPage = {
                 // });
 
                 $createButton.on('click', function (e) {
-                    var dialogTitle = 'Añadiendo Haber'; 
+                    var dialogTitle = 'Añadiendo Ítem'; 
 
 
                     function save() {
@@ -300,7 +300,7 @@ var itemFormPage = {
 
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Haber creado con éxito',
+                                text: 'Ítem creado con éxito',
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
@@ -317,7 +317,7 @@ var itemFormPage = {
 
                             dialog.close();
                             app.dialog.create({
-                                title: 'Error al añadir el haber ' + mths.getListTitle(),
+                                title: 'Error al añadir el ítem ' + mths.getListTitle(),
                                 text: responseText.error.message.value,
                                 buttons: [{
                                     text: 'Aceptar'
@@ -333,7 +333,7 @@ var itemFormPage = {
                         if (validateHbr){
                             dialogs.confirmDialog(
                                 dialogTitle,
-                                'Se añadira el haber',
+                                'Se añadira el ítem',
                                 save
                             )
                         } else {
