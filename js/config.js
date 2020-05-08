@@ -50,6 +50,7 @@ var AppScriptsArray = [
     "js/utils/pdfImages.js",
     "js/utils/dialogs.js",
     "js/utils/buttons.js",
+    "js/utils/rolefilter.js",
 
     //Carpeta Item Variable
     "js/routers/itemVariable/InformeDesaprobadoPage.js",

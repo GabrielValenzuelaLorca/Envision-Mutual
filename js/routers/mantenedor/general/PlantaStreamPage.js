@@ -84,7 +84,7 @@ plantaStreamPage.methods.getNoItemsSelectedButtons = function(){
     }else{
         app.dialog.create({
             title: 'Atención',
-            text: 'En estos momentos se está realizando una carga masiva de planta. Usted sera notificado via email cuando el proceso termine.',
+            text: 'En estos momentos se está realizando una carga masiva de planta. Usted sera notificado vía email cuando el proceso termine.',
             buttons: [{
                 text: 'Aceptar'
             }],

@@ -234,7 +234,7 @@ var uploadItemsPage = {
                                     if(item.TipoItem != 'Haber'){
                                         return {
                                             "Error": true,
-                                            "Message": "El tipo de Item no es un haber"
+                                            "Message": "El tipo de ítem no es un haber"
                                         }
                                     }
             
@@ -266,7 +266,7 @@ var uploadItemsPage = {
                                         if(!trabajador.Capex){
                                             return {
                                                 "Error": true,
-                                                "Message": "El item requiere que el trabajador pertenezca a convenio CAPEX."
+                                                "Message": "El ítem requiere que el trabajador pertenezca a convenio CAPEX."
                                             }
                                         }
                                     }
@@ -300,7 +300,7 @@ var uploadItemsPage = {
                                         if(!context.pertenece){
                                             return {
                                                 "Error": true,
-                                                "Message": "El periodo actual no permite la imputacion de este item."
+                                                "Message": "El periodo actual no permite la imputación de este ítem."
                                             }
                                         }
                                     }
@@ -309,7 +309,7 @@ var uploadItemsPage = {
                                         if(trabajador.Pabellon){
                                             return {
                                                 "Error": true,
-                                                "Message": "El trabajador no pertenece a listado de pabellon."
+                                                "Message": "El trabajador no pertenece a listado de pabellón."
                                             }
                                         }
                                     }
@@ -358,7 +358,7 @@ var uploadItemsPage = {
                                                 }
                                             }
                                         }else{
-                                            console.log('El campoGP esta vacio y tiene habilitada las GP');
+                                            console.log('El campo GP esta vacío y tiene habilitada las GP');
                                         }
             
                                     }
@@ -379,7 +379,7 @@ var uploadItemsPage = {
                                     .then(function(response) {
                                         if (response.status >= 300) {
                                                 app.dialog.create({
-                                                    title: 'Error al Iniciar Proceso',
+                                                    title: 'Error al iniciar proceso',
                                                     text: 'Error al iniciar proceso de Carga Masiva (Flow)',
                                                     buttons: [{
                                                         text: 'Aceptar'
@@ -459,7 +459,7 @@ var uploadItemsPage = {
                                         }else{
                                             return {
                                                 "Error": true,
-                                                "Message": "No se encontraron coincidencias con el trabajador o item ingresado."
+                                                "Message": "No se encontraron coincidencias con el trabajador o ítem ingresado."
                                             }
                                         }
 
@@ -490,7 +490,7 @@ var uploadItemsPage = {
                                     if(jobs.length == 0){
                                         Errores.push({
                                             "Linea": linea,
-                                            "Message": `El codigo Payroll del trabajador ingresado no corresponde a su planta.`
+                                            "Message": `El código Payroll del trabajador ingresado no corresponde a su planta.`
                                         });
                                         linea++
                                         return;
@@ -504,7 +504,7 @@ var uploadItemsPage = {
                                     if(cat.length == 0){
                                         Errores.push({
                                             "Linea": linea,
-                                            "Message": `El item ingresado contiene datos erroneos, Revise que el código y el nombre del item sean los correctos..`
+                                            "Message": `El ítem ingresado contiene datos erróneos, Revise que el código y el nombre del ítem sean correctos..`
                                         });
                                         linea++
                                         return;
@@ -513,7 +513,7 @@ var uploadItemsPage = {
                                             && cat.Title == fila.COD_HABER){
                                                 Errores.push({
                                                     "Linea": linea,
-                                                    "Message": `El item ingresado contiene datos erroneos en el nombre o codigo del haber.`
+                                                    "Message": `El ítem ingresado contiene datos erróneos en el nombre o código del haber.`
                                                 });
                                         }
                                     }
@@ -522,7 +522,7 @@ var uploadItemsPage = {
                                     if(!fila.CANT_$MONTO){
                                         Errores.push({
                                             "Linea": linea,
-                                            "Message": `El ingreso de Cantidad o monto es obligatorio.`
+                                            "Message": `El ingreso de Cantidad o Monto es obligatorio.`
                                         });
                                         linea++
                                         return;
@@ -530,7 +530,7 @@ var uploadItemsPage = {
                                         if(!Number.isInteger(fila.CANT_$MONTO)){
                                             Errores.push({
                                                 "Linea": linea,
-                                                "Message": `En el campo cantidad o monto solo se permiten numeros.`
+                                                "Message": `En el campo Cantidad o Monto solo se permiten números.`
                                             });
                                             linea++
                                             return;
@@ -538,7 +538,7 @@ var uploadItemsPage = {
                                         if(!validateMINMAX(fila.CANT_$MONTO, fila.COD_HABER)){
                                             Errores.push({
                                                 "Linea": linea,
-                                                "Message": `La cantidad o monto ingresado excede los limites establecidos para el item.`
+                                                "Message": `La Cantidad o Monto ingresado excede los limites establecidos para el ítem.`
                                             });
                                             linea++
                                             return;
@@ -549,7 +549,7 @@ var uploadItemsPage = {
                                     if(!fila.JUSTIFICACIÓN){
                                         Errores.push({
                                             "Linea": linea,
-                                            "Message": `La justificacion es obligatoria y no puede ir vacia.`
+                                            "Message": `La justificación es obligatoria y no puede ir vacía.`
                                         });
                                         linea++
                                         return;
@@ -557,7 +557,7 @@ var uploadItemsPage = {
                                         if(fila.JUSTIFICACIÓN.length <= 10){
                                             Errores.push({
                                                 "Linea": linea,
-                                                "Message": `La justificacion debe contener al menos 10 caracteres.`
+                                                "Message": `La justificación debe contener al menos 10 caracteres.`
                                             });
                                             linea++
                                             return;
@@ -625,7 +625,7 @@ var uploadItemsPage = {
                                     dialog.close();
                                     app.dialog.create({
                                         title: dialogTitle,
-                                        text: 'En estos momentos se esta procesando los items. Cuando finalice el proceso sera notificado via email',
+                                        text: 'Espere un momento.. La carga de ítems esta en proceso. Recibira un e-mail cuando esten disponibles',
                                         buttons: [{
                                             text: 'Aceptar',
                                             onClick: function () {
@@ -687,7 +687,7 @@ var uploadItemsPage = {
                         case 0:
                             app.dialog.create({
                                 title: 'No ha adjuntado ningún documento',
-                                text: 'Para realizar la carga masiva de items variables, debe adjuntar un documento Excel con la información de la los items del periodo actual',
+                                text: 'Para realizar la carga masiva de ítems variables, debe adjuntar un documento Excel con la información de los ítems del periodo actual',
                                 buttons: [{
                                     text: 'Aceptar'
                                 }],
@@ -715,6 +715,7 @@ var uploadItemsPage = {
 
                 context.forms.item.inputs.Attachments.params.onChange = function(comp, input, state, values){
                     $('div.item-after div.ms-Button-AttachEdit i.ms-Icon.ms-Icon--Cancel').hide()
+                    context.forms.item.inputs.Attachments.setEditable(false)
                 }
 
                 console.log('Form', context.forms.item)

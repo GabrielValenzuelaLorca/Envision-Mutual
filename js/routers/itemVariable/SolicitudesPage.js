@@ -288,7 +288,7 @@ var solicitudesPage = {
                                     return;
                                 }
                             }else{
-                                console.log('El campoGP esta vacio y tiene habilitada las GP');
+                                console.log('El campo GP esta vacío y tiene habilitada las GP');
                             }
 
                             
@@ -318,7 +318,7 @@ var solicitudesPage = {
 
                 inputs.push({
                     Id: generateUUID(),
-                    Title: 'Cambiame el texto',
+                    Title: 'Seleccione un tipo de solicitud',
                     InternalName: 'Argumento',
                     TypeAsString: 'Note'
                 });
@@ -736,7 +736,7 @@ var solicitudesPage = {
                                     // formulario de actualización
                                     form = new EFWForm({
                                         container: $container.find('.update-form'),
-                                        title: 'Desaprobacion de solicitud'.bold(),
+                                        title: 'Desaprobación de solicitud'.bold(),
                                         editable: true,
                                         description: 'Ingrese el motivo de desaprobación.',
                                         fields: campos
@@ -773,7 +773,7 @@ var solicitudesPage = {
                 });
 
                 $reSendButton.on('click', function (e) {
-                    var dialogTitle = 'Envio de justificación';
+                    var dialogTitle = 'Envío de justificación';
 
                     abrirPopup();
                     function save(ComentarioVirtual) {

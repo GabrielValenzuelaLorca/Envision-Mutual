@@ -87,7 +87,7 @@ localButtons.toSolicitudPage = function(){
 
 localButtons.toItemVariablePage = function(){
     button = {
-        text: 'Editar item variable',
+        text: 'Editar ítem variable',
         class: 'editItem',
         icon: 'Edit',
         onClick: function(component, item){
@@ -111,7 +111,7 @@ localButtons.toAddItemVariable = function(){
 
 localButtons.toOpenInforme = function(item){
     button = {
-        text: 'Ver Informe',
+        text: 'Ver informe',
         class: 'openInforme',
         icon: 'OpenInNewWindow',
         onClick: function(component){
@@ -195,7 +195,7 @@ localButtons.assignRol = function(context){
 
 localButtons.addLicencia = function(context){
     button = {
-        text: 'Agregar Licencia',
+        text: 'Agregar licencia',
         class: 'addLicencia',
         icon: 'ActivateOrders',
         onClick: function(component, item){
@@ -207,7 +207,7 @@ localButtons.addLicencia = function(context){
 
 localButtons.toLicencia = function(context){
     button = {
-        text: 'Ver Detalle',
+        text: 'Ver detalle',
         class: 'seeDetail',
         icon: 'RedEye',
         onClick: function(component, item){
@@ -309,7 +309,7 @@ localButtons.toGestionar = function(context){
 
 localButtons.addTrabajadorButton = function(context, id){
     button = {
-        text: 'Agregar Trabajadores',
+        text: 'Agregar trabajadores',
         class: 'addTrabajador',
         icon: 'AddFriend',
         onClick: function(component, item){
@@ -321,7 +321,7 @@ localButtons.addTrabajadorButton = function(context, id){
 
 localButtons.addListTrabajadoresButton = function(context,coordinador){
     button = {
-        text:'Asociar Trabajadores',
+        text:'Asociar trabajadores',
         class:'addTrabajadores',
         icon:'AddGroup',
         onClick: function(component, item){
@@ -383,7 +383,7 @@ localButtons.addListTrabajadoresButton = function(context,coordinador){
 
 localButtons.addListTrabajadorButton = function(context, coordinador){
     button = {
-        text:'Asociar Trabajador',
+        text:'Asociar trabajador',
         class:'addTrabajador',
         icon:'AddFriend',
         onClick: function(component, item){
@@ -497,7 +497,7 @@ localButtons.deleteTrabajador = function(context){
 
 localButtons.deleteListTrabajadoresButton = function(context){
     button = {
-        text:'Desvincular Trabajadores',
+        text:'Desvincular trabajadores',
         class:'desvincularTrabajadores',
         icon:'Delete',
         onClick: function(component, item){
@@ -555,7 +555,7 @@ localButtons.deleteListTrabajadoresButton = function(context){
 
 localButtons.deleteItemButton = function(){
     button = {
-        text:'Eliminar Item',
+        text:'Eliminar ítem',
         class:'deleteanyitem',
         icon:'Delete',
         onClick: function(component, item){
@@ -581,7 +581,7 @@ localButtons.deleteItemButton = function(){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al eliminar el item, intente nuevamente',
+                        'Error al eliminar el ítem, intente nuevamente',
                         responseText.error.message.value,
                     )
                 });
@@ -589,7 +589,7 @@ localButtons.deleteItemButton = function(){
 
             dialogs.confirmDialog(
                 dialogTitle,
-                '¿Esta seguro que quiere eliminar el item seleccionado?',
+                '¿Esta seguro que quiere eliminar el ítem seleccionado?',
                 save
             )
         }
@@ -599,12 +599,12 @@ localButtons.deleteItemButton = function(){
 
 localButtons.deleteItemsButton = function(){
     button = {
-        text:'Eliminar Items',
+        text:'Eliminar ítems',
         class:'deleteitems',
         icon:'Delete',
         onClick: function(component, item){
 
-            var dialogTitle = 'Eliminando items';
+            var dialogTitle = 'Eliminando ítems';
 
             //Ejecuta toda la funcion despues de la validacion de la alerta
             function save() {
@@ -642,7 +642,7 @@ localButtons.deleteItemsButton = function(){
 
             dialogs.confirmDialog(
                 dialogTitle,
-                'Esta seguro que quiere eiminar los items seleccionados?',
+                '¿Esta seguro que quiere eiminar los ítems seleccionados?',
                 save
             )
         }
@@ -670,7 +670,7 @@ localButtons.addHaberButton = function(context, id){
 */
 localButtons.addCecoButton = function(context, id){
     button = {
-        text: 'Añadir Centro de costo',
+        text: 'Añadir Centro de Costo',
         class: 'addCeco',
         icon: 'Add',
         onClick: function(component, item){
@@ -694,7 +694,7 @@ localButtons.editCecoButton = function(){
  
 localButtons.deleteCeco = function(){
     button = {
-        text: 'Eliminar Centro de costo',
+        text: 'Eliminar Centro de Costo',
         class: 'deleteCeco',
         icon: 'Delete',
         onClick: function(component, item){
@@ -725,7 +725,7 @@ localButtons.deleteCeco = function(){
                                 var responseText = JSON.parse(response.responseText);
                                 console.log('responseText', responseText);
                                 app.dialog.create({
-                                    title: 'Error al guardar en lista CentroCosto',
+                                    title: 'Error al guardar en lista ',
                                     text: responseText.error.message.value,
                                     buttons: [{
                                         text: 'Aceptar'
@@ -1078,7 +1078,7 @@ localButtons.activatePeriodoButton = function(context){
 
 localButtons.sendButton = function(context){
     button = {
-        text: 'Enviar Items',
+        text: 'Enviar ítems',
         class: 'sendItems',
         icon: 'MailForward',
         onClick: function(component, item){
@@ -1151,7 +1151,7 @@ localButtons.sendButton = function(context){
             }
             dialogs.confirmDialog(
                 dialogTitle,
-                '¿Está seguro de enviar el informe de items? Luego no podrá editar este informe',
+                '¿Está seguro de enviar el informe de ítems? Luego no podrá editar este informe',
                 save
             )
         }
@@ -1813,7 +1813,7 @@ localButtons.multiDeleteCapex = function(context){
                     dialog.close()
                     app.dialog.create({
                         title: dialogTitle,
-                        text:   `Los trabajadores seleccionados han sido eliminados correctamente al Convenio Capex`,
+                        text:   `Los trabajadores seleccionados han sido eliminados correctamente del Convenio Capex`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -1941,7 +1941,7 @@ localButtons.multiAddCapex = function(context){
                     dialog.close()
                     app.dialog.create({
                         title: 'Registrando convenios',
-                        text:   `Los trabajadores seleccionados han sido agregado correctamente al Convenio Capex`,
+                        text:   `Los trabajadores seleccionados han sido agregados correctamente al Convenio Capex`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){

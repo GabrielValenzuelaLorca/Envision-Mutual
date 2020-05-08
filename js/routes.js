@@ -143,6 +143,10 @@ function getRoutes(){
             component: menuPage
         },
         {
+            path: '/menuHome',
+            component: menuHomePage
+        },
+        {
             path: '/homepage',
             component: homePage
         },
@@ -292,7 +296,7 @@ function getRoutes(){
             component: solicitudCyEStream
         },
         {
-            path: '/EjemploStream',
+            path: '/cecoStream',
             component: cecoStreamPage
         },
         {
