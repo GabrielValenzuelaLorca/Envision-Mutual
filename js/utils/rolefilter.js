@@ -183,17 +183,6 @@ class RoleItemVariable extends Role{
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
                 },
-                {
-                    href: '/EjemploStream',
-                    title: 'Mantenedor Centro de costo',
-                    after: '',
-                    header: '',
-                    footer: '',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--Archive"></i>',
-                },
             ]);
     
             settings.push(admSection2);

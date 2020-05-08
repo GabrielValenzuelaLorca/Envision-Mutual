@@ -484,7 +484,7 @@ var sendStatusPage = {
                             data.push({
                                 "Coordinador": x.NombreCompleto,
                                 "Correo": x.Email,
-                                "Jefe": apr.NombreCompleto ? apr.NombreCompleto : 'No posee Aprobador',
+                                "Jefe": apr ? apr.NombreCompleto : 'No posee Aprobador',
                                 "Status": coo.Estado,
                                 "FUA": moment(coo.Modified).format("DD/MM/YYYY hh:mm:ss"),
                                 "ID": coo.ID
