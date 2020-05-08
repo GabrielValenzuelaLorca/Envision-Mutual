@@ -461,6 +461,7 @@ class RoleItemVariable extends Role{
 class RoleSDP extends Role{
     constructor(role){
         super()
+        debugger
         this.roles = role
         this.JefeSolicitante = role.includes("Jefe Solicitante")
         this.Validador = role.includes("Validador")
@@ -517,140 +518,7 @@ class RoleSDP extends Role{
        
     }
     getButtons(context){
-        var settings = []
-
-        if (this.JefeSolicitante){
-            let solSection = {
-                inset: true,
-                header: 'Solicitud de permisos',
-                footer: '',
-                options: []
-            };
-    
-            solSection.options = solSection.options.concat([
-                {
-                    href: '/formSolicitante',
-                    title: 'Crear Solicitud',
-                    after: '',
-                    header: '',
-                    footer: '',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
-                },
-                {
-                    href: '/SolicitudStream',
-                    title: 'Solicitudes SDP',
-                    after: '',
-                    header: '',
-                    footer: '',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
-                },
-            ]);
-          
-            settings.push(solSection);
-        }
-        if (this.Validador){
-            let valSection = {
-                inset: true,
-                header: 'Validación de solicitudes',
-                footer: '',
-                options: []
-            };
-    
-            valSection.options = valSection.options.concat([
-                {
-                    href: '/SolicitudesPorValidar',
-                    title: 'Solicitudes SDP',
-                    after: '',
-                    header: '',
-                    footer: 'Por aprobar',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--AwayStatus"></i>',
-                },
-            ]);
-          
-            settings.push(valSection);
-        }
-        if (this.CeCo){
-            let cecoSection = {
-                inset: true,
-                header: 'Panel de Centros de Costos',
-                footer: '',
-                options: []
-            };
-    
-            cecoSection.options = cecoSection.options.concat([
-                {
-                    href: '/cecoStream',                    
-                    title: 'Mantenedor de CeCo',                    
-                    after: '',
-                    header: '',
-                    footer: 'Centro de costo',                    
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--Archive"></i>',
-                },
-            ]);
-          
-            settings.push(cecoSection);
-        }
-        if (this.CyE ){
-            let cyeSection = {
-                inset: true,
-                header: 'CyE',
-                footer: '',
-                options: []
-            };
-    
-            let cyeMantenedorSection = {
-                inset: true,
-                header: 'Mantenedores CyE',
-                footer: '',
-                options: []
-            };
-    
-            cyeSection.options = cyeSection.options.concat([
-                {
-                    href: '/SolicitudesCyE',
-                    title: 'Solicitudes',
-                    after: '',
-                    header: '',
-                    footer: '',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--DocumentSet"></i>',
-                },
-            ]);
-          
-            settings.push(cyeSection);
-
-            cyeMantenedorSection.options = cyeMantenedorSection.options.concat([
-                {
-                    href: '/PosicionStream',
-                    title: 'Posiciones',
-                    after: '',
-                    header: '',
-                    footer: '',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--DocumentSet"></i>',
-                },
-            ]);
-          
-            settings.push(cyeMantenedorSection);
-        }
-
-        return settings
+        return SDP.menu
     }
 }
 
@@ -670,7 +538,7 @@ class RoleHandler{
     }
     setSDPRol(SDP){
         if(SDP != null){
-            this.SDP = new RoleSDP(SDP.results)
+            this.SDP = new RoleSDP(SDP)
         }
     }
     setModule(option){
