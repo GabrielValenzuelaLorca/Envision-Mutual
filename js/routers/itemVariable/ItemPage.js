@@ -64,7 +64,7 @@ var itemPage = {
                     '</li>' +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
                         '<div class="item-inner">' +
-                          '<div class="item-title">Datos Item Variable</div>' +
+                          '<div class="item-title">Datos Ítem Variable</div>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
                         '<div class="form-item"></div>' +
@@ -314,7 +314,7 @@ var itemPage = {
                                     return;
                                 }
                             }else{
-                                console.log('El campoGP esta vacio y tiene habilitada las GP');
+                                console.log('El campo GP esta vacío y tiene habilitada las GP');
                             }
 
                             
@@ -344,7 +344,7 @@ var itemPage = {
                     editable: false,
                     fields: spo.getViewFields(context.lists.ItemVariable, 'FormularioPersona').concat({
                         Id: generateUUID(),
-                        Title: 'Categoria',
+                        Title: 'Categoría',
                         InternalName: 'Categoria',
                         TypeAsString: 'Text'
                     },{
@@ -374,7 +374,7 @@ var itemPage = {
                 // formulario de registro de exepciones
                 let inputs = [{
                     Id: generateUUID(),
-                    Title: '¿Aplica excepcion de Centro de costo?',
+                    Title: '¿Aplica excepción de Centro de costo?',
                     InternalName: 'ExceptionCC',
                     TypeAsString: 'Boolean'
                 },{
@@ -449,7 +449,7 @@ var itemPage = {
                     context.forms.person.inputs['CodigoPayroll'].setValue(values[0].item.Title);
                     context.forms.person.inputs['Rut'].setValue(values[0].item.Rut);
                     context.forms.person.inputs['TipoContrato'].setValue(values[0].item.TipoContrato);
-                    context.forms.person.inputs['Categoria'].setValue(categoria ? categoria.ESC : 'El trabajador seleccionado no tiene categoria');
+                    context.forms.person.inputs['Categoria'].setValue(categoria ? categoria.ESC : 'El trabajador seleccionado no tiene categoría');
                     context.forms.person.inputs['Cargo'].setValue(values[0].item.d_cargo.NombreCargo)
 
                     //Habilitamos el formulario siguiente
@@ -611,7 +611,7 @@ var itemPage = {
 
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Item creado con éxito',
+                                text: 'Ítem creado con éxito',
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
@@ -690,7 +690,7 @@ var itemPage = {
                     }else if (validateItem && validatePerson && validateEX) {
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Se creará una nuevo item.',
+                                text: 'Se creará una nuevo ítem.',
                                 buttons: [{
                                     text: 'Cancelar'
                                 }, {
@@ -704,7 +704,7 @@ var itemPage = {
                     } else {
                         app.dialog.create({
                             title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo item debe completar todos los campos obligatorios.',
+                            text: 'Para crear un nuevo ítem debe completar todos los campos obligatorios.',
                             buttons: [{
                                 text: 'Aceptar'
                             }],

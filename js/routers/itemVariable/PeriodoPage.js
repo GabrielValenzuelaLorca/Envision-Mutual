@@ -214,7 +214,7 @@ var periodoPage = {
                 }
 
                 $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Nuevo elemento';
+                    var dialogTitle = 'Nuevo periodo';
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
@@ -255,7 +255,7 @@ var periodoPage = {
                     if (validate) {
                         app.dialog.create({
                             title: dialogTitle,
-                            text: 'Se creará una nuevo registro.',
+                            text: 'Se creará una nuevo periodo.',
                             buttons: [{
                                 text: 'Cancelar'
                             }, {
@@ -269,7 +269,7 @@ var periodoPage = {
                     } else {
                         app.dialog.create({
                             title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
+                            text: 'Para crear un nuevo periodo debe completar todos los campos obligatorios.',
                             buttons: [{
                                 text: 'Aceptar'
                             }],
@@ -280,7 +280,7 @@ var periodoPage = {
                 });
 
                 $updateButton.on('click', function (e) {
-                    var dialogTitle = 'Editando elemento';
+                    var dialogTitle = 'Editando periodo';
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
@@ -292,7 +292,7 @@ var periodoPage = {
 
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Elemento actualizado con éxito',
+                                text: 'Periodo actualizado con éxito',
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
@@ -326,7 +326,7 @@ var periodoPage = {
                     if (validate) {
                         app.dialog.create({
                             title: dialogTitle,
-                            text: 'Se actualizará el elemento.',
+                            text: 'Se actualizará el periodo.',
                             buttons: [{
                                 text: 'Cancelar'
                             }, {
@@ -340,7 +340,7 @@ var periodoPage = {
                     } else {
                         app.dialog.create({
                             title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
+                            text: 'Para crear un nuevo periodo debe completar todos los campos obligatorios.',
                             buttons: [{
                                 text: 'Aceptar'
                             }],
