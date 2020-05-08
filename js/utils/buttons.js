@@ -1,7 +1,7 @@
 localButtons = {}
 function refresh(){
     mainView.router.refreshPage();
-    leftView.router.refreshPage();
+    // leftView.router.refreshPage();
 }
 
 function buildInCaml(array, type){
