@@ -177,8 +177,8 @@ menuPage.methods.getListBlocksData = function(){
 
     function showAlertFirstOpened(dias){
 
-        let msg1 = `Recuerde que le quedan ${dias} dia(s) para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`;
-        let msg2 = `Recuerde que hoy es el ultimo dia para enviar sus items variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`
+        let msg1 = `Recuerde que le quedan ${dias} día(s) para enviar sus ítems variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`;
+        let msg2 = `Recuerde que hoy es el último día para enviar sus ítems variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`
         app.dialog.create({
             title: 'Atención',
             text: dias > 0 ? msg1 : msg2,
@@ -242,7 +242,7 @@ menuPage.methods.getListBlocksData = function(){
             coorSection.options = coorSection.options.concat([ 
                 {
                     href: '/item',
-                    title: 'Nuevo Item',
+                    title: 'Nuevo Ítem',
                     after: '',
                     header: '',
                     footer: '',
@@ -253,7 +253,7 @@ menuPage.methods.getListBlocksData = function(){
                 },
                 {
                     href: '/itemVariableStream',
-                    title: 'Items Variables',
+                    title: 'Ítems Variables',
                     after: '',
                     header: '',
                     footer: '',
@@ -264,7 +264,7 @@ menuPage.methods.getListBlocksData = function(){
                 },
                 {
                     href: '/uploadItems',
-                    title: 'Carga Masiva Items',
+                    title: 'Carga Masiva Ítems',
                     after: '',
                     header: '',
                     footer: '',
@@ -286,11 +286,11 @@ menuPage.methods.getListBlocksData = function(){
                 }
             ]);
         } else if(outPeriod){
-            coorSection.footer = 'Se ha vencido el periodo de envio. Contactese con el administrador';
+            coorSection.footer = 'Se ha vencido el periodo de envío. Contactese con el administrador';
         } else if(!canSendInform) {
             coorSection.footer = 'Tu informe ya ha sido enviado';
         } else if(!context.onPeriod){
-            coorSection.footer = 'No hay un periodo vigente para añadir items';
+            coorSection.footer = 'No hay un periodo vigente para añadir ítems';
         }
 
         if (context.onPeriod) {
@@ -457,10 +457,10 @@ menuPage.methods.getListBlocksData = function(){
             admSection.options = admSection.options.concat([
                 {
                     href: '/sendStatusStream',
-                    title: 'Estados de envio',
+                    title: 'Estados de envío',
                     after: '',
                     header: '',
-                    footer: 'Items Variables',
+                    footer: 'Ítems Variables',
                     panelClose: true,
                     externalLink: false,
                     f7view: '.view-main',
