@@ -27,11 +27,13 @@ class RoleItemVariable extends Role{
     getButtons(context){
         var settings = []
         
-        function showAlertFirstOpened(){
-            let dias = moment(context.onPeriod.FechaTermino).diff( moment(), 'days')
+        function showAlertFirstOpened(dias){
+
+            let msg1 = `Recuerde que le quedan ${dias} día(s) para enviar sus ítems variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`;
+            let msg2 = `Recuerde que hoy es el último día para enviar sus ítems variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`
             app.dialog.create({
                 title: 'Atención',
-                text: `Recuerde que le quedan ${dias} día(s) para enviar sus ítems variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`,
+                text: dias > 0 ? msg1 : msg2,
                 buttons: [{
                     text: 'Aceptar',
                     onClick: function () {
@@ -40,7 +42,7 @@ class RoleItemVariable extends Role{
                 }],
                 verticalButtons: false
             }).open();
-        }    
+        }     
 
         if(this.Administrador){
 
@@ -235,7 +237,18 @@ class RoleItemVariable extends Role{
                 }
             }
     
-            if(moment(context.onPeriod.FechaTermino).diff( moment(), 'days') <=0){
+            let formated1 = moment().format('YYYY-MM-DD');
+            let formated2 = moment(context.onPeriod.FechaTermino).format('YYYY-MM-DD');
+    
+            let replaced1 = formated1.replace(/-/gi,'')
+            let replaced2 = formated2.replace(/-/gi,'')
+    
+            let hasta = parseInt(replaced1);
+            let desde = parseInt(replaced2);
+            
+            var dias = desde - hasta;
+    
+            if(dias < 0){
                 outPeriod = true;
             }
     
