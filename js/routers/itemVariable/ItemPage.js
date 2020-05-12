@@ -56,7 +56,7 @@ var itemPage = {
                 "<ul>" +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
                         '<div class="item-inner">' +
-                          '<div class="item-title">1.- Datos del Trabajador </div><i class="ms-Icon ms-Icon--DrillDownSolid" style="margin-right: 85%; font-size: 20px;"></i>' +
+                          '<div class="item-title">1.- Datos del Trabajador </div><i class="ms-Icon ms-Icon--DrillDownSolid" ></i>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
                         '<div class="form-persona"></div>' +
@@ -64,7 +64,7 @@ var itemPage = {
                     '</li>' +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
                         '<div class="item-inner">' +
-                          '<div class="item-title">2.- Datos Ítem Variable</div><i class="ms-Icon ms-Icon--DrillDownSolid" style="margin-right: 85%; font-size: 20px;"></i>' +
+                          '<div class="item-title">2.- Datos Ítem Variable</div><i class="ms-Icon ms-Icon--DrillDownSolid"></i>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
                         '<div class="form-item"></div>' +
@@ -72,7 +72,7 @@ var itemPage = {
                     '</li>' +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
                         '<div class="item-inner">' +
-                          '<div class="item-title">3.- Excepciones</div><i class="ms-Icon ms-Icon--DrillDownSolid" style="margin-right: 85%; font-size: 20px;"></i>' +
+                          '<div class="item-title">3.- Excepciones</div><i class="ms-Icon ms-Icon--DrillDownSolid" ></i>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
                         '<div class="form-ex"></div>' +
@@ -90,7 +90,23 @@ var itemPage = {
             '</div>' +
         '</div>' +
         '',
-    style:  '.form-container .ms-FormField {width: 45%; float:left} ',
+    style:  '.form-container .ms-FormField {width: 45%; float:left} '+
+            `@media all and (max-width: 5000px){
+                .ms-Icon.ms-Icon--DrillDownSolid {
+                    margin-right: 85%; font-size: 20px !important;
+                }
+            }
+            @media all and (max-width: 1024px){
+                .ms-Icon.ms-Icon--DrillDownSolid {
+                    margin-right: 80%; font-size: 20px !important;
+                }
+            }
+            @media all and (max-width: 700px){
+                .ms-Icon.ms-Icon--DrillDownSolid {
+                    margin-right: 0; font-size: 20px;
+                }
+            }
+            `,
     data: function () {
         var self = this;
         return {
