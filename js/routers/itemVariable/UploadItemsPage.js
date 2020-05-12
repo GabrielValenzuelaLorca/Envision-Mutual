@@ -367,7 +367,6 @@ var uploadItemsPage = {
                                 }
 
                                 function callServiceCargaMasivaItems(body){
-                                    console.log('Body', JSON.stringify(body))
                                     fetch(global.uris[global.env].items, {
                                         method: 'POST',
                                         headers: {
@@ -391,7 +390,6 @@ var uploadItemsPage = {
                                 }
 
                                 function PrepareToSend(fila, trabajador, item){
-                                    console.log('trabajador', trabajador)
                                     return {
                                         "CantidadMonto": fila.CANT_$MONTO,
                                         "Rut": trabajador.ID,
@@ -438,12 +436,9 @@ var uploadItemsPage = {
                                         });
 
                                         if(filtrado.length > 0){
-                                            console.log('filtrado', filtrado)
-
                                             var encontrado =filtrado.filter(function(x){
                                                 return (x.Centro_x0020_de_x0020_costo.D_CC.split(' '))[0] == cc
                                             });
-                                            console.log('Encontrados', encontrado)
 
                                             if(encontrado.length > 0){
                                                 return {
@@ -585,7 +580,6 @@ var uploadItemsPage = {
                                             linea++
                                             return;
                                         }else{
-                                            console.log('Valor de REs', res.value)
                                             fila.CCOSTO = res.value
                                         }
                                     }else{
@@ -717,9 +711,6 @@ var uploadItemsPage = {
                     $('div.item-after div.ms-Button-AttachEdit i.ms-Icon.ms-Icon--Cancel').hide()
                     context.forms.item.inputs.Attachments.setEditable(false)
                 }
-
-                console.log('Form', context.forms.item)
-
                 // remover loader
                 mths.removePageLoader();
             }

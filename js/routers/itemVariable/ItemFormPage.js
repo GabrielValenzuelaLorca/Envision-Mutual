@@ -171,7 +171,6 @@ var itemFormPage = {
             var context = this.$options.data(),
                 mths = this.$options.methods,
                 listItemId = page.route.query.listItemId
-                // console.log('itemid',listItemId);
 
             context.methods = mths;
 
@@ -373,7 +372,6 @@ var itemFormPage = {
                     function (response) {
                         context.items.ListadoItems = [];
                         context.lists.ListadoItems = response;
-                        // console.log('datos centrocosto', context.lists.CentroCosto);
 
                         if(listItemId){
                             var query = spo.encodeUrlListQuery(context.lists.ListadoItems, {
