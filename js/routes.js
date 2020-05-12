@@ -311,8 +311,18 @@ function getRoutes(){
             path: '/Posicion',
             component: posicionPage
         },
-
-
+        {
+            path: '/MantenedorRolSDP',
+            component: MantenedorRolSDPPage
+        },
+        {
+            path: '/MantenedorModuloSDP',
+            component: MantenedorModuloSDPPage
+        },
+        {
+            path: '/MantenedorUsuarioSDP',
+            component: MantenedorUsuarioSDPPage
+        }
     ]
 
     var routes = [];

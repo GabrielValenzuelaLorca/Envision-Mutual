@@ -100,6 +100,7 @@ var AppScriptsArray = [
     //Mantenedores SDP
     "js/routers/mantenedor/SDP/PosicionStreamPage.js",
     "js/routers/mantenedor/SDP/PosicionPage.js",
+    "js/routers/mantenedor/SDP/MantenedoresAdministracionSDP.js",
     
     //Carpeta Principal
     "js/routers/HomePage.js",

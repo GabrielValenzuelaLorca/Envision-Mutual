@@ -167,8 +167,6 @@ var initInformation = new Promise((resolve)=>{
                 leftBreakpoint: 700,
             },
         });
-    
-        debugger
         var roleHandler = new RoleHandler()
         roleHandler.setItemVariableRol(plantaAdmin.Rol)
         roleHandler.setSDPRol(SDP.roles)

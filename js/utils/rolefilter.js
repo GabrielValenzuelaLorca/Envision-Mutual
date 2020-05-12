@@ -461,7 +461,6 @@ class RoleItemVariable extends Role{
 class RoleSDP extends Role{
     constructor(role){
         super()
-        debugger
         this.roles = role
         this.JefeSolicitante = role.includes("Jefe Solicitante")
         this.Validador = role.includes("Validador")

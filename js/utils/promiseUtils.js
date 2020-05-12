@@ -1,3 +1,22 @@
+function getContextWebInformation(url) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: url + "/_api/contextinfo",
+            method: "POST",
+            headers: {
+                "ACCEPT": "application/json;odata=verbose",
+                "content-type": "application/json;odata=verbose"
+            },
+            success: function (data) {
+                resolve(data.d.GetContextWebInformation.FormDigestValue)
+            },
+            error: function (response, errorCode, errorMessage) {
+                reject("Could not complete list permission call: " + errorMessage);
+            }
+        })
+    });
+}
+
 function getListInfoPromise(listTitle) {
     return new Promise((resolve, reject) => {
         $.ajax({
@@ -22,12 +41,12 @@ function removePromiseListItem(url, listname, id) {
     var item = "";
     var etag = "";
 
-    var context = self.getContextWebInformation(url)
+    var context = getContextWebInformation(url)
         .then(data => {
             formDigestValue = data;
         });
 
-    var listItem = self.getPromiseListItem(url, listname, id)
+    var listItem = getPromiseListItem(url, listname, id)
         .then(data => {
             etag = data.d.__metadata.etag;
         });
@@ -100,24 +119,7 @@ function getPromiseListItem(url, listname, id) {
     });
 }
 
-function getContextWebInformation(url) {
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: url + "/_api/contextinfo",
-            method: "POST",
-            headers: {
-                "ACCEPT": "application/json;odata=verbose",
-                "content-type": "application/json;odata=verbose"
-            },
-            success: function (data) {
-                resolve(data.d.GetContextWebInformation.FormDigestValue)
-            },
-            error: function (response, errorCode, errorMessage) {
-                reject("Could not complete list permission call: " + errorMessage);
-            }
-        })
-    });
-}
+
 
 function updatePromiseListItem(url, listname, id, metadata) {
     var formDigestValue = "";
@@ -125,12 +127,12 @@ function updatePromiseListItem(url, listname, id, metadata) {
     var etag = "";
     var files = [];
 
-    var context = self.getContextWebInformation(url)
+    var context = getContextWebInformation(url)
         .then(data => {
             formDigestValue = data;
         });
 
-    var listItem = self.getPromiseListItem(url, listname, id)
+    var listItem = getPromiseListItem(url, listname, id)
         .then(data => {
             if (metadata['Attachments']) {
                 files = metadata['Attachments'];
@@ -188,7 +190,7 @@ function updatePromiseListItem(url, listname, id, metadata) {
                     return (file instanceof File);
                 });
 
-                return self.getContextWebInformation(url)
+                return getContextWebInformation(url)
                     .then(digest => {
                         return secuencializador(url, listname, id, files, formDigestValue)
                     })
@@ -209,7 +211,7 @@ function addPromiseListItem(url, listname, metadata) {
     var fullName = "";
     var item = "";
 
-    var context = self.getContextWebInformation(url)
+    var context = getContextWebInformation(url)
         .then(data => {
             formDigestValue = data;
         });
@@ -297,7 +299,7 @@ function uploadAttachments(url, listname, id, file, digest) {
         reader.onload = function (e) {
             var filename = file.name;
             var buffer = e.target.result;
-            self.uploadPromiseAttachmentItem(url, listname, id, buffer, filename, digest)
+            uploadPromiseAttachmentItem(url, listname, id, buffer, filename, digest)
                 .then(data => {
                     resolve(data);
                 })
@@ -420,12 +422,12 @@ function UserOffGroup(url, groupName, loginName, digest) {
 
 function addUserToGroup(url, userId, groupName) {
     return new Promise((resolve, reject) => {
-            var username = self.getUserLoginName(url, userId);
-            var dig = self.getContextWebInformation(url);
+            var username = getUserLoginName(url, userId);
+            var dig = getContextWebInformation(url);
 
             return Promise.all([username, dig])
                 .then(args => {
-                    self.UserToGroup(url, groupName, args[0], args[1])
+                    UserToGroup(url, groupName, args[0], args[1])
                 })
                 .then(c => {
                     resolve(true)
@@ -441,12 +443,12 @@ function addUserToGroup(url, userId, groupName) {
 
 function removeUserInGroup(url, userId, groupName) {
     return new Promise((resolve, reject) => {
-            var username = self.getUserLoginName(url, userId);
-            var dig = self.getContextWebInformation(url);
+            var username = getUserLoginName(url, userId);
+            var dig = getContextWebInformation(url);
 
             return Promise.all([username, dig])
                 .then(args => {
-                    self.UserOffGroup(url, groupName, args[0], args[1])
+                    UserOffGroup(url, groupName, args[0], args[1])
                 })
                 .then(c => {
                     resolve(true)
@@ -500,14 +502,14 @@ function savePromiseListItem(url, listname, metadata) {
         delete metadata['ID'];
     }
 
-    return self.addPromiseListItem(url, listname, metadata)
+    return addPromiseListItem(url, listname, metadata)
         .then(data => {
             if (files) {
                 files = files.filter(function (file) {
                     return (file instanceof File);
                 });
 
-                return self.getContextWebInformation(url)
+                return getContextWebInformation(url)
                     .then(digest => {
                         return secuencializador(url, listname, data.d.Id, files, digest)
                     })
@@ -569,4 +571,86 @@ function chunker(array, chunkSize) {
     return Array(Math.ceil(that.length / chunkSize)).fill().map(function (_, i) {
         return that.slice(i * chunkSize, i * chunkSize + chunkSize);
     });
+}
+
+
+//
+function listTemplate(item){
+    var self = this;
+    var subitems = '';
+    var defaults = {
+        id: generateUUID(),
+        href: '#',
+        title: '',
+        after: '',
+        media: '',
+        header: '',
+        footer: '',
+        cssClass: '',
+        onNewtab: false,
+        f7view: '.view-main',
+        panelClose: true,
+        externalLink: false,
+        collapsable: true,
+        options: []
+    },
+
+    item = item || {};
+    for (var def in defaults) {
+        if (typeof item[def] === 'undefined') {
+            item[def] = defaults[def];
+        }
+    }
+
+    for (var k = 0; k < item.options.length; k++){
+        subitems += listTemplate(item.options[k]);
+    }
+
+    return `
+        <li id="` + item.id + `" class="` + item.cssClass + ` ` + (item.options.length > 0 ? 'accordion-item' : '') + `">
+            <a href="#" ` + (item.onNewtab ? 'target="_blank"' : '') + `data-view="` + item.f7view + `" class="item-link item-content ` + (item.panelClose ? 'panel-close' : '') + ` ` + (item.externalLink ? 'external' : '') + `">
+                <div class="item-media">` + item.media + `</div>
+                <div class="item-inner">
+                    <div class="item-title">
+                        <div class="item-header">` + item.header + `</div>
+                        ` + item.title + `
+                        <div class="item-footer">` + item.footer + `</div>
+                    </div>
+                    <div class="item-after">` + item.after + `</div>
+                </div>
+            </a>
+            ` + (item.options.length > 0 ? '<div class="accordion-item-content"><div class="list accordion-list"><ul class="">' + subitems + '</ul></div></div>' : '') + `
+        </li>
+    `
+}
+
+function blockTemplate(block){
+    var self = this;
+    var lists = '';
+    var defaults = {
+        header: '',
+        footer: '',
+        options: [],
+        inset: false,
+        collapsable: true
+    },
+
+    block = block || {};
+    for (var def in defaults) {
+        if (typeof block[def] === 'undefined') {
+            block[def] = defaults[def];
+        }
+    }
+    
+    for (var k = 0; k < block.options.length; k++){
+        lists += listTemplate(block.options[k]);
+    }
+
+    return `
+        ` + (block.header ? '<div class="block-title">' + block.header + '</div>' : '') + `
+        <div class="list ` + (block.collapsable ? 'accordion-list' : '') + ` ` + (block.inset ? 'inset' : '') + `">
+            <ul class="">` + lists + `</ul>
+            ` + (block.footer ? '<div class="block-footer">' + block.footer + '</div>' : '') + `
+        </div>
+    `
 }
