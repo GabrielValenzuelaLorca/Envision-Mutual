@@ -10,18 +10,11 @@ function getMenu(roles){
 
     return getPromiseListItems(spo.getSiteUrl(),'RolesSDP','?$select=*&$filter=' + buildQuery(roles))
     .then(roles =>{
-        var modulosActivos = []
-        roles.d.results.forEach(c =>{
-            modulosActivos = modulosActivos.concat(c.ModulosActivosId.results)
-        })
-        return getPromiseListItems(spo.getSiteUrl(),'ModulosSDP','?$select=*&$filter=' + buildQuery(Array.from(new Set(modulosActivos))))
-        
-    })
-    .then(modulos =>{
         var botonesActivos = []
-        modulos.d.results.forEach(c =>{
-            botonesActivos = botonesActivos.concat(c.BotonesModuloId.results)
+        roles.d.results.forEach(c =>{
+            botonesActivos = botonesActivos.concat(c.BotonesRolId.results)
         })
+        if(botonesActivos.length <= 0) return Promise.resolve({d:{results:[]}})
         return getPromiseListItems(spo.getSiteUrl(),'BotonesRouter','?$select=*&$filter=' + buildQuery(Array.from(new Set(botonesActivos)))) 
     })
     .then(botones =>{
@@ -56,6 +49,46 @@ function getMenu(roles){
 }
 
 
+function getButtons(ids){
+    var buildQuery = function(array){
+        let query = []
+        array.forEach(id =>{
+            query.push("(Id eq "+ id +")")
+        })
+        return query.join(" or ")
+    }
+    return getPromiseListItems(spo.getSiteUrl(),'BotonesRouter','?$select=*&$filter=' + buildQuery(Array.from(new Set(ids)))) 
+    .then(botones =>{
+        var grupoBotones = groupBy(botones.d.results,'GrupoBoton')
+        var groups = []
+        var routes = []
+        for(i in grupoBotones){
+            var botones = grupoBotones[i]
+            var aux =  {
+                inset: true,
+                header: i,
+                footer: '',
+                options: []
+            }
+
+            for (let index = 0; index < botones.length; index++) {
+                const element = botones[index];
+                routes.push(element.hrefBoton)
+                aux.options.push( {
+                    href:  element.hrefBoton,
+                    title: element.Title,
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: element.IconBoton,
+                })
+            }
+            groups.push(aux)
+        }
+        return Promise.resolve(groups)
+    })
+}
+
 var MantenedorRolSDPPage = $.extend(true, {}, listStreamPage)
 
 MantenedorRolSDPPage.methods.allowChangeTemplate = function(){
@@ -67,7 +100,7 @@ MantenedorRolSDPPage.methods.getListView = function(){
 }
 
 MantenedorRolSDPPage.methods.getTitle = function(){
-    return "Modulos por Rol"
+    return "Botones por Rol"
 }
 
 MantenedorRolSDPPage.methods.getListTitle = function(){
@@ -80,6 +113,152 @@ MantenedorRolSDPPage.methods.getOneItemSelectedButtons = function(){
         page = self._getPage(),
         context = self._getPageContext(),
         buttons = [];
+    buttons.push({
+        icon: 'Add',
+        class: 'AddButtonsSDP',
+        text: 'Asignar Botones',
+        onClick: function (page, items) {
+            var listInfo = getListInfoPromise("RolesSDP")
+            var buttons = getPromiseListItems(spo.getSiteUrl(),'BotonesRouter','?$select=*')
+
+            Promise.all([listInfo,buttons]).then(args => {
+                var form = null
+                var html = `
+                <div class="page">
+                    <div class="navbar">
+                        <div class="navbar-inner">
+                            <div class="title">Asignar Botones a Rol</div>
+                            <div class="right">
+                                <a href="#" data-panel="right" class="link panel-close panel-index">
+                                    <i class="ms-Icon ms-Icon--Cancel"></i>
+                                    <span class="ios-only"></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="page-content">
+                        <div class="block">
+                            <div class="row">
+                                <div class="col-50">
+                                    <div class="card">
+                                        <div class="card-content card-content-padding panelForm"></div>
+                                        <div class="card-footer">
+                                            <a></a>
+                                            <a href="#" class="link save">Guardar <i class="ms-Icon ms-Icon--Save"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-50">
+                                    <div class="card">
+                                        <div class="card-header">Asignar Botones</div>
+                                        <div class="card-content card-content-padding ButtonSelector"></div>
+                                    </div>
+     
+                                </div>
+                            </div>
+    
+                        </div>
+                    </div>
+                </div>
+                `
+                $(app.panel.right.$el).html(html);
+    
+                form = new EFWForm({
+                    container: $(app.panel.right.$el).find('.panelForm'),
+                    editable: true,
+                    // editable: formItem ? false : true,
+                    description: '',
+                    fields: spo.getViewFields(args[0], 'Rolform')
+                });
+
+                form.inputs.NombreRol.setEditable(false)
+                form.setValues(items)
+
+                var buttonsGrouped = groupBy(args[1].d.results, 'GrupoBoton')
+                var htmlList = ""
+                for(aux in buttonsGrouped){
+                    var buttons = buttonsGrouped[aux]
+                    htmlList += ` <li class="list-group-title">`+aux+`</li>`
+                    buttons.forEach(b =>{
+                        var checkBoxInput = ""
+                        if(items.BotonesRol.find(c => c.lookupId === b.Id)){
+                            checkBoxInput = `<input type="checkbox" data-id="`+b.Id+`" checked/>`
+                        }
+                        else{
+                            checkBoxInput = `<input type="checkbox" data-id="`+b.Id+`"/>`
+                        }
+
+                        htmlList += `
+                        <li>
+                            <div class="item-content">
+                                <div class="item-media">`+b.IconBoton+`</div>
+                                <div class="item-inner">
+                                    <div class="item-title">`+b.Title+`</div>
+                                    <div class="item-after">
+                                        <label class="toggle toggle-init">
+                                        `+checkBoxInput+`
+                                        <span class="toggle-icon"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>`
+                    })
+                }
+
+                $(app.panel.right.$el).find(".ButtonSelector").html(
+                    `<div class="list" style="max-heigth:50vh;">
+                        <div class="list-group">
+                            <ul>
+                                `+htmlList+`
+                            </ul>
+                        </div>
+                    </div>`)
+    
+
+                $(app.panel.right.$el).find(".save").on('click', function (e) {
+                    var botones = $(app.panel.right.$el).find(".ButtonSelector").find("input:checked")
+                    var botonesIds = Array.from(botones).map(c => $(c).data('id'))
+ 
+                    app.toast.create({
+                        text: 'Actualizando',
+                        icon: '<i class="ms-Icon ms-Icon--Sync"></i>',
+                        position: 'top',
+                        closeTimeout: 2000,
+                    }).open();
+
+                    updatePromiseListItem(spo.getSiteUrl(), 'RolesSDP', items.ID, {BotonesRolId:{results:botonesIds}})
+                    .then(c =>{
+                        app.toast.create({
+                            text: 'Exito',
+                            icon: '<i class="ms-Icon ms-Icon--CheckMark"></i>',
+                            position: 'top',
+                            closeTimeout: 2000,
+                            }).open();
+                            page.requestItems()
+                    })
+                    .catch(error =>{
+                        app.toast.create({
+                            text: 'Error',
+                            icon: '<i class="ms-Icon ms-Icon--Cancel"></i>',
+                            position: 'top',
+                            closeTimeout: 2000,
+                            }).open();
+                    })
+                });
+    
+
+                $(app.panel.right.$el).find(".panel-close").on('click', function (e) {
+                    app.panel.close("right");
+                    $(app.panel.get("right").$el).css("min-width", "")
+                });
+    
+                $(app.panel.get("right").$el).css("min-width", "100vw")
+                app.panel.open("right");
+            })
+        }
+    })
+    
     return buttons;
 }
 
@@ -101,56 +280,6 @@ MantenedorRolSDPPage.methods.getCamlQueryConditions = function(){
 }
 
 MantenedorRolSDPPage.methods.getCamlOrderBy = function() {
-    return '<FieldRef Name="ID" Ascending="True" />';
-}
-
-
-//-------------------------------------------------------
-var MantenedorModuloSDPPage = $.extend(true, {}, listStreamPage)
-
-MantenedorModuloSDPPage.methods.allowChangeTemplate = function(){
-    return false;
-}
-
-MantenedorModuloSDPPage.methods.getListView = function(){
-    return "ListaMantenedor"
-}
-
-MantenedorModuloSDPPage.methods.getTitle = function(){
-    return "Botones por Modulo"
-}
-
-MantenedorModuloSDPPage.methods.getListTitle = function(){
-    return "ModulosSDP"
-}
-
-
-MantenedorModuloSDPPage.methods.getOneItemSelectedButtons = function(){
-    var self = this,
-        page = self._getPage(),
-        context = self._getPageContext(),
-        buttons = [];
-    return buttons;
-}
-
-MantenedorModuloSDPPage.methods.getMultiItemsSelectedButtons = function(){
-    return false;
-}
-
-MantenedorModuloSDPPage.methods.getNoItemsSelectedButtons = function(){
-    var self = this,
-        page = self._getPage(),
-        context = self._getPageContext(),
-        buttons = [];
-
-    return buttons;
-}
-
-MantenedorModuloSDPPage.methods.getCamlQueryConditions = function(){
-    return '';
-}
-
-MantenedorModuloSDPPage.methods.getCamlOrderBy = function() {
     return '<FieldRef Name="ID" Ascending="True" />';
 }
 
@@ -202,7 +331,14 @@ MantenedorUsuarioSDPPage.methods.getOneItemSelectedButtons = function(){
                     <div class="page-content">
                         <div class="block">
                             <div class="row">
-    
+                                <div class="col-50" style="max-width:300px;display:block;margin-left:auto;margin-right:auto;">
+                                    <div class="promo-container">
+                                        <div class="promo-image lazy-fadein lazy-loaded" style="background-image: url(&quot;https://grupoenvision.sharepoint.com/CDN/EFW/themes/mutual/mutual.png&quot;);"></div>
+                                        <div class="promo-title"></div>
+                                    </div>  
+                                    <div class="panelPreview"></div>
+                                </div>
+
                                 <div class="col-50">
                                     <div class="card">
                                         <div class="card-content card-content-padding panelForm"></div>
@@ -211,9 +347,6 @@ MantenedorUsuarioSDPPage.methods.getOneItemSelectedButtons = function(){
                                             <a href="#" class="link save">Guardar <i class="ms-Icon ms-Icon--Save"></i></a>
                                         </div>
                                     </div>
-                                </div>
-    
-                                <div class="col-50 panelPreview">
                                 </div>
                             </div>
     

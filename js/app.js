@@ -74,18 +74,9 @@ var initInformation = new Promise((resolve)=>{
     if(plantaAdmin.RolSDPDinamicoId.results.length > 0){
         return getPromiseListItems(spo.getSiteUrl(),'RolesSDP','?$select=*&$filter=' + buildQuery(plantaAdmin.RolSDPDinamicoId.results))
         .then(roles =>{
-            var modulosActivos = []
-            roles.d.results.forEach(c =>{
-                SDP.roles.push(c.Title)
-                modulosActivos = modulosActivos.concat(c.ModulosActivosId.results)
-            })
-            return getPromiseListItems(spo.getSiteUrl(),'ModulosSDP','?$select=*&$filter=' + buildQuery(Array.from(new Set(modulosActivos))))
-            
-        })
-        .then(modulos =>{
             var botonesActivos = []
-            modulos.d.results.forEach(c =>{
-                botonesActivos = botonesActivos.concat(c.BotonesModuloId.results)
+            roles.d.results.forEach(c =>{
+                botonesActivos = botonesActivos.concat(c.BotonesRolId.results)
             })
             return getPromiseListItems(spo.getSiteUrl(),'BotonesRouter','?$select=*&$filter=' + buildQuery(Array.from(new Set(botonesActivos)))) 
         })
@@ -252,6 +243,7 @@ var initInformation = new Promise((resolve)=>{
     }
 })
 .catch(error =>{
+    debugger
     var responseText = JSON.parse(error.responseText);
     console.log(responseText.error.message.value);
 })

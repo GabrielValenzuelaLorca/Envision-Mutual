@@ -316,10 +316,6 @@ function getRoutes(){
             component: MantenedorRolSDPPage
         },
         {
-            path: '/MantenedorModuloSDP',
-            component: MantenedorModuloSDPPage
-        },
-        {
             path: '/MantenedorUsuarioSDP',
             component: MantenedorUsuarioSDPPage
         }
