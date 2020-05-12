@@ -381,6 +381,7 @@ var solicitudesPage = {
                 // Filtrar trabajadores segun asignacion del coordinador
                 context.forms.solicitud.inputs['Trabajador'].params.onChange = function(comp, input, state, values){
                     persona = values
+                }
 
                 if(listItemId){
                     context.forms.solicitud.setValues(context.items.Solicitudes);

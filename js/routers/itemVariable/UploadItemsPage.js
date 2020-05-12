@@ -481,6 +481,11 @@ var uploadItemsPage = {
                                 //     --------- Inicio de proceso de filtrado----------- // 
                                 response[0].map(function(fila){
 
+                                    if(fila.COD_PAYROLL == "0" || fila.COD_PAYROLL == 0) {
+                                        linea++
+                                        return;
+                                    }
+
                                     let jobs = context.items.Planta.filter( x => x.Title == fila.COD_PAYROLL);
                                     if(jobs.length == 0){
                                         Errores.push({
