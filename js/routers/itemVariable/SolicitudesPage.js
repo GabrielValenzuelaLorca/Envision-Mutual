@@ -268,7 +268,6 @@ var solicitudesPage = {
                                 gps.map(function(x){
 
                                     if(x.Categoria.includes('P')){
-                                        console.log('Largo de categoria', x.Categoria.trim().length);
                                     }
                                     if(context.aprobado){
                                         return;
@@ -382,10 +381,6 @@ var solicitudesPage = {
                 // Filtrar trabajadores segun asignacion del coordinador
                 context.forms.solicitud.inputs['Trabajador'].params.onChange = function(comp, input, state, values){
                     persona = values
-                    console.log('Values', values)
-                }
-                
-                
 
                 if(listItemId){
                     context.forms.solicitud.setValues(context.items.Solicitudes);
@@ -424,7 +419,6 @@ var solicitudesPage = {
                         var dialog = app.dialog.progress(dialogTitle);
                         
                         let metadata = context.forms.solicitud.getMetadata();
-                        console.log('Metadata', metadata)
 
                         metadata['Estado'] = 'Espera de revisión';
                         metadata['PeriodoId'] = context.items.Periodo.ID;
@@ -524,7 +518,6 @@ var solicitudesPage = {
 
                         metadata['Estado'] = 'Aprobado';
                         //Generando texto de historial
-                        console.log('CC', cc)
                         let texto = `Administrador: ${plantaAdmin.NombreCompleto}, Fecha ${moment(new Date()).format("DD/MM/YYYY hh:mm:ss")}\n`;
                         texto += `Estado actual solicitud: ${metadata['Estado']}\n`
                         texto += `Centro de costo asociado: ${cc.CodigoCC}\n`
@@ -1016,6 +1009,7 @@ var solicitudesPage = {
                                 },
                             },
                         });
+                        
 
                         dynamicPopup.open();
                     }
@@ -1035,13 +1029,11 @@ var solicitudesPage = {
                     if(plantaAdmin.Rol == "Administrador"){
                         if (loaded.Solicitudes && loaded.Periodo && loaded.CentroCosto) {
                             initForm();
-                            console.log('admininfro es administrador');
                             return;
                         }
                     }
                     if(plantaAdmin.Rol == "Coordinador"){
                         if (loaded.Categorias && loaded.Planta && loaded.Solicitudes && loaded.Periodo && loaded.ListadoItemVariable) {
-                            console.log('admininfro es coordinador');
                             initForm();
                             return;
                         }

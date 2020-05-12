@@ -384,7 +384,6 @@ class RoleItemVariable extends Role{
                                 let encontrado = context.haber.filter(function(x){
                                     return x.ID == y
                                 })[0]
-                                console.log('Haber disponible', encontrado)
                                 return {
                                     "Codigo Item Variable": encontrado.Title,
                                     "Nombre Item Variable": encontrado.NombreItem,
@@ -409,7 +408,7 @@ class RoleItemVariable extends Role{
                         let colSizes1 = [{"width":30},{"width":50},{"width":15}];
                         let colSizes2 = [{"width":20},{"width":20},{"width":50},{"width":20},{"width":15},{"width":20}];
                         
-                        generateXLSX(["Listado Haberes","Listado Trabajadores"], 'Excel Generado', [selfHaber, selfJobs], true, [colSizes1,colSizes2] ,
+                        generateXLSX(["Listado Haberes","Listado Trabajadores"], 'Excel Generado', [selfHaber, selfJobs], false, [colSizes1,colSizes2] ,
                             function(response){},
                             function(response){
                                 var responseText = JSON.parse(response.Error);
