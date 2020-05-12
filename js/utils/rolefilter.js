@@ -675,7 +675,10 @@ class RoleHandler{
 
     getOptions(context){
         app.panel.left.$el.show()
-        app.view.main.$el.css("margin-left", "260px")
+        if(Math.max(document.documentElement.clientWidth, window.innerWidth || 0) > 700){
+            app.view.main.$el.css("margin-left", "260px")
+        }
+        
 
         var defecto = [{
             inset: true,
