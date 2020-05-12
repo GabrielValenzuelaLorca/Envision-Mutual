@@ -381,6 +381,7 @@ var solicitudesPage = {
                 // Filtrar trabajadores segun asignacion del coordinador
                 context.forms.solicitud.inputs['Trabajador'].params.onChange = function(comp, input, state, values){
                     persona = values
+                }
 
                 if(listItemId){
                     context.forms.solicitud.setValues(context.items.Solicitudes);
@@ -1029,13 +1030,11 @@ var solicitudesPage = {
                     if(plantaAdmin.Rol == "Administrador"){
                         if (loaded.Solicitudes && loaded.Periodo && loaded.CentroCosto) {
                             initForm();
-                            return;
                         }
                     }
                     if(plantaAdmin.Rol == "Coordinador"){
                         if (loaded.Categorias && loaded.Planta && loaded.Solicitudes && loaded.Periodo && loaded.ListadoItemVariable) {
                             initForm();
-                            return;
                         }
                     }
                 };
@@ -1079,8 +1078,6 @@ var solicitudesPage = {
                     }
                 );
                 
-                
-
                 if(plantaAdmin.Rol == "Coordinador"){
                     //Obtengo el listado de haberes para ser filtrados
                     spo.getListInfo('Planta',
@@ -1117,32 +1114,32 @@ var solicitudesPage = {
 
                     // Obtengo el listado de categorias completa
                     spo.getListInfo('Categoria',
-                    function (response) {
-                                 context.items.Categorias = [];
-                                 context.lists.Categorias = response;
-                                 //loaded.listaItemVariable = true;
-         
-                                     var query = spo.encodeUrlListQuery(context.lists.Categorias, {
-                                         view: 'Todos los elementos',
-                                         odata: {
-                                             'select': '*',
-                                             'top' : 5000
-                                         }
-                                     });
-         
-                                     spo.getListItems(spo.getSiteUrl(), 'Categoria', query,
-                                         function (response) {
-                                             context.items.Categorias = response.d.results.length > 0 ? response.d.results : null;
-                                             loaded.Categorias = true;
-                                             shouldInitForms();
-                                         },
-                                         function (response) {
-                                             var responseText = JSON.parse(response.responseText);
-                                             console.log(responseText.error.message.value);
-                                         }
-                                     );
-         
-                        },
+                        function (response) {
+                                    context.items.Categorias = [];
+                                    context.lists.Categorias = response;
+                                    //loaded.listaItemVariable = true;
+            
+                                        var query = spo.encodeUrlListQuery(context.lists.Categorias, {
+                                            view: 'Todos los elementos',
+                                            odata: {
+                                                'select': '*',
+                                                'top' : 5000
+                                            }
+                                        });
+            
+                                        spo.getListItems(spo.getSiteUrl(), 'Categoria', query,
+                                            function (response) {
+                                                context.items.Categorias = response.d.results.length > 0 ? response.d.results : null;
+                                                loaded.Categorias = true;
+                                                shouldInitForms();
+                                            },
+                                            function (response) {
+                                                var responseText = JSON.parse(response.responseText);
+                                                console.log(responseText.error.message.value);
+                                            }
+                                        );
+            
+                            },
                         function (response) {
                             var responseText = JSON.parse(response.responseText);
                             console.log(responseText.error.message.value);
@@ -1174,10 +1171,10 @@ var solicitudesPage = {
                             );
                 
                         },
-                            function (response) {
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                            }
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
                     );
                 }
                 
