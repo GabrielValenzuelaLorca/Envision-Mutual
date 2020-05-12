@@ -1,4 +1,4 @@
-var itemFormPage = {
+var SolicitudesGuardadasPage = {
     template: '' +
         '<div class="page" data-page="FormPage">' +
             '<div class="navbar">' +
@@ -21,7 +21,7 @@ var itemFormPage = {
                         '</a>' +
                         '<a href="#" class="link create ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Save"></i>' +
-                            '<span class="ios-only">Añadir Centro de Costo</span>' +
+                            '<span class="ios-only">Aprobar Solicitud</span>' +
                         '</a>' +
                         '<a href="#" class="link generate-PDF ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PDF"></i>' +
@@ -111,7 +111,7 @@ var itemFormPage = {
 
         // obtener título de la lista de inspección
         getListTitle: function () {
-            return 'ListadoItemVariable';
+            return 'SolicitudSDP';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -171,6 +171,7 @@ var itemFormPage = {
             var context = this.$options.data(),
                 mths = this.$options.methods,
                 listItemId = page.route.query.listItemId
+                console.log('itemid',listItemId);
 
             context.methods = mths;
 
@@ -193,164 +194,161 @@ var itemFormPage = {
                     $updateButton = $navbar.find('.link.update');                    
                                     
 
+                    // $updateButton.on('click', function (e) {
+                    //     var dialogTitle = 'Editando elemento';
+    
+                    //     function save() {
+                    //         var dialog = app.dialog.progress(dialogTitle);
+                    //         var metadata = context.forms.ceco.getMetadata();   
+                            
+                    //         console.log('Metadata', metadata)                     
+    
+                    //         spo.updateListItems(spo.getSiteUrl(), 'CentroCosto', metadata, function (response) {
+                    //             dialog.close();
+    
+                    //             app.dialog.create({
+                    //                 title: dialogTitle,
+                    //                 text: 'Elemento actualizado con éxito',
+                    //                 buttons: [{
+                    //                     text: 'Aceptar',
+                    //                     onClick: function () {
+                    //                         mainView.router.navigate('/cecoStream');
+                    //                     }
+                    //                 }],
+                    //                 verticalButtons: false
+                    //             }).open();
+    
+    
+                    //         }, function (response) {
+                    //             var responseText = JSON.parse(response.responseText);
+                    //             console.log('responseText', responseText);
+    
+                    //             dialog.close();
+                    //             app.dialog.create({
+                    //                 title: 'Error al guardar en lista ' + mths.getListTitle(),
+                    //                 text: responseText.error.message.value,
+                    //                 buttons: [{
+                    //                     text: 'Aceptar'
+                    //                 }],
+                    //                 verticalButtons: false
+                    //             }).open();
+                    //         });
+                    //     }
+                        
+                    //     context.forms.ceco.checkFieldsRequired();
+    
+                    //     var validate = context.forms.ceco.getValidation();
+    
+                    //     if (validate) {
+                    //         app.dialog.create({
+                    //             title: dialogTitle,
+                    //             text: 'Se actualizará el elemento.',
+                    //             buttons: [{
+                    //                 text: 'Cancelar'
+                    //             }, {
+                    //                 text: 'Aceptar',
+                    //                 onClick: function onClick() {
+                    //                     save();
+                    //                 }
+                    //             }],
+                    //             verticalButtons: false
+                    //         }).open();
+                    //     } else {
+                    //         app.dialog.create({
+                    //             title: 'Datos insuficientes',
+                    //             text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
+                    //             buttons: [{
+                    //                 text: 'Aceptar'
+                    //             }],
+                    //             verticalButtons: false
+                    //         }).open();
+                    //     }
+    
+                    // });
+    
+                    // $createButton.on('click', function (e) {
+                    //     var dialogTitle = 'Creacion de Centro de costo'; 
+    
+    
+                    //     function save() {
+                    //         // Mostrar la información del coordinador (la metadata son los datos que se ingresar en el form)                    
+                    //         var metadataCeco = context.forms.ceco.getMetadata()
+                    //         var dialog = app.dialog.progress(dialogTitle);
+    
+                    //         spo.saveListItems(spo.getSiteUrl(), 'CentroCosto' ,metadataCeco, function (response) {
+                    //             dialog.close();
+    
+                    //             app.dialog.create({
+                    //                 title: dialogTitle,
+                    //                 text: 'Centro de costo agregado correctamente.',
+                    //                 buttons: [{
+                    //                     text: 'Aceptar',
+                    //                     onClick: function () {
+                    //                         mainView.router.navigate('/cecoStream');
+                    //                     }
+                    //                 }],
+                    //                 verticalButtons: false
+                    //             }).open();
+    
+    
+                    //         }, function (response) {
+                    //             var responseText = JSON.parse(response.responseText);
+                    //             console.log('responseText', responseText);
+    
+                    //             dialog.close();
+                    //             app.dialog.create({
+                    //                 title: 'Error al actualizar la lista de haberes ' + mths.getListTitle(),
+                    //                 text: responseText.error.message.value,
+                    //                 buttons: [{
+                    //                     text: 'Aceptar'
+                    //                 }],
+                    //                 verticalButtons: false
+                    //             }).open();
+                    //         });
+                    //     }
+    
+                    //         context.forms.ceco.checkFieldsRequired();
+                    //         var validateCeco =  context.forms.ceco.getValidation();
+        
+                    //         if (validateCeco){
+                    //             dialogs.confirmDialog(
+                    //                 dialogTitle,
+                    //                 'Se creara el centro de costo',
+                    //                 save
+                    //             )
+                    //         } else {
+                    //             dialogs.infoDialog(
+                    //                 "Datos mal ingresados",
+                    //                 'Rellene todos los campos correctamente'
+                    //             )
+                    //         } 
+                            
+                            
+                        
+    
+                    // });
 
 
                     // formulario de registro
-                context.forms.hbr = new EFWForms({
-                    container: $container.find('.form-container'),
-                    title: mths.getListTitle(),
-                    editable: true,
-                    fields: spo.getViewFields(context.lists.ListadoItems, 'Vista general')
-                });
-
-                context.forms.hbr.addRow();
-
-                if (listItemId) {
-                    context.forms.hbr.setValues(context.items.ListadoItems); 
-                    $('.ms-Button.ms-Button--primary').addClass('hide');
-                    $('.ms-Button.ms-Button--remove').addClass('hide');
-                    $updateButton.removeClass('hide');
-                     
-                } else {
-                    $createButton.removeClass('hide');  
-                }
-
-                // $updateButton.on('click', function (e) {
-                //     var dialogTitle = 'Editando elemento';
-
-                //     function save() {
-                //         var dialog = app.dialog.progress(dialogTitle);
-                //         var metadata = context.forms.hbr.getMetadata();                        
-
-                //         spo.updateListItem(spo.getSiteUrl(), mths.getListTitle(), listItemId,metadata, function (response) {
-                //             dialog.close();
-
-                //             app.dialog.create({
-                //                 title: dialogTitle,
-                //                 text: 'Elemento actualizado con éxito',
-                //                 buttons: [{
-                //                     text: 'Aceptar',
-                //                     onClick: function () {
-                //                         mainView.router.navigate('/itemVariableStream');
-                //                     }
-                //                 }],
-                //                 verticalButtons: false
-                //             }).open();
-
-
-                //         }, function (response) {
-                //             var responseText = JSON.parse(response.responseText);
-                //             console.log('responseText', responseText);
-
-                //             dialog.close();
-                //             app.dialog.create({
-                //                 title: 'Error al guardar en lista ' + mths.getListTitle(),
-                //                 text: responseText.error.message.value,
-                //                 buttons: [{
-                //                     text: 'Aceptar'
-                //                 }],
-                //                 verticalButtons: false
-                //             }).open();
-                //         });
-                //     }
-                    
-                //     context.forms.item.checkFieldsRequired();
-
-                //     var validate = context.forms.item.getValidation();
-
-                //     if (validate) {
-                //         app.dialog.create({
-                //             title: dialogTitle,
-                //             text: 'Se actualizará el elemento.',
-                //             buttons: [{
-                //                 text: 'Cancelar'
-                //             }, {
-                //                 text: 'Aceptar',
-                //                 onClick: function onClick() {
-                //                     save();
-                //                 }
-                //             }],
-                //             verticalButtons: false
-                //         }).open();
-                //     } else {
-                //         app.dialog.create({
-                //             title: 'Datos insuficientes',
-                //             text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                //             buttons: [{
-                //                 text: 'Aceptar'
-                //             }],
-                //             verticalButtons: false
-                //         }).open();
-                //     }
-
+                // context.forms.ceco = new EFWForms({
+                //     container: $container.find('.form-container'),
+                //     title: mths.getListTitle(),
+                //     editable: true,
+                //     fields: spo.getViewFields(context.lists.CentroCosto, 'Cequitos')
                 // });
 
-                $createButton.on('click', function (e) {
-                    var dialogTitle = 'Añadiendo Ítem'; 
+                // context.forms.ceco.addRow();
 
+                // if (listItemId) {
+                //     context.forms.ceco.setValues(context.items.CentroCosto); 
+                //     $('.ms-Button.ms-Button--primary').addClass('hide');
+                //     $('.ms-Button.ms-Button--remove').addClass('hide');
+                //     $updateButton.removeClass('hide');
+                     
+                // } else {
+                //     $createButton.removeClass('hide');  
+                // }
 
-                    function save() {
-                        // Mostrar la información del coordinador (la metadata son los datos que se ingresar en el form)                    
-                        var metadataHbr = context.forms.hbr.getMetadata()
-                        var dialog = app.dialog.progress(dialogTitle);
-
-                        spo.saveListItems(spo.getSiteUrl(), 'ListadoItems' ,metadataHbr, function (response) {
-                            dialog.close();
-
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Ítem creado con éxito',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.navigate('/itemVariable');
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-
-
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
-
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al añadir el ítem ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        });
-                    }
-
-                        context.forms.hbr.checkFieldsRequired();
-                        var validateHbr =  context.forms.hbr.getValidation();
-    
-                        if (validateHbr){
-                            dialogs.confirmDialog(
-                                dialogTitle,
-                                'Se añadira el ítem',
-                                save
-                            )
-                        } else {
-                            dialogs.infoDialog(
-                                "Datos mal ingresados",
-                                'Rellene todos los campos correctamente'
-                            )
-                        } 
-                        
-                        
-                    
-
-                });
-
-                $clearButton.on('click', function (e){
-                });
-
-                // remover loader
                 mths.removePageLoader();
             }
 
@@ -361,20 +359,19 @@ var itemFormPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.ListadoItems) {
+                    if (loaded.SolicitudSDP) {
                         initForm();
                     }
                 };             
 
                 
-                //Obtengo el listado de centro de costos para ser filtrados
-                spo.getListInfo('ListadoItems',
+                //Obtengo el listado de solicitudes para ser filtrados
+                spo.getListInfo('SolicitudSDP',
                     function (response) {
-                        context.items.ListadoItems = [];
-                        context.lists.ListadoItems = response;
-
+                        context.items.SolicitudSDP = [];
+                        context.lists.SolicitudSDP = response;
                         if(listItemId){
-                            var query = spo.encodeUrlListQuery(context.lists.ListadoItems, {
+                            var query = spo.encodeUrlListQuery(context.lists.SolicitudSDP, {
                                 view: 'Todos los elementos',
                                 odata: {
                                     'select': '*',
@@ -382,10 +379,10 @@ var itemFormPage = {
                                 }
                             });
 
-                            spo.getListItems(spo.getSiteUrl(), 'ListadoItems', query,
+                            spo.getListItems(spo.getSiteUrl(), 'SolicitudSDP', query,
                                 function (response) {
-                                    context.items.ListadoItems = response.d.results.length > 0 ? response.d.results : null;
-                                    loaded.ListadoItems= true;
+                                    context.items.SolicitudSDP = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.SolicitudSDP= true;
                                     shouldInitForms();
                                 },
                                 function (response) {
@@ -395,7 +392,7 @@ var itemFormPage = {
                             );
 
                         }else{
-                            loaded.ListadoItems= true;
+                            loaded.SolicitudSDP= true;
                             shouldInitForms();
                         }
                     },

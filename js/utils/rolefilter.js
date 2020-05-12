@@ -15,7 +15,7 @@ class RoleItemVariable extends Role{
     getModuleCard(){
         if(this.Administrador || this.Aprobador || this.Coordinador || this.LicenciasMedicas){
             return {
-                Title: 'Item Variables',
+                Title: 'Ítem Variables',
                 IDModulo:'IV',
                 Href: '#'
             }
@@ -63,10 +63,10 @@ class RoleItemVariable extends Role{
                 admSection.options = admSection.options.concat([
                     {
                         href: '/sendStatusStream',
-                        title: 'Estados de envio',
+                        title: 'Estados de envío',
                         after: '',
                         header: '',
-                        footer: 'Items Variables',
+                        footer: 'Ítems Variables',
                         panelClose: true,
                         externalLink: false,
                         f7view: '.view-main',
@@ -260,7 +260,7 @@ class RoleItemVariable extends Role{
                 coorSection.options = coorSection.options.concat([ 
                     {
                         href: '/item',
-                        title: 'Nuevo Item',
+                        title: 'Nuevo Ítem',
                         after: '',
                         header: '',
                         footer: '',
@@ -271,7 +271,7 @@ class RoleItemVariable extends Role{
                     },
                     {
                         href: '/itemVariableStream',
-                        title: 'Items Variables',
+                        title: 'Ítems Variables',
                         after: '',
                         header: '',
                         footer: '',
@@ -282,7 +282,7 @@ class RoleItemVariable extends Role{
                     },
                     {
                         href: '/uploadItems',
-                        title: 'Carga Masiva Items',
+                        title: 'Carga Masiva Ítems',
                         after: '',
                         header: '',
                         footer: '',
@@ -304,11 +304,11 @@ class RoleItemVariable extends Role{
                     }
                 ]);
             } else if(outPeriod){
-                coorSection.footer = 'Se ha vencido el periodo de envio. Contactese con el administrador';
+                coorSection.footer = 'Se ha vencido el periodo de envío. Contactese con el administrador';
             } else if(!canSendInform) {
                 coorSection.footer = 'Tu informe ya ha sido enviado';
             } else if(!context.onPeriod){
-                coorSection.footer = 'No hay un periodo vigente para añadir items';
+                coorSection.footer = 'No hay un periodo vigente para añadir ítems';
             }
     
             if (context.onPeriod) {
@@ -384,7 +384,6 @@ class RoleItemVariable extends Role{
                                 let encontrado = context.haber.filter(function(x){
                                     return x.ID == y
                                 })[0]
-                                console.log('Haber disponible', encontrado)
                                 return {
                                     "Codigo Item Variable": encontrado.Title,
                                     "Nombre Item Variable": encontrado.NombreItem,
@@ -409,7 +408,7 @@ class RoleItemVariable extends Role{
                         let colSizes1 = [{"width":30},{"width":50},{"width":15}];
                         let colSizes2 = [{"width":20},{"width":20},{"width":50},{"width":20},{"width":15},{"width":20}];
                         
-                        generateXLSX(["Listado Haberes","Listado Trabajadores"], 'Excel Generado', [selfHaber, selfJobs], true, [colSizes1,colSizes2] ,
+                        generateXLSX(["Listado Haberes","Listado Trabajadores"], 'Excel Generado', [selfHaber, selfJobs], false, [colSizes1,colSizes2] ,
                             function(response){},
                             function(response){
                                 var responseText = JSON.parse(response.Error);
@@ -466,9 +465,10 @@ class RoleSDP extends Role{
         this.Validador = role.includes("Validador")? true:false
         this.CyE = role.includes("CyE")? true:false
         this.CeCo = role.includes("Encargado CeCo")? true:false
+        this.JefeCyE = role.includes("Jefe CyE")? true:false
     }
     getModuleCard(){
-        if(this.JefeSolicitante || this.Validador || this.CyE || this.CeCo){
+        if(this.JefeSolicitante || this.Validador || this.CyE || this.CeCo || this.JefeCyE){
             return {
                 Title: 'Solicitud Personal',
                 IDModulo:'SDP',
@@ -566,6 +566,30 @@ class RoleSDP extends Role{
             ]);
           
             settings.push(cecoSection);
+        }
+        if (this.JefeCyE){
+            let jefecyeSection = {
+                inset: true,
+                header: 'Jefatura CyE',
+                footer: '',
+                options: []
+            };
+    
+            jefecyeSection.options = jefecyeSection.options.concat([
+                {
+                    href: '/SolicitudesGuardadas',                    
+                    title: 'Solicitudes',                    
+                    after: '',
+                    header: '',
+                    footer: '',                    
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--Archive"></i>',
+                },
+            ]);
+          
+            settings.push(jefecyeSection);
         }
         if (this.CyE ){
             let cyeSection = {

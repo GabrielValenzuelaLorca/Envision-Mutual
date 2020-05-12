@@ -307,6 +307,10 @@ function getRoutes(){
             path: '/Posicion',
             component: posicionPage
         },
+        {
+            path: '/SolicitudesGuardadas',
+            component: SolicitudesGuardadasPage
+        },
 
 
     ]
