@@ -462,45 +462,6 @@ class RoleSDP extends Role{
     constructor(role){
         super()
         this.roles = role
-        this.JefeSolicitante = role.includes("Jefe Solicitante")
-        this.Validador = role.includes("Validador")
-        this.Administrador = role.includes("Administrador")
-        this.Solicitante = role.includes("Solicitante")
-        this.SupervisorPractica = role.includes("Supervisor de Practica")
-
-        //CyE
-        this.CyE = role.includes("CyE")
-        this.JefeCyE = role.includes("Jefe CyE")
-        this.ValidadorAdicionalJefeCyE = role.includes("Validador Adicional Jefe CyE")
-        this.GrupoCyE = this.CyE || this.JefeCyE  || this.ValidadorAdicionalJefeCyE
-
-        //RyS
-        this.GestoresRyS = role.includes("Gestores RyS - Reclutadores")
-        this.AdministrativoRyS = role.includes("Administrativo RyS")
-        this.JefeRyS = role.includes("Jefe RyS")
-        this.GrupoRyS = this.GestoresRyS || this.AdministrativoRyS  || this.JefeRyS
-
-        //DL
-        this.DL = role.includes("DL")
-        this.JefeDL = role.includes("Jefe DL")
-        this.GrupoDL = this.DL || this.JefeDL
-        
-        //RRLL
-        this.RRLL = role.includes("Relaciones Laborales")
-        this.GrupoRRLL = this.RRLL 
-
-        //Mantenedores
-        this.CeCo = this.GrupoCyE
-        this.EncargadoPlanta = this.GrupoCyE
-        this.EncargadoCargos = this.GrupoCyE
-        this.EncargadoDesempenno = this.GrupoCyE
-        this.EncargadoEvaluaciones = this.GrupoRyS
-        this.EncargadoJornadas = this.GrupoDL
-        this.EncargadoPosicionEstructura = this.CyE
-        this.EncargadoPracticantes = this.JefeRyS
-        this.EncargadoReemplazos = this.JefeRyS
-        this.EncargadoEST = this.JefeRyS
-        this.EncargadoJornadasExepcionales = this.GrupoRRLL || this.GrupoCyE
     }
     getModuleCard(){
         if(this.roles.length > 0){

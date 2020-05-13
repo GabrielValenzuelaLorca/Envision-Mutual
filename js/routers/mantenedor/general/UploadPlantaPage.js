@@ -223,26 +223,10 @@ var uploadPlantaPage = {
                     }
 
                     function activarCargaPendiente(){
-
-                        let metadata = context.items.globalState.filter(function(x){
-                            return x.Title == 'ActualizandoPlanta'
-                        });
-                        var formTemp = new EFWForm({
-                            container: $container.find('.container'),
-                            title: '',
-                            editable: false,
-                            // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
-                            fields: spo.getViewFields(context.lists.globalState, 'Todos los elementos')
-                        });
-                        formTemp.hide();
-                        
-                        formTemp.inputs['LinkTitle'].setValue(metadata[0]['Title']);
-                        formTemp.inputs['Value'].setValue([{key: 'SI', text: 'SI'}]);
-    
-                        spo.updateListItem(spo.getSiteUrl(), 'EstadosGlobales', 1, formTemp.getMetadata(), function (response) {    
+                        let metadata = context.items.globalState.find(c => c.Title === "ActualizandoPlanta")
+                        spo.updateListItem(spo.getSiteUrl(), 'EstadosGlobales', metadata.Id, {Value: "SI"}, function (response) {    
                         }, function (response) {
                                 var responseText = JSON.parse(response.responseText);
-    
                                 dialog.close();
                                 app.dialog.create({
                                     title: 'Error al guardar en lista EstadoGlobal',
@@ -347,82 +331,182 @@ var uploadPlantaPage = {
                     }
 
                     function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
+                        
+                        var validador = getPromiseListItems(spo.getSiteUrl(),'RolesSDP','?$select=*&$filter=Title eq \'Validador\'')
+                        var jefe = getPromiseListItems(spo.getSiteUrl(),'RolesSDP','?$select=*&$filter=Title eq \'JefeSolicitante\'')
 
-                        files = file.files
-                        handleExcelFromInput(files, 
-                            function(response){
-                                //contadores y linea actual del prosesamiento
-                                var linea = 2;
-
-                                //Arreglos donde quedaran los datos
-                                var Agregar = [];
-                                var Actualizar = [];
-                                var Quitar = [];
-                                var SinCambios = [];
-
-                                var asignarValidador = new Set()
-
-                                //Variable donde se guardan los errores
-                                var errores = [];
-
-                                //     --------- Inicio de proceso de filtrado----------- // 
-                                //Filtramos los que no existen en sharepoint y si en Excel
-                                response[0].map(function(fila){
-                                    let existe = context.items.Planta.filter(planta => planta.Title.trim() == fila.codigo.trim());
-                                    
-                                    //Validamos si se encontro la fila en la planta segun el codigo ingresado
-                                    if(existe.length > 0){
-                                        //Valida si existen cambios en el contrato. Si hay cambios actualiza los datos de la fila.
+                        Promise.all([jefe, validador]).then(args =>{
+                            var dialog = app.dialog.progress(dialogTitle);
+                            files = file.files
+                            handleExcelFromInput(files, 
+                                function(response){
+                                    //contadores y linea actual del prosesamiento
+                                    var linea = 2;
+    
+                                    //Arreglos donde quedaran los datos
+                                    var Agregar = [];
+                                    var Actualizar = [];
+                                    var Quitar = [];
+                                    var SinCambios = [];
+    
+                                    var asignarValidador = new Set()
+    
+                                    //Variable donde se guardan los errores
+                                    var errores = [];
+    
+                                    //     --------- Inicio de proceso de filtrado----------- // 
+                                    //Filtramos los que no existen en sharepoint y si en Excel
+                                    response[0].map(function(fila){
+                                        let existe = context.items.Planta.filter(planta => planta.Title.trim() == fila.codigo.trim());
                                         
-                                        if(existe[0].TipoContrato.charAt(0).toLowerCase() != fila.tipcon.trim().charAt(0).toLowerCase() ||  existe[0].cargo == null ){
-                                            //Validacion del bug de Reemplazo que en excel se trata como F
-                                            if((existe[0].TipoContrato.charAt(0).toLowerCase() == 'r') && (fila.tipcon.trim().charAt(0).toLowerCase() == 'f') ){
+                                        //Validamos si se encontro la fila en la planta segun el codigo ingresado
+                                        if(existe.length > 0){
+                                            //Valida si existen cambios en el contrato. Si hay cambios actualiza los datos de la fila.
+                                            
+                                            if(existe[0].TipoContrato.charAt(0).toLowerCase() != fila.tipcon.trim().charAt(0).toLowerCase() ||  existe[0].cargo == null ){
+                                                //Validacion del bug de Reemplazo que en excel se trata como F
+                                                if((existe[0].TipoContrato.charAt(0).toLowerCase() == 'r') && (fila.tipcon.trim().charAt(0).toLowerCase() == 'f') ){
+                                                    SinCambios.push(existe[0]);
+                                                    return;
+                                                }
+                                                fila.ID = existe[0].ID;
+    
+                                                //Si no existe se procede a crear el nuevo trabajador
+    
+                                                //Obtenemos el ID de la categoria con el nombre completo de esta.
+                                                var categoria = context.items.Categoria.filter(function(c){
+                                                    return c.Categoria.replace(' ','').replace('-','') == limpiarString(fila.d_catego);                                            
+                                                });
+    
+                                                //Obtenemos el ID interno de la afp.
+                                                var AFP = context.items.AFP.filter(function(c){
+                                                    return c.Title == fila.cod_afp;                                            
+                                                });
+    
+                                                //Obtenemos el ID interno de Isapre
+                                                var Isapre = context.items.Isapre.filter(function(c){
+                                                    return c.Title == fila.cod_isa;                                            
+                                                });
+    
+                                                //Obtenemos el ID interno de Centro Costo
+                                                var CC = context.items.CentroCosto.filter(function(c){
+                                                    return c.CodigoCC == fila.d_nro_cenc;                                            
+                                                });
+    
+                                                //Obtenemos el ID interno de Centro Costo
+                                                var Cargo = context.items.Cargo.filter(function(c){
+                                                    return c.CodigoPayroll == fila.cargo;                                            
+                                                });
+    
+                                                //Validamos si se encontro. Si no se encontro se almacena la linea del error y el detalle
+    
+                                                //Validacion Para Categoria
+                                                if(categoria.length == 0){
+                                                    errores.push([{
+                                                        "Linea" : linea++, 
+                                                        "error": "No se encontro la categoria en los registros de sharepoint. Categoria" + fila.d_catego
+                                                    }]);
+                                                    return;
+                                                }else{
+                                                    fila.catego = categoria[0].ID;
+                                                }
+    
+                                                //Validacion PAra AFP
+                                                if(AFP.length == 0){
+                                                    errores.push([{
+                                                        "Linea" : linea++, 
+                                                        "error": "No se encontro la AFP en los registros de sharepoint"
+                                                    }]);
+                                                    return;
+                                                }else{
+                                                    fila.cod_afp = AFP[0].ID;
+                                                }
+    
+                                                //Validacion PAra Isapre
+                                                if(Isapre.length == 0){
+                                                    errores.push([{
+                                                        "Linea" : linea,
+                                                        "error": "No se encontro la Isapre en los registros de sharepoint"
+                                                    }]);
+                                                    return;
+                                                }else{
+                                                    fila.cod_isa = Isapre[0].ID;
+                                                }
+    
+                                                if(CC.length == 0){
+                                                    errores.push([{
+                                                        "Linea" : linea,
+                                                        "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_nro_cenc
+                                                    }]);
+                                                    return;
+                                                }else{
+                                                    fila.d_nro_cenc = CC[0].ID;
+                                                }
+    
+                                                if(Cargo.length == 0){
+                                                    errores.push([{
+                                                        "Linea" : linea,
+                                                        "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_cargo
+                                                    }]);
+                                                    return;
+                                                }else{
+                                                    fila.d_cargo = Cargo[0].ID;
+                                                }
+                                                Actualizar.push(PrepareToSend(fila));
+    
+                                                asignarValidador.add(fila['Aprobador 1'])
+                                                asignarValidador.add(fila['Aprobador 2'])
+                                                asignarValidador.add(fila['Aprobador 3'])
+                                                asignarValidador.add(fila['Aprobador 4'])
+                                                asignarValidador.add(fila['Aprobador 5'])
+                                                asignarValidador.add(fila['Aprobador 6'])
+                                                asignarValidador.add(fila['Aprobador 7'])
+                                                asignarValidador.add(fila['Aprobador 8'])
+                                            }else{
                                                 SinCambios.push(existe[0]);
                                                 return;
                                             }
-                                            fila.ID = existe[0].ID;
-
+                                        }else{
                                             //Si no existe se procede a crear el nuevo trabajador
-
+    
                                             //Obtenemos el ID de la categoria con el nombre completo de esta.
                                             var categoria = context.items.Categoria.filter(function(c){
                                                 return c.Categoria.replace(' ','').replace('-','') == limpiarString(fila.d_catego);                                            
                                             });
-
+    
                                             //Obtenemos el ID interno de la afp.
                                             var AFP = context.items.AFP.filter(function(c){
                                                 return c.Title == fila.cod_afp;                                            
                                             });
-
+    
                                             //Obtenemos el ID interno de Isapre
                                             var Isapre = context.items.Isapre.filter(function(c){
                                                 return c.Title == fila.cod_isa;                                            
                                             });
-
+    
                                             //Obtenemos el ID interno de Centro Costo
                                             var CC = context.items.CentroCosto.filter(function(c){
                                                 return c.CodigoCC == fila.d_nro_cenc;                                            
                                             });
-
+                                            
                                             //Obtenemos el ID interno de Centro Costo
                                             var Cargo = context.items.Cargo.filter(function(c){
                                                 return c.CodigoPayroll == fila.cargo;                                            
                                             });
-
+    
                                             //Validamos si se encontro. Si no se encontro se almacena la linea del error y el detalle
-
+    
                                             //Validacion Para Categoria
                                             if(categoria.length == 0){
                                                 errores.push([{
                                                     "Linea" : linea++, 
-                                                    "error": "No se encontro la categoria en los registros de sharepoint. Categoria" + fila.d_catego
+                                                    "error": "No se encontro la categoria en los registros de sharepoint. Categoria " + fila.d_catego
                                                 }]);
                                                 return;
                                             }else{
                                                 fila.catego = categoria[0].ID;
                                             }
-
+    
                                             //Validacion PAra AFP
                                             if(AFP.length == 0){
                                                 errores.push([{
@@ -433,8 +517,8 @@ var uploadPlantaPage = {
                                             }else{
                                                 fila.cod_afp = AFP[0].ID;
                                             }
-
-                                            //Validacion PAra Isapre
+    
+                                             //Validacion PAra Isapre
                                             if(Isapre.length == 0){
                                                 errores.push([{
                                                     "Linea" : linea,
@@ -444,28 +528,31 @@ var uploadPlantaPage = {
                                             }else{
                                                 fila.cod_isa = Isapre[0].ID;
                                             }
-
+    
                                             if(CC.length == 0){
                                                 errores.push([{
                                                     "Linea" : linea,
-                                                    "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_nro_cenc
+                                                    "error": "No se encontro el Centro de en los registros de sharepoint. Numero CC: " + fila.d_nro_cenc
                                                 }]);
                                                 return;
                                             }else{
                                                 fila.d_nro_cenc = CC[0].ID;
                                             }
-
+    
                                             if(Cargo.length == 0){
                                                 errores.push([{
-                                                    "Linea" : linea,
-                                                    "error": "No se encontro el Centro de en los registros de sharepoint" + fila.d_cargo
+                                                    "Linea Excel" : linea,
+                                                    "error": "No se encontro el Centro de en los registros de sharepoint. Nombre Cargo Planta: " + fila.d_cargo
                                                 }]);
                                                 return;
                                             }else{
                                                 fila.d_cargo = Cargo[0].ID;
                                             }
-                                            Actualizar.push(PrepareToSend(fila));
-
+    
+                                            //Agregamos la fila al arreglo de creacion
+                                            Agregar.push(PrepareToSend(fila));
+                                            linea++;
+    
                                             asignarValidador.add(fila['Aprobador 1'])
                                             asignarValidador.add(fila['Aprobador 2'])
                                             asignarValidador.add(fila['Aprobador 3'])
@@ -474,207 +561,114 @@ var uploadPlantaPage = {
                                             asignarValidador.add(fila['Aprobador 6'])
                                             asignarValidador.add(fila['Aprobador 7'])
                                             asignarValidador.add(fila['Aprobador 8'])
-                                        }else{
-                                            SinCambios.push(existe[0]);
-                                            return;
                                         }
-                                    }else{
-                                        //Si no existe se procede a crear el nuevo trabajador
-
-                                        //Obtenemos el ID de la categoria con el nombre completo de esta.
-                                        var categoria = context.items.Categoria.filter(function(c){
-                                            return c.Categoria.replace(' ','').replace('-','') == limpiarString(fila.d_catego);                                            
-                                        });
-
-                                        //Obtenemos el ID interno de la afp.
-                                        var AFP = context.items.AFP.filter(function(c){
-                                            return c.Title == fila.cod_afp;                                            
-                                        });
-
-                                        //Obtenemos el ID interno de Isapre
-                                        var Isapre = context.items.Isapre.filter(function(c){
-                                            return c.Title == fila.cod_isa;                                            
-                                        });
-
-                                        //Obtenemos el ID interno de Centro Costo
-                                        var CC = context.items.CentroCosto.filter(function(c){
-                                            return c.CodigoCC == fila.d_nro_cenc;                                            
-                                        });
-                                        
-                                        //Obtenemos el ID interno de Centro Costo
-                                        var Cargo = context.items.Cargo.filter(function(c){
-                                            return c.CodigoPayroll == fila.cargo;                                            
-                                        });
-
-                                        //Validamos si se encontro. Si no se encontro se almacena la linea del error y el detalle
-
-                                        //Validacion Para Categoria
-                                        if(categoria.length == 0){
-                                            errores.push([{
-                                                "Linea" : linea++, 
-                                                "error": "No se encontro la categoria en los registros de sharepoint. Categoria " + fila.d_catego
-                                            }]);
-                                            return;
-                                        }else{
-                                            fila.catego = categoria[0].ID;
+                                    });
+    
+                                    //Filtramos los que no estan en excel y si en sharepoint
+                                    context.items.Planta.map(function(item){
+                                        let existe = response[0].filter(fila => item.Title == fila.codigo.trim());
+    
+                                        //Si no hay coincidencias se agrega el ID para actualizar el registro a suspendido.0
+                                        if(existe.length == 0 && item.EstadoContrato == 'Activo'){        
+                                            Quitar.push(item.ID);
                                         }
+                                    });
 
-                                        //Validacion PAra AFP
-                                        if(AFP.length == 0){
-                                            errores.push([{
-                                                "Linea" : linea++, 
-                                                "error": "No se encontro la AFP en los registros de sharepoint"
-                                            }]);
-                                            return;
-                                        }else{
-                                            fila.cod_afp = AFP[0].ID;
+                                    
+                                    for (let index = 0; index < Agregar.length; index++) {
+                                        var element = Agregar[index];
+                                        var roles = element['Aprobador 1'] != "" || element['Aprobador 2'] != "" || element['Aprobador 3'] != "" || element['Aprobador 4'] != "" || element['Aprobador 5'] != ""  || element['Aprobador 6'] != ""  || element['Aprobador 7'] != "" || element['Aprobador 8'] != ""? [{Id:args[0].d.results[0].ID }]:[]
+                                        if(asignarValidador.has(element.Email)){
+                                            roles.push({Id:args[1].d.results[0].ID})
                                         }
-
-                                         //Validacion PAra Isapre
-                                        if(Isapre.length == 0){
-                                            errores.push([{
-                                                "Linea" : linea,
-                                                "error": "No se encontro la Isapre en los registros de sharepoint"
-                                            }]);
-                                            return;
-                                        }else{
-                                            fila.cod_isa = Isapre[0].ID;
-                                        }
-
-                                        if(CC.length == 0){
-                                            errores.push([{
-                                                "Linea" : linea,
-                                                "error": "No se encontro el Centro de en los registros de sharepoint. Numero CC: " + fila.d_nro_cenc
-                                            }]);
-                                            return;
-                                        }else{
-                                            fila.d_nro_cenc = CC[0].ID;
-                                        }
-
-                                        if(Cargo.length == 0){
-                                            errores.push([{
-                                                "Linea Excel" : linea,
-                                                "error": "No se encontro el Centro de en los registros de sharepoint. Nombre Cargo Planta: " + fila.d_cargo
-                                            }]);
-                                            return;
-                                        }else{
-                                            fila.d_cargo = Cargo[0].ID;
-                                        }
-
-                                        //Agregamos la fila al arreglo de creacion
-                                        Agregar.push(PrepareToSend(fila));
-                                        linea++;
-
-                                        asignarValidador.add(fila['Aprobador 1'])
-                                        asignarValidador.add(fila['Aprobador 2'])
-                                        asignarValidador.add(fila['Aprobador 3'])
-                                        asignarValidador.add(fila['Aprobador 4'])
-                                        asignarValidador.add(fila['Aprobador 5'])
-                                        asignarValidador.add(fila['Aprobador 6'])
-                                        asignarValidador.add(fila['Aprobador 7'])
-                                        asignarValidador.add(fila['Aprobador 8'])
+                                        element.RolSDPDinamico = JSON.stringify(roles)
                                     }
-                                });
-
-                                //Filtramos los que no estan en excel y si en sharepoint
-                                context.items.Planta.map(function(item){
-                                    let existe = response[0].filter(fila => item.Title == fila.codigo.trim());
-
-                                    //Si no hay coincidencias se agrega el ID para actualizar el registro a suspendido.0
-                                    if(existe.length == 0 && item.EstadoContrato == 'Activo'){        
-                                        Quitar.push(item.ID);
+    
+                                    for (let index = 0; index < Actualizar.length; index++) {
+                                        var element = Actualizar[index];
+                                        var roles = element['Aprobador 1'] != "" || element['Aprobador 2'] != "" || element['Aprobador 3'] != "" || element['Aprobador 4'] != "" || element['Aprobador 5'] != ""  || element['Aprobador 6'] != ""  || element['Aprobador 7'] != "" || element['Aprobador 8'] != ""? [{Id:args[0].d.results[0].ID}]:[]
+                                        if(asignarValidador.has(element.Email)){
+                                            roles.push({Id:args[1].d.results[0].ID})
+                                        }
+                                        element.RolSDPDinamico = JSON.stringify(roles)
                                     }
-                                });
 
-                                for (let index = 0; index < Agregar.length; index++) {
-                                    var element = Agregar[index];
-                                    var roles = element['Aprobador 1'] != "" || element['Aprobador 2'] != "" || element['Aprobador 3'] != "" || element['Aprobador 4'] != "" || element['Aprobador 5'] != ""  || element['Aprobador 6'] != ""  || element['Aprobador 7'] != "" || element['Aprobador 8'] != ""? [{Value:"Jefe Solicitante"}]:[]
-                                    if(asignarValidador.has(element.Email)){
-                                        roles.push({Value:"Validador"})
-                                    }
-                                    element.RolSDP = JSON.stringify(roles)
-                                }
-
-                                for (let index = 0; index < Actualizar.length; index++) {
-                                    var element = Actualizar[index];
-                                    var roles = element['Aprobador 1'] != "" || element['Aprobador 2'] != "" || element['Aprobador 3'] != "" || element['Aprobador 4'] != "" || element['Aprobador 5'] != ""  || element['Aprobador 6'] != ""  || element['Aprobador 7'] != "" || element['Aprobador 8'] != ""? [{Value:"Jefe Solicitante"}]:[]
-                                    if(asignarValidador.has(element.Email)){
-                                        roles.push({Value:"Validador"})
-                                    }
-                                    element.RolSDP = JSON.stringify(roles)
-                                }
-
-                                let resultado = [];
-                                resultado[0] = Agregar;
-                                resultado[1] = Quitar;
-                                resultado[2] = Actualizar;
-                                resultado[3] = {'Email': spo.getCurrentUser()['EMail']};
-
-
-                                if(resultado[0].length == 0 && resultado[1].length == 0 && resultado[2].length == 0){
-                                    dialog.close();
-                                    app.dialog.create({
-                                        title: 'Completado',
-                                        text: 'No se encontraron cambios entre la planta actual y la cargada via Excel.',
-                                        buttons: [{
-                                            text: 'Aceptar',
-                                            onClick: function () {
-                                                mainView.router.navigate('/liststream?title=Planta&listtitle=Planta&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
-                                                return;
-                                            }
-                                        }],
-                                        verticalButtons: false
-                                    }).open();
-                                }else{
-                                    //Si hay errores se muestra Alert
-                                    if( errores.length > 0){
+                                    let resultado = [];
+                                    resultado[0] = Agregar;
+                                    resultado[1] = Quitar;
+                                    resultado[2] = Actualizar;
+                                    resultado[3] = {'Email': spo.getCurrentUser()['EMail']};
+    
+    
+                                    if(resultado[0].length == 0 && resultado[1].length == 0 && resultado[2].length == 0){
                                         dialog.close();
                                         app.dialog.create({
-                                            title: 'Error',
-                                            text: 'Se Encontraron errores',
+                                            title: 'Completado',
+                                            text: 'No se encontraron cambios entre la planta actual y la cargada via Excel.',
                                             buttons: [{
                                                 text: 'Aceptar',
                                                 onClick: function () {
-                                                    console.log('Errores', JSON.stringify(errores))
+                                                    mainView.router.navigate('/liststream?title=Planta&listtitle=Planta&listview=Todos los elementos&panel=filter-open&template=list-row&context=');
                                                     return;
                                                 }
                                             }],
                                             verticalButtons: false
                                         }).open();
                                     }else{
-                                        //callServiceCargaMasivaPlanta(resultado);
-                                        //Activamos el estado global de carga de planta
-                                        activarCargaPendiente();
-                                        dialog.close();
-                                        app.dialog.create({
-                                            title: dialogTitle,
-                                            text: 'En estos momentos se esta procesando su planta. Cuando finalice el proceso sera notificado via email',
-                                            buttons: [{
-                                                text: 'Aceptar',
-                                                onClick: function () {
-                                                    mainView.router.navigate('/plantaStream');
-                                                }
-                                            }],
-                                            verticalButtons: false
-                                        }).open();
+                                        //Si hay errores se muestra Alert
+                                        if( errores.length > 0){
+                                            dialog.close();
+                                            app.dialog.create({
+                                                title: 'Error',
+                                                text: 'Se Encontraron errores',
+                                                buttons: [{
+                                                    text: 'Aceptar',
+                                                    onClick: function () {
+                                                        console.log('Errores', JSON.stringify(errores))
+                                                        return;
+                                                    }
+                                                }],
+                                                verticalButtons: false
+                                            }).open();
+                                        }else{
+                                            //callServiceCargaMasivaPlanta(resultado);
+                                            //Activamos el estado global de carga de planta
+                                            activarCargaPendiente();
+                                            dialog.close();
+                                            app.dialog.create({
+                                                title: dialogTitle,
+                                                text: 'En estos momentos se esta procesando su planta. Cuando finalice el proceso sera notificado via email',
+                                                buttons: [{
+                                                    text: 'Aceptar',
+                                                    onClick: function () {
+                                                        mainView.router.navigate('/plantaStream');
+                                                    }
+                                                }],
+                                                verticalButtons: false
+                                            }).open();
+                                        }
                                     }
+        
+                                }, 
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                    dialog.close();
+                                    app.dialog.create({
+                                        title: 'Error al cargar el documento ' + file.files[0].name,
+                                        text: responseText.error.message.value,
+                                        buttons: [{
+                                            text: 'Aceptar'
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
                                 }
-    
-                            }, 
-                            function (response) {
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                                dialog.close();
-                                app.dialog.create({
-                                    title: 'Error al cargar el documento ' + file.files[0].name,
-                                    text: responseText.error.message.value,
-                                    buttons: [{
-                                        text: 'Aceptar'
-                                    }],
-                                    verticalButtons: false
-                                }).open();
-                            }
-                        );
+                            );
+                        })
+
+                     
+
+
                     }//Fin save()
                     switch(file.files.length) {
                         case 1:

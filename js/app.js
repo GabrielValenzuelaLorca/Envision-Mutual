@@ -74,6 +74,7 @@ var initInformation = new Promise((resolve)=>{
     if(plantaAdmin.RolSDPDinamicoId.results.length > 0){
         return getPromiseListItems(spo.getSiteUrl(),'RolesSDP','?$select=*&$filter=' + buildQuery(plantaAdmin.RolSDPDinamicoId.results))
         .then(roles =>{
+            SDP.roles = roles.d.results.map(c => c.Title)
             var botonesActivos = []
             roles.d.results.forEach(c =>{
                 botonesActivos = botonesActivos.concat(c.BotonesRolId.results)
@@ -234,8 +235,7 @@ var initInformation = new Promise((resolve)=>{
         });
     }
 
-   
-    if ((plantaAdmin.Rol != null || plantaAdmin.RolSDP != null) && plantaAdmin.EstadoContrato == "Activo"){
+    if ((plantaAdmin.Rol != null || SDP.roles != null) && plantaAdmin.EstadoContrato == "Activo"){
         startApp()
     }
     else{
@@ -243,7 +243,6 @@ var initInformation = new Promise((resolve)=>{
     }
 })
 .catch(error =>{
-    debugger
     var responseText = JSON.parse(error.responseText);
     console.log(responseText.error.message.value);
 })
