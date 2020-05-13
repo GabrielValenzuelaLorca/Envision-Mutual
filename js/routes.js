@@ -309,7 +309,7 @@ function getRoutes(){
         },
         {
             path: '/SolicitudesGuardadas',
-            component: SolicitudesGuardadasPage
+            component: SolicitudesGuardadasStreamPage
         },
 
 

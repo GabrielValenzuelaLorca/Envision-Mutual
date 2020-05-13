@@ -37,8 +37,10 @@ posicionStreamPage.methods.getOneItemSelectedButtons = function(item){
     context = self._getPageContext(),
     buttons = [
         localButtons.toEditPosition(),
+        localButtons.enviarUnCyE()
     ];
-    
+
+
     return buttons;
 }
 
@@ -48,7 +50,9 @@ posicionStreamPage.methods.getMultiItemsSelectedButtons = function(items){
     context = self._getPageContext(),
     buttons = [
         localButtons.toEditPosition(),
+        localButtons.enviarMultiplesCyE()
     ];
+    buttons.push()
 
     return buttons;
 }

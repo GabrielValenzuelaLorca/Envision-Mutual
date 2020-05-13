@@ -2886,3 +2886,63 @@ localButtons.downloadLicenciaPeriodo = function(context){
 /*
     Todos los botones relacionados con CyE
 */
+
+
+localButtons.enviarUnCyE = function(context){
+    button = {
+        text: 'Enviar posiciones',
+        class: 'asdfasdf',
+        icon: 'Send',
+        onClick: function(component, item){
+            app.dialog.confirm("asdf", "asdfasd", function(){
+                spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID,{Estado:"Validación Jefe CyE"}, function (response) {
+                    app.dialog.alert("Exito")
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    app.dialog.create({
+                        title: 'Error al guardar en lista Posicion',
+                        text: responseText.error.message.value,
+                        buttons: [{
+                            text: 'Aceptar'
+                        }],
+                        verticalButtons: false
+                    }).open();
+                });
+            })
+
+        }
+    }
+    return button
+}
+
+localButtons.enviarMultiplesCyE = function(context){
+    button = {
+        text: 'Enviar posiciones',
+        class: 'asdfasdf',
+        icon: 'Send',
+        onClick: function(component, items){
+            app.dialog.confirm("Enviar Multiples", "asdfasd", function(){
+                var promises = []
+                items.forEach(item =>{
+                    promises.push(new Promise((resolve, reject) =>{
+                        spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID,{Estado:"Validación Jefe CyE"}, function (response) {
+                            resolve(true)
+                        }, function (response) {
+                            reject(response)
+                        });
+                    }))
+                })
+
+                Promise.all(promises)
+                .then(c =>{
+                    app.dialog.alert("Terminaron todas.")
+                }).catch(error =>{
+                    app.dialog.alert(error)
+                })
+            })
+        }
+    }
+    return button
+}
+
