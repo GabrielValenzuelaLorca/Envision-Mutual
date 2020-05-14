@@ -287,7 +287,7 @@ var posicionPage = {
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);                   
                         let metadatas = context.forms.posicion.getMetadata();
-                        debugger
+                        
                         //Buscar Presupuestados false y setearles el Estado "Validación Jefe CyE"
                         metadatas.forEach(item =>{
                             if(item.Presupuestada === false){
@@ -358,6 +358,13 @@ var posicionPage = {
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
                         let metadata = context.forms.posicion.getMetadata();
+                        
+                        //Buscar Presupuestados false y setearles el Estado "Validación Jefe CyE"
+                        metadata.forEach(item =>{
+                            if(item.Presupuestada === false){
+                                item['Estado'] = "Validación Jefe CyE"
+                            }
+                        })
 
                         spo.updateListItems(spo.getSiteUrl(), mths.getListTitle(), metadata, function (response) {
                             dialog.close();

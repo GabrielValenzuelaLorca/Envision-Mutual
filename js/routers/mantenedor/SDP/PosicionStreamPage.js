@@ -56,3 +56,14 @@ posicionStreamPage.methods.getMultiItemsSelectedButtons = function(items){
 
     return buttons;
 }
+
+posicionStreamPage.methods.getCamlQueryConditions = function(){
+    return `    
+                    
+                <Contains><FieldRef Name="Estado" /><Value Type="Choice">En revisión</Value></Contains>
+            `
+}
+
+posicionStreamPage.methods.getCamlOrderBy = function() {
+    return '<FieldRef Name="NPosicion" Ascending="True" />';
+}

@@ -311,6 +311,10 @@ function getRoutes(){
             path: '/SolicitudesGuardadas',
             component: SolicitudesGuardadasStreamPage
         },
+        {
+            path: '/HistoricoPosiciones',
+            component: HistoricoPosicionesStreamPage
+        },
 
 
     ]
