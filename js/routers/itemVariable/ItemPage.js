@@ -51,7 +51,7 @@ var itemPage = {
                 '</div>' +
             '</div>' +
             '<div class="page-content">' +
-            '<div id="tituloFormularioMuestra" class="ms-font-xl ms-slideRightIn10" style="padding: 20px 20px 0 20px;">Formulario Registro Items Variables</div>' +
+            '<div id="tituloFormularioMuestra" class="ms-font-xl ms-slideRightIn10" style="padding: 20px 20px 0 20px;">Formulario Registro Ítems Variables</div>' +
             '<div class="list accordion-list">' +
                 "<ul>" +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +

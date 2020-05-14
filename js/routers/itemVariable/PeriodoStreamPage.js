@@ -9,7 +9,7 @@ periodoStreamPage.methods.getListView = function(){
 }
 
 periodoStreamPage.methods.getTitle = function(){
-    return "Periodos"
+    return "Períodos"
 }
 
 periodoStreamPage.methods.getListTitle = function(){
