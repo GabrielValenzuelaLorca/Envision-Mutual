@@ -315,8 +315,14 @@ function getRoutes(){
             path: '/HistoricoPosiciones',
             component: HistoricoPosicionesStreamPage
         },
-
-
+        {
+            path: '/MantenedorRolSDP',
+            component: MantenedorRolSDPPage
+        },
+        {
+            path: '/MantenedorUsuarioSDP',
+            component: MantenedorUsuarioSDPPage
+        }
     ]
 
     var routes = [];
@@ -336,8 +342,15 @@ function getRoutes(){
         routes = routes.concat(sharedItemRoutes);
     }
     
-    if(plantaAdmin.RolSDP){
-        routes = routes.concat(SDPRoutes);
+    if(SDP.routes.length > 0){
+        var sdpRouter = []
+        SDP.routes.forEach(route =>{
+            var route = SDPRoutes.find(c => c.path === route)
+            if(route != undefined){
+                sdpRouter.push(route)
+            }
+        })
+        routes = routes.concat(sdpRouter);
     }
     
     
