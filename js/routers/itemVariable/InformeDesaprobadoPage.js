@@ -115,7 +115,7 @@ informePendientePage.methods.renderHeader = function($header){
         name = context.periodo.PeriodoCompleto;
     }
 
-    var title = "Informes Pendientes del periodo "+ name;
+    var title = "Informes Pendientes del período "+ name;
 
 // tempalte con titulo, descripción opcional y un tabs
 var templateHtml = `

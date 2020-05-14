@@ -300,7 +300,7 @@ var uploadItemsPage = {
                                         if(!context.pertenece){
                                             return {
                                                 "Error": true,
-                                                "Message": "El periodo actual no permite la imputación de este ítem."
+                                                "Message": "El período actual no permite la imputación de este ítem."
                                             }
                                         }
                                     }
@@ -461,7 +461,7 @@ var uploadItemsPage = {
                                     }else{
                                         return {
                                             "Error": true,
-                                            "Message": "No posee solicitudes aprobadas para el periodo."
+                                            "Message": "No posee solicitudes aprobadas para el período."
                                         }
                                     }
                                 }
@@ -686,7 +686,7 @@ var uploadItemsPage = {
                         case 0:
                             app.dialog.create({
                                 title: 'No ha adjuntado ningún documento',
-                                text: 'Para realizar la carga masiva de ítems variables, debe adjuntar un documento Excel con la información de los ítems del periodo actual',
+                                text: 'Para realizar la carga masiva de ítems variables, debe adjuntar un documento Excel con la información de los ítems del período actual',
                                 buttons: [{
                                     text: 'Aceptar'
                                 }],
