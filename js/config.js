@@ -4,7 +4,7 @@ global.appName = 'Mutual - Item variable';
 global.theme = 'mutual';
 global.efwVersion = '3.0.8';
 global.efwDev = true;
-global.env = "MUTDSR" //DEV, MUTDSR, MUTQAS, MUTPRD
+global.env = "TEST" //DEV, MUTDSR, MUTQAS, MUTPRD
 global.showUserMenu = true;
 global.uris = {
     DEV: {
@@ -95,6 +95,7 @@ var AppScriptsArray = [
     "js/routers/SDP/CecoPage.js",
     "js/routers/SDP/CecoStreamPage.js",
     "js/routers/SDP/AproveSolicitudStreamPage.js",
+    "js/routers/SDP/SolicitudesGuardadasPage.js",
 
     //Mantenedores SDP
     "js/routers/mantenedor/SDP/PosicionStreamPage.js",

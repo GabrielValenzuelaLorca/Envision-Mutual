@@ -300,7 +300,7 @@ var uploadItemsPage = {
                                         if(!context.pertenece){
                                             return {
                                                 "Error": true,
-                                                "Message": "El periodo actual no permite la imputación de este ítem."
+                                                "Message": "El período actual no permite la imputación de este ítem."
                                             }
                                         }
                                     }
@@ -367,7 +367,6 @@ var uploadItemsPage = {
                                 }
 
                                 function callServiceCargaMasivaItems(body){
-                                    console.log('Body', JSON.stringify(body))
                                     fetch(global.uris[global.env].items, {
                                         method: 'POST',
                                         headers: {
@@ -391,7 +390,6 @@ var uploadItemsPage = {
                                 }
 
                                 function PrepareToSend(fila, trabajador, item){
-                                    console.log('trabajador', trabajador)
                                     return {
                                         "CantidadMonto": fila.CANT_$MONTO,
                                         "Rut": trabajador.ID,
@@ -438,12 +436,9 @@ var uploadItemsPage = {
                                         });
 
                                         if(filtrado.length > 0){
-                                            console.log('filtrado', filtrado)
-
                                             var encontrado =filtrado.filter(function(x){
                                                 return (x.Centro_x0020_de_x0020_costo.D_CC.split(' '))[0] == cc
                                             });
-                                            console.log('Encontrados', encontrado)
 
                                             if(encontrado.length > 0){
                                                 return {
@@ -466,7 +461,7 @@ var uploadItemsPage = {
                                     }else{
                                         return {
                                             "Error": true,
-                                            "Message": "No posee solicitudes aprobadas para el periodo."
+                                            "Message": "No posee solicitudes aprobadas para el período."
                                         }
                                     }
                                 }
@@ -485,6 +480,11 @@ var uploadItemsPage = {
 
                                 //     --------- Inicio de proceso de filtrado----------- // 
                                 response[0].map(function(fila){
+
+                                    if(fila.COD_PAYROLL == "0" || fila.COD_PAYROLL == 0) {
+                                        linea++
+                                        return;
+                                    }
 
                                     let jobs = context.items.Planta.filter( x => x.Title == fila.COD_PAYROLL);
                                     if(jobs.length == 0){
@@ -585,7 +585,6 @@ var uploadItemsPage = {
                                             linea++
                                             return;
                                         }else{
-                                            console.log('Valor de REs', res.value)
                                             fila.CCOSTO = res.value
                                         }
                                     }else{
@@ -687,7 +686,7 @@ var uploadItemsPage = {
                         case 0:
                             app.dialog.create({
                                 title: 'No ha adjuntado ningún documento',
-                                text: 'Para realizar la carga masiva de ítems variables, debe adjuntar un documento Excel con la información de los ítems del periodo actual',
+                                text: 'Para realizar la carga masiva de ítems variables, debe adjuntar un documento Excel con la información de los ítems del período actual',
                                 buttons: [{
                                     text: 'Aceptar'
                                 }],
@@ -717,9 +716,6 @@ var uploadItemsPage = {
                     $('div.item-after div.ms-Button-AttachEdit i.ms-Icon.ms-Icon--Cancel').hide()
                     context.forms.item.inputs.Attachments.setEditable(false)
                 }
-
-                console.log('Form', context.forms.item)
-
                 // remover loader
                 mths.removePageLoader();
             }

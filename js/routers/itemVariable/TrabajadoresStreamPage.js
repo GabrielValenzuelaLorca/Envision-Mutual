@@ -21,7 +21,7 @@ TrabajadoresStreamPage.methods.onItemDblClick = function(item){
 }
 
 TrabajadoresStreamPage.methods.getNoItemsSelectedButtons = function(){
-    return false;
+    return [localButtons.toUploadPlanta()];
 }
 
 TrabajadoresStreamPage.methods.getOneItemSelectedButtons = function(item){

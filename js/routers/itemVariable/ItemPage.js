@@ -51,12 +51,12 @@ var itemPage = {
                 '</div>' +
             '</div>' +
             '<div class="page-content">' +
-            '<div id="tituloFormularioMuestra" class="ms-font-xl ms-slideRightIn10" style="padding: 20px 20px 0 20px;">Formulario Registro Items Variables</div>' +
+            '<div id="tituloFormularioMuestra" class="ms-font-xl ms-slideRightIn10" style="padding: 20px 20px 0 20px;">Formulario Registro Ítems Variables</div>' +
             '<div class="list accordion-list">' +
                 "<ul>" +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
                         '<div class="item-inner">' +
-                          '<div class="item-title">Datos del Trabajador</div>' +
+                          '<div class="item-title">1.- Datos del Trabajador </div><i class="ms-Icon ms-Icon--DrillDownSolid" ></i>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
                         '<div class="form-persona"></div>' +
@@ -64,7 +64,7 @@ var itemPage = {
                     '</li>' +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
                         '<div class="item-inner">' +
-                          '<div class="item-title">Datos Ítem Variable</div>' +
+                          '<div class="item-title">2.- Datos Ítem Variable</div><i class="ms-Icon ms-Icon--DrillDownSolid"></i>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
                         '<div class="form-item"></div>' +
@@ -72,7 +72,7 @@ var itemPage = {
                     '</li>' +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
                         '<div class="item-inner">' +
-                          '<div class="item-title">Excepciones</div>' +
+                          '<div class="item-title">3.- Excepciones</div><i class="ms-Icon ms-Icon--DrillDownSolid" ></i>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
                         '<div class="form-ex"></div>' +
@@ -90,7 +90,23 @@ var itemPage = {
             '</div>' +
         '</div>' +
         '',
-    style:  '.form-container .ms-FormField {width: 45%; float:left} ',
+    style:  '.form-container .ms-FormField {width: 45%; float:left} '+
+            `@media all and (max-width: 5000px){
+                .ms-Icon.ms-Icon--DrillDownSolid {
+                    margin-right: 85%; font-size: 20px !important;
+                }
+            }
+            @media all and (max-width: 1024px){
+                .ms-Icon.ms-Icon--DrillDownSolid {
+                    margin-right: 80%; font-size: 20px !important;
+                }
+            }
+            @media all and (max-width: 700px){
+                .ms-Icon.ms-Icon--DrillDownSolid {
+                    margin-right: 0; font-size: 20px;
+                }
+            }
+            `,
     data: function () {
         var self = this;
         return {
@@ -294,7 +310,6 @@ var itemPage = {
                                 gps.map(function(x){
 
                                     if(x.Categoria.includes('P')){
-                                        console.log('Largo de categoria', x.Categoria.trim().length);
                                     }
                                     if(context.aprobado){
                                         return;
@@ -368,6 +383,7 @@ var itemPage = {
                 });
                 //Ocultar campos que son personalizados.
                 context.forms.item.inputs['Haber_x003a_Codigo'].setRequired(true);
+                context.forms.item.inputs['Haber_x003a_Codigo'].hide();
                 context.forms.item.inputs['CantidadMonto'].hide();
                 context.forms.item.inputs['Justificacion'].hide();
 
@@ -440,6 +456,10 @@ var itemPage = {
                         context.forms.person.inputs['Cargo'].resetValue();
 
                         current = null;
+                        return;
+                    }
+
+                    if(values[0].key == 0){
                         return;
                     }
 
@@ -550,7 +570,6 @@ var itemPage = {
                         context.items.Solicitudes.map(function(x){
                             if(x.TipoSolicitud == "Centro de costo diferente" && x.Estado == "Aprobado"){
                                 if(x.Item.NombreItem == context.forms.item.inputs['Haber'].values[0].text && x.Trabajador.NombreCompleto == context.forms.person.inputs['Nombre'].values[0].text){
-                                    console.log('Solicitud actual', x)
                                     dataCC.push({
                                         "key": x.Centro_x0020_de_x0020_costoId,
                                         "text": x.Item.NombreItem+' - '+x.Trabajador.NombreCompleto+' - '+x.Centro_x0020_de_x0020_costo.D_CC,
@@ -601,8 +620,6 @@ var itemPage = {
                         metadata.CoordinadorId = plantaAdmin.ID;
 
                         delete metadata.Categoria;
-
-                        console.log('MetadataFinal', metadata)
 
                         spo.saveListItem(spo.getSiteUrl(), 'ItemVariable', metadata, function (response) {
                             var formularioId = response.d.Id;
@@ -666,8 +683,6 @@ var itemPage = {
                     var validatePerson =  context.forms.person.getValidation();
                     var validateItem =  context.forms.item.getValidation();
                     var validateEX =  context.forms.EX.getValidation();
-
-                    console.log('Formulario', context.forms.item.inputs)
 
                     if(context.forms.item.inputs['Justificacion'].value.length< 10){
                         app.dialog.create({

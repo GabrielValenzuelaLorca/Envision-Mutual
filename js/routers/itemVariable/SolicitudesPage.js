@@ -268,7 +268,6 @@ var solicitudesPage = {
                                 gps.map(function(x){
 
                                     if(x.Categoria.includes('P')){
-                                        console.log('Largo de categoria', x.Categoria.trim().length);
                                     }
                                     if(context.aprobado){
                                         return;
@@ -382,10 +381,7 @@ var solicitudesPage = {
                 // Filtrar trabajadores segun asignacion del coordinador
                 context.forms.solicitud.inputs['Trabajador'].params.onChange = function(comp, input, state, values){
                     persona = values
-                    console.log('Values', values)
                 }
-                
-                
 
                 if(listItemId){
                     context.forms.solicitud.setValues(context.items.Solicitudes);
@@ -424,7 +420,6 @@ var solicitudesPage = {
                         var dialog = app.dialog.progress(dialogTitle);
                         
                         let metadata = context.forms.solicitud.getMetadata();
-                        console.log('Metadata', metadata)
 
                         metadata['Estado'] = 'Espera de revisión';
                         metadata['PeriodoId'] = context.items.Periodo.ID;
@@ -524,7 +519,6 @@ var solicitudesPage = {
 
                         metadata['Estado'] = 'Aprobado';
                         //Generando texto de historial
-                        console.log('CC', cc)
                         let texto = `Administrador: ${plantaAdmin.NombreCompleto}, Fecha ${moment(new Date()).format("DD/MM/YYYY hh:mm:ss")}\n`;
                         texto += `Estado actual solicitud: ${metadata['Estado']}\n`
                         texto += `Centro de costo asociado: ${cc.CodigoCC}\n`
@@ -1016,6 +1010,7 @@ var solicitudesPage = {
                                 },
                             },
                         });
+                        
 
                         dynamicPopup.open();
                     }
@@ -1035,15 +1030,11 @@ var solicitudesPage = {
                     if(plantaAdmin.Rol == "Administrador"){
                         if (loaded.Solicitudes && loaded.Periodo && loaded.CentroCosto) {
                             initForm();
-                            console.log('admininfro es administrador');
-                            return;
                         }
                     }
                     if(plantaAdmin.Rol == "Coordinador"){
                         if (loaded.Categorias && loaded.Planta && loaded.Solicitudes && loaded.Periodo && loaded.ListadoItemVariable) {
-                            console.log('admininfro es coordinador');
                             initForm();
-                            return;
                         }
                     }
                 };
@@ -1087,8 +1078,6 @@ var solicitudesPage = {
                     }
                 );
                 
-                
-
                 if(plantaAdmin.Rol == "Coordinador"){
                     //Obtengo el listado de haberes para ser filtrados
                     spo.getListInfo('Planta',
@@ -1125,32 +1114,32 @@ var solicitudesPage = {
 
                     // Obtengo el listado de categorias completa
                     spo.getListInfo('Categoria',
-                    function (response) {
-                                 context.items.Categorias = [];
-                                 context.lists.Categorias = response;
-                                 //loaded.listaItemVariable = true;
-         
-                                     var query = spo.encodeUrlListQuery(context.lists.Categorias, {
-                                         view: 'Todos los elementos',
-                                         odata: {
-                                             'select': '*',
-                                             'top' : 5000
-                                         }
-                                     });
-         
-                                     spo.getListItems(spo.getSiteUrl(), 'Categoria', query,
-                                         function (response) {
-                                             context.items.Categorias = response.d.results.length > 0 ? response.d.results : null;
-                                             loaded.Categorias = true;
-                                             shouldInitForms();
-                                         },
-                                         function (response) {
-                                             var responseText = JSON.parse(response.responseText);
-                                             console.log(responseText.error.message.value);
-                                         }
-                                     );
-         
-                        },
+                        function (response) {
+                                    context.items.Categorias = [];
+                                    context.lists.Categorias = response;
+                                    //loaded.listaItemVariable = true;
+            
+                                        var query = spo.encodeUrlListQuery(context.lists.Categorias, {
+                                            view: 'Todos los elementos',
+                                            odata: {
+                                                'select': '*',
+                                                'top' : 5000
+                                            }
+                                        });
+            
+                                        spo.getListItems(spo.getSiteUrl(), 'Categoria', query,
+                                            function (response) {
+                                                context.items.Categorias = response.d.results.length > 0 ? response.d.results : null;
+                                                loaded.Categorias = true;
+                                                shouldInitForms();
+                                            },
+                                            function (response) {
+                                                var responseText = JSON.parse(response.responseText);
+                                                console.log(responseText.error.message.value);
+                                            }
+                                        );
+            
+                            },
                         function (response) {
                             var responseText = JSON.parse(response.responseText);
                             console.log(responseText.error.message.value);
@@ -1182,10 +1171,10 @@ var solicitudesPage = {
                             );
                 
                         },
-                            function (response) {
-                                var responseText = JSON.parse(response.responseText);
-                                console.log(responseText.error.message.value);
-                            }
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
                     );
                 }
                 
