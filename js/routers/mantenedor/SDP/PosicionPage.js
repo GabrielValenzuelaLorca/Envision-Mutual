@@ -39,6 +39,10 @@ var posicionPage = {
                             '<i class="ms-Icon ms-Icon--Add"></i>' +
                             '<span class="ios-only">Crear posición</span>' +
                         '</a>' +
+                        '<a href="#" class="link gestion ms-fadeIn100 hide">' +
+                            '<i class="ms-Icon ms-Icon--Add"></i>' +
+                            '<span class="ios-only">Gestionar posición</span>' +
+                        '</a>' +
                         '<a href="#" class="link associate-proyect ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--IDBadge"></i>' +
                             '<span class="ios-only">Asociar ticket</span>' +
@@ -52,6 +56,7 @@ var posicionPage = {
             '</div>' +
             '<div class="page-content">' +
                 '<div class="form table-compact-row"></div>' +
+                '<div class="form2 table-compact-row"></div>' +
             '</div>' +
             
             '<div class="content-loader">' +
@@ -164,7 +169,11 @@ var posicionPage = {
             var context = this.$options.data(),
                 mths = this.$options.methods,
                 listItemId = page.route.query.listItemId,
-                gestion = page.route.query.gestion
+                gestion = page.route.query.gestion,
+                type = page.route.query.type,
+                UO = page.route.query.UO;
+
+            var currentID = null;
 
             context.methods = mths;
 
@@ -177,16 +186,29 @@ var posicionPage = {
                 return context;
             };
 
+            mths.generateID = function () {
+                //Generar posicion cuando es nueva
+                if(!listItemId){
+                    //Generar ID desde cero
+                    if(context.forms.posicion.getRowCount() > 1 && currentID){
+                        let current = parseInt(currentID);
+                        currentID = current+1+""
+                    }else{
+                        var ultima = context.items.Ultima ? parseInt(context.items.Ultima.NPosicion) : 0;
+                        currentID = context.items.Ultima ? ultima+1+"" : "1";
+                    }
+                    return;
+                }
+            };
+
             function initForm() {
 
                 // containers
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
-                    $createButton = $navbar.find('.link.create'),
+                    $createButton = !gestion ? $navbar.find('.link.create') : $navbar.find('.link.gestion') ,
                     $updateButton = $navbar.find('.link.update'),
                     $clearButton = $navbar.find('.link.clear');
-
-                    var currentID = null;
 
                 // formulario de registro
                 context.forms.posicion = new EFWForms({
@@ -195,14 +217,18 @@ var posicionPage = {
                     editable: true,
                     fields: spo.getViewFields(context.lists.Posicion, 'Form'),
                     onAddRow: function(EFWForm, UUID, item){
-                        if(!listItemId){
-                            if(context.forms.posicion.getRowCount() > 1 && currentID){
-                                let current = parseInt(currentID);
-                                currentID = current+1+""
+
+                        //Generamos el ID Segun sea el caso
+                        if(gestion && UO){
+                            if(context.items.SolicitudSDP.Posicion){
+                                EFWForm.setValues(context.items.SolicitudSDP.Posicion)
                             }else{
-                                var ultima = context.items.Ultima ? parseInt(context.items.Ultima.NPosicion) : 0;
-                                currentID = context.items.Ultima ? ultima+1+"" : "1";
+                                mths.generateID();
+                                EFWForm.inputs.NPosicion.setValue(currentID);
                             }
+                            // EFWForm.inputs.NPosicion.setValue();
+                        }else{
+                            mths.generateID();
                             EFWForm.inputs.NPosicion.setValue(currentID);
                         }
                         EFWForm.inputs.NPosicion.setEditable(false)
@@ -210,8 +236,6 @@ var posicionPage = {
                         //Autocomplete data to gestionar
 
                         EFWForm.inputs.CentroCosto.params.onChange = function(comp, input, state, values){
-
-                            console.log('Values', values)
 
                             if (values.length == 0){
                                 EFWForm.inputs.CentroCosto_x003a_Area_UN.resetValue();
@@ -261,6 +285,21 @@ var posicionPage = {
                     }
                 });
 
+                if(context.items.SolicitudSDP){
+                    if(context.items.SolicitudSDP.Posicion){
+                        console.log('Posicion Original', context.items.SolicitudSDP.Posicion)
+                        context.forms.posicionOriginal = new EFWForms({
+                            container: $container.find('.form2'),
+                            title: 'Datos previos de la posicion',
+                            disabled: true,
+                            fields: spo.getViewFields(context.lists.Posicion, 'Form'),
+                        });
+    
+                        context.forms.posicionOriginal.setValues([context.items.SolicitudSDP.Posicion]);
+                        $('.ms-FormField.is-disabled.not-editable div div.ms-BooleanField-fieldGroup label.toggle').addClass('hide')
+                    }
+                }
+
                 if (listItemId) {
                     context.forms.posicion.setValues(context.items.Posicion);                    
                     $updateButton.removeClass('hide');
@@ -285,41 +324,85 @@ var posicionPage = {
                     var dialogTitle = 'Nueva Posición';
 
                     function save() {
-                        var dialog = app.dialog.progress(dialogTitle);                   
-                        let metadatas = context.forms.posicion.getMetadata();
-                        
-                        //Buscar Presupuestados false y setearles el Estado "Validación Jefe CyE"
-                        metadatas.forEach(item =>{
-                            if(item.Presupuestada === false){
-                                item['Estado'] = "Validación Jefe CyE"
-                            }
-                        })
+                        var dialog = app.dialog.progress(dialogTitle);
 
+                        if(gestion && type == "Vacante" && UO){
+                            var metadata = context.forms.posicion.getMetadata();
+                            var metadataOriginal = context.forms.posicionOriginal.getMetadata();
 
-                        spo.saveListItems(spo.getSiteUrl(), mths.getListTitle(), metadatas, function (response) {
-                            dialog.close();
-                            dialogs.confirmDialog(
-                                dialogTitle,
-                                'Posicion creada con éxito',
-                                function(component, item){
-                                    mainView.router.navigate('/PosicionStream');
-                                },
-                                false
-                            )
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
+                            metadata.forEach(item =>{
+                                if(item.Presupuestada === false){
+                                    item['Estado'] = "Validación Jefe CyE"
+                                }
+                                metadata.CambioTemporal = JSON.stringify(JSON.stringify(metadataOriginal));
+                            });
 
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        });
+                            spo.updateListItems(spo.getSiteUrl(), 'Posicion', metadata, function (response) {
+                                dialog.close();
+    
+                                app.dialog.create({
+                                    title: dialogTitle,
+                                    text: 'La posicion creada con exito.',
+                                    buttons: [{
+                                        text: 'Aceptar',
+                                        onClick: function () {
+                                            mainView.router.navigate('/PosicionStream');
+                                        }
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+    
+    
+                            }, function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log('responseText', responseText);
+    
+                                dialog.close();
+                                app.dialog.create({
+                                    title: 'Error al guardar en lista ' + mths.getListTitle(),
+                                    text: responseText.error.message.value,
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            });
+                            //Guardar en temporal
+                        }else{
+
+                            var metadatas = context.forms.posicion.getMetadata();
+                            //Buscar Presupuestados false y setearles el Estado "Validación Jefe CyE"
+                            metadatas.forEach(item =>{
+                                if(item.Presupuestada === false){
+                                    item['Estado'] = "Validación Jefe CyE"
+                                }
+                            })
+                            //Crea la posicion nueva en estado en revision
+                            spo.saveListItems(spo.getSiteUrl(), mths.getListTitle(), metadatas, function (response) {
+                                dialog.close();
+                                dialogs.confirmDialog(
+                                    dialogTitle,
+                                    'Posicion creada con éxito',
+                                    function(component, item){
+                                        mainView.router.navigate('/PosicionStream');
+                                    },
+                                    false
+                                )
+                            }, function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log('responseText', responseText);
+    
+                                dialog.close();
+                                app.dialog.create({
+                                    title: 'Error al guardar en lista ' + mths.getListTitle(),
+                                    text: responseText.error.message.value,
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            });
+                        }
                     }
 
                     context.forms.posicion.checkFieldsRequired();
@@ -444,18 +527,53 @@ var posicionPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.Posicion && loaded.SolicitudSDP) {
+                    if (loaded.Posicion && loaded.SolicitudSDP && loaded.Reemplazo) {
                         initForm();
                     }
                 };
 
-                // Obtener información de lista
-                spo.getListInfo(mths.getListTitle(),
-                    function (response) {
-                        context.items.Posicion = [];
-                        context.lists.Posicion = response;
-                        // Si existe el id de algún item a obtener
-                        if (listItemId) {
+
+                if(!listItemId && !gestion && !UO){
+                    //Mostrar solo la info para el form y la ultoma posicion para generar el ID
+                    spo.getListInfo('Posicion',
+                        function (response) {
+                            context.lists.Posicion = response;
+
+                            var query = spo.encodeUrlListQuery(context.lists.Posicion, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'orderby': 'NPosicion desc',
+                                    'select': '*',
+                                    'top': 1
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
+                                function (response) {
+                                    context.items.Ultima = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    loaded.Posicion = true;
+                                    loaded.SolicitudSDP = true;
+                                    loaded.Reemplazo = true;
+                                    shouldInitForms();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
+                    );
+                }else if(listItemId && !gestion){
+                    //Obtener solamente las posiciones a editar
+                    spo.getListInfo('Posicion',
+                        function (response) {
+                            context.items.Posicion = [];
+                            context.lists.Posicion = response;
+
                             var filter = '(Id eq ' + listItemId + ')';
                             if(listItemId.includes(',')){
                                 filter = "";
@@ -478,53 +596,30 @@ var posicionPage = {
                                 }
                             });
 
-                            spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
+                            spo.getListItems(spo.getSiteUrl(), 'Posicion', query,
                                 function (response) {
                                     context.items.Posicion = response.d.results.length > 0 ? response.d.results : null;
                                     loaded.Posicion = true;
+                                    loaded.SolicitudSDP = true;
+                                    loaded.Reemplazo = true;
                                     shouldInitForms();
-
-
                                 },
                                 function (response) {
                                     var responseText = JSON.parse(response.responseText);
                                     console.log(responseText.error.message.value);
                                 }
                             );
-                        } else {
-                            var query = spo.encodeUrlListQuery(context.lists.Posicion, {
-                                view: 'Todos los elementos',
-                                odata: {
-                                    'orderby': 'NPosicion desc',
-                                    'select': '*',
-                                    'top': 1
-                                }
-                            });
-
-                            spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
-                                function (response) {
-                                    context.items.Ultima = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.Posicion = true;
-                                    shouldInitForms();
-
-
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
                         }
+                    );
 
-                    },
-                    function (response) {
-                        var responseText = JSON.parse(response.responseText);
-                        console.log(responseText.error.message.value);
-                    }
-                );
+                }else if(!listItemId && gestion){
+                    //Opcion para cuando se esta gestionando una solicitudSDP
 
-                if(gestion){
-                    // Obtener información de lista
+                    //Obtener el ID de la solicitud, Centro de costo
                     spo.getListInfo('SolicitudSDP',
                         function (response) {
                             context.items.SolicitudSDP = [];
@@ -533,7 +628,7 @@ var posicionPage = {
                                 var query = spo.encodeUrlListQuery(context.lists.SolicitudSDP, {
                                     view: 'Todos los elementos',
                                     odata: {
-                                        'filter': 'Id eq '+gestion,
+                                        'filter': 'Id eq ' + gestion,
                                         'select': '*'
                                     }
                                 });
@@ -542,6 +637,7 @@ var posicionPage = {
                                     function (response) {
                                         context.items.SolicitudSDP = response.d.results.length > 0 ? response.d.results[0] : null;
 
+                                        //Obtenermos el centro de costo de la solicitud
                                         spo.getListInfo('CentroCosto',
                                             function (response) {
                                                 context.lists.CentroCosto = response;
@@ -558,9 +654,8 @@ var posicionPage = {
                                                         function (response) {
                                                             context.items.SolicitudSDP.CentroCosto = response.d.results.length > 0 ? response.d.results[0] : null;
                                                             loaded.SolicitudSDP = true;
+                                                            console.log('Cargo Solicitud SDP')
                                                             shouldInitForms();
-
-
                                                         },
                                                         function (response) {
                                                             var responseText = JSON.parse(response.responseText);
@@ -573,6 +668,43 @@ var posicionPage = {
                                                 console.log(responseText.error.message.value);
                                             }
                                         );
+                                        
+                                        if(type == "Vacante" && UO){
+                                            spo.getListInfo('Posicion',
+                                                function (response) {
+                                                    context.lists.Posicion = response;
+
+                                                        var query2 = spo.encodeUrlListQuery(context.lists.Posicion, {
+                                                            view: 'Todos los elementos',
+                                                            odata: {
+                                                                'filter': '( RutOcupante eq \''+ context.items.SolicitudSDP.ReemplazoId +'\' )',
+                                                                'select': '*'
+                                                            }
+                                                        });
+
+                                                        spo.getListItems(spo.getSiteUrl(), 'Posicion', query2,
+                                                            function (response) {
+                                                                context.items.SolicitudSDP.Posicion = response.d.results.length > 0 ? response.d.results[0] : null;
+                                                                loaded.Reemplazo = true;
+                                                                loaded.posicion = true;
+                                                                shouldInitForms();
+                                                            },
+                                                            function (response) {
+                                                                var responseText = JSON.parse(response.responseText);
+                                                                console.log(responseText.error.message.value);
+                                                            }
+                                                        );
+                                                },
+                                                function (response) {
+                                                    var responseText = JSON.parse(response.responseText);
+                                                    console.log(responseText.error.message.value);
+                                                }
+                                            );
+                                        }else{
+                                            loaded.Reemplazo = true;
+                                            console.log('No tenia Reemplazo')
+                                            shouldInitForms();
+                                        }
                                     },
                                     function (response) {
                                         var responseText = JSON.parse(response.responseText);
@@ -585,9 +717,38 @@ var posicionPage = {
                             console.log(responseText.error.message.value);
                         }
                     );
-                }else{
-                    loaded.SolicitudSDP = true;
-                    shouldInitForms();
+
+                    spo.getListInfo('Posicion',
+                        function (response) {
+                            context.lists.Posicion = response;
+
+                            var query = spo.encodeUrlListQuery(context.lists.Posicion, {
+                                view: 'Todos los elementos',
+                                odata: {
+                                    'orderby': 'NPosicion desc',
+                                    'select': '*',
+                                    'top': 1
+                                }
+                            });
+
+                            spo.getListItems(spo.getSiteUrl(), mths.getListTitle(), query,
+                                function (response) {
+                                    context.items.Ultima = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    loaded.Posicion = true;
+                                    console.log('Cargo la Creacion de posicion')
+                                    shouldInitForms();
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                        },
+                        function (response) {
+                            var responseText = JSON.parse(response.responseText);
+                            console.log(responseText.error.message.value);
+                        }
+                    );
                 }
             }
 

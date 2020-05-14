@@ -297,8 +297,11 @@ localButtons.toGestionar = function(context){
         class: 'gestionar',
         icon: 'PageEdit',
         onClick: function(component, item){
-            mainView.router.navigate('/Posicion?gestion='+item.ID);
-            //Crear Mostrar formulario con 
+            var url = '/Posicion?';
+            url += 'gestion='+item.ID;
+            url += item.Posicion ? '&type='+item.Posicion : '';
+            url += item.Reemplazo ? '&UO='+item.Reemplazo[0].lookupValue : '';
+            mainView.router.navigate(url);
         }
     }
     return button
