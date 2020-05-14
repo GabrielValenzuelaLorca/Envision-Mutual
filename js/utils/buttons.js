@@ -276,6 +276,7 @@ localButtons.toEditPosition = function(){
         class: 'createPosition',
         icon: 'Edit',
         onClick: function(component, item){
+            
             if(item.ID){
                 mainView.router.navigate('/Posicion?listItemId='+item.ID);
             }else{
@@ -288,6 +289,7 @@ localButtons.toEditPosition = function(){
     }
     return button
 }
+
 
 localButtons.toGestionar = function(context){
     button = {
@@ -2886,3 +2888,194 @@ localButtons.downloadLicenciaPeriodo = function(context){
 /*
     Todos los botones relacionados con CyE
 */
+
+/*
+    Botones Posiciones Mantenedor de CyE
+*/
+
+
+localButtons.enviarUnCyE = function(context){
+    button = {
+        text: 'Enviar posición',
+        class: 'asdfasdf',
+        icon: 'Send',
+        onClick: function(component, item){
+            app.dialog.confirm("Desea enviar la posición seleccionada?", "Envío de posición", function(){
+                spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID,{Estado:"Validación Jefe CyE"}, function (response) {
+                    app.dialog.alert("Posición enviada con exito a Jefe CyE", "Envío de posición"),                   
+                        refresh()                     
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    app.dialog.create({
+                        title: 'Error al enviar la posición',
+                        text: responseText.error.message.value,
+                        buttons: [{
+                            text: 'Aceptar'
+                        }],
+                        verticalButtons: false
+                    }).open();
+                });
+            })
+
+        }
+    }
+    return button
+}
+
+localButtons.enviarMultiplesCyE = function(context){
+    button = {
+        text: 'Enviar posiciones',
+        class: 'asdfasdf',
+        icon: 'Send',
+        onClick: function(component, items){
+            app.dialog.confirm("Desea enviar las posiciones seleccionadas?", "Envío de posiciones", function(){
+                var promises = []
+                items.forEach(item =>{
+                    promises.push(new Promise((resolve, reject) =>{
+                        spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID,{Estado:"Validación Jefe CyE"}, function (response) {
+                            resolve(true)
+                        }, function (response) {
+                            reject(response)
+                        });
+                    }))
+                })
+
+                Promise.all(promises)
+                .then(c =>{
+                    app.dialog.alert("Posiciones enviadas a Jefe CyE", "Envío de posiciones"),
+                    refresh()
+                }).catch(error =>{
+                    app.dialog.alert(error)
+                })
+            })
+            
+        }
+    }
+    return button
+}
+
+
+/*
+    Botones relacionados con Posiciones Jefatura CyE
+*/
+
+localButtons.aprobarUnCyE = function(context){
+    button = {
+        text: 'Aprobar posición',
+        class: 'AprobPo',
+        icon: 'Send',
+        onClick: function(component, item){
+            app.dialog.confirm("Desea aprobar la posición seleccionada?", "Aprobación de posición", function(){
+                spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID,{Estado:"Disponible para uso"}, function (response) {
+                    app.dialog.alert("Posición aprobada con exito", "Aprobación de posición"),
+                    refresh()
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    app.dialog.create({
+                        title: 'Error al aprobar la posición',
+                        text: responseText.error.message.value,
+                        buttons: [{
+                            text: 'Aceptar'
+                        }],
+                        verticalButtons: false
+                    }).open();
+                });
+            })
+
+        }
+    }
+    return button
+}
+
+localButtons.aprobarMultiplesCyE = function(context){
+    button = {
+        text: 'Aprobar posiciones',
+        class: 'AprobPos',
+        icon: 'Send',
+        onClick: function(component, items){
+            app.dialog.confirm("Desea aprobar las posiciones seleccionadas?", "Aprobación de posiciones", function(){
+                var promises = []
+                items.forEach(item =>{
+                    promises.push(new Promise((resolve, reject) =>{
+                        spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID,{Estado:"Disponible para uso"}, function (response) {
+                            resolve(true)
+                        }, function (response) {
+                            reject(response)
+                        });
+                    }))
+                })
+
+                Promise.all(promises)
+                .then(c =>{
+                    app.dialog.alert("Posiciones aprobadas con exito", "Aprobación de posiciones"),
+                    refresh()
+                }).catch(error =>{
+                    app.dialog.alert(error)
+                })
+            })
+        }
+    }
+    return button
+}
+
+localButtons.desaprobarUnCyE = function(context){
+    button = {
+        text: 'Desaprobar posición',
+        class: 'DesaprobPo',
+        icon: 'Send',
+        onClick: function(component, item){
+            app.dialog.confirm("Desea desaprobar la posición seleccionada?", "Desaprobación de posición", function(){
+                spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID,{Estado:"Desaprobada"}, function (response) {
+                    app.dialog.alert("Posición desaprobada con exito", "Desaprobación de posición"),
+                    refresh()
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    app.dialog.create({
+                        title: 'Error al desaprobar la posición',
+                        text: responseText.error.message.value,
+                        buttons: [{
+                            text: 'Aceptar'
+                        }],
+                        verticalButtons: false
+                    }).open();
+                });
+            })
+
+        }
+    }
+    return button
+}
+
+localButtons.desaprobarMultiplesCyE = function(context){
+    button = {
+        text: 'Desaprobar posiciones',
+        class: 'DesaprobPos',
+        icon: 'Send',
+        onClick: function(component, items){
+            app.dialog.confirm("Desea desaprobar las posiciones seleccionadas?", "Desaprobación de posiciones", function(){
+                var promises = []
+                items.forEach(item =>{
+                    promises.push(new Promise((resolve, reject) =>{
+                        spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID,{Estado:"Desaprobada"}, function (response) {
+                            resolve(true)
+                        }, function (response) {
+                            reject(response)
+                        });
+                    }))
+                })
+
+                Promise.all(promises)
+                .then(c =>{
+                    app.dialog.alert("Posiciones desaprobadas con exito", "Desaprobación de posiciones"),
+                    refresh()
+                }).catch(error =>{
+                    app.dialog.alert(error)
+                })
+            })
+        }
+    }
+    return button
+}

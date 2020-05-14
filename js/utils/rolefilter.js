@@ -578,14 +578,25 @@ class RoleSDP extends Role{
             jefecyeSection.options = jefecyeSection.options.concat([
                 {
                     href: '/SolicitudesGuardadas',                    
-                    title: 'Solicitudes',                    
+                    title: 'Posiciones',                    
                     after: '',
                     header: '',
-                    footer: '',                    
+                    footer: 'Por aprobar',                    
                     panelClose: true,
                     externalLink: false,
                     f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--Archive"></i>',
+                    media: '<i class="ms-Icon ms-Icon--ReminderPerson"></i>',
+                },
+                {
+                    href: '/HistoricoPosiciones',
+                    title: 'Historico',
+                    after: '',
+                    header: '',
+                    footer: 'de posiciones',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--TimeEntry"></i>',
                 },
             ]);
           
