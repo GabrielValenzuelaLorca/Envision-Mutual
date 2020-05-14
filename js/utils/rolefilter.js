@@ -254,7 +254,7 @@ class RoleItemVariable extends Role{
     
             if (canSendInform && context.onPeriod && !outPeriod) {
                 if(plantaAdmin.Rol == "Coordinador" && showAlert == true && canSendInform){
-                    showAlertFirstOpened()
+                    showAlertFirstOpened(dias)
                     showAlert = false;
                 }
                 coorSection.options = coorSection.options.concat([ 

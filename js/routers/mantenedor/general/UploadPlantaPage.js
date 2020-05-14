@@ -379,6 +379,7 @@ var uploadPlantaPage = {
                                             //Validacion del bug de Reemplazo que en excel se trata como F
                                             if((existe[0].TipoContrato.charAt(0).toLowerCase() == 'r') && (fila.tipcon.trim().charAt(0).toLowerCase() == 'f') ){
                                                 SinCambios.push(existe[0]);
+                                                linea++;
                                                 return;
                                             }
                                             fila.ID = existe[0].ID;
@@ -415,10 +416,9 @@ var uploadPlantaPage = {
                                             //Validacion Para Categoria
                                             if(categoria.length == 0){
                                                 errores.push([{
-                                                    "Linea" : linea++, 
-                                                    "error": "No se encontro la categoría en los registros de sharepoint. Categoría" + fila.d_catego
+                                                    "Linea" : linea, 
+                                                    "error": "No se encontro la categoría en los registros de sharepoint. Categoría " + fila.d_catego
                                                 }]);
-                                                return;
                                             }else{
                                                 fila.catego = categoria[0].ID;
                                             }
@@ -426,10 +426,9 @@ var uploadPlantaPage = {
                                             //Validacion PAra AFP
                                             if(AFP.length == 0){
                                                 errores.push([{
-                                                    "Linea" : linea++, 
+                                                    "Linea" : linea, 
                                                     "error": "No se encontro la AFP en los registros de sharepoint"
                                                 }]);
-                                                return;
                                             }else{
                                                 fila.cod_afp = AFP[0].ID;
                                             }
@@ -440,7 +439,6 @@ var uploadPlantaPage = {
                                                     "Linea" : linea,
                                                     "error": "No se encontro la Isapre en los registros de sharepoint"
                                                 }]);
-                                                return;
                                             }else{
                                                 fila.cod_isa = Isapre[0].ID;
                                             }
@@ -448,9 +446,8 @@ var uploadPlantaPage = {
                                             if(CC.length == 0){
                                                 errores.push([{
                                                     "Linea" : linea,
-                                                    "error": "No se encontro el Centro de costo en los registros de sharepoint" + fila.d_nro_cenc
+                                                    "error": "No se encontro el Centro de costo en los registros de sharepoint " + fila.d_nro_cenc
                                                 }]);
-                                                return;
                                             }else{
                                                 fila.d_nro_cenc = CC[0].ID;
                                             }
@@ -458,16 +455,18 @@ var uploadPlantaPage = {
                                             if(Cargo.length == 0){
                                                 errores.push([{
                                                     "Linea" : linea,
-                                                    "error": "No se encontro el Cargo en los registros de sharepoint" + fila.d_cargo
+                                                    "error": "No se encontro el Cargo en los registros de sharepoint " + fila.d_cargo
                                                 }]);
-                                                return;
                                             }else{
                                                 fila.d_cargo = Cargo[0].ID;
                                             }
 
                                             Actualizar.push(PrepareToSend(fila));
+                                            linea++;
+                                            return;
                                         }else{
                                             SinCambios.push(existe[0]);
+                                            linea++;
                                             return;
                                         }
                                     }else{
@@ -503,10 +502,9 @@ var uploadPlantaPage = {
                                         //Validacion Para Categoria
                                         if(categoria.length == 0){
                                             errores.push([{
-                                                "Linea" : linea++, 
+                                                "Linea" : linea, 
                                                 "error": "No se encontro la categoría en los registros de sharepoint. Categoría " + fila.d_catego
                                             }]);
-                                            return;
                                         }else{
                                             fila.catego = categoria[0].ID;
                                         }
@@ -514,10 +512,9 @@ var uploadPlantaPage = {
                                         //Validacion PAra AFP
                                         if(AFP.length == 0){
                                             errores.push([{
-                                                "Linea" : linea++, 
+                                                "Linea" : linea, 
                                                 "error": "No se encontro la AFP en los registros de sharepoint"
                                             }]);
-                                            return;
                                         }else{
                                             fila.cod_afp = AFP[0].ID;
                                         }
@@ -528,7 +525,6 @@ var uploadPlantaPage = {
                                                 "Linea" : linea,
                                                 "error": "No se encontro la Isapre en los registros de sharepoint"
                                             }]);
-                                            return;
                                         }else{
                                             fila.cod_isa = Isapre[0].ID;
                                         }
@@ -538,17 +534,17 @@ var uploadPlantaPage = {
                                                 "Linea" : linea,
                                                 "error": "No se encontro el Centro de costo en los registros de sharepoint. Numero CC: " + fila.d_nro_cenc
                                             }]);
-                                            return;
                                         }else{
                                             fila.d_nro_cenc = CC[0].ID;
                                         }
 
                                         if(Cargo.length == 0){
+                                            console.log('Linea', linea)
+                                            console.log('Fila', fila)
                                             errores.push([{
                                                 "Linea Excel" : linea,
                                                 "error": "No se encontro el Cargo en los registros de sharepoint. Nombre Cargo Planta: " + fila.d_cargo
                                             }]);
-                                            return;
                                         }else{
                                             fila.d_cargo = Cargo[0].ID;
                                         }
@@ -568,6 +564,7 @@ var uploadPlantaPage = {
                                     //Si no hay coincidencias se agrega el ID para actualizar el registro a suspendido.0
                                     if(existe.length == 0 && item.EstadoContrato == 'Activo'){        
                                         Quitar.push(item.ID);
+                                        linea++;
                                     }
                                 });
 
@@ -609,9 +606,9 @@ var uploadPlantaPage = {
                                             verticalButtons: false
                                         }).open();
                                     }else{
-                                        callServiceCargaMasivaPlanta(resultado);
+                                        // callServiceCargaMasivaPlanta(resultado);
                                         //Activamos el estado global de carga de planta
-                                        activarCargaPendiente();
+                                        // activarCargaPendiente();
                                         dialog.close();
                                         app.dialog.create({
                                             title: dialogTitle,
@@ -711,7 +708,7 @@ var uploadPlantaPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.Cargo = true && loaded.lista && loaded.globalState && loaded.Planta && loaded.Isapre && loaded.AFP && loaded.Categoria && loaded.CentroCosto) {
+                    if (loaded.Cargo && loaded.lista && loaded.globalState && loaded.Planta && loaded.Isapre && loaded.AFP && loaded.Categoria && loaded.CentroCosto) {
                         initForm();
                     }
                 };
