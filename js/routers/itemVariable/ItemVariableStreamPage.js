@@ -9,7 +9,7 @@ itemVariableStreamPage.methods.getListView = function(){
 }
 
 itemVariableStreamPage.methods.getTitle = function(){
-    return "Items Variables"
+    return "ítems variables"
 }
 
 itemVariableStreamPage.methods.getListTitle = function(){

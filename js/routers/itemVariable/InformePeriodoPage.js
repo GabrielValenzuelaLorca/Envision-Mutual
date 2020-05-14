@@ -13,7 +13,7 @@ informePeriodoPage.methods.getListView = function(){
 }
 
 informePeriodoPage.methods.getTitle = function(){
-    return "Informes en Periodo"
+    return "Informes en Período"
 }
 
 informePeriodoPage.methods.getListTitle = function(){
