@@ -36,10 +36,12 @@ posicionStreamPage.methods.getOneItemSelectedButtons = function(item){
     var self = this, buttons = [],
     context = self._getPageContext(),
     buttons = [
-        localButtons.toEditPosition(),
-        localButtons.enviarUnCyE()
+        localButtons.toEditPosition()
     ];
 
+    if(item.Estado == "En revisión"){
+        buttons.push(localButtons.enviarUnCyE())
+    }
 
     return buttons;
 }
@@ -49,10 +51,19 @@ posicionStreamPage.methods.getMultiItemsSelectedButtons = function(items){
     var self = this, buttons = [],
     context = self._getPageContext(),
     buttons = [
-        localButtons.toEditPosition(),
-        localButtons.enviarMultiplesCyE()
+        localButtons.toEditPosition()
     ];
-    buttons.push()
+    let allow = true;
+    items.map(function(x){
+        if(x.Estado != "En revisión"){
+            allow = false;
+        }
+    })
+
+    if(allow){
+        buttons.push(localButtons.enviarMultiplesCyE())
+    }
+
 
     return buttons;
 }
@@ -72,8 +83,7 @@ posicionStreamPage.methods.renderHeader = function($header){
         description = '',
         tabChoices = [
             {id : 1, text: 'Todas las posiciones', segment: 'Disponible para uso'},
-            {id : 2, text: 'En revisión', segment: 'En validación'},
-            {id : 3, text: 'En validacion de Jefatura', segment: 'Validación Jefe CyE'}
+            {id : 2, text: 'En revisión', segment: 'En revisión'},
         ];
 
     // tempalte con titulo, descripción opcional y un tabs
@@ -84,7 +94,6 @@ posicionStreamPage.methods.renderHeader = function($header){
             <div class="segmented" style="margin:20px auto; max-width:600px">
                 <a class="button" segment-id="` + tabChoices[0].id + `" segment-text="` + tabChoices[0].segment + `">` + tabChoices[0].text + `</a>
                 <a class="button" segment-id="` + tabChoices[1].id + `" segment-text="` + tabChoices[1].segment + `">` + tabChoices[1].text + `</a>
-                <a class="button" segment-id="` + tabChoices[2].id + `" segment-text="` + tabChoices[2].segment + `">` + tabChoices[2].text + `</a>
             </div>
         </div>
     `;
@@ -106,12 +115,6 @@ posicionStreamPage.methods.renderHeader = function($header){
             case tabChoices[1].segment.toString() :{
                 query = `
                         <Eq><FieldRef Name="Estado" /><Value Type="Choice">${tabChoices[1].segment.toString()}</Value></Eq>
-                    `;
-                break;
-            }
-            case tabChoices[2].segment.toString() :{
-                query = `
-                        <Eq><FieldRef Name="Estado" /><Value Type="Choice">${tabChoices[2].segment.toString()}</Value></Eq>
                     `;
                 break;
             }

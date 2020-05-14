@@ -285,16 +285,19 @@ var posicionPage = {
                     }
                 });
 
-                if(context.items.SolicitudSDP.Posicion){
-                    context.forms.posicionOriginal = new EFWForms({
-                        container: $container.find('.form2'),
-                        title: 'Datos previos de la posicion',
-                        disabled: true,
-                        fields: spo.getViewFields(context.lists.Posicion, 'Form'),
-                    });
-
-                    context.forms.posicionOriginal.setValues([context.items.SolicitudSDP.Posicion]);
-                    $('.ms-FormField.is-disabled.not-editable div div.ms-BooleanField-fieldGroup label.toggle').addClass('hide')
+                if(context.items.SolicitudSDP){
+                    if(context.items.SolicitudSDP.Posicion){
+                        console.log('Posicion Original', context.items.SolicitudSDP.Posicion)
+                        context.forms.posicionOriginal = new EFWForms({
+                            container: $container.find('.form2'),
+                            title: 'Datos previos de la posicion',
+                            disabled: true,
+                            fields: spo.getViewFields(context.lists.Posicion, 'Form'),
+                        });
+    
+                        context.forms.posicionOriginal.setValues([context.items.SolicitudSDP.Posicion]);
+                        $('.ms-FormField.is-disabled.not-editable div div.ms-BooleanField-fieldGroup label.toggle').addClass('hide')
+                    }
                 }
 
                 if (listItemId) {
@@ -330,8 +333,8 @@ var posicionPage = {
                             metadata.forEach(item =>{
                                 if(item.Presupuestada === false){
                                     item['Estado'] = "Validación Jefe CyE"
-                                    metadata.CambioTemporal = JSON.stringify(JSON.stringify(metadataOriginal));
                                 }
+                                metadata.CambioTemporal = JSON.stringify(JSON.stringify(metadataOriginal));
                             });
 
                             spo.updateListItems(spo.getSiteUrl(), 'Posicion', metadata, function (response) {
@@ -339,11 +342,11 @@ var posicionPage = {
     
                                 app.dialog.create({
                                     title: dialogTitle,
-                                    text: 'La posicion ha sido enviada a la aprobacion de Jefe C&E',
+                                    text: 'La posicion creada con exito.',
                                     buttons: [{
                                         text: 'Aceptar',
                                         onClick: function () {
-                                            mainView.router.navigate('/periodoStream');
+                                            mainView.router.navigate('/PosicionStream');
                                         }
                                     }],
                                     verticalButtons: false
@@ -367,6 +370,7 @@ var posicionPage = {
                             //Guardar en temporal
                         }else{
 
+                            var metadatas = context.forms.posicion.getMetadata();
                             //Buscar Presupuestados false y setearles el Estado "Validación Jefe CyE"
                             metadatas.forEach(item =>{
                                 if(item.Presupuestada === false){
