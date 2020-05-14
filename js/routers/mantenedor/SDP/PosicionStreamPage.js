@@ -37,8 +37,10 @@ posicionStreamPage.methods.getOneItemSelectedButtons = function(item){
     context = self._getPageContext(),
     buttons = [
         localButtons.toEditPosition(),
+        localButtons.enviarUnCyE()
     ];
-    
+
+
     return buttons;
 }
 
@@ -48,7 +50,20 @@ posicionStreamPage.methods.getMultiItemsSelectedButtons = function(items){
     context = self._getPageContext(),
     buttons = [
         localButtons.toEditPosition(),
+        localButtons.enviarMultiplesCyE()
     ];
+    buttons.push()
 
     return buttons;
+}
+
+posicionStreamPage.methods.getCamlQueryConditions = function(){
+    return `    
+                    
+                <Contains><FieldRef Name="Estado" /><Value Type="Choice">En revisión</Value></Contains>
+            `
+}
+
+posicionStreamPage.methods.getCamlOrderBy = function() {
+    return '<FieldRef Name="NPosicion" Ascending="True" />';
 }
