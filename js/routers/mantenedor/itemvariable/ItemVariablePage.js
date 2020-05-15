@@ -256,10 +256,7 @@ var ItemVariablePage = {
                     fields: spo.getViewFields(context.lists.ListadoItems, 'Categoria'),
                 });
 
-                console.log('form', context.forms.categoria)
-
                 context.forms.categoria.inputs.Categoria.params.beforeRenderSuggestions = function (items) {
-                    console.log('items', items)
                     return items.filter(x=> x.Categoria.length < 3)
                 }
                 //Formulario de minimo y maximo
@@ -331,7 +328,6 @@ var ItemVariablePage = {
                                 Month: d[1]
                             });
                         })
-                        console.log('Data', data);
                         context.forms.fechas.setValues(data);
 
                         $('.accordion-item.fechas').removeClass('hide')
@@ -393,11 +389,17 @@ var ItemVariablePage = {
                         if(metadata.GP){
                             //Concatenamos el metadata de categorias
                             metadata['CategoriaId'] = categoria.CategoriaId;
+                        }else{
+                            metadata.CategoriaId = {};
+                            metadata.CategoriaId.results = [];
                         }
                         if(metadata.MinMax){
                             //Concatenamos minmax
                             metadata['Minimo'] = MinMax.Minimo;
                             metadata['Maximo'] = MinMax.Maximo;
+                        }else{
+                            metadata['Minimo'] = null;
+                            metadata['Maximo'] = null;
                         }
                         if(metadata.FechasEspeciales){
                             //Concatenamos fechas especiales
@@ -411,6 +413,8 @@ var ItemVariablePage = {
                                 }
                             }
                             metadata['FechasExcepcionales'] = valor;
+                        }else{
+                            metadata['FechasExcepcionales'] = null;
                         }
 
                         delete metadata['FechasEspeciales'];
@@ -447,7 +451,6 @@ var ItemVariablePage = {
                     }
 
                     context.forms.main.checkFieldsRequired();
-                        console.log('metadata main', context.forms.main.getMetadata())
                         context.forms.categoria.checkFieldsRequired();
                         context.forms.MinMax.checkFieldsRequired();
                         context.forms.fechas.checkFieldsRequired();
@@ -578,7 +581,6 @@ var ItemVariablePage = {
                         });
                     }
                         context.forms.main.checkFieldsRequired();
-                        console.log('metadata main', context.forms.main.getMetadata())
                         context.forms.categoria.checkFieldsRequired();
                         context.forms.MinMax.checkFieldsRequired();
                         context.forms.fechas.checkFieldsRequired();
@@ -599,7 +601,6 @@ var ItemVariablePage = {
                         if(metadata.MinMax == true){
                             var md = context.forms.MinMax.getMetadata();
                             if(md.Maximo < md.Minimo){
-                                console.log('Cayo en la excepcion')
                                 validateMinMax = false;
                             }else if(!context.forms.MinMax.getValidation()){
                                 validateMinMax = false;

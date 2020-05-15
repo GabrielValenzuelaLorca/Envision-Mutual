@@ -186,6 +186,17 @@ class RoleItemVariable extends Role{
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
                 },
+                {
+                    href: '/CargarCentroCosto',
+                    title: 'Mantenedor Coordinador',
+                    after: '',
+                    header: '',
+                    footer: 'Haberes y Trabajadores',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
+                },
             ]);
     
             settings.push(admSection2);

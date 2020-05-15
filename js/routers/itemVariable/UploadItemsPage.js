@@ -428,7 +428,7 @@ var uploadItemsPage = {
                                 }
 
                                 function validateCC(cc, trabajador, item){
-                                    if(context.items.Solicitudes.length > 0){
+                                    if(context.items.Solicitudes){
 
                                         var filtrado = context.items.Solicitudes.filter(function(x){
                                             return x.Trabajador.NombreCompleto == trabajador.NombreCompleto 

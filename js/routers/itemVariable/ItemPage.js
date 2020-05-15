@@ -93,12 +93,12 @@ var itemPage = {
     style:  '.form-container .ms-FormField {width: 45%; float:left} '+
             `@media all and (max-width: 5000px){
                 .ms-Icon.ms-Icon--DrillDownSolid {
-                    margin-right: 85%; font-size: 20px !important;
+                    margin-right: 75%; font-size: 20px !important;
                 }
             }
             @media all and (max-width: 1024px){
                 .ms-Icon.ms-Icon--DrillDownSolid {
-                    margin-right: 80%; font-size: 20px !important;
+                    margin-right: 70%; font-size: 20px !important;
                 }
             }
             @media all and (max-width: 700px){
