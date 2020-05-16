@@ -235,6 +235,10 @@ function getRoutes(){
             path: '/CargarCentroCosto',
             component: CargaMasivaCCPage
         },
+        {
+            path: '/ReasignarCoordinador',
+            component: reasignCooPage
+        }
     ]
 
     //Routes compartidas de Item Variable

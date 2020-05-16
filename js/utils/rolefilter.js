@@ -187,16 +187,28 @@ class RoleItemVariable extends Role{
                     media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
                 },
                 {
+                    href: '/ReasignarCoordinador',
+                    title: 'Transpaso de coordinación',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--Transition"></i>',
+                },
+                {
                     href: '/CargarCentroCosto',
                     title: 'Mantenedor Coordinador',
                     after: '',
                     header: '',
-                    footer: 'Haberes y Trabajadores',
+                    footer: '',
                     panelClose: true,
                     externalLink: false,
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
                 },
+                
             ]);
     
             settings.push(admSection2);
