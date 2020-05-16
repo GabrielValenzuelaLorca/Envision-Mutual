@@ -445,129 +445,95 @@ var reasignCooPage = {
                 $send.on('click', function (e) {
                     var saved = {};
 
-                    function saveTrabajadores() {
-                        var metadata = context.forms.Reemplazo.getMetadata();
-                        var nuevoCoordinador = context.items.Coordinadores.filter(x => x.ApellidoPaterno+' '+x.ApellidoMaterno+' '+x.Nombre == metadata.Reemplazo)[0];
-                        if(context.OrigenTrabajadores){
-                            var trabajadores = context.OrigenTrabajadores.map(function(x){
-                                return {
-                                    Id: x.ID,
-                                    CoordinadorId: nuevoCoordinador.ID
-                                }
-                            })
-                            
-                            spo.updateListItems(spo.getSiteUrl(), 'Planta', trabajadores, function (response) {
-                                saved.trabajadores = true;
-                                console.log('Actualizo los trabajadores')
-                                completed();
-                            }, function (response) {
-                                var responseText = JSON.parse(response.responseText);
-                                dialog.close();
-                                app.dialog.create({
-                                    title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                    text: responseText.error.message.value,
-                                    buttons: [{
-                                        text: 'Aceptar'
-                                    }],
-                                    verticalButtons: false
-                                }).open();
-                            });
-                        }else{
-                            console.log('No tiene trabajadores')
-                            saved.trabajadores = true;
-                            completed();
-                        }
-                        
-                    }
-
-                    function saveItems() {
-
-                        var selectedOriginal = context.forms.Original.getMetadata();
-                        var selectedReemplazo = context.forms.Reemplazo.getMetadata();
-
-                        var Original = context.items.Coordinadores.filter(x => x.ApellidoPaterno+' '+x.ApellidoMaterno+' '+x.Nombre == selectedOriginal.Origen)[0];
-                        var Reemplazante = context.items.Coordinadores.filter(x => x.ApellidoPaterno+' '+x.ApellidoMaterno+' '+x.Nombre == selectedReemplazo.Reemplazo)[0];
-
-
-                        if(Original.Haberes.results.length > 0){
-
-                            var agregar = Original.HaberesId.results.map(function(x){
-                                if(!Reemplazante.HaberesId.results.includes(x)){
-                                    return x
-                                }
-                            });
-
-                            var metadataOriginal = {};
-                            metadataOriginal.Haberes = {};
-                            metadataOriginal.HaberesId = {};
-                            metadataOriginal.HaberesId.results = [];
-                            metadataOriginal.Haberes.results = [];
-                            
-                            spo.updateListItem(spo.getSiteUrl(), 'Planta', Original.ID, metadataOriginal, function (response) {
-                                console.log('Quito sus items')
-                                if(Reemplazante.Haberes.results > 0){
-                                    Reemplazante.HaberesId.results.concat(agregar);
-                                }else{
-                                    Reemplazante.HaberesId.results = agregar
-                                }
-
-                                var save = {};
-                                save.HaberesId = {};
-                                save.HaberesId.results = Reemplazante.HaberesId.results
-
-                                spo.updateListItem(spo.getSiteUrl(), 'Planta',Reemplazante.ID, save, function (response) {
-                                    saved.items = true;
-                                    console.log('Actualizo los Items')
-                                    completed();
+                    var saveTrabajadores = () => {
+                        return new Promise((resolve, reject)=>{
+                            var metadata = context.forms.Reemplazo.getMetadata();
+                            var nuevoCoordinador = context.items.Coordinadores.filter(x => x.ApellidoPaterno+' '+x.ApellidoMaterno+' '+x.Nombre == metadata.Reemplazo)[0];
+                            if(context.OrigenTrabajadores){
+                                var trabajadores = context.OrigenTrabajadores.map(function(x){
+                                    return {
+                                        Id: x.ID,
+                                        ID: x.ID,
+                                        CoordinadorId: nuevoCoordinador.ID
+                                    }
+                                })
+    
+                                console.log('Array Trabajadores', trabajadores)
+                                
+                                spo.updateListItems(spo.getSiteUrl(), 'Planta', trabajadores, function (response) {
+                                    resolve(true)
                                 }, function (response) {
                                     var responseText = JSON.parse(response.responseText);
-        
-                                    dialog.close();
-                                    app.dialog.create({
-                                        title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                        text: responseText.error.message.value,
-                                        buttons: [{
-                                            text: 'Aceptar'
-                                        }],
-                                        verticalButtons: false
-                                    }).open();
+                                    reject({
+                                        title: 'Error al guardar en lista Planta',
+                                        msg: responseText.error.message.value
+                                    })
                                 });
-                            }, function (response) {
-                                var responseText = JSON.parse(response.responseText);
-    
-                                dialog.close();
-                                app.dialog.create({
-                                    title: 'Error al guardar en lista ' + mths.getListTitle(),
-                                    text: responseText.error.message.value,
-                                    buttons: [{
-                                        text: 'Aceptar'
-                                    }],
-                                    verticalButtons: false
-                                }).open();
-                            });
-                        }else{
-                            //El original no tenia haberes
-                            saved.items = true;
-                            completed();
-                        }
+                            }else{
+                                resolve(true)
+                            }
+                        } )
 
                     }
-                    
-                    var completed = function(){
-                        if(saved.items && saved.trabajadores){
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Realizado',
-                                text: 'Transferencia de coordinacion finalizada',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function (newData) {
-                                        return;
+
+                    var saveItems = () => {
+                        return new Promise((resolve, reject) => {
+                            var selectedOriginal = context.forms.Original.getMetadata();
+                            var selectedReemplazo = context.forms.Reemplazo.getMetadata();
+
+                            var Original = context.items.Coordinadores.filter(x => x.ApellidoPaterno + ' ' + x.ApellidoMaterno + ' ' + x.Nombre == selectedOriginal.Origen)[0];
+                            var Reemplazante = context.items.Coordinadores.filter(x => x.ApellidoPaterno + ' ' + x.ApellidoMaterno + ' ' + x.Nombre == selectedReemplazo.Reemplazo)[0];
+
+                            if (Original.HaberesId.results.length > 0) {
+
+                                var agregar = [];
+
+                                Original.HaberesId.results.map(function (x) {
+                                    if (!Reemplazante.HaberesId.results.includes(x)) {
+                                        agregar.push(x)
                                     }
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        }
+                                });
+
+                                var metadataOriginal = {};
+                                metadataOriginal.HaberesId = {};
+                                metadataOriginal.HaberesId.results = [];
+
+                                spo.updateListItem(spo.getSiteUrl(), 'Planta', Original.ID, metadataOriginal, function (response) {
+                                    if (Reemplazante.Haberes.results.length > 0) {
+                                        agregar.map(function (x) {
+                                            Reemplazante.HaberesId.results.push(x)
+                                        })
+                                    } else {
+                                        Reemplazante.HaberesId.results = agregar
+                                    }
+
+                                    var save = {};
+                                    save.HaberesId = {};
+                                    save.HaberesId.results = Reemplazante.HaberesId.results
+
+                                    spo.updateListItem(spo.getSiteUrl(), 'Planta', Reemplazante.ID, save, function (response) {
+                                        resolve(true)
+                                    }, function (response) {
+                                        var responseText = JSON.parse(response.responseText);
+                                        reject({
+                                            title: 'Error al guardar en lista Planta',
+                                            msg: responseText.error.message.value
+                                        })
+                                    });
+                                }, function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    reject({
+                                        title: 'Error al guardar en lista Planta',
+                                        msg: responseText.error.message.value
+                                    })
+                                });
+                            } else {
+                                //El original no tenia haberes
+                                resolve(true)
+                            }
+                        })
+
+
                     }
 
                     context.forms.Original.checkFieldsRequired();
@@ -589,8 +555,38 @@ var reasignCooPage = {
                             }).open();
                         }else{
                             dialog = app.dialog.progress('Realizando cambios...');
-                            saveTrabajadores();
-                            saveItems();
+                            saveTrabajadores().then(c =>{
+                                return saveItems()
+                            }).then(c =>{
+                                dialog.close();
+                                app.dialog.create({
+                                    title: 'Realizado',
+                                    text: 'Transferencia de coordinacion finalizada',
+                                    buttons: [{
+                                        text: 'Aceptar',
+                                        
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            })
+                            .catch(error =>{
+                                dialog.close();
+                                app.dialog.create({
+                                    title: error.title,
+                                    text: error.msg,
+                                    buttons: [{
+                                        text: 'Aceptar',
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                                
+                            })
+
+ 
+
+
+                            //await saveTrabajadores();
+                            //await saveItems();
                         }
                     }else{
                         app.dialog.create({
