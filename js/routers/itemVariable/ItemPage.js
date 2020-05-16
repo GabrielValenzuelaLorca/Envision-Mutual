@@ -594,12 +594,13 @@ var itemPage = {
                   
                 $sendButton.removeClass('hide');
                 $clearButton.removeClass('hide');
+                var dialog;
 
                 $sendButton.on('click', function (e) {
                     var dialogTitle = 'Nuevo Item';
 
                     function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
+                        
                         var metadataItem = context.forms.item.getMetadata();
                         var metadataPerson = context.forms.person.getMetadata();
                         var metadataEX = context.forms.EX.getMetadata();
@@ -675,6 +676,101 @@ var itemPage = {
 
                         return true;
                     }
+
+                    function ckeckAllowSend(){
+                        dialog = app.dialog.progress(dialogTitle);
+                        function loadData(){
+                            var shouldValidate = function(){
+                                if(loaded.trabajador && loaded.items){
+                                    loaded.trabajador = loaded.items = false;
+                                    var allow = true;
+                                    var msg = '';
+                                    if(context.items.trabajador){
+                                        if(context.items.trabajador.CoordinadorId != plantaAdmin.ID){
+                                            allow = false;
+                                            msg = 'El trabajador seleccionado no le petenece a su coordinacion.'
+                                        }
+                                    }else{
+                                        allow = false;
+                                    }
+                                    
+                                    if(!context.items.Coordinador.HaberesId.results.includes(context.forms.item.getMetadata().HaberId)){
+                                        allow = false;
+                                        msg = 'No tiene permiso para imputar este item.'
+                                    }
+
+                                    if(!allow){
+                                        msg += ' Contactese con el administrador para tener mas información'
+                                        dialog.close();
+                                        app.dialog.create({
+                                            title: 'Ha ocurrido un problema',
+                                            text: msg,
+                                            buttons: [{
+                                                text: 'Aceptar',
+                                                    onClick: function () {
+                                                        
+                                                    }
+                                            }],
+                                            verticalButtons: false
+                                        }).open();
+                                    }else{
+                                        save();
+                                    }
+                                }
+                            }
+
+                            //Obtener los items disponibles
+                            spo.getListInfo('Planta',
+                                function (response) {
+                                    context.lists.Planta = response;
+                                    var query1 = spo.encodeUrlListQuery(context.lists.Planta, {
+                                        view: 'Todos los elementos',
+                                        odata: {
+                                            'select': '*',
+                                            'filter': ' Id eq '+plantaAdmin.ID
+                                        }
+                                    });
+
+                                    spo.getListItems(spo.getSiteUrl(), 'Planta', query1,
+                                        function (response) {
+                                            context.items.Coordinador = response.d.results.length > 0 ? response.d.results[0] : null;
+                                            loaded.items = true;
+                                            shouldValidate();
+                                        },
+                                        function (response) {
+                                            var responseText = JSON.parse(response.responseText);
+                                            console.log(responseText.error.message.value);
+                                        }
+                                    );
+
+                                    var query2 = spo.encodeUrlListQuery(context.lists.Planta, {
+                                        view: 'Todos los elementos',
+                                        odata: {
+                                            'select': '*',
+                                            'filter': '( Title eq \''+context.forms.person.getMetadata().CodigoPayroll+'\' )' 
+                                        }
+                                    });
+
+                                    spo.getListItems(spo.getSiteUrl(), 'Planta', query2,
+                                        function (response) {
+                                            context.items.trabajador = response.d.results.length > 0 ? response.d.results[0] : null;
+                                            loaded.trabajador = true
+                                            shouldValidate();
+                                        },
+                                        function (response) {
+                                            var responseText = JSON.parse(response.responseText);
+                                            console.log(responseText.error.message.value);
+                                        }
+                                    );
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                        }
+                        loadData();
+                    }
                     
                     context.forms.person.checkFieldsRequired();
                     context.forms.item.checkFieldsRequired();
@@ -711,7 +807,7 @@ var itemPage = {
                                 }, {
                                     text: 'Aceptar',
                                     onClick: function onClick() {
-                                        save();
+                                        ckeckAllowSend();
                                     }
                                 }],
                                 verticalButtons: false
