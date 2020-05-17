@@ -214,6 +214,11 @@ var reasignCooPage = {
 
                 function getCurrentData(coo, side){
 
+                    var origen = context.forms.Original.getMetadata();
+                    var destino = context.forms.Reemplazo.getMetadata();
+
+                    console.log('Origen', destino)
+
                     function setData(NTrabajadores, NItems){
 
                         var htmlListItems  = ` <li class="list-group-title">`+'Items Asociados'+` <span class="badge color-green">${NItems}</span></li>`;
@@ -416,7 +421,7 @@ var reasignCooPage = {
                 context.forms.Reemplazo = new EFWForm({
                     container: $container.find('.form2'),
                     title: '',
-                    editable: false,
+                    editable: true,
                     fields: inputs2
                 });
 
@@ -425,10 +430,8 @@ var reasignCooPage = {
                         dialogLeft = app.dialog.progress('Obteniendo datos...');
                         var selected = context.items.Coordinadores.filter(x => x.ApellidoPaterno+' '+x.ApellidoMaterno+' '+x.Nombre == values[0].key)[0];
                         getCurrentData(selected, 'origen')
-                        context.forms.Reemplazo.setEditable(true)
                     }else{
                         getCurrentData(null, 'origen')
-                        context.forms.Reemplazo.setEditable(false)
                     }
                 }
 
@@ -564,6 +567,9 @@ var reasignCooPage = {
                                     text: 'Transferencia de coordinacion finalizada',
                                     buttons: [{
                                         text: 'Aceptar',
+                                        onClick: function () {
+                                            mainView.router.refreshPage();
+                                        }
                                         
                                     }],
                                     verticalButtons: false
