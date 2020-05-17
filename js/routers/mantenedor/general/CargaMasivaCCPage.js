@@ -218,7 +218,7 @@ var CargaMasivaCCPage = {
                     }
 
                     function callServiceCargaMasivaPlanta(body){
-                        let url = 'https://prod-56.westus.logic.azure.com:443/workflows/15d2c973b072414fb67e56128b783d1e/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=O0C6bRAdZlpIuIWunwD1xSL21d72QCgPjcWH3nN9Uns';
+                        let url = global.uris[global.env].CC;
                         fetch(url, {
                             method: 'POST',
                             headers: {

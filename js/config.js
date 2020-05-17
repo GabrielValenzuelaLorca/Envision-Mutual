@@ -15,6 +15,7 @@ global.uris = {
         status: 'https://prod-56.westus.logic.azure.com:443/workflows/110553fb4b5345a0a6af184622fee095/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3Ypt3eyXmI3dML81jx1FHibucDD1qWjG_kEzs2iVDM0',
         items: 'https://prod-41.westus.logic.azure.com:443/workflows/7936281e1e9642b7bce907f3b5c79f98/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=M0U07-7TKCCEM1d_uwLaTyhGKUGed1dqJAwpJp-mBJg',
         planta: 'https://prod-09.westus.logic.azure.com:443/workflows/ebee079485634fdeb4f5cd060b424663/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=2bv590n5l4kP0RSXvGeOtuqx3Gfvm5NnNk1Rmwt3g34',
+        CC: '',
     },
     TEST: {
         tenantUrl: 'https://grupoenvision.sharepoint.com/',
@@ -24,6 +25,7 @@ global.uris = {
         status: 'https://prod-56.westus.logic.azure.com:443/workflows/110553fb4b5345a0a6af184622fee095/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3Ypt3eyXmI3dML81jx1FHibucDD1qWjG_kEzs2iVDM0',
         items: 'https://prod-41.westus.logic.azure.com:443/workflows/7936281e1e9642b7bce907f3b5c79f98/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=M0U07-7TKCCEM1d_uwLaTyhGKUGed1dqJAwpJp-mBJg',
         planta: 'https://prod-09.westus.logic.azure.com:443/workflows/ebee079485634fdeb4f5cd060b424663/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=2bv590n5l4kP0RSXvGeOtuqx3Gfvm5NnNk1Rmwt3g34',
+        CC: '',
     },
     MUTDSR: {
         tenantUrl: 'https://mutualcl.sharepoint.com/',
@@ -32,6 +34,7 @@ global.uris = {
         status: 'https://prod-09.westus.logic.azure.com:443/workflows/5ce7ea7cf20e4246a75638f25fe4af15/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=rzMelItX7HWBMvy-sSWYlHuZeppw7E9uBSqdg_1BtdE',
         items: 'https://prod-62.westus.logic.azure.com:443/workflows/b8dd45a1d2654d8ca7672678290b867f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=VAMs_5rnIS0P3DMXr8VA9WXuhIhAXR67vOFgu8tHLws',
         planta: 'https://prod-14.westus.logic.azure.com:443/workflows/0e371514329c440a8522e540321cabb2/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=fHhXuG6-GbDA79up1rWZSkLmIuL7yoSmNwqgxPg0qmI',
+        CC: '',
     }, 
     MUTQAS: {
         tenantUrl: 'https://mutualcl.sharepoint.com/',
@@ -41,6 +44,7 @@ global.uris = {
         status: 'https://prod-95.westus.logic.azure.com:443/workflows/71c183bfedab4bfbba7596de27f73376/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8HNuoFXg7TQdxFAiag_83nGgahXho1U1EG9aUo6zye0',
         items: 'https://prod-43.westus.logic.azure.com:443/workflows/a3e209540675467fbbfdf8e183983f39/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=pz1IX-0gg2cAaf7-AGMiCtdGTEFhBgFGqmCN_kl-R-Y',
         planta: 'https://prod-36.westus.logic.azure.com:443/workflows/981a3d3c32b24ab8901da9b56ab7902c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=qKA0E3AM5Ds5mjweT6JPkl42wR3fkvQdcuaV3k15gXE',
+        CC: 'https://prod-56.westus.logic.azure.com:443/workflows/15d2c973b072414fb67e56128b783d1e/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=O0C6bRAdZlpIuIWunwD1xSL21d72QCgPjcWH3nN9Uns',
     },
     MUTPRD: {
 
