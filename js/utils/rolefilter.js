@@ -441,7 +441,7 @@ class RoleItemVariable extends Role{
                         title: 'Informes',
                         after: '',
                         header: '',
-                        footer: 'Items Variables',
+                        footer: 'Ítems Variables',
                         panelClose: true,
                         externalLink: false,
                         f7view: '.view-main',
