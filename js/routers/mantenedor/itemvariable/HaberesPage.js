@@ -326,7 +326,7 @@ var haberesPage = {
                     
                         app.dialog.create({
                             title: dialogTitle,
-                            text: 'Se actualizarán los haberes',
+                            text: '¿Desea actualizar los haberes?',
                             buttons: [{
                                 text: 'Cancelar'
                             }, {
