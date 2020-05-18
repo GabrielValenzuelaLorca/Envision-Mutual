@@ -286,7 +286,7 @@ var posicionPage = {
                 });
 
                 if(context.items.SolicitudSDP){
-                    if(context.items.SolicitudSDP.Posicion){
+                    if(context.items.SolicitudSDP.Posicion && type == "Vacante" && UO){
                         console.log('Posicion Original', context.items.SolicitudSDP.Posicion)
                         context.forms.posicionOriginal = new EFWForms({
                             container: $container.find('.form2'),

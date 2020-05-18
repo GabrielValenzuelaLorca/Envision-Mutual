@@ -59,6 +59,13 @@ class RoleItemVariable extends Role{
                 footer: '',
                 options: []
             };
+
+            let admSection3 = {
+                inset: true,
+                header: 'Cargas Masivas Adicionales',
+                footer: '',
+                options: []
+            };
     
             if (context.onPeriod){
                 admSection.options = admSection.options.concat([
@@ -186,10 +193,34 @@ class RoleItemVariable extends Role{
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
                 },
+                {
+                    href: '/ReasignarCoordinador',
+                    title: 'Transpaso de coordinación',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--Transition"></i>',
+                },                
             ]);
-    
             settings.push(admSection2);
-            
+
+            admSection3.options = admSection3.options.concat([
+                {
+                    href: '/CargarCentroCosto',
+                    title: 'Carga Masiva Centros de costo',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--ExcelLogo"></i>',
+                },
+            ]);
+            settings.push(admSection3);
            
         }
         if(this.LicenciasMedicas){

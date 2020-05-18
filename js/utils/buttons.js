@@ -241,7 +241,6 @@ localButtons.ToAsociateTrabajadorPage = function(){
     return button
 }
 
-
 /**
  * Redirecciones generales de la pagina SDP
  */

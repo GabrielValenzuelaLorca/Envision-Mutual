@@ -52,7 +52,7 @@ var uploadPlantaPage = {
             '</div>' +
             '<div class="page-content">' +
                 '<div class="form-container"></div>' +
-                '<div class="container" />' +
+                '<div class="error-container" />' +
             '<div class="content-loader">' +
                 '<div class="content-loader-inner">' +
                     '<div class="image-logo lazy lazy-fadein" data-background="{{loader.image}}"></div>' +
@@ -194,7 +194,30 @@ var uploadPlantaPage = {
 
                 context.forms.item.inputs.Attachments.params.onChange = function(comp, input, state, values){
                     $('div.item-after div.ms-Button-AttachEdit i.ms-Icon.ms-Icon--Cancel').hide()
+                    context.forms.item.inputs.Attachments.setEditable(false)
                 }
+
+                context.forms.errorsList = new EFWListTable({
+                    container: $container.find('.error-container'),
+                    title: 'Listado de errores',
+                    editable: false,
+                    description: '',
+                    tableLayout: 'fixed',
+                    fields: [{ 
+                        Id: generateUUID(),
+                        Title: 'Linea',
+                        InternalName: 'Linea',
+                        TypeAsString: 'Number'
+                    },
+                    { 
+                        Id: generateUUID(),
+                        Title: 'Mensaje de error',
+                        InternalName: 'error',
+                        TypeAsString: 'Note'
+                    }]
+                });                
+
+                context.forms.errorsList.hide();
 
                 $sendButton.removeClass('hide');
                 $clearButton.removeClass('hide');
@@ -415,48 +438,48 @@ var uploadPlantaPage = {
 
                                             //Validacion Para Categoria
                                             if(categoria.length == 0){
-                                                errores.push([{
+                                                errores.push({
                                                     "Linea" : linea, 
                                                     "error": "No se encontro la categoría en los registros de sharepoint. Categoría " + fila.d_catego
-                                                }]);
+                                                });
                                             }else{
                                                 fila.catego = categoria[0].ID;
                                             }
 
                                             //Validacion PAra AFP
                                             if(AFP.length == 0){
-                                                errores.push([{
+                                                errores.push({
                                                     "Linea" : linea, 
                                                     "error": "No se encontro la AFP en los registros de sharepoint"
-                                                }]);
+                                                });
                                             }else{
                                                 fila.cod_afp = AFP[0].ID;
                                             }
 
                                             //Validacion PAra Isapre
                                             if(Isapre.length == 0){
-                                                errores.push([{
+                                                errores.push({
                                                     "Linea" : linea,
                                                     "error": "No se encontro la Isapre en los registros de sharepoint"
-                                                }]);
+                                                });
                                             }else{
                                                 fila.cod_isa = Isapre[0].ID;
                                             }
 
                                             if(CC.length == 0){
-                                                errores.push([{
+                                               errores.push({
                                                     "Linea" : linea,
                                                     "error": "No se encontro el Centro de costo en los registros de sharepoint " + fila.d_nro_cenc
-                                                }]);
+                                                });
                                             }else{
                                                 fila.d_nro_cenc = CC[0].ID;
                                             }
 
                                             if(Cargo.length == 0){
-                                                errores.push([{
+                                               errores.push({
                                                     "Linea" : linea,
                                                     "error": "No se encontro el Cargo en los registros de sharepoint " + fila.d_cargo
-                                                }]);
+                                                });
                                             }else{
                                                 fila.d_cargo = Cargo[0].ID;
                                             }
@@ -501,50 +524,48 @@ var uploadPlantaPage = {
 
                                         //Validacion Para Categoria
                                         if(categoria.length == 0){
-                                            errores.push([{
+                                           errores.push({
                                                 "Linea" : linea, 
                                                 "error": "No se encontro la categoría en los registros de sharepoint. Categoría " + fila.d_catego
-                                            }]);
+                                            });
                                         }else{
                                             fila.catego = categoria[0].ID;
                                         }
 
                                         //Validacion PAra AFP
                                         if(AFP.length == 0){
-                                            errores.push([{
+                                           errores.push({
                                                 "Linea" : linea, 
                                                 "error": "No se encontro la AFP en los registros de sharepoint"
-                                            }]);
+                                            });
                                         }else{
                                             fila.cod_afp = AFP[0].ID;
                                         }
 
                                          //Validacion PAra Isapre
                                         if(Isapre.length == 0){
-                                            errores.push([{
+                                           errores.push({
                                                 "Linea" : linea,
                                                 "error": "No se encontro la Isapre en los registros de sharepoint"
-                                            }]);
+                                            });
                                         }else{
                                             fila.cod_isa = Isapre[0].ID;
                                         }
 
                                         if(CC.length == 0){
-                                            errores.push([{
+                                           errores.push({
                                                 "Linea" : linea,
                                                 "error": "No se encontro el Centro de costo en los registros de sharepoint. Numero CC: " + fila.d_nro_cenc
-                                            }]);
+                                            });
                                         }else{
                                             fila.d_nro_cenc = CC[0].ID;
                                         }
 
                                         if(Cargo.length == 0){
-                                            console.log('Linea', linea)
-                                            console.log('Fila', fila)
-                                            errores.push([{
-                                                "Linea Excel" : linea,
+                                           errores.push({
+                                                "Linea" : linea,
                                                 "error": "No se encontro el Cargo en los registros de sharepoint. Nombre Cargo Planta: " + fila.d_cargo
-                                            }]);
+                                            });
                                         }else{
                                             fila.d_cargo = Cargo[0].ID;
                                         }
@@ -573,7 +594,7 @@ var uploadPlantaPage = {
                                 resultado[0] = Agregar;
                                 resultado[1] = Quitar;
                                 resultado[2] = Actualizar;
-                                resultado[3] = {'Email': spo.getCurrentUser()['EMail']};
+                                resultado[3] = {'Email': spo.getCurrentUser()['EMail']};                                
 
                                 if(resultado[0].length == 0 && resultado[1].length == 0 && resultado[2].length == 0){
                                     dialog.close();
@@ -589,39 +610,43 @@ var uploadPlantaPage = {
                                         }],
                                         verticalButtons: false
                                     }).open();
-                                }else{
+                                }else if( errores.length > 0){
                                     //Si hay errores se muestra Alert
-                                    if( errores.length > 0){
-                                        dialog.close();
-                                        app.dialog.create({
-                                            title: 'Error',
-                                            text: 'Se encontraron errores',
-                                            buttons: [{
-                                                text: 'Aceptar',
-                                                onClick: function () {
-                                                    console.log('Errores', JSON.stringify(errores))
-                                                    return;
-                                                }
-                                            }],
-                                            verticalButtons: false
-                                        }).open();
-                                    }else{
+
+                                    console.log('Errores', errores)
+                                    context.forms.errorsList.setValues(errores);
+                                    dialog.close();
+                                    app.dialog.create({
+                                        title: 'Error',
+                                        text: 'Se han encontrado '+errores.length+' errores.\n Su carga de planta no ha podido ser procesada debido a que presenta los siguientes errores en su excel',
+                                        buttons: [{
+                                            text: 'Ver',
+                                            onClick: function () {
+                                                $container.find('.card-header').addClass('hide');
+                                                $container.find('.card-content thead tr th:nth-child(1)').addClass('hide');
+                                                $container.find('.card-content tbody tr td.checkbox-cell').addClass('hide');
+                                                context.forms.errorsList.show()
+                                                return;
+                                            }
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
+                                }else{
                                         // callServiceCargaMasivaPlanta(resultado);
                                         //Activamos el estado global de carga de planta
                                         // activarCargaPendiente();
-                                        dialog.close();
-                                        app.dialog.create({
-                                            title: dialogTitle,
-                                            text: 'En estos momentos se esta procesando su planta. Cuando finalice el proceso sera notificado vía email',
-                                            buttons: [{
-                                                text: 'Aceptar',
-                                                onClick: function () {
-                                                    mainView.router.navigate('/plantaStream');
-                                                }
-                                            }],
-                                            verticalButtons: false
-                                        }).open();
-                                    }
+                                    dialog.close();
+                                    app.dialog.create({
+                                        title: dialogTitle,
+                                        text: 'En estos momentos se esta procesando su planta. Cuando finalice el proceso sera notificado vía email',
+                                        buttons: [{
+                                            text: 'Aceptar',
+                                            onClick: function () {
+                                                 mainView.router.navigate('/plantaStream');
+                                            }
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
                                 }
     
                             }, 
