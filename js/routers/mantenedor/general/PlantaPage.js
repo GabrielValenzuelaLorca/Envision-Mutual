@@ -276,7 +276,7 @@ var plantaPage = {
 
 
                 $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Nuevo elemento';
+                    var dialogTitle = 'Nuevo trabajador';
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
@@ -330,7 +330,7 @@ var plantaPage = {
                     if (validate && validata2) {
                         app.dialog.create({
                             title: dialogTitle,
-                            text: 'Se creará una nuevo trabajador.',
+                            text: '¿Desea crear un nuevo trabajador?',
                             buttons: [{
                                 text: 'Cancelar'
                             }, {

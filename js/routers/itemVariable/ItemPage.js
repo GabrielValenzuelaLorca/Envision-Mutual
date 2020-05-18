@@ -369,7 +369,7 @@ var itemPage = {
                         TypeAsString: 'Text'
                     })
                 });
-                context.forms.person.inputs['Nombre'].setEditable(true);
+                context.forms.person.inputs['Nombre'].setEditable(true);               
                 context.forms.person.inputs['Cargo'].hide();
                 context.forms.person.inputs['CentroCostoId'].hide();
 
@@ -596,7 +596,7 @@ var itemPage = {
                 $clearButton.removeClass('hide');
 
                 $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Nuevo Item';
+                    var dialogTitle = 'Registro de Ítem Variable';
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
@@ -628,7 +628,7 @@ var itemPage = {
 
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Ítem creado con éxito',
+                                text: 'Ítem asignado con éxito',
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
@@ -705,7 +705,7 @@ var itemPage = {
                     }else if (validateItem && validatePerson && validateEX) {
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Se creará una nuevo ítem.',
+                                text: '¿Desea asignar el nuevo ítem?',
                                 buttons: [{
                                     text: 'Cancelar'
                                 }, {

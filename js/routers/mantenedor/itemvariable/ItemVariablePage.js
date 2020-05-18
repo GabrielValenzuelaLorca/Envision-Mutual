@@ -21,7 +21,7 @@ var ItemVariablePage = {
                         '</a>' +
                         '<a href="#" class="link create ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Save"></i>' +
-                            '<span class="ios-only">Crear Item</span>' +
+                            '<span class="ios-only">Crear Haber</span>' +
                         '</a>' +
                         '<a href="#" class="link generate-PDF ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PDF"></i>' +
@@ -380,7 +380,7 @@ var ItemVariablePage = {
                 }
 
                 $updateButton.on('click', function (e){
-                    var dialogTitle = 'Editando elemento';
+                    var dialogTitle = 'Editando haber';
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
@@ -421,7 +421,7 @@ var ItemVariablePage = {
 
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Elemento actualizado con éxito',
+                                text: 'Haber actualizado con éxito',
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
@@ -486,7 +486,7 @@ var ItemVariablePage = {
                         if (validate) {
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Se actualizará el elemento.',
+                                text: '¿Desea actualizar el haber?',
                                 buttons: [{
                                     text: 'Cancelar'
                                 }, {
@@ -511,7 +511,7 @@ var ItemVariablePage = {
                 });    
                 
                 $createButton.on('click', function (e) {
-                    var dialogTitle = 'Creando Elemento'; 
+                    var dialogTitle = 'Creando Haber'; 
 
 
                     function save() {
@@ -552,7 +552,7 @@ var ItemVariablePage = {
 
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Elemento creado con éxito',
+                                text: 'Haber creado con éxito',
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
@@ -568,7 +568,7 @@ var ItemVariablePage = {
                             console.log('responseText', responseText);
                             dialog.close();
                             app.dialog.create({
-                                title: 'Error al crear elemento ' + mths.getListTitle(),
+                                title: 'Error al crear haber ' + mths.getListTitle(),
                                 text: responseText.error.message.value,
                                 buttons: [{
                                     text: 'Aceptar'
@@ -618,7 +618,7 @@ var ItemVariablePage = {
                         if (validate) {
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Se creará un elemento.',
+                                text: '¿Desea crear un haber?',
                                 buttons: [{
                                     text: 'Cancelar'
                                 }, {
@@ -632,7 +632,7 @@ var ItemVariablePage = {
                         } else {
                             app.dialog.create({
                                 title: 'Datos mal ingresados o insuficientes',
-                                text: 'Para crear una nuevo ítem debe completar todos los campos obligatorios.',
+                                text: 'Para crear una nuevo haber debe completar todos los campos obligatorios.',
                                 buttons: [{
                                     text: 'Aceptar'
                                 }],

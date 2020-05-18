@@ -272,7 +272,7 @@ var licenciaPage = {
                             dialog.close();
                             dialogs.infoDialog(
                                 "Error",
-                                'Hubo un problema al enviar la licencia'
+                                'Hubo un problema al enviar la licencia, intente nuevamente.'
                             )
                         });
                     }
@@ -283,13 +283,13 @@ var licenciaPage = {
                     if (validateLicencia){
                         dialogs.confirmDialog(
                             dialogTitle,
-                            'Se enviará esta licencia médica',
+                            '¿Desea enviar esta licencia médica?',
                             save
                         )
                     } else {
                         dialogs.infoDialog(
                             "Datos mal ingresados",
-                            'Rellene todos los campos correctamente'
+                            'Rellene todos los campos obligatorios correctamente.'
                         )
                     }
                 });

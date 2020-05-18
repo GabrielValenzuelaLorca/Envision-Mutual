@@ -30,8 +30,8 @@ class RoleItemVariable extends Role{
         
         function showAlertFirstOpened(dias){
 
-            let msg1 = `Recuerde que le quedan ${dias} día(s) para enviar sus ítems variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`;
-            let msg2 = `Recuerde que hoy es el último día para enviar sus ítems variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`
+            let msg1 = `Recuerde que le quedan ${dias} día(s) para enviar sus ítems variables del período ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del período: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`;
+            let msg2 = `Recuerde que hoy es el último día para enviar sus ítems variables del período ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del período: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`
             app.dialog.create({
                 title: 'Atención',
                 text: dias > 0 ? msg1 : msg2,
@@ -97,7 +97,7 @@ class RoleItemVariable extends Role{
                     },
                 ]);
             } else {
-                admSection.footer = 'No hay un periodo vigente para mostrar informes por aprobar';
+                admSection.footer = 'No hay un período vigente para mostrar informes por aprobar';
             }
     
             admSection.options = admSection.options.concat([
@@ -114,7 +114,7 @@ class RoleItemVariable extends Role{
                 },
                 {
                     href: '/periodoStream',
-                    title: 'Periodos',
+                    title: 'Períodos',
                     after: '',
                     header: '',
                     footer: '',
@@ -305,11 +305,11 @@ class RoleItemVariable extends Role{
                     }
                 ]);
             } else if(outPeriod){
-                coorSection.footer = 'Se ha vencido el periodo de envío. Contactese con el administrador';
+                coorSection.footer = 'Se ha vencido el período de envío. Contactese con el administrador';
             } else if(!canSendInform) {
                 coorSection.footer = 'Tu informe ya ha sido enviado';
             } else if(!context.onPeriod){
-                coorSection.footer = 'No hay un periodo vigente para añadir ítems';
+                coorSection.footer = 'No hay un período vigente para añadir ítems';
             }
     
             if (context.onPeriod) {
@@ -319,7 +319,7 @@ class RoleItemVariable extends Role{
                         title: 'Informes',
                         after: '',
                         header: '',
-                        footer: 'En periodo',
+                        footer: 'En período',
                         panelClose: true,
                         externalLink: false,
                         f7view: '.view-main',
@@ -330,7 +330,7 @@ class RoleItemVariable extends Role{
                         title: 'Ingreso Licencias',
                         after: '',
                         header: '',
-                        footer: 'En Periodo',
+                        footer: 'En período',
                         panelClose: true,
                         externalLink: false,
                         f7view: '.view-main',
@@ -450,7 +450,7 @@ class RoleItemVariable extends Role{
                 ])
             } else {
     
-                aprobSection.footer = 'No hay un periodo vigente para mostrar informes por aprobar';
+                aprobSection.footer = 'No hay un período vigente para mostrar informes por aprobar';
     
             }
             settings.push(aprobSection);

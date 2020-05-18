@@ -386,8 +386,8 @@ var sendStatusPage = {
                         .then(function(response) {
                             if (response.status >= 300) {
                                 app.dialog.create({
-                                    title: 'Error al iniciar proceso',
-                                    text: 'Error al enviar los emails (Flow)',
+                                    title: 'Error de envio',
+                                    text: 'Hubo un error al enviar las notificaciones, intente nuevamente.',
                                     buttons: [{
                                         text: 'Aceptar'
                                     }],
@@ -396,7 +396,7 @@ var sendStatusPage = {
                             }else{
                                 app.dialog.create({
                                     title: 'Notificación enviada exitosamente',
-                                    text: 'Se han enviado notificaciones a '+data.length+' coordinadores.',
+                                    text: 'Las notificaciones se han enviado correctamente a '+data.length+' coordinadores',
                                     buttons: [{
                                         text: 'Aceptar'
                                     }],
