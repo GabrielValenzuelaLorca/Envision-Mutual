@@ -621,7 +621,7 @@ var solicitantePage = {
                     }
 
 
-                    if (plantaAdmin.RolSDP.results.includes("Validador")){
+                    if (SDP.roles.includes("Validador")){
                         if (context.items.solicitudSDP.NextVal == plantaAdmin.Email){
                             if (context.items.solicitudSDP.Estado == "Última Validación")
                                 $finalApprove.removeClass('hide');

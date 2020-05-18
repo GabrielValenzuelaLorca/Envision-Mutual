@@ -93,12 +93,12 @@ var itemPage = {
     style:  '.form-container .ms-FormField {width: 45%; float:left} '+
             `@media all and (max-width: 5000px){
                 .ms-Icon.ms-Icon--DrillDownSolid {
-                    margin-right: 85%; font-size: 20px !important;
+                    margin-right: 75%; font-size: 20px !important;
                 }
             }
             @media all and (max-width: 1024px){
                 .ms-Icon.ms-Icon--DrillDownSolid {
-                    margin-right: 80%; font-size: 20px !important;
+                    margin-right: 70%; font-size: 20px !important;
                 }
             }
             @media all and (max-width: 700px){
@@ -369,9 +369,16 @@ var itemPage = {
                         TypeAsString: 'Text'
                     })
                 });
-                context.forms.person.inputs['Nombre'].setEditable(true);
+                context.forms.person.inputs['Nombre'].setEditable(true);                              
                 context.forms.person.inputs['Cargo'].hide();
                 context.forms.person.inputs['CentroCostoId'].hide();
+
+                // context.forms.person.inputs['Nombre'].params.beforeRenderSuggestions = function (items) {
+                //     console.log('lo jitem',items)
+                //     return (items);
+                // }
+
+                
 
                 // formulario de registro Item Variable
                 context.forms.item = new EFWForm({
@@ -482,6 +489,7 @@ var itemPage = {
                 context.forms.item.inputs['Haber'].params.beforeRenderSuggestions = function (items) {
                     return ValidateItem(items);
                 }
+            
 
                 //Establecer Valores de Item segun el nombre del haber
                 context.forms.item.inputs['Haber'].params.onChange = function(comp, input, state, values){
@@ -594,12 +602,13 @@ var itemPage = {
                   
                 $sendButton.removeClass('hide');
                 $clearButton.removeClass('hide');
+                var dialog;
 
                 $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Nuevo Item';
+                    var dialogTitle = 'Registro de Ítem Variable';
 
                     function save() {
-                        var dialog = app.dialog.progress(dialogTitle);
+                        
                         var metadataItem = context.forms.item.getMetadata();
                         var metadataPerson = context.forms.person.getMetadata();
                         var metadataEX = context.forms.EX.getMetadata();
@@ -628,7 +637,7 @@ var itemPage = {
 
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Ítem creado con éxito',
+                                text: 'Ítem asignado con éxito',
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
@@ -675,6 +684,101 @@ var itemPage = {
 
                         return true;
                     }
+
+                    function ckeckAllowSend(){
+                        dialog = app.dialog.progress(dialogTitle);
+                        function loadData(){
+                            var shouldValidate = function(){
+                                if(loaded.trabajador && loaded.items){
+                                    loaded.trabajador = loaded.items = false;
+                                    var allow = true;
+                                    var msg = '';
+                                    if(context.items.trabajador){
+                                        if(context.items.trabajador.CoordinadorId != plantaAdmin.ID){
+                                            allow = false;
+                                            msg = 'El trabajador seleccionado no le petenece a su coordinacion.'
+                                        }
+                                    }else{
+                                        allow = false;
+                                    }
+                                    
+                                    if(!context.items.Coordinador.HaberesId.results.includes(context.forms.item.getMetadata().HaberId)){
+                                        allow = false;
+                                        msg = 'No tiene permiso para imputar este item.'
+                                    }
+
+                                    if(!allow){
+                                        msg += ' Contactese con el administrador para tener mas información'
+                                        dialog.close();
+                                        app.dialog.create({
+                                            title: 'Ha ocurrido un problema',
+                                            text: msg,
+                                            buttons: [{
+                                                text: 'Aceptar',
+                                                    onClick: function () {
+                                                        
+                                                    }
+                                            }],
+                                            verticalButtons: false
+                                        }).open();
+                                    }else{
+                                        save();
+                                    }
+                                }
+                            }
+
+                            //Obtener los items disponibles
+                            spo.getListInfo('Planta',
+                                function (response) {
+                                    context.lists.Planta = response;
+                                    var query1 = spo.encodeUrlListQuery(context.lists.Planta, {
+                                        view: 'Todos los elementos',
+                                        odata: {
+                                            'select': '*',
+                                            'filter': ' Id eq '+plantaAdmin.ID
+                                        }
+                                    });
+
+                                    spo.getListItems(spo.getSiteUrl(), 'Planta', query1,
+                                        function (response) {
+                                            context.items.Coordinador = response.d.results.length > 0 ? response.d.results[0] : null;
+                                            loaded.items = true;
+                                            shouldValidate();
+                                        },
+                                        function (response) {
+                                            var responseText = JSON.parse(response.responseText);
+                                            console.log(responseText.error.message.value);
+                                        }
+                                    );
+
+                                    var query2 = spo.encodeUrlListQuery(context.lists.Planta, {
+                                        view: 'Todos los elementos',
+                                        odata: {
+                                            'select': '*',
+                                            'filter': '( Title eq \''+context.forms.person.getMetadata().CodigoPayroll+'\' )' 
+                                        }
+                                    });
+
+                                    spo.getListItems(spo.getSiteUrl(), 'Planta', query2,
+                                        function (response) {
+                                            context.items.trabajador = response.d.results.length > 0 ? response.d.results[0] : null;
+                                            loaded.trabajador = true
+                                            shouldValidate();
+                                        },
+                                        function (response) {
+                                            var responseText = JSON.parse(response.responseText);
+                                            console.log(responseText.error.message.value);
+                                        }
+                                    );
+                                },
+                                function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log(responseText.error.message.value);
+                                }
+                            );
+                        }
+                        loadData();
+                    }
                     
                     context.forms.person.checkFieldsRequired();
                     context.forms.item.checkFieldsRequired();
@@ -705,13 +809,13 @@ var itemPage = {
                     }else if (validateItem && validatePerson && validateEX) {
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Se creará una nuevo ítem.',
+                                text: '¿Desea asignar el nuevo ítem?',
                                 buttons: [{
                                     text: 'Cancelar'
                                 }, {
                                     text: 'Aceptar',
                                     onClick: function onClick() {
-                                        save();
+                                        ckeckAllowSend();
                                     }
                                 }],
                                 verticalButtons: false
@@ -775,6 +879,7 @@ var itemPage = {
                             odata: {
                                 'filter': '(EstadoContrato ne \'Suspendido\' and CoordinadorId eq \'' + plantaAdmin.ID + '\')',
                                 'top': 5000,
+                                'orderby':'ApellidoPaterno asc' 
                             }
                         });
 

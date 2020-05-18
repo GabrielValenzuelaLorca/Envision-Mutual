@@ -6,6 +6,7 @@ class Role{
 class RoleItemVariable extends Role{
     constructor(role){
         super()
+        this.roles = role
         this.Administrador = role === "Administrador"? true:false
         this.Aprobador = role === "Aprobador"? true:false
         this.Coordinador = role === "Coordinador"? true:false
@@ -13,7 +14,7 @@ class RoleItemVariable extends Role{
 
     }
     getModuleCard(){
-        if(this.Administrador || this.Aprobador || this.Coordinador || this.LicenciasMedicas){
+        if(this.roles != undefined && this.roles != ""){
             return {
                 Title: 'Ítem Variables',
                 IDModulo:'IV',
@@ -29,8 +30,8 @@ class RoleItemVariable extends Role{
         
         function showAlertFirstOpened(dias){
 
-            let msg1 = `Recuerde que le quedan ${dias} día(s) para enviar sus ítems variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`;
-            let msg2 = `Recuerde que hoy es el último día para enviar sus ítems variables del periodo ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del periodo: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`
+            let msg1 = `Recuerde que le quedan ${dias} día(s) para enviar sus ítems variables del período ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del período: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`;
+            let msg2 = `Recuerde que hoy es el último día para enviar sus ítems variables del período ${context.onPeriod.PeriodoCompleto}.\r\nFecha de cierre del período: ${moment(context.onPeriod.FechaTermino).format("DD/MM/YYYY")}`
             app.dialog.create({
                 title: 'Atención',
                 text: dias > 0 ? msg1 : msg2,
@@ -55,6 +56,13 @@ class RoleItemVariable extends Role{
             let admSection2 = {
                 inset: true,
                 header: 'Mantenedores',
+                footer: '',
+                options: []
+            };
+
+            let admSection3 = {
+                inset: true,
+                header: 'Cargas Masivas Adicionales',
                 footer: '',
                 options: []
             };
@@ -96,7 +104,7 @@ class RoleItemVariable extends Role{
                     },
                 ]);
             } else {
-                admSection.footer = 'No hay un periodo vigente para mostrar informes por aprobar';
+                admSection.footer = 'No hay un período vigente para mostrar informes por aprobar';
             }
     
             admSection.options = admSection.options.concat([
@@ -113,7 +121,7 @@ class RoleItemVariable extends Role{
                 },
                 {
                     href: '/periodoStream',
-                    title: 'Periodos',
+                    title: 'Períodos',
                     after: '',
                     header: '',
                     footer: '',
@@ -185,10 +193,34 @@ class RoleItemVariable extends Role{
                     f7view: '.view-main',
                     media: '<i class="ms-Icon ms-Icon--AddGroup"></i>',
                 },
+                {
+                    href: '/ReasignarCoordinador',
+                    title: 'Transpaso de coordinación',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--Transition"></i>',
+                },                
             ]);
-    
             settings.push(admSection2);
-            
+
+            admSection3.options = admSection3.options.concat([
+                {
+                    href: '/CargarCentroCosto',
+                    title: 'Carga Masiva Centros de costo',
+                    after: '',
+                    header: '',
+                    footer: '',
+                    panelClose: true,
+                    externalLink: false,
+                    f7view: '.view-main',
+                    media: '<i class="ms-Icon ms-Icon--ExcelLogo"></i>',
+                },
+            ]);
+            settings.push(admSection3);
            
         }
         if(this.LicenciasMedicas){
@@ -304,11 +336,11 @@ class RoleItemVariable extends Role{
                     }
                 ]);
             } else if(outPeriod){
-                coorSection.footer = 'Se ha vencido el periodo de envío. Contactese con el administrador';
+                coorSection.footer = 'Se ha vencido el período de envío. Contactese con el administrador';
             } else if(!canSendInform) {
                 coorSection.footer = 'Tu informe ya ha sido enviado';
             } else if(!context.onPeriod){
-                coorSection.footer = 'No hay un periodo vigente para añadir ítems';
+                coorSection.footer = 'No hay un período vigente para añadir ítems';
             }
     
             if (context.onPeriod) {
@@ -318,7 +350,7 @@ class RoleItemVariable extends Role{
                         title: 'Informes',
                         after: '',
                         header: '',
-                        footer: 'En periodo',
+                        footer: 'En período',
                         panelClose: true,
                         externalLink: false,
                         f7view: '.view-main',
@@ -329,7 +361,7 @@ class RoleItemVariable extends Role{
                         title: 'Ingreso Licencias',
                         after: '',
                         header: '',
-                        footer: 'En Periodo',
+                        footer: 'En período',
                         panelClose: true,
                         externalLink: false,
                         f7view: '.view-main',
@@ -440,7 +472,7 @@ class RoleItemVariable extends Role{
                         title: 'Informes',
                         after: '',
                         header: '',
-                        footer: 'Items Variables',
+                        footer: 'Ítems Variables',
                         panelClose: true,
                         externalLink: false,
                         f7view: '.view-main',
@@ -448,8 +480,20 @@ class RoleItemVariable extends Role{
                     }
                 ])
             } else {
-    
-                aprobSection.footer = 'No hay un periodo vigente para mostrar informes por aprobar';
+                aprobSection.options = aprobSection.options.concat([ 
+                    {
+                        href: '/',
+                        title: 'Informes',
+                        after: '',
+                        header: '',
+                        footer: 'Ítems Variables',
+                        panelClose: true,
+                        externalLink: false,
+                        f7view: '.view-main',
+                        media: '<i class="ms-Icon ms-Icon--TimeEntry"></i>',
+                    }
+                ])
+                aprobSection.footer = 'No hay un período vigente para mostrar informes por aprobar';
     
             }
             settings.push(aprobSection);
@@ -461,14 +505,10 @@ class RoleItemVariable extends Role{
 class RoleSDP extends Role{
     constructor(role){
         super()
-        this.JefeSolicitante = role.includes("Jefe Solicitante")? true:false
-        this.Validador = role.includes("Validador")? true:false
-        this.CyE = role.includes("CyE")? true:false
-        this.CeCo = role.includes("Encargado CeCo")? true:false
-        this.JefeCyE = role.includes("Jefe CyE")? true:false
+        this.roles = role
     }
     getModuleCard(){
-        if(this.JefeSolicitante || this.Validador || this.CyE || this.CeCo || this.JefeCyE){
+        if(this.roles.length > 0){
             return {
                 Title: 'Solicitud Personal',
                 IDModulo:'SDP',
@@ -482,164 +522,7 @@ class RoleSDP extends Role{
        
     }
     getButtons(context){
-        var settings = []
-
-        if (this.JefeSolicitante){
-            let solSection = {
-                inset: true,
-                header: 'Solicitud de permisos',
-                footer: '',
-                options: []
-            };
-    
-            solSection.options = solSection.options.concat([
-                {
-                    href: '/formSolicitante',
-                    title: 'Crear Solicitud',
-                    after: '',
-                    header: '',
-                    footer: '',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
-                },
-                {
-                    href: '/SolicitudStream',
-                    title: 'Solicitudes SDP',
-                    after: '',
-                    header: '',
-                    footer: '',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--HealthSolid"></i>',
-                },
-            ]);
-          
-            settings.push(solSection);
-        }
-        if (this.Validador){
-            let valSection = {
-                inset: true,
-                header: 'Validación de solicitudes',
-                footer: '',
-                options: []
-            };
-    
-            valSection.options = valSection.options.concat([
-                {
-                    href: '/SolicitudesPorValidar',
-                    title: 'Solicitudes SDP',
-                    after: '',
-                    header: '',
-                    footer: 'Por aprobar',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--AwayStatus"></i>',
-                },
-            ]);
-          
-            settings.push(valSection);
-        }
-        if (this.CeCo){
-            let cecoSection = {
-                inset: true,
-                header: 'Panel de Centros de Costos',
-                footer: '',
-                options: []
-            };
-    
-            cecoSection.options = cecoSection.options.concat([
-                {
-                    href: '/cecoStream',                    
-                    title: 'Mantenedor de CeCo',                    
-                    after: '',
-                    header: '',
-                    footer: 'Centro de costo',                    
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--Archive"></i>',
-                },
-            ]);
-          
-            settings.push(cecoSection);
-        }
-        if (this.JefeCyE){
-            let jefecyeSection = {
-                inset: true,
-                header: 'Jefatura CyE',
-                footer: '',
-                options: []
-            };
-    
-            jefecyeSection.options = jefecyeSection.options.concat([
-                {
-                    href: '/SolicitudesGuardadas',                    
-                    title: 'Solicitudes',                    
-                    after: '',
-                    header: '',
-                    footer: '',                    
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--Archive"></i>',
-                },
-            ]);
-          
-            settings.push(jefecyeSection);
-        }
-        if (this.CyE ){
-            let cyeSection = {
-                inset: true,
-                header: 'CyE',
-                footer: '',
-                options: []
-            };
-    
-            let cyeMantenedorSection = {
-                inset: true,
-                header: 'Mantenedores CyE',
-                footer: '',
-                options: []
-            };
-    
-            cyeSection.options = cyeSection.options.concat([
-                {
-                    href: '/SolicitudesCyE',
-                    title: 'Solicitudes',
-                    after: '',
-                    header: '',
-                    footer: '',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--DocumentSet"></i>',
-                },
-            ]);
-          
-            settings.push(cyeSection);
-
-            cyeMantenedorSection.options = cyeMantenedorSection.options.concat([
-                {
-                    href: '/PosicionStream',
-                    title: 'Posiciones',
-                    after: '',
-                    header: '',
-                    footer: '',
-                    panelClose: true,
-                    externalLink: false,
-                    f7view: '.view-main',
-                    media: '<i class="ms-Icon ms-Icon--DocumentSet"></i>',
-                },
-            ]);
-          
-            settings.push(cyeMantenedorSection);
-        }
-
-        return settings
+        return SDP.menu
     }
 }
 
@@ -659,7 +542,7 @@ class RoleHandler{
     }
     setSDPRol(SDP){
         if(SDP != null){
-            this.SDP = new RoleSDP(SDP.results)
+            this.SDP = new RoleSDP(SDP)
         }
     }
     setModule(option){
@@ -701,14 +584,21 @@ class RoleHandler{
             var url = "/homePage"
 
             if(aux.length > 0){
-                var allow = undefined
-                if(mainView.router.url === "/homePage"){
-                    url = aux[0].options[0].href
+                if(aux[0].options.length > 0){
+
+                    if(mainView.router.url === "/homePage"){
+                        url = aux[0].options[0].href
+                    }
+                    else{
+                        var allow = undefined
+                        allow = aux.map(c => c.options).flat().map(c => c.href).find(c => c === mainView.router.url)
+                        url = allow!=undefined?allow:"/homePage"
+                    } 
+
                 }
                 else{
-                    allow = aux.map(c => c.options).flat().map(c => c.href).find(c => c === mainView.router.url)
-                    url = allow!=undefined?allow:"/homePage"
-                } 
+                    url = "/"
+                }
             }
             
             mainView.router.navigate(url,{
