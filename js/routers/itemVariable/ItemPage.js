@@ -369,9 +369,16 @@ var itemPage = {
                         TypeAsString: 'Text'
                     })
                 });
-                context.forms.person.inputs['Nombre'].setEditable(true);               
+                context.forms.person.inputs['Nombre'].setEditable(true);                              
                 context.forms.person.inputs['Cargo'].hide();
                 context.forms.person.inputs['CentroCostoId'].hide();
+
+                // context.forms.person.inputs['Nombre'].params.beforeRenderSuggestions = function (items) {
+                //     console.log('lo jitem',items)
+                //     return (items);
+                // }
+
+                
 
                 // formulario de registro Item Variable
                 context.forms.item = new EFWForm({
@@ -482,6 +489,7 @@ var itemPage = {
                 context.forms.item.inputs['Haber'].params.beforeRenderSuggestions = function (items) {
                     return ValidateItem(items);
                 }
+            
 
                 //Establecer Valores de Item segun el nombre del haber
                 context.forms.item.inputs['Haber'].params.onChange = function(comp, input, state, values){
@@ -775,6 +783,7 @@ var itemPage = {
                             odata: {
                                 'filter': '(EstadoContrato ne \'Suspendido\' and CoordinadorId eq \'' + plantaAdmin.ID + '\')',
                                 'top': 5000,
+                                'orderby':'ApellidoPaterno asc' 
                             }
                         });
 
