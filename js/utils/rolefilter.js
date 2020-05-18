@@ -449,7 +449,19 @@ class RoleItemVariable extends Role{
                     }
                 ])
             } else {
-    
+                aprobSection.options = aprobSection.options.concat([ 
+                    {
+                        href: '/',
+                        title: 'Informes',
+                        after: '',
+                        header: '',
+                        footer: 'Ítems Variables',
+                        panelClose: true,
+                        externalLink: false,
+                        f7view: '.view-main',
+                        media: '<i class="ms-Icon ms-Icon--TimeEntry"></i>',
+                    }
+                ])
                 aprobSection.footer = 'No hay un período vigente para mostrar informes por aprobar';
     
             }

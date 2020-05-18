@@ -244,7 +244,7 @@ var uploadItemsPage = {
                                         if(trabajador.TipoContrato != 'Indefinido'){
                                             return {
                                                 "Error": true,
-                                                "Message": "El personal esta contratado a plazo fijo."
+                                                "Message": "El colaborador esta contratado a plazo fijo."
                                             }
                                         }
                                     }
@@ -266,7 +266,7 @@ var uploadItemsPage = {
                                         if(!trabajador.Capex){
                                             return {
                                                 "Error": true,
-                                                "Message": "El ítem requiere que el trabajador pertenezca a convenio CAPEX."
+                                                "Message": "El ítem requiere que el colaborador pertenezca a convenio CAPEX."
                                             }
                                         }
                                     }
@@ -601,7 +601,7 @@ var uploadItemsPage = {
                                     dialog.close();
                                     app.dialog.create({
                                         title: 'Se han encontrado '+Errores.length+' errores.',
-                                        text: 'Su carga de planta no ha podido ser procesada debido a que presenta los siguientes errores en su excel.',
+                                        text: 'Su carga de ítems no ha podido ser procesada debido a que presenta los siguientes errores en su excel.',
                                         buttons: [{
                                             text: 'Ver errores',
                                             onClick: function () {
