@@ -584,14 +584,21 @@ class RoleHandler{
             var url = "/homePage"
 
             if(aux.length > 0){
-                var allow = undefined
-                if(mainView.router.url === "/homePage"){
-                    url = aux[0].options[0].href
+                if(aux[0].options.length > 0){
+
+                    if(mainView.router.url === "/homePage"){
+                        url = aux[0].options[0].href
+                    }
+                    else{
+                        var allow = undefined
+                        allow = aux.map(c => c.options).flat().map(c => c.href).find(c => c === mainView.router.url)
+                        url = allow!=undefined?allow:"/homePage"
+                    } 
+
                 }
                 else{
-                    allow = aux.map(c => c.options).flat().map(c => c.href).find(c => c === mainView.router.url)
-                    url = allow!=undefined?allow:"/homePage"
-                } 
+                    url = "/"
+                }
             }
             
             mainView.router.navigate(url,{
