@@ -1,4 +1,4 @@
-var haberesPage = {
+var CargaMasivaCCPage = {
     template: '' +
         '<div class="page" data-page="FormPage">' +
             '<div class="navbar">' +
@@ -17,7 +17,7 @@ var haberesPage = {
                     '<div class="right">' +
                         '<a href="#" class="link update ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Save"></i>' +
-                            '<span class="ios-only">Actualizar Haberes</span>' +
+                            '<span class="ios-only">Actualizar</span>' +
                         '</a>' +
                         '<a href="#" class="link generate-PDF ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PDF"></i>' +
@@ -37,7 +37,7 @@ var haberesPage = {
                         '</a>' +
                         '<a href="#" class="link send ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Send"></i>' +
-                            '<span class="ios-only">Guardar</span>' +
+                            '<span class="ios-only">Enviar</span>' +
                         '</a>' +
                         '<a href="#" class="link associate-proyect ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--IDBadge"></i>' +
@@ -51,13 +51,8 @@ var haberesPage = {
                 '</div>' +
             '</div>' +
             '<div class="page-content">' +
-                '<div>' +
-                    '<div class="form-container"></div>' +
-                    '<div class="form-Title"><span class="ios-only">Marque o Desmarque los haberes que desea imputar</span></div>' +
-                    '<div class="formu2"></div>' +
-                '</div>' +
-            '</div>' +
-            
+                '<div class="form-container"></div>' +
+                '<div class="container" />' +
             '<div class="content-loader">' +
                 '<div class="content-loader-inner">' +
                     '<div class="image-logo lazy lazy-fadein" data-background="{{loader.image}}"></div>' +
@@ -66,9 +61,7 @@ var haberesPage = {
             '</div>' +
         '</div>' +
         '',
-    style:  '.form-container .ms-FormField {width: 45%; float:left} ' +
-            '.form-Title {padding-left: 10px; background-color: white}'+
-            '.formu2.ms-FormField {margin-top: -15px}',
+    style:  '.form-container .ms-FormField {width: 45%; float:left} ',
     data: function () {
         var self = this;
         return {
@@ -110,7 +103,7 @@ var haberesPage = {
 
         // obtener título de la lista de inspección
         getListTitle: function () {
-            return 'Planta';
+            return 'ExcelPlanta';
         },
 
         // {fn} desaparecer DOM de cargar
@@ -169,8 +162,7 @@ var haberesPage = {
             // variables
             var context = this.$options.data(),
                 mths = this.$options.methods,
-                listItemId = page.route.query.listItemId,
-                editable = page.route.query.editable;
+                listItemId = page.route.query.listItemId
 
             context.methods = mths;
 
@@ -183,170 +175,153 @@ var haberesPage = {
                 return context;
             };
 
-            function initForm() {  
+            function initForm() {
 
                 // containers
                 var $container = $(page.$el),
                     $navbar = $(page.navbarEl),
-                    $sendButton = $navbar.find('.link.send'),
-                    $updateButton = $navbar.find('.link.update'),
-                    $clearButton = $navbar.find('.link.clear');
+                    $sendButton = $navbar.find('.link.send')
 
-                    $updateButton.removeClass('hide');
-
-                let meruem = [];
-                context.items.ListadoItemVariable.map(function(jade){
-                    meruem.push({
-                        key: jade.NombreItem,
-                        text: jade.NombreItem,
-                        item: jade                        
-                    });
-                
-                })
-                
-                context.forms.persona = new EFWForm({
+                // formulario de registro
+                context.forms.item = new EFWForm({
                     container: $container.find('.form-container'),
-                    title: 'Datos Coordinador',
-                    editable: false,
+                    title: 'Carga Masiva de Centros de costo',
+                    editable: true,
                     // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
-                    fields: spo.getViewFields(context.lists.Planta, 'FormHaberes'),
+                    fields: spo.getViewFields(context.lists.Excel, 'Todos los elementos')
                 });
 
-                context.forms.persona.inputs['Haberes'].hide();
+                $sendButton.removeClass('hide');
+                $sendButton.on('click', function (e) {
+                    var dialogTitle = 'Nueva carga masiva de cargos';
+                    file = $container.find('.attachmentInput')[0]
 
-                context.forms.haberes = new CheckboxInput({
-                    container: $container.find('.formu2'),
-                    title: '',
-                    editable: true,
-                    multiSelect: true,
-                    choices: meruem
-                })
-                
-                if(listItemId){
-                    
-                    context.forms.persona.setValues(context.items.Planta);
-     
-                    var trabajador = context.items.Planta.HaberesId.results;
-                    var haberesitos = context.items.ListadoItemVariable;
-                    var guardado = []
+                    //Convierte la fecha excel a fecha
+                    function numeroAFecha(numeroDeDias, esExcel = true) {
+                        var diasDesde1900 = esExcel ? 25567 + 1 : 25567;
+                      
+                        // 86400 es el número de segundos en un día, luego multiplicamos por 1000 para obtener milisegundos.
+                        return new Date((numeroDeDias - diasDesde1900) * 86400 * 1000);
+                    }
+                    //Limpia un String permitiendo solo los char seleccionados
+                    function limpiarString(string){
+                        let allow = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ1234567890"
+                        let salida = "";
 
-                    // console.log('trabajador', trabajador);
-                    // console.log('haberesitos', haberesitos);
-                
-                    for (var i = 0; i < haberesitos.length ; i++) {
-                        // console.log('id haberes', haberesitos[i].Id);
-                        var  paver = trabajador.includes(haberesitos[i].Id)
-                        // console.log('booss', paver )
-                        if(paver == true){
-                            guardado.push({
-                                key: haberesitos[i].NombreItem,
-                                text: haberesitos[i].NombreItem,
-                            })
+                        for(var i = 0; i < string.length; i++){
+                            if(allow.includes(string.charAt(i))){
+                                salida += string.charAt(i);
+                            }
                         }
-                     }
-                    //  console.log('guardado', guardado)  
-                     
-                      context.forms.haberes.setValue(guardado)
-                    
-                    if(editable){
-                        context.forms.persona.inputs['Haberes'].setEditable(true);
-                        $updateButton.removeClass('hide');
+
+                        return salida;
                     }
-                }                  
 
-                $updateButton.on('click', function (e) {
-                    var dialogTitle = 'Asignando Haberes';
-                                 
-
-
-                    function save() {
-
-                        //Mostrar la información del coordinador (la metadata son los datos que se ingresar en el form)
-                    console.log('Metadata formulario', context.forms.persona.getMetadata())
-                    var metadataPersona = context.forms.persona.getMetadata()
-
-                //Mostrar la informacion de los haberes
-                    console.log('Metadata haberes', context.forms.haberes)
-                    var metadataHaberes = context.forms.haberes.values
-                    console.log('Metadata largo', metadataHaberes.length);
-                    
-                    
-                    var doggy = [];
-                    for(var i = 0; i < metadataHaberes.length; i++){
-                        context.items.ListadoItemVariable.map(function(cacue){                            
-                            if(cacue.NombreItem == metadataHaberes[i].key){
-                                console.log('nombre items', cacue.NombreItem);
-                                doggy.push(cacue.ID);
-                            }                          
+                    function callServiceCargaMasivaPlanta(body){
+                        let url = global.uris[global.env].CC;
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(body)
                         })
-                    }
-                    
-                    metadataPersona.HaberesId.results = doggy;
-                    console.log('results', metadataPersona);
-
-
-                        
-                        var dialog = app.dialog.progress(dialogTitle);
-                        
-                        
-
-                        spo.updateListItem(spo.getSiteUrl(), 'Planta' ,metadataPersona.Id,metadataPersona, function (response) {
-                            dialog.close();
-
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Haberes asignados con éxito',
-                                buttons: [{
-                                    text: 'Aceptar',
-                                    onClick: function () {
-                                        mainView.router.navigate('/coordinadorStream');
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-
-
-                        }, function (response) {
-                            var responseText = JSON.parse(response.responseText);
-                            console.log('responseText', responseText);
-
-                            dialog.close();
-                            app.dialog.create({
-                                title: 'Error al actualizar la lista de haberes ' + mths.getListTitle(),
-                                text: responseText.error.message.value,
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
+                        .then(function(response) {
+                            if (response.status >= 300) {
+                                    app.dialog.create({
+                                        title: 'Error al Iniciar Proceso',
+                                        text: 'Error al iniciar proceso de Carga Masiva (Flow)',
+                                        buttons: [{
+                                            text: 'Aceptar'
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
+                                
+                            }
                         });
                     }
-                    
 
-                    
-                        app.dialog.create({
-                            title: dialogTitle,
-                            text: '¿Desea actualizar los haberes?',
-                            buttons: [{
-                                text: 'Cancelar'
-                            }, {
-                                text: 'Aceptar',
-                                onClick: function onClick() {
-                                    save();
-                                }
-                            }],
-                            verticalButtons: false
-                        }).open();              
-                        
-                    
+                    function prepareToSend(data){
+                        return {
+                            "codigoRG": data["Código payroll clase 2 / rg"] ? data["Código payroll clase 2 / rg"] : '',
+                            "codigoRP": data["Codigo payroll Clase 1 /rp"] ? data["Codigo payroll Clase 1 /rp"] : '',
+                            "CC": data["CC"],
+                            "UB": data["UB"],
+                            "CDR": data["CDR"],
+                            "D_CC": data["D_CC"],
+                            "Nivel_Org_1": data["Nivel_Org_1"],
+                            "Nivel_Org_2": data["Nivel_Org_2"],
+                            "Nivel_Org_3": data["Nivel_Org_3"],
+                            "Area_UN": data["Area_UN"],
+                            "D_UB": data["D_UB"],
+                            "Region": data["Region"],
+                            "Zona": data["Zona"],
+                            "TipoDotacion": data["TipoDotacion"],
+                            "GC": data["GC"]
+                        }
+                    }
 
-                });
+                    function save() {
+                        var dialog = app.dialog.progress(dialogTitle);
 
-                $clearButton.on('click', function (e){
+                        files = file.files
+                        handleExcelFromInput(files, 
+                            function(response){
+                                console.log('Data', response)
+                                console.log('Centros de costo', context.items.CC)
+
+                                var data = [];
+
+                                response[0].map(function(item){
+                                    if(context.items.CC){
+                                        var CentroCosto = context.items.CC.filter(CC => CC.CodigoCC+'' == item.CC+'')[0];
+                                        if(!CentroCosto){
+                                            data.push(prepareToSend(item));
+                                        }
+                                    }else{
+                                        data.push(prepareToSend(item));
+                                    }
+                                })
+
+                                console.log('Data', JSON.stringify(data));
+
+
+                                callServiceCargaMasivaPlanta(data);
+
+                                dialog.close();
+                                app.dialog.create({
+                                    title: 'Initializated',
+                                    text: 'Acaba de iniciar la vaina, te avisara al correo, se agregaron '+data.length+' Centros de costo.',
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            }, 
+                            function (response) {
+                                var responseText = JSON.parse(response.responseText);
+                                console.log(responseText.error.message.value);
+                                dialog.close();
+                                app.dialog.create({
+                                    title: 'Error al cargar el documento ' + file.files[0].name,
+                                    text: responseText.error.message.value,
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            }
+                        );
+                    }//Fin save()
+
+                    save();
                 });
 
                 // remover loader
                 mths.removePageLoader();
+                
+
             }
 
             function getListInformation() {
@@ -356,42 +331,18 @@ var haberesPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.ListadoItemVariable && loaded.Trabajadores) {
+                    if (loaded.lista && loaded.CC) {
                         initForm();
                     }
-                };             
+                };
 
-                // Obtengo los trabajadores asociados al coordinador
-                spo.getListInfo('Planta',
+                // Obtener información de lista
+                spo.getListInfo('ExcelPlanta',
                     function (response) {
-                        context.items.Planta = [];
-                        //Guarda los valores de los campos de la lista. Solamente los campos
-                        context.lists.Planta = response; 
-                        
-                        if(listItemId){
-                            // Genera la query basado en los campos que se obtubieron en la SPO anterior
-                            var query = spo.encodeUrlListQuery(context.lists.Planta, {
-                                view: 'Todos los elementos',
-                                odata: {
-                                    'filter': '(ID eq ' + listItemId + ')',
-                                }
-                            });
+                        context.lists.Excel = response;
+                        loaded.lista = true;
+                        shouldInitForms();
 
-                            spo.getListItems(spo.getSiteUrl(), 'Planta', query,
-                                function (response) {
-                                    context.items.Planta = response.d.results.length > 0 ? response.d.results[0] : null;
-                                    loaded.Trabajadores = true;
-                                    shouldInitForms();
-                                },
-                                function (response) {
-                                    var responseText = JSON.parse(response.responseText);
-                                    console.log(responseText.error.message.value);
-                                }
-                            );
-                        }else{
-                            loaded.Trabajadores = true;
-                            shouldInitForms();
-                        }
                     },
                     function (response) {
                         var responseText = JSON.parse(response.responseText);
@@ -399,25 +350,27 @@ var haberesPage = {
                     }
                 );
 
-                //Obtengo el listado de haberes para ser filtrados
-                spo.getListInfo('ListadoItemVariable',
+                // Obtener información de lista
+                spo.getListInfo('CentroCosto',
                     function (response) {
-                        context.items.ListadoItemVariable = [];
-                        context.lists.ListadoItemVariable = response;
+                        context.items.CC = [];
+                        context.lists.CC = response;
                         //loaded.listaItemVariable = true;
+                        
+                        // Si existe el id de algún item a obtener
 
-                            var query = spo.encodeUrlListQuery(context.lists.ListadoItemVariable, {
+                            var query = spo.encodeUrlListQuery(context.lists.CC, {
                                 view: 'Todos los elementos',
                                 odata: {
                                     'select': '*',
-                                    'orderby': 'NombreItem asc',
+                                    'top': 5000
                                 }
                             });
 
-                            spo.getListItems(spo.getSiteUrl(), 'ListadoItemVariable', query,
+                            spo.getListItems(spo.getSiteUrl(), 'CentroCosto', query,
                                 function (response) {
-                                    context.items.ListadoItemVariable = response.d.results.length > 0 ? response.d.results : null;
-                                    loaded.ListadoItemVariable = true;
+                                    context.items.CC = response.d.results.length > 0 ? response.d.results : null;
+                                    loaded.CC = true;
                                     shouldInitForms();
                                 },
                                 function (response) {

@@ -324,7 +324,7 @@ var solicitudesPage = {
 
                 context.forms.solicitud = new EFWForm({
                     container: $container.find('.form1'),
-                    title: 'Solicitud de centro de costo',
+                    title: 'Formulario de solicitudes',
                     editable: listItemId ? false : true,
                     // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
                     fields: inputs,
@@ -484,7 +484,7 @@ var solicitudesPage = {
                         } else {
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Se creará una nueva solicitud.',
+                                text: '¿Desea crear una nueva solicitud?',
                                 buttons: [{
                                     text: 'Cancelar'
                                 }, {

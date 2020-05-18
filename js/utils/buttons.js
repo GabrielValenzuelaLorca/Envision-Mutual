@@ -195,7 +195,7 @@ localButtons.assignRol = function(context){
 
 localButtons.addLicencia = function(context){
     button = {
-        text: 'Agregar licencia',
+        text: 'Ingresar licencia',
         class: 'addLicencia',
         icon: 'ActivateOrders',
         onClick: function(component, item){
@@ -240,7 +240,6 @@ localButtons.ToAsociateTrabajadorPage = function(){
     }
     return button
 }
-
 
 /**
  * Redirecciones generales de la pagina SDP
@@ -565,7 +564,7 @@ localButtons.deleteItemButton = function(){
         icon:'Delete',
         onClick: function(component, item){
 
-            var dialogTitle = 'Eliminar Item';
+            var dialogTitle = 'Eliminando Ítem';
 
             //Ejecuta toda la funcion despues de la validacion de la alerta
             function save() {
@@ -575,7 +574,7 @@ localButtons.deleteItemButton = function(){
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
-                        'Item eliminado con exito.',
+                        'Ítem eliminado con exito.',
                         refresh,
                         false
                     )
@@ -609,7 +608,7 @@ localButtons.deleteItemsButton = function(){
         icon:'Delete',
         onClick: function(component, item){
 
-            var dialogTitle = 'Eliminando ítems';
+            var dialogTitle = 'Eliminando Ítems';
 
             //Ejecuta toda la funcion despues de la validacion de la alerta
             function save() {
@@ -623,7 +622,7 @@ localButtons.deleteItemsButton = function(){
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
-                        'Items eliminados con exito.',
+                        'Ítems eliminados con exito.',
                         refresh,
                         false
                     )
@@ -634,7 +633,7 @@ localButtons.deleteItemsButton = function(){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al eliminar los items, intente nuevamente',
+                        'Error al eliminar los ítems, intente nuevamente',
                         responseText.error.message.value,
                     )
                 });
@@ -944,7 +943,7 @@ localButtons.deleteCeco = function(){
 
 localButtons.addPeriodButton = function(context){
     button = {
-        text: 'Añadir Periodo',
+        text: 'Añadir Período',
         class: 'addPeriodo',
         icon: 'Add',
         onClick: function(component, item){
@@ -958,8 +957,8 @@ localButtons.addPeriodButton = function(context){
                 function (response) {
                     if (response.d.results.length>0){
                         dialogs.infoDialog(
-                            'No se puede añadir un nuevo periodo',
-                            'Hay otro periodo activo'
+                            'No se puede añadir un nuevo período',
+                            'Hay otro período activo, desactivelo e intente nuevamente.'
                         )
                     } else {
                         mainView.router.navigate(encodeURI('/periodo'));        
@@ -977,11 +976,11 @@ localButtons.addPeriodButton = function(context){
 
 localButtons.desactivatePeriodoButton = function(){
     button = {
-        text: 'Desactivar Periodo',
+        text: 'Desactivar Período',
         class: 'desactivatePeriodo',
         icon: 'PowerButton',
         onClick: function(component, item){
-            var dialogTitle = 'Desactivando periodo';
+            var dialogTitle = 'Desactivando período';
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
 
@@ -989,7 +988,7 @@ localButtons.desactivatePeriodoButton = function(){
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
-                        'Desactivado con éxito',
+                        'Período desactivado con éxito',
                         refresh,
                         false
                     )
@@ -1000,14 +999,14 @@ localButtons.desactivatePeriodoButton = function(){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al guardar el periodo',
+                        'Error al guardar el período',
                         responseText.error.message.value,
                     )
                 });
             }
             dialogs.confirmDialog(
                 dialogTitle,
-                'Se desactivará el periodo seleccionado.',
+                '¿Desea desactivar el período seleccionado?',
                 save
             )
         }
@@ -1062,7 +1061,7 @@ localButtons.activatePeriodoButton = function(context){
                         }
                         dialogs.confirmDialog(
                             dialogTitle,
-                            'Se activará el periodo seleccionado.',
+                            '¿Desea activar el periodo seleccionado?',
                             save
                         )
                     }
@@ -1087,7 +1086,7 @@ localButtons.sendButton = function(context){
         class: 'sendItems',
         icon: 'MailForward',
         onClick: function(component, item){
-            var dialogTitle = 'Enviando informe de items';
+            var dialogTitle = 'Enviando informe de ítems';
             function save(){
                 var dialog = app.dialog.progress(dialogTitle);
                 var query = spo.encodeUrlListQuery(context.list, {
@@ -1130,7 +1129,7 @@ localButtons.sendButton = function(context){
                                     console.log(responseText.error.message.value);
                                     dialog.close();
                                     dialogs.infoDialog(
-                                        'Hubo un error al enviar el informe',
+                                        'Hubo un error al enviar el informe, intente nuevamente.',
                                         responseText.error.message.value,
                                     )
                                 }
@@ -1139,7 +1138,7 @@ localButtons.sendButton = function(context){
                             dialog.close();
                             dialogs.infoDialog(
                                 'Hubo un error al enviar el informe',
-                                'No tienes items variables para enviar',
+                                'No tiene registrados ítems variables para enviar',
                             )
                         }
                     },
@@ -1156,7 +1155,7 @@ localButtons.sendButton = function(context){
             }
             dialogs.confirmDialog(
                 dialogTitle,
-                '¿Está seguro de enviar el informe de ítems? Luego no podrá editar este informe',
+                '¿Desea enviar el informe de ítems? Una vez enviado, no podra editar el informe.',
                 save
             )
         }
@@ -1196,7 +1195,7 @@ localButtons.disableItemSended = function(context){
                 spo.updateListItem(spo.getSiteUrl(), "Informe Haberes", item.ID, metadata, function (response) {
                     dialog.close()
                     dialogs.confirmDialog(
-                        'Informe Desaprobado',
+                        'Desaprobando informe',
                         'Informe desaprobado con éxito',
                         refresh,
                         false
@@ -1208,7 +1207,7 @@ localButtons.disableItemSended = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al desaprobar el informe.',
+                        'Error al desaprobar el informe, intente nuevamente.',
                         responseText.error.message.value,
                     )
                 });
@@ -2535,7 +2534,7 @@ localButtons.deleteRol = function(context){
                             dialog.close();
                             dialogs.infoDialog(
                                 "Error",
-                                'Hubo un problema al remover el rol'
+                                'Hubo un problema al remover el rol, intente nuevamente.'
                             )
                         });
                         
@@ -2543,7 +2542,7 @@ localButtons.deleteRol = function(context){
                         console.log('Ejecuto cono Aprobador')
                             dialogs.confirmDialog(
                                 'Atención',
-                                'Existen coordinadores asignados al aprobador que desea eliminar. Actualice los coordinadores antes de proceder a eliminar este rol.',
+                                'Existen coordinadores asignados al aprobador que desea eliminar. Actualice los coordinadores antes de eliminar este rol.',
                                 refresh,
                                 false
                             );
@@ -2562,7 +2561,7 @@ localButtons.deleteRol = function(context){
                     dialog.close();
                     dialogs.infoDialog(
                         "Error",
-                        'Hubo un problema al remover el rol'
+                        'Hubo un problema al remover el rol, intente nuevamente.'
                     )
                 });
             }
@@ -2640,7 +2639,7 @@ localButtons.deleteRol = function(context){
 
             app.dialog.create({
                 title: dialogTitle,
-                text: 'Se quitará el rol de este usuario',
+                text: '¿Desea quitar el rol de este usuario?',
                 buttons: [{
                     text: 'Cancelar'
                 }, {

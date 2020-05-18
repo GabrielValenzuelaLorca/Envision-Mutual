@@ -137,7 +137,7 @@ licenciaStreamPage.methods.afterFilterComponentInitializated = function () {
             context.components.itemsFilter.inputs.Periodo_x003a_AnioCalculado.setValue([{text: anio}]);
             context.components.itemsFilter.inputs.Periodo_x003a_MesCalculado.setValue([{text: mes}]);
     
-            var element = "<div class='added-filter' style='padding: 10px 0px 0px 20px; margin-top:0px;'><h4 style='margin-top:0px; margin-bottom:0px;'>Se están mostrando las licencias del último periodo registrado</h4>"
+            var element = "<div class='added-filter' style='padding: 10px 0px 0px 20px; margin-top:0px;'><h4 style='margin-top:0px; margin-bottom:0px;'>Se están mostrando las licencias del último período registrado</h4>"
             element += "<p style='margin-top: 0px; margin-bottom: 5px;'>"+ mes +" - "+ anio +"</p>"
             element += "</div>"
             $(page.pageEl).find('.liststreampage-page-content-header').last().parent().last().append(element)

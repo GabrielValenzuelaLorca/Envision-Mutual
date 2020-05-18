@@ -280,7 +280,7 @@ var rolPage = {
                                     dialog.close();
                                     dialogs.infoDialog(
                                         "Error",
-                                        'Hubo un problema al asignar el rol'
+                                        'Hubo un problema al asignar el rol, intente nuevamente'
                                     )
                                 });
                             },
@@ -291,7 +291,7 @@ var rolPage = {
                                     dialog.close();
                                     dialogs.infoDialog(
                                         "Error",
-                                        'Hubo un problema al asignar el rol o el usuario no existe'
+                                        'Hubo un problema al asignar el rol o el usuario no existe, intente nuevamente.'
                                     )
                             }
                         );
@@ -304,13 +304,13 @@ var rolPage = {
                     if (validatePlanta){
                         dialogs.confirmDialog(
                             dialogTitle,
-                            'Se asignará un rol a este usuario',
+                            '¿Desea asignar un rol a este usuario?',
                             update
                         )
                     } else {
                         dialogs.infoDialog(
                             "Datos mal ingresados",
-                            'Rellene todos los campos correctamente'
+                            'Rellene todos los campos correctamente e intente nuevamente.'
                         )
                     }
                 });

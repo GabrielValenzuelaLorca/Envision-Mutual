@@ -271,13 +271,9 @@ var sendStatusPage = {
 
                                 for (persona in infoExcelGeneral){
                                     let forDelete = [];
-                                    let first = true;
                                     while (Object.keys(infoExcelGeneral[persona]).length > 0){
                                         let line = [headersItems[0].map(function(){return ""})]
-                                        if (first){
-                                            line[0][0] = persona;
-                                            first = false;
-                                        }
+                                        line[0][0] = persona;
                                         for (haber in infoExcelGeneral[persona]){
                                             let imput = infoExcelGeneral[persona][haber].pop()
                                             line[0][headersPos[haber]] = imput.Cantidad
@@ -310,13 +306,9 @@ var sendStatusPage = {
 
                                 for (persona in infoExcelPrivado){
                                     let forDelete = [];
-                                    let first = true;
                                     while (Object.keys(infoExcelPrivado[persona]).length > 0){
                                         let line = [headersItems[0].map(function(){return ""})]
-                                        if (first){
-                                            line[0][0] = persona;
-                                            first = false;
-                                        }
+                                        line[0][0] = persona;
                                         for (haber in infoExcelPrivado[persona]){
                                             let imput = infoExcelPrivado[persona][haber].pop()
                                             line[0][headersPos[haber]] = imput.Cantidad
@@ -386,8 +378,8 @@ var sendStatusPage = {
                         .then(function(response) {
                             if (response.status >= 300) {
                                 app.dialog.create({
-                                    title: 'Error al iniciar proceso',
-                                    text: 'Error al enviar los emails (Flow)',
+                                    title: 'Error de envio',
+                                    text: 'Hubo un error al enviar las notificaciones, intente nuevamente.',
                                     buttons: [{
                                         text: 'Aceptar'
                                     }],
@@ -396,7 +388,7 @@ var sendStatusPage = {
                             }else{
                                 app.dialog.create({
                                     title: 'Notificación enviada exitosamente',
-                                    text: 'Se han enviado notificaciones a '+data.length+' coordinadores.',
+                                    text: 'Las notificaciones se han enviado correctamente a '+data.length+' coordinadores',
                                     buttons: [{
                                         text: 'Aceptar'
                                     }],

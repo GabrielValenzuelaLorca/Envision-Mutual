@@ -21,7 +21,7 @@ var ItemVariablePage = {
                         '</a>' +
                         '<a href="#" class="link create ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--Save"></i>' +
-                            '<span class="ios-only">Crear Item</span>' +
+                            '<span class="ios-only">Crear Haber</span>' +
                         '</a>' +
                         '<a href="#" class="link generate-PDF ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PDF"></i>' +
@@ -256,10 +256,7 @@ var ItemVariablePage = {
                     fields: spo.getViewFields(context.lists.ListadoItems, 'Categoria'),
                 });
 
-                console.log('form', context.forms.categoria)
-
                 context.forms.categoria.inputs.Categoria.params.beforeRenderSuggestions = function (items) {
-                    console.log('items', items)
                     return items.filter(x=> x.Categoria.length < 3)
                 }
                 //Formulario de minimo y maximo
@@ -331,7 +328,6 @@ var ItemVariablePage = {
                                 Month: d[1]
                             });
                         })
-                        console.log('Data', data);
                         context.forms.fechas.setValues(data);
 
                         $('.accordion-item.fechas').removeClass('hide')
@@ -380,7 +376,7 @@ var ItemVariablePage = {
                 }
 
                 $updateButton.on('click', function (e){
-                    var dialogTitle = 'Editando elemento';
+                    var dialogTitle = 'Editando haber';
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
@@ -393,11 +389,17 @@ var ItemVariablePage = {
                         if(metadata.GP){
                             //Concatenamos el metadata de categorias
                             metadata['CategoriaId'] = categoria.CategoriaId;
+                        }else{
+                            metadata.CategoriaId = {};
+                            metadata.CategoriaId.results = [];
                         }
                         if(metadata.MinMax){
                             //Concatenamos minmax
                             metadata['Minimo'] = MinMax.Minimo;
                             metadata['Maximo'] = MinMax.Maximo;
+                        }else{
+                            metadata['Minimo'] = null;
+                            metadata['Maximo'] = null;
                         }
                         if(metadata.FechasEspeciales){
                             //Concatenamos fechas especiales
@@ -411,6 +413,8 @@ var ItemVariablePage = {
                                 }
                             }
                             metadata['FechasExcepcionales'] = valor;
+                        }else{
+                            metadata['FechasExcepcionales'] = null;
                         }
 
                         delete metadata['FechasEspeciales'];
@@ -421,7 +425,7 @@ var ItemVariablePage = {
 
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Elemento actualizado con éxito',
+                                text: 'Haber actualizado con éxito',
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
@@ -447,7 +451,6 @@ var ItemVariablePage = {
                     }
 
                     context.forms.main.checkFieldsRequired();
-                        console.log('metadata main', context.forms.main.getMetadata())
                         context.forms.categoria.checkFieldsRequired();
                         context.forms.MinMax.checkFieldsRequired();
                         context.forms.fechas.checkFieldsRequired();
@@ -486,7 +489,7 @@ var ItemVariablePage = {
                         if (validate) {
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Se actualizará el elemento.',
+                                text: '¿Desea actualizar el haber?',
                                 buttons: [{
                                     text: 'Cancelar'
                                 }, {
@@ -511,7 +514,7 @@ var ItemVariablePage = {
                 });    
                 
                 $createButton.on('click', function (e) {
-                    var dialogTitle = 'Creando Elemento'; 
+                    var dialogTitle = 'Creando Haber'; 
 
 
                     function save() {
@@ -552,7 +555,7 @@ var ItemVariablePage = {
 
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Elemento creado con éxito',
+                                text: 'Haber creado con éxito',
                                 buttons: [{
                                     text: 'Aceptar',
                                     onClick: function () {
@@ -568,7 +571,7 @@ var ItemVariablePage = {
                             console.log('responseText', responseText);
                             dialog.close();
                             app.dialog.create({
-                                title: 'Error al crear elemento ' + mths.getListTitle(),
+                                title: 'Error al crear haber ' + mths.getListTitle(),
                                 text: responseText.error.message.value,
                                 buttons: [{
                                     text: 'Aceptar'
@@ -578,7 +581,6 @@ var ItemVariablePage = {
                         });
                     }
                         context.forms.main.checkFieldsRequired();
-                        console.log('metadata main', context.forms.main.getMetadata())
                         context.forms.categoria.checkFieldsRequired();
                         context.forms.MinMax.checkFieldsRequired();
                         context.forms.fechas.checkFieldsRequired();
@@ -599,7 +601,6 @@ var ItemVariablePage = {
                         if(metadata.MinMax == true){
                             var md = context.forms.MinMax.getMetadata();
                             if(md.Maximo < md.Minimo){
-                                console.log('Cayo en la excepcion')
                                 validateMinMax = false;
                             }else if(!context.forms.MinMax.getValidation()){
                                 validateMinMax = false;
@@ -618,7 +619,7 @@ var ItemVariablePage = {
                         if (validate) {
                             app.dialog.create({
                                 title: dialogTitle,
-                                text: 'Se creará un elemento.',
+                                text: '¿Desea crear un haber?',
                                 buttons: [{
                                     text: 'Cancelar'
                                 }, {
@@ -632,7 +633,7 @@ var ItemVariablePage = {
                         } else {
                             app.dialog.create({
                                 title: 'Datos mal ingresados o insuficientes',
-                                text: 'Para crear una nuevo ítem debe completar todos los campos obligatorios.',
+                                text: 'Para crear una nuevo haber debe completar todos los campos obligatorios.',
                                 buttons: [{
                                     text: 'Aceptar'
                                 }],

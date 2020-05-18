@@ -187,7 +187,7 @@ var uploadItemsPage = {
                 // formulario de registro
                 context.forms.item = new EFWForm({
                     container: $container.find('.form-container'),
-                    title: 'Carga masiva de haberes',
+                    title: 'Carga masiva de ítems variables',
                     editable: listItemId ? false : true,
                     // description: 'Culpa sunt deserunt adipisicing cillum ex et ex non amet nulla officia veniam ullamco proident.',
                     fields: spo.getViewFields(context.lists.Excel, 'Todos los elementos')
@@ -201,13 +201,13 @@ var uploadItemsPage = {
                     tableLayout: 'fixed',
                     fields: [{ 
                         Id: generateUUID(),
-                        Title: 'Linea',
+                        Title: 'Linea en el documento',
                         InternalName: 'Linea',
                         TypeAsString: 'Number'
                     },
                     { 
                         Id: generateUUID(),
-                        Title: 'Mensaje de error',
+                        Title: 'Detalles del error',
                         InternalName: 'Message',
                         TypeAsString: 'Note'
                     }]
@@ -217,7 +217,7 @@ var uploadItemsPage = {
                 $clearButton.removeClass('hide');
                 $sendButton.removeClass('hide');
                 $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Nueva carga Masiva de items';
+                    var dialogTitle = 'Carga masiva de ítems';
                     file = $container.find('.attachmentInput')[0]
 
                     function save() {
@@ -244,7 +244,7 @@ var uploadItemsPage = {
                                         if(trabajador.TipoContrato != 'Indefinido'){
                                             return {
                                                 "Error": true,
-                                                "Message": "No corresponde personal a plazo fijo."
+                                                "Message": "El colaborador esta contratado a plazo fijo."
                                             }
                                         }
                                     }
@@ -266,7 +266,7 @@ var uploadItemsPage = {
                                         if(!trabajador.Capex){
                                             return {
                                                 "Error": true,
-                                                "Message": "El ítem requiere que el trabajador pertenezca a convenio CAPEX."
+                                                "Message": "El ítem requiere que el colaborador pertenezca a convenio CAPEX."
                                             }
                                         }
                                     }
@@ -428,7 +428,7 @@ var uploadItemsPage = {
                                 }
 
                                 function validateCC(cc, trabajador, item){
-                                    if(context.items.Solicitudes.length > 0){
+                                    if(context.items.Solicitudes){
 
                                         var filtrado = context.items.Solicitudes.filter(function(x){
                                             return x.Trabajador.NombreCompleto == trabajador.NombreCompleto 
@@ -600,10 +600,10 @@ var uploadItemsPage = {
                                     context.forms.errorsList.setValues(Errores);
                                     dialog.close();
                                     app.dialog.create({
-                                        title: 'Error',
-                                        text: 'Se han encontrado '+Errores.length+' errores.\n Su carga de planta no ha podido ser procesada debido a que presenta los siguientes errores en su excel',
+                                        title: 'Se han encontrado '+Errores.length+' errores.',
+                                        text: 'Su carga de ítems no ha podido ser procesada debido a que presenta los siguientes errores en su excel.',
                                         buttons: [{
-                                            text: 'Ver',
+                                            text: 'Ver errores',
                                             onClick: function () {
                                                 $container.find('.card-header').addClass('hide');
                                                 $container.find('.card-content thead tr th:nth-child(1)').addClass('hide');
@@ -661,7 +661,7 @@ var uploadItemsPage = {
                             if(type == 'xlsx'){
                                 app.dialog.create({
                                     title: dialogTitle,
-                                    text: '¿Está seguro de cargar el archivo? '+ file.files[0].name,
+                                    text: '¿Está seguro de cargar el archivo " '+ file.files[0].name + ' "?',
                                     buttons: [{
                                         text: 'No'
                                     }, {
@@ -685,8 +685,8 @@ var uploadItemsPage = {
                             break;
                         case 0:
                             app.dialog.create({
-                                title: 'No ha adjuntado ningún documento',
-                                text: 'Para realizar la carga masiva de ítems variables, debe adjuntar un documento Excel con la información de los ítems del período actual',
+                                title: 'Hubo un error al enviar',
+                                text: 'No ha adjuntado ningún documento Excel con la información de los ítems del período actual, intente nuevamente.',
                                 buttons: [{
                                     text: 'Aceptar'
                                 }],

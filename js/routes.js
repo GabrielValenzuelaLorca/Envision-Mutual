@@ -231,6 +231,14 @@ function getRoutes(){
             path: '/Trabajadores',
             component: TrabajadoresStreamPage
         },
+        {
+            path: '/CargarCentroCosto',
+            component: CargaMasivaCCPage
+        },
+        {
+            path: '/ReasignarCoordinador',
+            component: reasignCooPage
+        }
     ]
 
     //Routes compartidas de Item Variable
