@@ -4,7 +4,7 @@ global.appName = 'Mutual - Item variable';
 global.theme = 'mutual';
 global.efwVersion = '3.0.8';
 global.efwDev = true;
-global.env = "MUTDSR" //DEV, MUTDSR, MUTQAS, MUTPRD
+global.env = "MUTQAS" //DEV, MUTDSR, MUTQAS, MUTPRD
 global.showUserMenu = true;
 global.uris = {
     DEV: {
@@ -40,7 +40,7 @@ global.uris = {
         tenantUrl: 'https://mutualcl.sharepoint.com/',
         siteUrl: 'https://mutualcl.sharepoint.com/sites/aplicativoPersonasQAS/AplicativoPersona/',
         tema: 'https://mutualcl.sharepoint.com/sites/aplicativoPersonasQAS/AplicativoPersona/Tema/mutual.png',
-        excelCoord: 'https://mutualcl.sharepoint.com/sites/aplicativoPersonasQAS/AplicativoPersona/_layouts/15/download.aspx?UniqueId=89b5e347%2Dc61e%2D4c75%2Da14d%2D45ba41bc37a4',
+        excelCoord: 'https://mutualcl.sharepoint.com/sites/aplicativoPersonasDSR/AplicativoPersona1.1/_layouts/15/download.aspx?UniqueId=8f555238%2Dfb9c%2D48f3%2Da6da%2De641a010c989',
         status: 'https://prod-95.westus.logic.azure.com:443/workflows/71c183bfedab4bfbba7596de27f73376/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8HNuoFXg7TQdxFAiag_83nGgahXho1U1EG9aUo6zye0',
         items: 'https://prod-43.westus.logic.azure.com:443/workflows/a3e209540675467fbbfdf8e183983f39/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=pz1IX-0gg2cAaf7-AGMiCtdGTEFhBgFGqmCN_kl-R-Y',
         planta: 'https://prod-36.westus.logic.azure.com:443/workflows/981a3d3c32b24ab8901da9b56ab7902c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=qKA0E3AM5Ds5mjweT6JPkl42wR3fkvQdcuaV3k15gXE',
@@ -82,7 +82,6 @@ var AppScriptsArray = [
     "js/routers/mantenedor/general/PlantaStreamPage.js",
     "js/routers/mantenedor/general/UploadPlantaPage.js",
     "js/routers/mantenedor/general/CargaMasivaCCPage.js",
-
 
     //Carpeta mantenedor itemVariable
     "js/routers/mantenedor/itemVariable/AssignRolPage.js",
