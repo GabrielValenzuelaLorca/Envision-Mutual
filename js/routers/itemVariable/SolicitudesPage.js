@@ -583,9 +583,14 @@ var solicitudesPage = {
                                         $closeButton = $container.find('.close-popup'),
                                         $buttonsContainer = $container.find('.buttons-container');
                                     
-                                    var centroCosto = context.items.CentroCosto ?  context.items.CentroCosto.map(function(x){
-                                        centroCosto.push( x.D_CC != null ? x.D_CC : 'No tenia Nombre');
-                                    }) : ['No hay centros de costo disponibles.'];
+                                    var centroCosto = [];
+                                    if (context.items.CentroCosto) {
+                                        context.items.CentroCosto.forEach(function(x){
+                                            centroCosto.push( x.D_CC != null ? x.D_CC : 'No tenia Nombre');
+                                        })
+                                    } else {
+                                        centroCosto = ['No hay centros de costo disponibles.'];
+                                    }
                                     
                                     var campos = [{
                                         Id: generateUUID(),
