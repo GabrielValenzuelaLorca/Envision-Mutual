@@ -5,7 +5,7 @@ plantaStreamPage.methods.allowChangeTemplate = function(){
 }
 
 plantaStreamPage.methods.getListView = function(){
-    return "Planta Usuario"
+    return "ListadoPlantaItemVariable"
 }
 
 plantaStreamPage.methods.getTitle = function(){

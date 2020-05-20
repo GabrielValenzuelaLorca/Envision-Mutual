@@ -632,9 +632,9 @@ var uploadPlantaPage = {
                                         verticalButtons: false
                                     }).open();
                                 }else{
-                                        // callServiceCargaMasivaPlanta(resultado);
+                                        callServiceCargaMasivaPlanta(resultado);
                                         //Activamos el estado global de carga de planta
-                                        // activarCargaPendiente();
+                                        activarCargaPendiente();
                                     dialog.close();
                                     app.dialog.create({
                                         title: dialogTitle,
