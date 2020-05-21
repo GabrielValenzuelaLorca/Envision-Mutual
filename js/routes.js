@@ -330,6 +330,10 @@ function getRoutes(){
         {
             path: '/MantenedorUsuarioSDP',
             component: MantenedorUsuarioSDPPage
+        },
+        {
+            path: '/SimuladorPage',
+            component: SimuladorPage
         }
     ]
 
