@@ -312,7 +312,8 @@ var reasignCooPage = {
                                 var query = spo.encodeUrlListQuery(response, {
                                     view: 'Todos los elementos',
                                     odata: {
-                                        'filter': '(CoordinadorId eq ' + coo.ID + ')'
+                                        'filter': '(CoordinadorId eq ' + coo.ID + ')',
+                                        'top': 5000
                                     }
                                 });
                                 spo.getListItems(spo.getSiteUrl(), "Planta", query,
@@ -343,7 +344,8 @@ var reasignCooPage = {
                                 var query = spo.encodeUrlListQuery(response, {
                                     view: 'Todos los elementos',
                                     odata: {
-                                        'select' : '*'
+                                        'select' : '*',
+                                        'top': 5000
                                     }
                                 });
                                 spo.getListItems(spo.getSiteUrl(), "ListadoItemVariable", query,
@@ -587,12 +589,6 @@ var reasignCooPage = {
                                 }).open();
                                 
                             })
-
- 
-
-
-                            //await saveTrabajadores();
-                            //await saveItems();
                         }
                     }else{
                         app.dialog.create({
