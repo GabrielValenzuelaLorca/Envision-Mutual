@@ -30,6 +30,7 @@ global.uris = {
     MUTDSR: {
         tenantUrl: 'https://mutualcl.sharepoint.com/',
         siteUrl: 'https://mutualcl.sharepoint.com/sites/aplicativoPersonasDSR/AplicativoPersona1.1/',
+        tema: 'https://mutualcl.sharepoint.com/sites/aplicativoPersonasDSR/AplicativoPersona1.1/Tema/mutual.png',
         excelCoord: 'https://mutualcl.sharepoint.com/sites/aplicativoPersonasDSR/AplicativoPersona1.1/_layouts/15/download.aspx?UniqueId=8f555238%2Dfb9c%2D48f3%2Da6da%2De641a010c989',
         status: 'https://prod-09.westus.logic.azure.com:443/workflows/5ce7ea7cf20e4246a75638f25fe4af15/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=rzMelItX7HWBMvy-sSWYlHuZeppw7E9uBSqdg_1BtdE',
         items: 'https://prod-62.westus.logic.azure.com:443/workflows/b8dd45a1d2654d8ca7672678290b867f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=VAMs_5rnIS0P3DMXr8VA9WXuhIhAXR67vOFgu8tHLws',
