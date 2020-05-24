@@ -52,7 +52,9 @@ var uploadPlantaPage = {
             '</div>' +
             '<div class="page-content">' +
                 '<div class="form-container"></div>' +
-                '<div class="error-container" />' +
+                '<div class="error-container"></div>' +
+                '<div class="container"></div>' +
+            '</div>' +
             '<div class="content-loader">' +
                 '<div class="content-loader-inner">' +
                     '<div class="image-logo lazy lazy-fadein" data-background="{{loader.image}}"></div>' +
@@ -793,7 +795,6 @@ var uploadPlantaPage = {
                 function (response) {
                     context.items.globalState = [];
                     context.lists.globalState = response;
-                    //loaded.listaItemVariable = true;
                     
                     // Si existe el id de algún item a obtener
 
