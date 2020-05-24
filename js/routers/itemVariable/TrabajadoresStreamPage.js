@@ -9,7 +9,7 @@ TrabajadoresStreamPage.methods.getListView = function(){
 }
 
 TrabajadoresStreamPage.methods.getTitle = function(){
-    return "Listado completo de trabajadores"
+    return "Listado completo de colaboradores"
 }
 
 TrabajadoresStreamPage.methods.getListTitle = function(){

@@ -135,7 +135,7 @@ localButtons.editPeriodButton = function(){
 
 localButtons.addCapexView = function(item){
     button = {
-        text: 'Asociar nuevo trabajador',
+        text: 'Asociar nuevo colaborador',
         class: 'addCapex',
         icon: 'AddFriend',
         onClick: function(component){
@@ -159,7 +159,7 @@ localButtons.resolveRequest = function(){
 
 localButtons.toCreateEmployeeForm = function(){
     button = {
-        text: 'Registrar nuevo trabajador',
+        text: 'Registrar nuevo colaborador',
         class: 'addEmployee',
         icon: 'PeopleAdd',
         onClick: function(component, item){
@@ -231,7 +231,7 @@ localButtons.ToHaberesPage = function(){
 
 localButtons.ToAsociateTrabajadorPage = function(){
     button = {
-        text: 'Ver trabajadores asignados',
+        text: 'Ver colaboradores asignados',
         class: 'uploadPlanta',
         icon: 'Group',
         onClick: function(component, item){
@@ -313,7 +313,7 @@ localButtons.toGestionar = function(context){
 
 localButtons.addTrabajadorButton = function(context, id){
     button = {
-        text: 'Agregar trabajadores',
+        text: 'Agregar colaboradores',
         class: 'addTrabajador',
         icon: 'AddFriend',
         onClick: function(component, item){
@@ -325,12 +325,12 @@ localButtons.addTrabajadorButton = function(context, id){
 
 localButtons.addListTrabajadoresButton = function(context,coordinador){
     button = {
-        text:'Asociar trabajadores',
+        text:'Asociar colaboradores',
         class:'addTrabajadores',
         icon:'AddGroup',
         onClick: function(component, item){
 
-            var dialogTitle = 'Asociando trabajadores';
+            var dialogTitle = 'Asociando colaboradores';
 
             //Ejecuta toda la funcion despues de la validacion de la alerta
             function save() {
@@ -351,7 +351,7 @@ localButtons.addListTrabajadoresButton = function(context,coordinador){
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
-                        'Trabajadores asociados con exito!',
+                        'Colaboradores asociados con exito!',
                         function(){
                             mainView.router.navigate(encodeURI('/trabajadorPorCoordinador?listItemId='+coordinador));
                         },
@@ -364,7 +364,7 @@ localButtons.addListTrabajadoresButton = function(context,coordinador){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'No se han podido asociar trabajadores, intente nuevamente',
+                        'No se ha podido asociar colaboradores, intente nuevamente',
                         responseText.error.message.value,
                     )
                 });
@@ -377,7 +377,7 @@ localButtons.addListTrabajadoresButton = function(context,coordinador){
 
             dialogs.confirmDialog(
                 dialogTitle,
-                'Esta seguro que desea asociar trabajadores?',
+                'Esta seguro que desea asociar colaboradores?',
                 save
             )
         }
@@ -387,13 +387,13 @@ localButtons.addListTrabajadoresButton = function(context,coordinador){
 
 localButtons.addListTrabajadorButton = function(context, coordinador){
     button = {
-        text:'Asociar trabajador',
+        text:'Asociar Colaborador',
         class:'addTrabajador',
         icon:'AddFriend',
         onClick: function(component, item){
             console.log('Valor seleccionado', item)
 
-            var dialogTitle = 'Asociando Trabajador';
+            var dialogTitle = 'Asociando Colaborador';
 
             //Ejecuta toda la funcion despues de la validacion de la alerta
             function save() {
@@ -403,7 +403,7 @@ localButtons.addListTrabajadorButton = function(context, coordinador){
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
-                        'Trabajador asociado con exito!',
+                        'Colaborador asociado con exito!',
                         function(){
                             mainView.router.navigate(encodeURI('/trabajadorPorCoordinador?listItemId='+coordinador));
                         },
@@ -416,7 +416,7 @@ localButtons.addListTrabajadorButton = function(context, coordinador){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'No se ha podido asociar trabajador, intente nuevamente',
+                        'No se ha podido asociar colaborador, intente nuevamente',
                         responseText.error.message.value,
                     )
                 });
@@ -429,7 +429,7 @@ localButtons.addListTrabajadorButton = function(context, coordinador){
 
             dialogs.confirmDialog(
                 dialogTitle,
-                'Esta seguro que desea asociar trabajador?',
+                'Esta seguro que desea asociar colaborador?',
                 save
             )
         }
@@ -440,11 +440,11 @@ localButtons.addListTrabajadorButton = function(context, coordinador){
 
 localButtons.deleteTrabajador = function(context){
     button = {
-        text: 'Desvincular trabajador',
+        text: 'Desvincular colaborador',
         class: 'desvincularTrabajador',
         icon: 'Delete',
         onClick: function(component, item){
-            var dialogTitle = 'Desvinculando trabajador';
+            var dialogTitle = 'Desvinculando colaborador';
             var nombreCompleto = item.Nombre+' '+item.ApellidoPaterno+' '+item.ApellidoMaterno
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
@@ -454,7 +454,7 @@ localButtons.deleteTrabajador = function(context){
                     dialog.close()
                     app.dialog.create({
                         title:  `Desvinculacion Completada`,
-                        text:    `El trabajador ${nombreCompleto} ha sido desvinculado de la lista del coordinador`,
+                        text:    `El colaborador ${nombreCompleto} ha sido desvinculado de la lista del coordinador`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -470,7 +470,7 @@ localButtons.deleteTrabajador = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al desvincular trabajador, intente nuevamente',
+                        'Error al desvincular colaborador, intente nuevamente',
                         responseText.error.message.value,
                     )
                 });
@@ -501,12 +501,12 @@ localButtons.deleteTrabajador = function(context){
 
 localButtons.deleteListTrabajadoresButton = function(context){
     button = {
-        text:'Desvincular trabajadores',
+        text:'Desvincular colaboradores',
         class:'desvincularTrabajadores',
         icon:'Delete',
         onClick: function(component, item){
 
-            var dialogTitle = 'Desvinculando Trabajadores';
+            var dialogTitle = 'Desvinculando Colaboradores';
 
             //Ejecuta toda la funcion despues de la validacion de la alerta
             function save() {
@@ -525,7 +525,7 @@ localButtons.deleteListTrabajadoresButton = function(context){
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
-                        'Trabajadores desvinculados con exito.',
+                        'Colaboradores desvinculados con exito.',
                         refresh,
                         false
                     )
@@ -536,7 +536,7 @@ localButtons.deleteListTrabajadoresButton = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        '¿Error al desvincular trabajadores, intente nuevamente',
+                        '¿Error al desvincular colaboradores, intente nuevamente',
                         responseText.error.message.value,
                     )
                 });
@@ -549,7 +549,7 @@ localButtons.deleteListTrabajadoresButton = function(context){
 
             dialogs.confirmDialog(
                 dialogTitle,
-                'Esta seguro que quiere desvincular trabajadores?',
+                'Esta seguro que quiere desvincular colaboradores?',
                 save
             )
         }
@@ -1750,7 +1750,7 @@ localButtons.deleteCapex = function(context){
 
                     app.dialog.create({
                         title:  `Convenio CAPEX eliminado`,
-                        text:    `El trabajador ${nombreCompleto} ha sido eliminado del convenio capex correctamente`,
+                        text:    `El colaborador ${nombreCompleto} ha sido eliminado del convenio capex correctamente`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -1765,7 +1765,7 @@ localButtons.deleteCapex = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al desaprobar el informe.',
+                        'Error al eliminar convenio CAPEX.',
                         responseText.error.message.value,
                     )
                 });
@@ -1817,7 +1817,7 @@ localButtons.multiDeleteCapex = function(context){
                     dialog.close()
                     app.dialog.create({
                         title: dialogTitle,
-                        text:   `Los trabajadores seleccionados han sido eliminados correctamente del Convenio Capex`,
+                        text:   `Los colaboradores seleccionados han sido eliminados correctamente del Convenio Capex`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -1832,7 +1832,7 @@ localButtons.multiDeleteCapex = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al desaprobar el informe.',
+                        'Error al eliminar los convenios CAPEX',
                         responseText.error.message.value,
                     )
                 });
@@ -1840,7 +1840,7 @@ localButtons.multiDeleteCapex = function(context){
 
             app.dialog.create({
                 title: dialogTitle,
-                text:   `¿Esta seguro que desea eliminar los trabajadores seleccionados del convenio CAPEX?`,
+                text:   `¿Esta seguro que desea eliminar los colaboradores seleccionados del convenio CAPEX?`,
                 buttons: [
                 {
                     text: 'Cancelar',
@@ -1878,7 +1878,7 @@ localButtons.addCapex = function(context){
                     dialog.close()
                     app.dialog.create({
                         title: dialogTitle,
-                        text:   `El trabajador ${nombreCompleto} ha sido agregado correctamente al Convenio Capex`,
+                        text:   `El colaborador ${nombreCompleto} ha sido agregado correctamente al Convenio Capex`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -1893,7 +1893,7 @@ localButtons.addCapex = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al desaprobar el informe.',
+                        'Error al agregar convenio CAPEX.',
                         responseText.error.message.value,
                     )
                 });
@@ -1945,7 +1945,7 @@ localButtons.multiAddCapex = function(context){
                     dialog.close()
                     app.dialog.create({
                         title: 'Registrando convenios',
-                        text:   `Los trabajadores seleccionados han sido agregados correctamente al Convenio Capex`,
+                        text:   `Los colaboradores seleccionados han sido agregados correctamente al Convenio Capex`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -1968,7 +1968,7 @@ localButtons.multiAddCapex = function(context){
 
             app.dialog.create({
                 title: dialogTitle,
-                text:   `¿Esta seguro que desea agregar los trabajadores seleccionados al convenio CAPEX?`,
+                text:   `¿Esta seguro que desea agregar los colaboradores seleccionados al convenio CAPEX?`,
                 buttons: [
                 {
                     text: 'Cancelar',

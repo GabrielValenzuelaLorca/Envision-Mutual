@@ -587,7 +587,7 @@ var solicitantePage = {
                             }else{
                                 return {
                                     Aprobador: 'Aprobador '+i,
-                                    CargoAprobador: 'No se encontro el trabajador con el email indicado',
+                                    CargoAprobador: 'No se encontro el colaborador con el email indicado',
                                     EmailAprobador: a,
                                     Status: context.items.History['V_x00b0_B_x00b0__x0028_'+i+'_x0029_'] ? 'Aprobado': 'Pendiente',
                                     Fecha: context.items.History['FechadeV_x00b0_B_x00b0__x0028_'+i+'_'] ? moment(context.items.History['FechadeV_x00b0_B_x00b0__x0028_'+i+'_']).format("DD/MM/YYYY hh:mm") : '',

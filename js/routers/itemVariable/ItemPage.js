@@ -56,7 +56,7 @@ var itemPage = {
                 "<ul>" +
                     '<li class="accordion-item datos"><a href="#" class="item-content item-link">' +
                         '<div class="item-inner">' +
-                          '<div class="item-title">1.- Datos del Trabajador </div><i class="ms-Icon ms-Icon--DrillDownSolid" ></i>' +
+                          '<div class="item-title">1.- Datos del Colaborador </div><i class="ms-Icon ms-Icon--DrillDownSolid" ></i>' +
                         '</div></a>' +
                       '<div class="accordion-item-content">' +
                         '<div class="form-persona"></div>' +
@@ -435,7 +435,7 @@ var itemPage = {
                     }else{
                         data.push({
                             "key": 0,
-                            "text": 'No dispone de trabajadores',
+                            "text": 'No dispone de colaboradores',
                             "item": null
                         });
                     }
@@ -476,7 +476,7 @@ var itemPage = {
                     context.forms.person.inputs['CodigoPayroll'].setValue(values[0].item.Title);
                     context.forms.person.inputs['Rut'].setValue(values[0].item.Rut);
                     context.forms.person.inputs['TipoContrato'].setValue(values[0].item.TipoContrato);
-                    context.forms.person.inputs['Categoria'].setValue(categoria ? categoria.ESC : 'El trabajador seleccionado no tiene categoría');
+                    context.forms.person.inputs['Categoria'].setValue(categoria ? categoria.ESC : 'El colaborador seleccionado no tiene categoría');
                     context.forms.person.inputs['Cargo'].setValue(values[0].item.d_cargo.NombreCargo)
 
                     //Habilitamos el formulario siguiente
@@ -593,7 +593,7 @@ var itemPage = {
                     }else{
                         render([{
                             "key": 0,
-                            "text": 'No se encontraron solicitudes para el trabajador',
+                            "text": 'No se encontraron solicitudes para el colaborador',
                             "item": null
                         }]);
                     }
@@ -696,7 +696,7 @@ var itemPage = {
                                     if(context.items.trabajador){
                                         if(context.items.trabajador.CoordinadorId != plantaAdmin.ID){
                                             allow = false;
-                                            msg = 'El trabajador seleccionado no le petenece a su coordinacion.'
+                                            msg = 'El colaborador seleccionado no petenece a su coordinacion.'
                                         }
                                     }else{
                                         allow = false;
