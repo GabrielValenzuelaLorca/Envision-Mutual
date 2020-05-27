@@ -20,8 +20,13 @@ solicitudCyEStream.methods.onItemDblClick = function(item){
      mainView.router.navigate('/formSolicitante?listItemId='+item.ID);
 }
 
-solicitudCyEStream.methods.getOneItemSelectedButtons = function(){
-    return [localButtons.toSeeDetailsSolicitud(), localButtons.toGestionar()]
+solicitudCyEStream.methods.getOneItemSelectedButtons = function(item){
+    var btn = [localButtons.toSeeDetailsSolicitud()]
+
+    if(item.Estado == "Enviada a Compensación"){
+        btn.push(localButtons.toGestionar())
+    }
+    return btn;
 }
 
 solicitudCyEStream.methods.getMultiItemsSelectedButtons = function(){

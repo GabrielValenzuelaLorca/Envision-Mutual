@@ -1298,7 +1298,7 @@ var solicitantePage = {
                                                     }
                                                 });
 
-                                                spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                                                spo.getListItems(spo.getSiteUrl(), 'Planta', query2,
                                                     function (response) {
                                                         context.items.solicitudSDP.DependenciaDirecta = response.d.results.length > 0 ? response.d.results[0] : null;
                                                         loaded.DependenciaDirecta = true;
@@ -1318,16 +1318,22 @@ var solicitantePage = {
 
                                                 let aprobadores = JSON.parse(context.items.solicitudSDP.Aprobadores);
                                                 var busqueda = "";
-                                                aprobadores.map(function(aprobador, i){
-                                                    if(i+1 == aprobadores.length){
-                                                        busqueda += 'Email eq \''+ aprobador +'\' )'
-                                                    }else if(i == 0){
-                                                        busqueda += '(Email eq \''+ aprobador +'\' or '
-                                                    }else{
-                                                        busqueda += 'Email eq \''+ aprobador +'\' or '
-                                                    }
-                                                    
-                                                });
+
+                                                if(aprobadores.length > 1){
+                                                    aprobadores.map(function(aprobador, i){
+                                                        if(i+1 == aprobadores.length){
+                                                            busqueda += 'Email eq \''+ aprobador +'\' )'
+                                                        }else if(i == 0){
+                                                            busqueda += '(Email eq \''+ aprobador +'\' or '
+                                                        }else{
+                                                            busqueda += 'Email eq \''+ aprobador +'\' or '
+                                                        }
+                                                        
+                                                    });
+                                                }else{
+                                                    busqueda = "( Email eq \''+ aprobador +'\' )"
+                                                }
+                                                
                                                 var query = spo.encodeUrlListQuery(context.lists.planta, {
                                                     view: 'Todos los elementos',
                                                     odata: {

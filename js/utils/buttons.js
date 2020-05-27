@@ -306,6 +306,18 @@ localButtons.toGestionar = function(context){
     return button
 }
 
+localButtons.toActivatePosicion = function(){
+    button = {
+        text: 'Activar Posición',
+        class: 'activatePos',
+        icon: 'PageEdit',
+        onClick: function(component, item){
+            mainView.router.navigate('/SolicitudRYS?listItemId='+item.ID);
+        }
+    }
+    return button
+}
+
 
 /*
     Todos los botones relacionados con CoordinadorStreamPage, TrabajadorPage y TrabajadorStreamPage
@@ -3077,6 +3089,466 @@ localButtons.desaprobarMultiplesCyE = function(context){
                     app.dialog.alert(error)
                 })
             })
+        }
+    }
+    return button
+}
+
+localButtons.liberarPosicion = function(){
+    button = {
+        text: 'Liberar posiciones',
+        class: 'liberarpos',
+        icon: 'Send',
+        onClick: function(component, items){
+
+            var Arreglo = [];
+
+            if(items.ID){
+                Arreglo.push(items)
+            }else{
+                Arreglo = items
+            }
+
+            var dialogTitle = 'Liberar posición';
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+                var promises = []
+                Arreglo.forEach(item =>{
+                    promises.push(new Promise((resolve, reject) =>{
+                        var metadata = {};
+                        metadata.ObservacionLiberacion = comment;
+                        metadata.FechaLiberacion = new Date().toISOString();
+                        metadata.Liberado = true;
+                        spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID, metadata, function (response) {
+                            resolve(true)
+                        }, function (response) {
+                            reject(response)
+                        });
+                    }))
+                })
+
+                Promise.all(promises)
+                .then(c =>{
+                    dialog.close();
+                    app.dialog.alert("Posiciones liberadas con éxito", "liberación de posiciones"),
+                    refresh()
+                }).catch(error =>{
+                    app.dialog.alert(error)
+                })
+            }
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Cancelar</button>
+                                    <button class="button button-fill send">Liberar</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Comentario',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Comentario de liberación'.bold(),
+                                editable: true,
+                                description: 'Ingrese el comentario de la liberación.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                var comentarioRechazo = form.getMetadata();                                                               
+                                // cerrar popover
+                                popup.close();
+    
+                                save(comentarioRechazo.ComentarioVirtual);
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
+
+                dynamicPopup.open();
+            }
+
+            abrirPopup();
+        }
+    }
+    return button
+}
+
+localButtons.QuitarliberarPosicion = function(){
+    button = {
+        text: 'Quitar liberación posiciones',
+        class: 'desliberar',
+        icon: 'Send',
+        onClick: function(component, items){
+
+            var Arreglo = [];
+
+            if(items.ID){
+                Arreglo.push(items)
+            }else{
+                Arreglo = items
+            }
+
+            var dialogTitle = 'Quitar liberación posición';
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+                var promises = []
+                Arreglo.forEach(item =>{
+                    promises.push(new Promise((resolve, reject) =>{
+                        var metadata = {};
+                        metadata.ObservacionLiberacion = comment;
+                        metadata.FechaLiberacion = new Date().toISOString();
+                        metadata.Liberado = false;
+                        spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID, metadata, function (response) {
+                            resolve(true)
+                        }, function (response) {
+                            reject(response)
+                        });
+                    }))
+                })
+
+                Promise.all(promises)
+                .then(c =>{
+                    dialog.close();
+                    app.dialog.alert("Liberaciones quitadas con éxito", "Quitar liberación de posiciones"),
+                    refresh()
+                }).catch(error =>{
+                    app.dialog.alert(error)
+                })
+            }
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Cancelar</button>
+                                    <button class="button button-fill send">Quitar liberación</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Comentario',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Comentario de para quitar la liberación'.bold(),
+                                editable: true,
+                                description: 'Ingrese un comentario.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                var comentarioRechazo = form.getMetadata();                                                               
+                                // cerrar popover
+                                popup.close();
+    
+                                save(comentarioRechazo.ComentarioVirtual);
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
+
+                dynamicPopup.open();
+            }
+
+            abrirPopup();
+        }
+    }
+    return button
+}
+
+localButtons.BloquearPosicion = function(){
+    button = {
+        text: 'Bloquear posiciones',
+        class: 'bloquearpos',
+        icon: 'Send',
+        onClick: function(component, items){
+
+            var Arreglo = [];
+
+            if(items.ID){
+                Arreglo.push(items)
+            }else{
+                Arreglo = items
+            }
+
+            var dialogTitle = 'Bloquear posiciones';
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+                var promises = []
+                Arreglo.forEach(item =>{
+                    promises.push(new Promise((resolve, reject) =>{
+                        var metadata = {};
+                        metadata.ObservacionBloqueo = comment;
+                        metadata.FechaBloqueo = new Date().toISOString();
+                        metadata.Bloqueado = false;
+                        spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID, metadata, function (response) {
+                            resolve(true)
+                        }, function (response) {
+                            reject(response)
+                        });
+                    }))
+                })
+
+                Promise.all(promises)
+                .then(c =>{
+                    dialog.close();
+                    app.dialog.alert("Posiciones bloqueadas con éxito", "Bloqueo de posiciones"),
+                    refresh()
+                }).catch(error =>{
+                    app.dialog.alert(error)
+                })
+            }
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Cancelar</button>
+                                    <button class="button button-fill send">Bloquear</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Comentario',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Comentario de bloquedo'.bold(),
+                                editable: true,
+                                description: 'Ingrese un comentario.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                var comentarioRechazo = form.getMetadata();                                                               
+                                // cerrar popover
+                                popup.close();
+    
+                                save(comentarioRechazo.ComentarioVirtual);
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
+
+                dynamicPopup.open();
+            }
+
+            abrirPopup();
+        }
+    }
+    return button
+}
+
+localButtons.DesbloquearPosicion = function(){
+    button = {
+        text: 'Desbloquear posiciones',
+        class: 'desbloquearpos',
+        icon: 'Send',
+        onClick: function(component, items){
+
+            var Arreglo = [];
+
+            if(items.ID){
+                Arreglo.push(items)
+            }else{
+                Arreglo = items
+            }
+
+            var dialogTitle = 'Desbloquear posiciones';
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+                var promises = []
+                Arreglo.forEach(item =>{
+                    promises.push(new Promise((resolve, reject) =>{
+                        var metadata = {};
+                        metadata.ObservacionBloqueo = comment;
+                        metadata.FechaDesbloqueo = new Date().toISOString();
+                        metadata.Bloqueado = false;
+                        spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID, metadata, function (response) {
+                            resolve(true)
+                        }, function (response) {
+                            reject(response)
+                        });
+                    }))
+                })
+
+                Promise.all(promises)
+                .then(c =>{
+                    dialog.close();
+                    app.dialog.alert("Posiciones desbloqueadas con éxito", "Desbloqueo de posiciones"),
+                    refresh()
+                }).catch(error =>{
+                    app.dialog.alert(error)
+                })
+            }
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Cancelar</button>
+                                    <button class="button button-fill send">Desbloquear</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Comentario',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Comentario de desbloquedo'.bold(),
+                                editable: true,
+                                description: 'Ingrese un comentario.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                var comentarioRechazo = form.getMetadata();                                                               
+                                // cerrar popover
+                                popup.close();
+    
+                                save(comentarioRechazo.ComentarioVirtual);
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
+
+                dynamicPopup.open();
+            }
+
+            abrirPopup();
         }
     }
     return button

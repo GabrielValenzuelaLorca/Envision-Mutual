@@ -335,23 +335,44 @@ var posicionPage = {
                                     item['Estado'] = "Validación Jefe CyE"
                                 }
                                 metadata.CambioTemporal = JSON.stringify(JSON.stringify(metadataOriginal));
+                                metadata.SolicitudSDP = gestion;
                             });
 
                             spo.updateListItems(spo.getSiteUrl(), 'Posicion', metadata, function (response) {
-                                dialog.close();
-    
-                                app.dialog.create({
-                                    title: dialogTitle,
-                                    text: 'La posicion creada con exito.',
-                                    buttons: [{
-                                        text: 'Aceptar',
-                                        onClick: function () {
-                                            mainView.router.navigate('/PosicionStream');
-                                        }
-                                    }],
-                                    verticalButtons: false
-                                }).open();
-    
+
+                                console.log('REsponse', response)
+                                var ids = response.map(x=>{
+                                    return x.d.ID
+                                });
+
+                                spo.updateListItem(spo.getSiteUrl(), 'SolicitudSDP', gestion, ids, function (response) {
+
+                                    dialog.close();
+                                    app.dialog.create({
+                                        title: dialogTitle,
+                                        text: 'La posicion creada con exito.',
+                                        buttons: [{
+                                            text: 'Aceptar',
+                                            onClick: function () {
+                                                mainView.router.navigate('/PosicionStream');
+                                            }
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
+                                }, function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log('responseText', responseText);
+        
+                                    dialog.close();
+                                    app.dialog.create({
+                                        title: 'Error al guardar en lista ' + mths.getListTitle(),
+                                        text: responseText.error.message.value,
+                                        buttons: [{
+                                            text: 'Aceptar'
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
+                                });
     
                             }, function (response) {
                                 var responseText = JSON.parse(response.responseText);
@@ -376,18 +397,48 @@ var posicionPage = {
                                 if(item.Presupuestada === false){
                                     item['Estado'] = "Validación Jefe CyE"
                                 }
+                                item.SolicitudSDPId = gestion;
                             })
                             //Crea la posicion nueva en estado en revision
                             spo.saveListItems(spo.getSiteUrl(), mths.getListTitle(), metadatas, function (response) {
-                                dialog.close();
-                                dialogs.confirmDialog(
-                                    dialogTitle,
-                                    'Posicion creada con éxito',
-                                    function(component, item){
-                                        mainView.router.navigate('/PosicionStream');
-                                    },
-                                    false
-                                )
+                                console.log('REsponse', response)
+                                var ids = {};
+                                ids.Posicion0Id = {};
+                                ids.Posicion0Id.results = response.map(x=>{
+                                    return x.d.ID
+                                });
+
+                                console.log('ids', ids)
+
+                                spo.updateListItem(spo.getSiteUrl(), 'SolicitudSDP', gestion, ids, function (response) {
+
+                                    dialog.close();
+                                    app.dialog.create({
+                                        title: dialogTitle,
+                                        text: 'La posicion creada con exito.',
+                                        buttons: [{
+                                            text: 'Aceptar',
+                                            onClick: function () {
+                                                mainView.router.navigate('/PosicionStream');
+                                            }
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
+                                }, function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+                                    console.log('responseText', responseText);
+        
+                                    dialog.close();
+                                    app.dialog.create({
+                                        title: 'Error al guardar en lista ' + mths.getListTitle(),
+                                        text: responseText.error.message.value,
+                                        buttons: [{
+                                            text: 'Aceptar'
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
+                                });
+    
                             }, function (response) {
                                 var responseText = JSON.parse(response.responseText);
                                 console.log('responseText', responseText);

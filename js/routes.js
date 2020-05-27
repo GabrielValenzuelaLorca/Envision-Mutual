@@ -330,7 +330,15 @@ function getRoutes(){
         {
             path: '/MantenedorUsuarioSDP',
             component: MantenedorUsuarioSDPPage
-        }
+        },
+        {
+            path: '/misPosiciones',
+            component: misSolicitudesStreamPage
+        },
+        {
+            path: '/SolicitudRYS',
+            component: SolicitudRySPage
+        },
     ]
 
     var routes = [];
@@ -358,6 +366,15 @@ function getRoutes(){
                 sdpRouter.push(route)
             }
         })
+        routes.push(
+            {
+                path: '/Posicion',
+                component: posicionPage
+            },{
+                path: '/SolicitudRYS',
+                component: SolicitudRySPage
+            },
+        )
         routes = routes.concat(sdpRouter);
     }
     

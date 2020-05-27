@@ -387,7 +387,7 @@ MantenedorUsuarioSDPPage.methods.getOneItemSelectedButtons = function(){
                     fields: spo.getViewFields(c, 'RolesSDPForm')
                 });
 
-                form.inputs.Usuario.setEditable(false)
+                // form.inputs.Usuario.setEditable(false)
                 form.inputs.ApellidoMaterno.setEditable(false)
                 form.inputs.ApellidoPaterno.setEditable(false)
                 form.inputs.Nombre.setEditable(false)
