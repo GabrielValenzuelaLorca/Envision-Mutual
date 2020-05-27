@@ -1475,7 +1475,7 @@ localButtons.approveItemSended = function(context){
             }
             dialogs.confirmDialog(
                 dialogTitle,
-                'Se aprobará el informe seleccionado.',
+                '¿Desea aprobar el informe seleccionado?',
                 save
             )
         }

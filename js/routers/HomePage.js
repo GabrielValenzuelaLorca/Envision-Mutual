@@ -134,7 +134,7 @@ var homePage = {
         },
         // {string} retorna la descripción del componente
         getDescription: function(){
-            return 'Por favor, seleccione un componente.';
+            return 'Por favor, seleccione un módulo.';
         },
 
         // {fn} desaparecer DOM de cargar
