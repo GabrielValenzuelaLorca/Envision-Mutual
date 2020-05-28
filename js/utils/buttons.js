@@ -135,7 +135,7 @@ localButtons.editPeriodButton = function(){
 
 localButtons.addCapexView = function(item){
     button = {
-        text: 'Asociar nuevo trabajador',
+        text: 'Asociar nuevo colaborador',
         class: 'addCapex',
         icon: 'AddFriend',
         onClick: function(component){
@@ -159,7 +159,7 @@ localButtons.resolveRequest = function(){
 
 localButtons.toCreateEmployeeForm = function(){
     button = {
-        text: 'Registrar nuevo trabajador',
+        text: 'Registrar nuevo colaborador',
         class: 'addEmployee',
         icon: 'PeopleAdd',
         onClick: function(component, item){
@@ -231,7 +231,7 @@ localButtons.ToHaberesPage = function(){
 
 localButtons.ToAsociateTrabajadorPage = function(){
     button = {
-        text: 'Ver trabajadores asignados',
+        text: 'Ver colaboradores asignados',
         class: 'uploadPlanta',
         icon: 'Group',
         onClick: function(component, item){
@@ -306,6 +306,18 @@ localButtons.toGestionar = function(context){
     return button
 }
 
+localButtons.toActivatePosicion = function(){
+    button = {
+        text: 'Activar Posición',
+        class: 'activatePos',
+        icon: 'PageEdit',
+        onClick: function(component, item){
+            mainView.router.navigate('/SolicitudRYS?listItemId='+item.ID);
+        }
+    }
+    return button
+}
+
 
 /*
     Todos los botones relacionados con CoordinadorStreamPage, TrabajadorPage y TrabajadorStreamPage
@@ -313,7 +325,7 @@ localButtons.toGestionar = function(context){
 
 localButtons.addTrabajadorButton = function(context, id){
     button = {
-        text: 'Agregar trabajadores',
+        text: 'Agregar colaboradores',
         class: 'addTrabajador',
         icon: 'AddFriend',
         onClick: function(component, item){
@@ -325,12 +337,12 @@ localButtons.addTrabajadorButton = function(context, id){
 
 localButtons.addListTrabajadoresButton = function(context,coordinador){
     button = {
-        text:'Asociar trabajadores',
+        text:'Asociar colaboradores',
         class:'addTrabajadores',
         icon:'AddGroup',
         onClick: function(component, item){
 
-            var dialogTitle = 'Asociando trabajadores';
+            var dialogTitle = 'Asociando colaboradores';
 
             //Ejecuta toda la funcion despues de la validacion de la alerta
             function save() {
@@ -351,7 +363,7 @@ localButtons.addListTrabajadoresButton = function(context,coordinador){
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
-                        'Trabajadores asociados con exito!',
+                        'Colaboradores asociados con exito!',
                         function(){
                             mainView.router.navigate(encodeURI('/trabajadorPorCoordinador?listItemId='+coordinador));
                         },
@@ -364,7 +376,7 @@ localButtons.addListTrabajadoresButton = function(context,coordinador){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'No se han podido asociar trabajadores, intente nuevamente',
+                        'No se ha podido asociar colaboradores, intente nuevamente',
                         responseText.error.message.value,
                     )
                 });
@@ -377,7 +389,7 @@ localButtons.addListTrabajadoresButton = function(context,coordinador){
 
             dialogs.confirmDialog(
                 dialogTitle,
-                'Esta seguro que desea asociar trabajadores?',
+                'Esta seguro que desea asociar colaboradores?',
                 save
             )
         }
@@ -387,13 +399,13 @@ localButtons.addListTrabajadoresButton = function(context,coordinador){
 
 localButtons.addListTrabajadorButton = function(context, coordinador){
     button = {
-        text:'Asociar trabajador',
+        text:'Asociar Colaborador',
         class:'addTrabajador',
         icon:'AddFriend',
         onClick: function(component, item){
             console.log('Valor seleccionado', item)
 
-            var dialogTitle = 'Asociando Trabajador';
+            var dialogTitle = 'Asociando Colaborador';
 
             //Ejecuta toda la funcion despues de la validacion de la alerta
             function save() {
@@ -403,7 +415,7 @@ localButtons.addListTrabajadorButton = function(context, coordinador){
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
-                        'Trabajador asociado con exito!',
+                        'Colaborador asociado con exito!',
                         function(){
                             mainView.router.navigate(encodeURI('/trabajadorPorCoordinador?listItemId='+coordinador));
                         },
@@ -416,7 +428,7 @@ localButtons.addListTrabajadorButton = function(context, coordinador){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'No se ha podido asociar trabajador, intente nuevamente',
+                        'No se ha podido asociar colaborador, intente nuevamente',
                         responseText.error.message.value,
                     )
                 });
@@ -429,7 +441,7 @@ localButtons.addListTrabajadorButton = function(context, coordinador){
 
             dialogs.confirmDialog(
                 dialogTitle,
-                'Esta seguro que desea asociar trabajador?',
+                'Esta seguro que desea asociar colaborador?',
                 save
             )
         }
@@ -440,11 +452,11 @@ localButtons.addListTrabajadorButton = function(context, coordinador){
 
 localButtons.deleteTrabajador = function(context){
     button = {
-        text: 'Desvincular trabajador',
+        text: 'Desvincular colaborador',
         class: 'desvincularTrabajador',
         icon: 'Delete',
         onClick: function(component, item){
-            var dialogTitle = 'Desvinculando trabajador';
+            var dialogTitle = 'Desvinculando colaborador';
             var nombreCompleto = item.Nombre+' '+item.ApellidoPaterno+' '+item.ApellidoMaterno
             function save() {
                 var dialog = app.dialog.progress(dialogTitle);
@@ -454,7 +466,7 @@ localButtons.deleteTrabajador = function(context){
                     dialog.close()
                     app.dialog.create({
                         title:  `Desvinculacion Completada`,
-                        text:    `El trabajador ${nombreCompleto} ha sido desvinculado de la lista del coordinador`,
+                        text:    `El colaborador ${nombreCompleto} ha sido desvinculado de la lista del coordinador`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -470,7 +482,7 @@ localButtons.deleteTrabajador = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al desvincular trabajador, intente nuevamente',
+                        'Error al desvincular colaborador, intente nuevamente',
                         responseText.error.message.value,
                     )
                 });
@@ -501,12 +513,12 @@ localButtons.deleteTrabajador = function(context){
 
 localButtons.deleteListTrabajadoresButton = function(context){
     button = {
-        text:'Desvincular trabajadores',
+        text:'Desvincular colaboradores',
         class:'desvincularTrabajadores',
         icon:'Delete',
         onClick: function(component, item){
 
-            var dialogTitle = 'Desvinculando Trabajadores';
+            var dialogTitle = 'Desvinculando Colaboradores';
 
             //Ejecuta toda la funcion despues de la validacion de la alerta
             function save() {
@@ -525,7 +537,7 @@ localButtons.deleteListTrabajadoresButton = function(context){
                     dialog.close()
                     dialogs.confirmDialog(
                         dialogTitle,
-                        'Trabajadores desvinculados con exito.',
+                        'Colaboradores desvinculados con exito.',
                         refresh,
                         false
                     )
@@ -536,7 +548,7 @@ localButtons.deleteListTrabajadoresButton = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        '¿Error al desvincular trabajadores, intente nuevamente',
+                        '¿Error al desvincular colaboradores, intente nuevamente',
                         responseText.error.message.value,
                     )
                 });
@@ -549,7 +561,7 @@ localButtons.deleteListTrabajadoresButton = function(context){
 
             dialogs.confirmDialog(
                 dialogTitle,
-                'Esta seguro que quiere desvincular trabajadores?',
+                'Esta seguro que quiere desvincular colaboradores?',
                 save
             )
         }
@@ -1475,7 +1487,7 @@ localButtons.approveItemSended = function(context){
             }
             dialogs.confirmDialog(
                 dialogTitle,
-                'Se aprobará el informe seleccionado.',
+                '¿Desea aprobar el informe seleccionado?',
                 save
             )
         }
@@ -1750,7 +1762,7 @@ localButtons.deleteCapex = function(context){
 
                     app.dialog.create({
                         title:  `Convenio CAPEX eliminado`,
-                        text:    `El trabajador ${nombreCompleto} ha sido eliminado del convenio capex correctamente`,
+                        text:    `El colaborador ${nombreCompleto} ha sido eliminado del convenio capex correctamente`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -1765,7 +1777,7 @@ localButtons.deleteCapex = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al desaprobar el informe.',
+                        'Error al eliminar convenio CAPEX.',
                         responseText.error.message.value,
                     )
                 });
@@ -1817,7 +1829,7 @@ localButtons.multiDeleteCapex = function(context){
                     dialog.close()
                     app.dialog.create({
                         title: dialogTitle,
-                        text:   `Los trabajadores seleccionados han sido eliminados correctamente del Convenio Capex`,
+                        text:   `Los colaboradores seleccionados han sido eliminados correctamente del Convenio Capex`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -1832,7 +1844,7 @@ localButtons.multiDeleteCapex = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al desaprobar el informe.',
+                        'Error al eliminar los convenios CAPEX',
                         responseText.error.message.value,
                     )
                 });
@@ -1840,7 +1852,7 @@ localButtons.multiDeleteCapex = function(context){
 
             app.dialog.create({
                 title: dialogTitle,
-                text:   `¿Esta seguro que desea eliminar los trabajadores seleccionados del convenio CAPEX?`,
+                text:   `¿Esta seguro que desea eliminar los colaboradores seleccionados del convenio CAPEX?`,
                 buttons: [
                 {
                     text: 'Cancelar',
@@ -1878,7 +1890,7 @@ localButtons.addCapex = function(context){
                     dialog.close()
                     app.dialog.create({
                         title: dialogTitle,
-                        text:   `El trabajador ${nombreCompleto} ha sido agregado correctamente al Convenio Capex`,
+                        text:   `El colaborador ${nombreCompleto} ha sido agregado correctamente al Convenio Capex`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -1893,7 +1905,7 @@ localButtons.addCapex = function(context){
 
                     dialog.close();
                     dialogs.infoDialog(
-                        'Error al desaprobar el informe.',
+                        'Error al agregar convenio CAPEX.',
                         responseText.error.message.value,
                     )
                 });
@@ -1945,7 +1957,7 @@ localButtons.multiAddCapex = function(context){
                     dialog.close()
                     app.dialog.create({
                         title: 'Registrando convenios',
-                        text:   `Los trabajadores seleccionados han sido agregados correctamente al Convenio Capex`,
+                        text:   `Los colaboradores seleccionados han sido agregados correctamente al Convenio Capex`,
                         buttons: [{
                             text: 'Aceptar',
                             onClick: function onClick(){
@@ -1968,7 +1980,7 @@ localButtons.multiAddCapex = function(context){
 
             app.dialog.create({
                 title: dialogTitle,
-                text:   `¿Esta seguro que desea agregar los trabajadores seleccionados al convenio CAPEX?`,
+                text:   `¿Esta seguro que desea agregar los colaboradores seleccionados al convenio CAPEX?`,
                 buttons: [
                 {
                     text: 'Cancelar',
@@ -3077,6 +3089,466 @@ localButtons.desaprobarMultiplesCyE = function(context){
                     app.dialog.alert(error)
                 })
             })
+        }
+    }
+    return button
+}
+
+localButtons.liberarPosicion = function(){
+    button = {
+        text: 'Liberar posiciones',
+        class: 'liberarpos',
+        icon: 'Send',
+        onClick: function(component, items){
+
+            var Arreglo = [];
+
+            if(items.ID){
+                Arreglo.push(items)
+            }else{
+                Arreglo = items
+            }
+
+            var dialogTitle = 'Liberar posición';
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+                var promises = []
+                Arreglo.forEach(item =>{
+                    promises.push(new Promise((resolve, reject) =>{
+                        var metadata = {};
+                        metadata.ObservacionLiberacion = comment;
+                        metadata.FechaLiberacion = new Date().toISOString();
+                        metadata.Liberado = true;
+                        spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID, metadata, function (response) {
+                            resolve(true)
+                        }, function (response) {
+                            reject(response)
+                        });
+                    }))
+                })
+
+                Promise.all(promises)
+                .then(c =>{
+                    dialog.close();
+                    app.dialog.alert("Posiciones liberadas con éxito", "Liberación de posiciones"),
+                    refresh()
+                }).catch(error =>{
+                    app.dialog.alert(error)
+                })
+            }
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Cancelar</button>
+                                    <button class="button button-fill send">Liberar</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Observación',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Observación de liberación'.bold(),
+                                editable: true,
+                                description: 'Ingrese la observación de la liberación.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                var comentarioRechazo = form.getMetadata();                                                               
+                                // cerrar popover
+                                popup.close();
+    
+                                save(comentarioRechazo.ComentarioVirtual);
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
+
+                dynamicPopup.open();
+            }
+
+            abrirPopup();
+        }
+    }
+    return button
+}
+
+localButtons.QuitarliberarPosicion = function(){
+    button = {
+        text: 'Quitar liberación posiciones',
+        class: 'desliberar',
+        icon: 'Send',
+        onClick: function(component, items){
+
+            var Arreglo = [];
+
+            if(items.ID){
+                Arreglo.push(items)
+            }else{
+                Arreglo = items
+            }
+
+            var dialogTitle = 'Quitar liberación posición';
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+                var promises = []
+                Arreglo.forEach(item =>{
+                    promises.push(new Promise((resolve, reject) =>{
+                        var metadata = {};
+                        metadata.ObservacionLiberacion = comment;
+                        metadata.FechaLiberacion = new Date().toISOString();
+                        metadata.Liberado = false;
+                        spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID, metadata, function (response) {
+                            resolve(true)
+                        }, function (response) {
+                            reject(response)
+                        });
+                    }))
+                })
+
+                Promise.all(promises)
+                .then(c =>{
+                    dialog.close();
+                    app.dialog.alert("Las posiciones ya no se encuentran liberadas.", "Quitar liberación de posiciones"),
+                    refresh()
+                }).catch(error =>{
+                    app.dialog.alert(error)
+                })
+            }
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Cancelar</button>
+                                    <button class="button button-fill send">Quitar liberación</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Observación',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Observación de para quitar la liberación'.bold(),
+                                editable: true,
+                                description: 'Ingrese una observación.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                var comentarioRechazo = form.getMetadata();                                                               
+                                // cerrar popover
+                                popup.close();
+    
+                                save(comentarioRechazo.ComentarioVirtual);
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
+
+                dynamicPopup.open();
+            }
+
+            abrirPopup();
+        }
+    }
+    return button
+}
+
+localButtons.BloquearPosicion = function(){
+    button = {
+        text: 'Bloquear posiciones',
+        class: 'bloquearpos',
+        icon: 'Send',
+        onClick: function(component, items){
+
+            var Arreglo = [];
+
+            if(items.ID){
+                Arreglo.push(items)
+            }else{
+                Arreglo = items
+            }
+
+            var dialogTitle = 'Bloquear posiciones';
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+                var promises = []
+                Arreglo.forEach(item =>{
+                    promises.push(new Promise((resolve, reject) =>{
+                        var metadata = {};
+                        metadata.ObservacionBloqueo = comment;
+                        metadata.FechaBloqueo = new Date().toISOString();
+                        metadata.Bloqueado = true;
+                        spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID, metadata, function (response) {
+                            resolve(true)
+                        }, function (response) {
+                            reject(response)
+                        });
+                    }))
+                })
+
+                Promise.all(promises)
+                .then(c =>{
+                    dialog.close();
+                    app.dialog.alert("Posiciones bloqueadas con éxito", "Bloqueo de posiciones"),
+                    refresh()
+                }).catch(error =>{
+                    app.dialog.alert(error)
+                })
+            }
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Cancelar</button>
+                                    <button class="button button-fill send">Bloquear</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Observación',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Observación de bloqueo'.bold(),
+                                editable: true,
+                                description: 'Ingrese una observación.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                var comentarioRechazo = form.getMetadata();                                                               
+                                // cerrar popover
+                                popup.close();
+    
+                                save(comentarioRechazo.ComentarioVirtual);
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
+
+                dynamicPopup.open();
+            }
+
+            abrirPopup();
+        }
+    }
+    return button
+}
+
+localButtons.DesbloquearPosicion = function(){
+    button = {
+        text: 'Desbloquear posiciones',
+        class: 'desbloquearpos',
+        icon: 'Send',
+        onClick: function(component, items){
+
+            var Arreglo = [];
+
+            if(items.ID){
+                Arreglo.push(items)
+            }else{
+                Arreglo = items
+            }
+
+            var dialogTitle = 'Desbloquear posiciones';
+            function save(comment) {
+                var dialog = app.dialog.progress(dialogTitle);
+                var promises = []
+                Arreglo.forEach(item =>{
+                    promises.push(new Promise((resolve, reject) =>{
+                        var metadata = {};
+                        metadata.ObservacionBloqueo = comment;
+                        metadata.FechaDesbloqueo = new Date().toISOString();
+                        metadata.Bloqueado = false;
+                        spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID, metadata, function (response) {
+                            resolve(true)
+                        }, function (response) {
+                            reject(response)
+                        });
+                    }))
+                })
+
+                Promise.all(promises)
+                .then(c =>{
+                    dialog.close();
+                    app.dialog.alert("Posiciones desbloqueadas con éxito", "Desbloqueo de posiciones"),
+                    refresh()
+                }).catch(error =>{
+                    app.dialog.alert(error)
+                })
+            }
+
+            //Abrir formulario de correo
+            function abrirPopup(){
+                                        
+                // Inyectar HTML
+                var dynamicPopup = app.popup.create({
+                    content: `
+                        <div class="popup send-email-popup" style="overflow:auto">
+                            <div class="close-popup close-button"><i class="ms-Icon ms-Icon--ChromeClose" aria-hidden="true"></i></div>
+                            <div class="block">
+                                <div class="update-form" style="margin-top: 10px !important;"></div>
+                                <div class="buttons-container ms-slideLeftIn10 hide">
+                                    <button class="button button-fill close-popup">Cancelar</button>
+                                    <button class="button button-fill send">Desbloquear</button>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    // Events
+                    on: {
+                        opened: function (popup) {
+                            var $container = $(popup.el),
+                                $sendButton = $container.find('.send'),
+                                $closeButton = $container.find('.close-popup'),
+                                $buttonsContainer = $container.find('.buttons-container');
+                            
+                            var campos = []
+                            campos.push({
+                                Title: 'Observación',
+                                Id: generateUUID(),
+                                TypeAsString: 'Note',
+                                InternalName: 'ComentarioVirtual',
+                            });
+                            // formulario de actualización
+                            form = new EFWForm({
+                                container: $container.find('.update-form'),
+                                title: 'Observación de desbloqueo'.bold(),
+                                editable: true,
+                                description: 'Ingrese una observación.',
+                                fields: campos
+                            });
+                            
+                            $buttonsContainer.removeClass('hide');
+
+                            // {event} cerrar popup
+                            $closeButton.on('click', function(e){
+                                popup.close();
+                            });
+
+                            // {event} enviar correo
+                            $sendButton.on('click', function(e){
+                                var comentarioRechazo = form.getMetadata();                                                               
+                                // cerrar popover
+                                popup.close();
+    
+                                save(comentarioRechazo.ComentarioVirtual);
+                            })
+                        },
+                        closed: function (popup) {
+                            if (form) form.destroy();
+                        },
+                    },
+                });
+
+                dynamicPopup.open();
+            }
+
+            abrirPopup();
         }
     }
     return button

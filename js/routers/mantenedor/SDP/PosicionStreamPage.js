@@ -43,6 +43,22 @@ posicionStreamPage.methods.getOneItemSelectedButtons = function(item){
         buttons.push(localButtons.enviarUnCyE())
     }
 
+    if(item.Estado == "Disponible para uso" && item.Liberado == "No"){
+        buttons.push(localButtons.liberarPosicion())
+    }
+    
+    if(item.Estado == "Disponible para uso" && item.Liberado == "Sí"){
+        buttons.push(localButtons.QuitarliberarPosicion())
+    }
+
+    if(item.Estado == "Disponible para uso" && item.Bloqueado == "No"){
+        buttons.push(localButtons.BloquearPosicion())
+    }
+        
+    if(item.Estado == "Disponible para uso" && item.Bloqueado == "Sí"){
+        buttons.push(localButtons.DesbloquearPosicion())
+    }
+
     return buttons;
 }
 
@@ -59,9 +75,50 @@ posicionStreamPage.methods.getMultiItemsSelectedButtons = function(items){
             allow = false;
         }
     })
+    let canFree = true;
+    items.map(function(x){
+        if(x.Estado != "Disponible para uso" || x.Liberado != "No"){
+            canFree = false;
+        }
+    })
+    let canUnFree = true;
+    items.map(function(x){
+        if(x.Estado != "Disponible para uso" || x.Liberado != "Sí"){
+            canUnFree = false;
+        }
+    })
+    let canBlock;
+    items.map(function(x){
+        if(x.Estado != "Disponible para uso" || x.Bloqueado != "Sí"){
+            canBlock = false;
+        }
+    });
+    let canUnBlock;
+    items.map(function(x){
+        if(x.Estado != "Disponible para uso" || x.Bloqueado != "No"){
+            canUnBlock = false;
+        }
+    })
+
 
     if(allow){
         buttons.push(localButtons.enviarMultiplesCyE())
+    }
+
+    if(canFree){
+        buttons.push(localButtons.liberarPosicion())
+    }
+
+    if(canUnFree){
+        buttons.push(localButtons.QuitarliberarPosicion())
+    }
+
+    if(canBlock){
+        buttons.push(localButtons.BloquearPosicion())
+    }
+
+    if(canUnBlock){
+        buttons.push(localButtons.DesbloquearPosicion())
     }
 
 

@@ -224,7 +224,7 @@ var licenciaPage = {
                                 });
                             })
                         } else { 
-                            context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].input.placeholder = "No hay trabajadores disponibles"
+                            context.forms.licencia.inputs['Rut_x003a_NombreCompleto'].input.placeholder = "No hay colaboradores disponibles"
                         }
                         render(data);
                     }  

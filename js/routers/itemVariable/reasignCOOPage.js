@@ -245,7 +245,7 @@ var reasignCooPage = {
                                     </li>`
                         }
 
-                        var htmlListTrabajadores = ` <li class="list-group-title">`+'Trabajadores asociados'+` <span class="badge color-green">${NTrabajadores}</span></li>`;
+                        var htmlListTrabajadores = ` <li class="list-group-title">`+'Colaboradores asociados'+` <span class="badge color-green">${NTrabajadores}</span></li>`;
 
                         if(context.items.trabajadoresOrigen){
                             context.items.trabajadoresOrigen.map(function(x){
@@ -263,7 +263,7 @@ var reasignCooPage = {
                                     <li>
                                         <div class="item-content">
                                             <div class="item-inner">
-                                                <div class="item-title">No tiene trabajadores asignados</div>
+                                                <div class="item-title">No tiene colaboradores asignados</div>
                                             </div>
                                         </div>
                                     </li>`

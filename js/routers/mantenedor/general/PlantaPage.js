@@ -52,13 +52,13 @@ var plantaPage = {
             '</div>' +
             '<div class="page-content">' +
             '<div class="header-content">' +
-            '<div id="tituloFormularioMuestra" class="ms-font-xl ms-slideRightIn10" style="padding: 20px 20px 0 20px;">Formulario registro de trabajadores</div>' +
+            '<div id="tituloFormularioMuestra" class="ms-font-xl ms-slideRightIn10" style="padding: 20px 20px 0 20px;">Formulario registro de colaboradores</div>' +
             '</div>' +
                 '<div class="list accordion-list">' +
                     '<ul>'+
                         '<li class="accordion-item accordion-item-opened person"><a href="#" class="item-content item-link">'+
                             '<div class="item-inner">'+
-                                '<div class="item-title">Información trabajador</div>'+
+                                '<div class="item-title">Información colaborador</div>'+
                             '</div></a>'+
                             '<div class="accordion-item-content">'+
                                 '<div class="form-container form1"></div>'+
@@ -276,7 +276,7 @@ var plantaPage = {
 
 
                 $sendButton.on('click', function (e) {
-                    var dialogTitle = 'Nuevo trabajador';
+                    var dialogTitle = 'Nuevo colaborador';
 
                     function save() {
                         var dialog = app.dialog.progress(dialogTitle);
@@ -330,7 +330,7 @@ var plantaPage = {
                     if (validate && validata2) {
                         app.dialog.create({
                             title: dialogTitle,
-                            text: '¿Desea crear un nuevo trabajador?',
+                            text: '¿Desea crear un nuevo colaborador?',
                             buttons: [{
                                 text: 'Cancelar'
                             }, {
@@ -344,7 +344,7 @@ var plantaPage = {
                     } else {
                         app.dialog.create({
                             title: 'Datos insuficientes',
-                            text: 'Para crear un nuevo trabajador debe completar todos los campos obligatorios.',
+                            text: 'Para crear un nuevo colaborador debe completar todos los campos obligatorios.',
                             buttons: [{
                                 text: 'Aceptar'
                             }],
