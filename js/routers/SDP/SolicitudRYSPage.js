@@ -196,7 +196,7 @@ var SolicitudRySPage = {
                 // formulario de registro
                 context.forms.cargo = new EFWForm({
                     container: $container.find('.cargo'),
-                    title: 'Informacion del cargo',
+                    title: 'Información del cargo',
                     editable: false,
                     fields: [{
                         Id: generateUUID(),
@@ -213,7 +213,7 @@ var SolicitudRySPage = {
 
                 context.forms.jornada = new EFWForm({
                     container: $container.find('.jornada'),
-                    title: 'Informacion de la jornada',
+                    title: 'Información de la jornada',
                     editable: true,
                     fields: [
                         spo.getViewFields(context.lists.SolicitudRyS, 'FormRyS')[0],
@@ -241,12 +241,12 @@ var SolicitudRySPage = {
 
                 context.forms.recuperable = new EFWForm({
                     container: $container.find('.recuperable'),
-                    title: 'Informacion del cargo',
+                    title: '¿Que incluye el cargo?',
                     editable: true,
                     fields: [
                         spo.getViewFields(context.lists.SolicitudRyS, 'FormRyS')[2],{
                         Id: generateUUID(),
-                        Title: 'Campo libre',
+                        Title: 'Describa otros',
                         InternalName: 'Libre',
                         TypeAsString: 'Text'
                     }]
@@ -275,6 +275,11 @@ var SolicitudRySPage = {
                     context.forms.cargo.setValues(context.items.Posicion);
                     context.forms.cargo.inputs.Cargo.setValue(context.items.Posicion.Cargo.NombreCargo)
 
+                    if(context.items.DataRyS){
+                        context.forms.jornada.setValues(context.items.DataRyS);
+                        context.forms.recuperable.setValues(context.items.DataRyS)
+                    }
+
                     if(context.items.solicitudSDP){
                         if(context.items.solicitudSDP.CPRFechaDesde){
                             context.forms.recuperable.show();
@@ -287,7 +292,7 @@ var SolicitudRySPage = {
                 }
 
                 $createButton.on('click', function (e){
-                    var dialogTitle = 'Crear Solicitud RyS'
+                    var dialogTitle = 'Enviar Solicitud a RyS'
 
                     function save(){
                         var dialog = app.dialog.progress(dialogTitle);
@@ -314,19 +319,39 @@ var SolicitudRySPage = {
 
                         if(context.items.Posicion.SolicitudRyEId){
                             spo.updateListItem(spo.getSiteUrl(), 'SolicitudRyS', context.items.Posicion.SolicitudRyEId, metadata, function (response) {
-                                dialog.close();
-    
-                                app.dialog.create({
-                                    title: dialogTitle,
-                                    text: 'Solicitud RyS creada con éxito',
-                                    buttons: [{
-                                        text: 'Aceptar',
-                                        onClick: function () {
-                                            mainView.router.navigate('/Solicitudes');
-                                        }
-                                    }],
-                                    verticalButtons: false
-                                }).open();
+                                var data = {};
+
+                                    data.Estado = "En RyS";
+                                    data.FechaInicioProceso = new Date().toISOString();
+
+                                spo.updateListItem(spo.getSiteUrl(), 'Posicion', context.items.Posicion.ID, data, function (response) {
+
+                                    dialog.close();
+                                    app.dialog.create({
+                                        title: dialogTitle,
+                                        text: 'Solicitud RyS enviada con éxito',
+                                        buttons: [{
+                                            text: 'Aceptar',
+                                            onClick: function () {
+                                                mainView.router.navigate('/misPosiciones');
+                                            }
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
+
+                                }, function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+        
+                                    dialog.close();
+                                    app.dialog.create({
+                                        title: 'Error al guardar en lista ' + mths.getListTitle(),
+                                        text: responseText.error.message.value,
+                                        buttons: [{
+                                            text: 'Aceptar'
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
+                                });
     
                             }, function (response) {
                                 var responseText = JSON.parse(response.responseText);
@@ -343,20 +368,40 @@ var SolicitudRySPage = {
                             });
                         }else{
                             spo.saveListItem(spo.getSiteUrl(), 'SolicitudRyS', metadata, function (response) {
-                                dialog.close();
-    
-                                app.dialog.create({
-                                    title: dialogTitle,
-                                    text: 'Solicitud RyS creada con éxito',
-                                    buttons: [{
-                                        text: 'Aceptar',
-                                        onClick: function () {
-                                            mainView.router.navigate('/Solicitudes');
-                                        }
-                                    }],
-                                    verticalButtons: false
-                                }).open();
-    
+                                var data = {};
+
+                                    data.Estado = "En RyS";
+                                    data.FechaInicioProceso = new Date().toISOString();
+                                    data.SolicitudRyEId = response.ID
+
+                                spo.updateListItem(spo.getSiteUrl(), 'Posicion', context.items.Posicion.ID, data, function (response) {
+
+                                    dialog.close();
+                                    app.dialog.create({
+                                        title: dialogTitle,
+                                        text: 'Solicitud RyS enviada con éxito',
+                                        buttons: [{
+                                            text: 'Aceptar',
+                                            onClick: function () {
+                                                mainView.router.navigate('/misPosiciones');
+                                            }
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
+
+                                }, function (response) {
+                                    var responseText = JSON.parse(response.responseText);
+        
+                                    dialog.close();
+                                    app.dialog.create({
+                                        title: 'Error al guardar en lista ' + mths.getListTitle(),
+                                        text: responseText.error.message.value,
+                                        buttons: [{
+                                            text: 'Aceptar'
+                                        }],
+                                        verticalButtons: false
+                                    }).open();
+                                });
                             }, function (response) {
                                 var responseText = JSON.parse(response.responseText);
     
@@ -387,7 +432,7 @@ var SolicitudRySPage = {
                         //Mostrar alert
                         dialogs.confirmDialog(
                             dialogTitle,
-                            '¿Desea crear la solicitud RyS?',
+                            '¿Desea enviar la solicitud a RyS?',
                             save
                         )
                     }else{
@@ -398,6 +443,78 @@ var SolicitudRySPage = {
                     }
 
                     
+                });
+
+                $saveButton.on('click', function (e){
+                    var dialogTitle = 'Guardando datos'
+
+                    var dialog = app.dialog.progress(dialogTitle);
+                        let metadata = context.forms.jornada.getMetadata();
+                        metadata.PosicionesId = context.items.Posicion.ID;
+                        metadata.SolicitudSDPId = context.items.solicitudSDP.ID
+
+                        if(context.items.solicitudSDP){
+                            if(context.items.solicitudSDP.CPRFechaDesde){
+                                if(!context.forms.recuperable.getMetadata().ConfigRecuperable.results.includes('otros')){
+                                    metadata.ConfigRecuperable = context.forms.recuperable.getMetadata().ConfigRecuperable;
+                                }else{
+                                    metadata.ConfigRecuperable = {}
+                                    metadata.ConfigRecuperable.results = context.forms.recuperable.getMetadata().ConfigRecuperable.results.map(function(x){
+                                        if(x == 'otros'){
+                                            return context.forms.recuperable.getMetadata().Libre
+                                        }else{
+                                            return x
+                                        }
+                                    })
+                                }
+                            }
+                        }
+
+                    spo.saveListItem(spo.getSiteUrl(), 'SolicitudRyS', metadata, function (response) {
+                        var data = {};
+                            data.SolicitudRyEId = response.d.ID
+
+                        spo.updateListItem(spo.getSiteUrl(), 'Posicion', context.items.Posicion.ID, data, function (response) {
+
+                            dialog.close();
+                            app.dialog.create({
+                                title: dialogTitle,
+                                text: 'Guardado de la información completado.',
+                                buttons: [{
+                                    text: 'Aceptar',
+                                    onClick: function () {
+                                        return;
+                                    }
+                                }],
+                                verticalButtons: false
+                            }).open();
+
+                        }, function (response) {
+                            var responseText = JSON.parse(response.responseText);
+
+                            dialog.close();
+                            app.dialog.create({
+                                title: 'Error al guardar en lista ' + mths.getListTitle(),
+                                text: responseText.error.message.value,
+                                buttons: [{
+                                    text: 'Aceptar'
+                                }],
+                                verticalButtons: false
+                            }).open();
+                        });
+                    }, function (response) {
+                        var responseText = JSON.parse(response.responseText);
+
+                        dialog.close();
+                        app.dialog.create({
+                            title: 'Error al guardar en lista ' + mths.getListTitle(),
+                            text: responseText.error.message.value,
+                            buttons: [{
+                                text: 'Aceptar'
+                            }],
+                            verticalButtons: false
+                        }).open();
+                    });
                 });
 
                 $clearButton.on('click', function (e){
@@ -416,7 +533,7 @@ var SolicitudRySPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.Posicion && loaded.SolicitudRyS && loaded.solicitudSDP) {
+                    if (loaded.Posicion && loaded.SolicitudRyS && loaded.solicitudSDP & loaded.DataRyS) {
                         initForm();
                     }
                 };             
@@ -454,12 +571,11 @@ var SolicitudRySPage = {
                                     loaded.Posicion= true;
                                     
                                     if(context.items.Posicion.SolicitudSDPId != "" || context.items.Posicion.FechaExpiracion != null){
-                                        console.log('Posicion', context.items.Posicion)
                                         spo.getListInfo('SolicitudSDP',
                                             function (response) {
                                                 context.items.solicitudSDP = [];
                                                 context.lists.solicitudSDP = response;
-                                                    var query = spo.encodeUrlListQuery(context.lists.solicitudSDP, {
+                                                    var query1 = spo.encodeUrlListQuery(context.lists.solicitudSDP, {
                                                         view: 'Todos los elementos',
                                                         odata: {
                                                             'select': '*',
@@ -467,7 +583,7 @@ var SolicitudRySPage = {
                                                         }
                                                     });
 
-                                                    spo.getListItems(spo.getSiteUrl(), 'SolicitudSDP', query,
+                                                    spo.getListItems(spo.getSiteUrl(), 'SolicitudSDP', query1,
                                                         function (response) {
                                                             context.items.solicitudSDP = response.d.results.length > 0 ? response.d.results[0] : null;
                                                             loaded.solicitudSDP= true;
@@ -487,6 +603,40 @@ var SolicitudRySPage = {
 
                                     }else{
                                         loaded.solicitudSDP = true
+                                        shouldInitForms();
+                                    }
+
+                                    if(context.items.Posicion.SolicitudRyEId){
+                                        spo.getListInfo('SolicitudRyS',
+                                            function (response) {
+                                                context.items.DataRyS = [];
+                                                context.lists.DataRyS = response;
+                                                    var query2 = spo.encodeUrlListQuery(context.lists.DataRyS, {
+                                                        view: 'Todos los elementos',
+                                                        odata: {
+                                                            'select': '*',
+                                                            'filter' : '(Id eq '+context.items.Posicion.SolicitudRyEId+')'
+                                                        }
+                                                    });
+                                                    spo.getListItems(spo.getSiteUrl(), 'SolicitudRyS', query2,
+                                                        function (response) {
+                                                            context.items.DataRyS = response.d.results.length > 0 ? response.d.results[0] : null;
+                                                            loaded.DataRyS= true;
+                                                            shouldInitForms();
+                                                        },
+                                                        function (response) {
+                                                            var responseText = JSON.parse(response.responseText);
+                                                            console.log(responseText.error.message.value);
+                                                        }
+                                                    );
+                                            },
+                                            function (response) {
+                                                var responseText = JSON.parse(response.responseText);
+                                                console.log(responseText.error.message.value);
+                                            }
+                                        );
+                                    }else{
+                                        loaded.DataRyS = true;
                                         shouldInitForms();
                                     }
                                 },

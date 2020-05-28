@@ -339,6 +339,10 @@ function getRoutes(){
             path: '/SolicitudRYS',
             component: SolicitudRySPage
         },
+        {
+            path: '/SolicitudesRYS',
+            component: solicitudesRySStreamPage
+        },
     ]
 
     var routes = [];

@@ -3130,7 +3130,7 @@ localButtons.liberarPosicion = function(){
                 Promise.all(promises)
                 .then(c =>{
                     dialog.close();
-                    app.dialog.alert("Posiciones liberadas con éxito", "liberación de posiciones"),
+                    app.dialog.alert("Posiciones liberadas con éxito", "Liberación de posiciones"),
                     refresh()
                 }).catch(error =>{
                     app.dialog.alert(error)
@@ -3164,7 +3164,7 @@ localButtons.liberarPosicion = function(){
                             
                             var campos = []
                             campos.push({
-                                Title: 'Comentario',
+                                Title: 'Observación',
                                 Id: generateUUID(),
                                 TypeAsString: 'Note',
                                 InternalName: 'ComentarioVirtual',
@@ -3172,9 +3172,9 @@ localButtons.liberarPosicion = function(){
                             // formulario de actualización
                             form = new EFWForm({
                                 container: $container.find('.update-form'),
-                                title: 'Comentario de liberación'.bold(),
+                                title: 'Observación de liberación'.bold(),
                                 editable: true,
-                                description: 'Ingrese el comentario de la liberación.',
+                                description: 'Ingrese la observación de la liberación.',
                                 fields: campos
                             });
                             
@@ -3245,7 +3245,7 @@ localButtons.QuitarliberarPosicion = function(){
                 Promise.all(promises)
                 .then(c =>{
                     dialog.close();
-                    app.dialog.alert("Liberaciones quitadas con éxito", "Quitar liberación de posiciones"),
+                    app.dialog.alert("Las posiciones ya no se encuentran liberadas.", "Quitar liberación de posiciones"),
                     refresh()
                 }).catch(error =>{
                     app.dialog.alert(error)
@@ -3279,7 +3279,7 @@ localButtons.QuitarliberarPosicion = function(){
                             
                             var campos = []
                             campos.push({
-                                Title: 'Comentario',
+                                Title: 'Observación',
                                 Id: generateUUID(),
                                 TypeAsString: 'Note',
                                 InternalName: 'ComentarioVirtual',
@@ -3287,9 +3287,9 @@ localButtons.QuitarliberarPosicion = function(){
                             // formulario de actualización
                             form = new EFWForm({
                                 container: $container.find('.update-form'),
-                                title: 'Comentario de para quitar la liberación'.bold(),
+                                title: 'Observación de para quitar la liberación'.bold(),
                                 editable: true,
-                                description: 'Ingrese un comentario.',
+                                description: 'Ingrese una observación.',
                                 fields: campos
                             });
                             
@@ -3348,7 +3348,7 @@ localButtons.BloquearPosicion = function(){
                         var metadata = {};
                         metadata.ObservacionBloqueo = comment;
                         metadata.FechaBloqueo = new Date().toISOString();
-                        metadata.Bloqueado = false;
+                        metadata.Bloqueado = true;
                         spo.updateListItem(spo.getSiteUrl(),'Posicion', item.ID, metadata, function (response) {
                             resolve(true)
                         }, function (response) {
@@ -3394,7 +3394,7 @@ localButtons.BloquearPosicion = function(){
                             
                             var campos = []
                             campos.push({
-                                Title: 'Comentario',
+                                Title: 'Observación',
                                 Id: generateUUID(),
                                 TypeAsString: 'Note',
                                 InternalName: 'ComentarioVirtual',
@@ -3402,9 +3402,9 @@ localButtons.BloquearPosicion = function(){
                             // formulario de actualización
                             form = new EFWForm({
                                 container: $container.find('.update-form'),
-                                title: 'Comentario de bloquedo'.bold(),
+                                title: 'Observación de bloqueo'.bold(),
                                 editable: true,
-                                description: 'Ingrese un comentario.',
+                                description: 'Ingrese una observación.',
                                 fields: campos
                             });
                             
@@ -3509,7 +3509,7 @@ localButtons.DesbloquearPosicion = function(){
                             
                             var campos = []
                             campos.push({
-                                Title: 'Comentario',
+                                Title: 'Observación',
                                 Id: generateUUID(),
                                 TypeAsString: 'Note',
                                 InternalName: 'ComentarioVirtual',
@@ -3517,9 +3517,9 @@ localButtons.DesbloquearPosicion = function(){
                             // formulario de actualización
                             form = new EFWForm({
                                 container: $container.find('.update-form'),
-                                title: 'Comentario de desbloquedo'.bold(),
+                                title: 'Observación de desbloqueo'.bold(),
                                 editable: true,
-                                description: 'Ingrese un comentario.',
+                                description: 'Ingrese una observación.',
                                 fields: campos
                             });
                             
