@@ -121,6 +121,11 @@ var initInformation = new Promise((resolve)=>{
         return Promise.resolve(true)
     }
 
+}).then(_ =>{
+    return getPromiseListItems(spo.getSiteUrl(),'Cargo','?$select=*&$filter=Id eq '+ plantaAdmin.d_cargoId)
+}).then(response =>{
+    console.log('PlantaAdmin', plantaAdmin)
+    plantaAdmin.d_cargo = response.d.results[0];
 }).then(c =>{
     function startApp(){
         app = new Framework7({
