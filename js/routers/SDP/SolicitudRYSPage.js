@@ -19,10 +19,6 @@ var SolicitudRySPage = {
                             '<i class="ms-Icon ms-Icon--Save"></i>' +
                             '<span class="ios-only">Actualizar</span>' +
                         '</a>' +
-                        '<a href="#" class="link create ms-fadeIn100 hide">' +
-                            '<i class="ms-Icon ms-Icon--Save"></i>' +
-                            '<span class="ios-only">Añadir Centros de Costo</span>' +
-                        '</a>' +
                         '<a href="#" class="link generate-PDF ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--PDF"></i>' +
                             '<span class="ios-only">Generar PDF</span>' +
@@ -39,9 +35,13 @@ var SolicitudRySPage = {
                             '<i class="ms-Icon ms-Icon--Cancel"></i>' +
                             '<span class="ios-only">Limpiar</span>' +
                         '</a>' +
-                        '<a href="#" class="link send ms-fadeIn100 hide">' +
-                            '<i class="ms-Icon ms-Icon--Send"></i>' +
+                        '<a href="#" class="link save ms-fadeIn100 hide">' +
+                            '<i class="ms-Icon ms-Icon--Save"></i>' +
                             '<span class="ios-only">Guardar</span>' +
+                        '</a>' +
+                        '<a href="#" class="link create ms-fadeIn100 hide">' +
+                            '<i class="ms-Icon ms-Icon--Send"></i>' +
+                            '<span class="ios-only">Enviar a RyS</span>' +
                         '</a>' +
                         '<a href="#" class="link associate-proyect ms-fadeIn100 hide">' +
                             '<i class="ms-Icon ms-Icon--IDBadge"></i>' +
@@ -56,10 +56,11 @@ var SolicitudRySPage = {
             '</div>' +
             '<div class="page-content">' +
                 '<div>' +
-                    '<div class="form-container table-compact-row history"></div>' +              
+                    '<div class="form-container cargo"></div>' +
+                    '<div class="form-container jornada"></div>' +
+                    '<div class="form-container recuperable"></div>' +
                 '</div>' +
             '</div>' +
-            
             '<div class="content-loader">' +
                 '<div class="content-loader-inner">' +
                     '<div class="image-logo lazy lazy-fadein" data-background="{{loader.image}}"></div>' +
@@ -171,7 +172,6 @@ var SolicitudRySPage = {
             var context = this.$options.data(),
                 mths = this.$options.methods,
                 listItemId = page.route.query.listItemId
-                console.log('itemid',listItemId);
 
             context.methods = mths;
 
@@ -191,37 +191,174 @@ var SolicitudRySPage = {
                     $navbar = $(page.navbarEl),                    
                     $createButton = $navbar.find('.link.create'),
                     $clearButton = $navbar.find('.link.clear');
-                    $updateButton = $navbar.find('.link.update');                    
-                                    
+                    $saveButton = $navbar.find('.link.save');
 
-                    $updateButton.on('click', function (e) {
-                        var dialogTitle = 'Editando elemento';
-    
-                        function save() {
-                            var dialog = app.dialog.progress(dialogTitle);
-                            var metadata = context.forms.ceco.getMetadata();   
-                            
-                            console.log('Metadata', metadata)                     
-    
-                            spo.updateListItems(spo.getSiteUrl(), 'CentroCosto', metadata, function (response) {
+                // formulario de registro
+                context.forms.cargo = new EFWForm({
+                    container: $container.find('.cargo'),
+                    title: 'Informacion del cargo',
+                    editable: false,
+                    fields: [{
+                        Id: generateUUID(),
+                        Title: 'Cargo',
+                        InternalName: 'Cargo',
+                        TypeAsString: 'Text'
+                    },{
+                        Id: generateUUID(),
+                        Title: 'Cantidad de horas',
+                        InternalName: 'CantHoras',
+                        TypeAsString: 'Text'
+                    }]
+                });
+
+                context.forms.jornada = new EFWForm({
+                    container: $container.find('.jornada'),
+                    title: 'Informacion de la jornada',
+                    editable: true,
+                    fields: [
+                        spo.getViewFields(context.lists.SolicitudRyS, 'FormRyS')[0],
+                        spo.getViewFields(context.lists.SolicitudRyS, 'FormRyS')[1]
+                    ]
+                });
+
+                context.forms.jornada.inputs.Attachments.hide();
+                context.forms.jornada.inputs.Attachments.setLabel('Archivo jornada');
+
+                context.forms.jornada.inputs.Attachments.params.onChange = function(comp, input, state, values){
+                    $('div.item-after div.ms-Button-AttachEdit i.ms-Icon.ms-Icon--Cancel').hide()
+                    context.forms.jornada.inputs.Attachments.setEditable(false)
+                }
+
+                context.forms.jornada.inputs.Jornada.params.onChange = function(comp, input, state, values){
+                    if (values.length == 0){
+                        context.forms.jornada.inputs.Attachments.hide();
+                        return;
+                    }
+                    if(values[0].text == "Otro"){
+                        context.forms.jornada.inputs.Attachments.show();
+                    }
+                }
+
+                context.forms.recuperable = new EFWForm({
+                    container: $container.find('.recuperable'),
+                    title: 'Informacion del cargo',
+                    editable: true,
+                    fields: [
+                        spo.getViewFields(context.lists.SolicitudRyS, 'FormRyS')[2],{
+                        Id: generateUUID(),
+                        Title: 'Campo libre',
+                        InternalName: 'Libre',
+                        TypeAsString: 'Text'
+                    }]
+                });
+                context.forms.recuperable.inputs.Libre.hide();
+
+                context.forms.recuperable.inputs.ConfigRecuperable.params.onChange = function(comp, input, state, values){
+                    if (values.length == 0){
+                        context.forms.recuperable.inputs.Libre.hide();
+                        context.forms.recuperable.inputs.Libre.setRequired(false)
+                        return;
+                    }
+
+                    var allow = values.filter(x=> x.text == 'otros')[0];
+                    if(allow){
+                        context.forms.recuperable.inputs.Libre.show();
+                        context.forms.recuperable.inputs.Libre.setRequired(true)
+                    }else{
+                        context.forms.recuperable.inputs.Libre.hide();
+                        context.forms.recuperable.inputs.Libre.setRequired(false)
+                    }
+                }
+                context.forms.recuperable.hide();
+
+                if (listItemId) {
+                    context.forms.cargo.setValues(context.items.Posicion);
+                    context.forms.cargo.inputs.Cargo.setValue(context.items.Posicion.Cargo.NombreCargo)
+
+                    if(context.items.solicitudSDP){
+                        if(context.items.solicitudSDP.CPRFechaDesde){
+                            context.forms.recuperable.show();
+                        }
+                    }
+
+                    $createButton.removeClass('hide');
+                    $saveButton.removeClass('hide');
+                    $clearButton.removeClass('hide');                     
+                }
+
+                $createButton.on('click', function (e){
+                    var dialogTitle = 'Crear Solicitud RyS'
+
+                    function save(){
+                        var dialog = app.dialog.progress(dialogTitle);
+                        let metadata = context.forms.jornada.getMetadata();
+                        metadata.PosicionesId = context.items.Posicion.ID;
+                        metadata.SolicitudSDPId = context.items.solicitudSDP.ID
+
+                        if(context.items.solicitudSDP){
+                            if(context.items.solicitudSDP.CPRFechaDesde){
+                                if(!context.forms.recuperable.getMetadata().ConfigRecuperable.results.includes('otros')){
+                                    metadata.ConfigRecuperable = context.forms.recuperable.getMetadata().ConfigRecuperable;
+                                }else{
+                                    metadata.ConfigRecuperable = {}
+                                    metadata.ConfigRecuperable.results = context.forms.recuperable.getMetadata().ConfigRecuperable.results.map(function(x){
+                                        if(x == 'otros'){
+                                            return context.forms.recuperable.getMetadata().Libre
+                                        }else{
+                                            return x
+                                        }
+                                    })
+                                }
+                            }
+                        }
+
+                        if(context.items.Posicion.SolicitudRyEId){
+                            spo.updateListItem(spo.getSiteUrl(), 'SolicitudRyS', context.items.Posicion.SolicitudRyEId, metadata, function (response) {
                                 dialog.close();
     
                                 app.dialog.create({
                                     title: dialogTitle,
-                                    text: 'Elemento actualizado con éxito',
+                                    text: 'Solicitud RyS creada con éxito',
                                     buttons: [{
                                         text: 'Aceptar',
                                         onClick: function () {
-                                            mainView.router.navigate('/cecoStream');
+                                            mainView.router.navigate('/Solicitudes');
                                         }
                                     }],
                                     verticalButtons: false
                                 }).open();
     
+                            }, function (response) {
+                                var responseText = JSON.parse(response.responseText);
+    
+                                dialog.close();
+                                app.dialog.create({
+                                    title: 'Error al guardar en lista ' + mths.getListTitle(),
+                                    text: responseText.error.message.value,
+                                    buttons: [{
+                                        text: 'Aceptar'
+                                    }],
+                                    verticalButtons: false
+                                }).open();
+                            });
+                        }else{
+                            spo.saveListItem(spo.getSiteUrl(), 'SolicitudRyS', metadata, function (response) {
+                                dialog.close();
+    
+                                app.dialog.create({
+                                    title: dialogTitle,
+                                    text: 'Solicitud RyS creada con éxito',
+                                    buttons: [{
+                                        text: 'Aceptar',
+                                        onClick: function () {
+                                            mainView.router.navigate('/Solicitudes');
+                                        }
+                                    }],
+                                    verticalButtons: false
+                                }).open();
     
                             }, function (response) {
                                 var responseText = JSON.parse(response.responseText);
-                                console.log('responseText', responseText);
     
                                 dialog.close();
                                 app.dialog.create({
@@ -234,122 +371,38 @@ var SolicitudRySPage = {
                                 }).open();
                             });
                         }
-                        
-                        context.forms.ceco.checkFieldsRequired();
-    
-                        var validate = context.forms.ceco.getValidation();
-    
-                        if (validate) {
-                            app.dialog.create({
-                                title: dialogTitle,
-                                text: 'Se actualizará el elemento.',
-                                buttons: [{
-                                    text: 'Cancelar'
-                                }, {
-                                    text: 'Aceptar',
-                                    onClick: function onClick() {
-                                        save();
-                                    }
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        } else {
-                            app.dialog.create({
-                                title: 'Datos insuficientes',
-                                text: 'Para crear un nuevo elemento debe completar todos los campos obligatorios.',
-                                buttons: [{
-                                    text: 'Aceptar'
-                                }],
-                                verticalButtons: false
-                            }).open();
-                        }
-    
-                    });
-    
-                    $createButton.on('click', function (e) {
-                        var dialogTitle = 'Creacion de Centro de costo'; 
-    
-    
-                        function save() {
-                            // Mostrar la información del coordinador (la metadata son los datos que se ingresar en el form)                    
-                            var metadataCeco = context.forms.ceco.getMetadata()
-                            var dialog = app.dialog.progress(dialogTitle);
-    
-                            spo.saveListItems(spo.getSiteUrl(), 'CentroCosto' ,metadataCeco, function (response) {
-                                dialog.close();
-    
-                                app.dialog.create({
-                                    title: dialogTitle,
-                                    text: 'Centro de costo agregado correctamente.',
-                                    buttons: [{
-                                        text: 'Aceptar',
-                                        onClick: function () {
-                                            mainView.router.navigate('/cecoStream');
-                                        }
-                                    }],
-                                    verticalButtons: false
-                                }).open();
-    
-    
-                            }, function (response) {
-                                var responseText = JSON.parse(response.responseText);
-                                console.log('responseText', responseText);
-    
-                                dialog.close();
-                                app.dialog.create({
-                                    title: 'Error al actualizar la lista de haberes ' + mths.getListTitle(),
-                                    text: responseText.error.message.value,
-                                    buttons: [{
-                                        text: 'Aceptar'
-                                    }],
-                                    verticalButtons: false
-                                }).open();
-                            });
-                        }
-    
-                            context.forms.ceco.checkFieldsRequired();
-                            var validateCeco =  context.forms.ceco.getValidation();
-        
-                            if (validateCeco){
-                                dialogs.confirmDialog(
-                                    dialogTitle,
-                                    'Se creara el centro de costo',
-                                    save
-                                )
-                            } else {
-                                dialogs.infoDialog(
-                                    "Datos mal ingresados",
-                                    'Rellene todos los campos correctamente'
-                                )
-                            } 
-                            
-                            
-                        
-    
-                    });
+                    }
 
+                    context.forms.jornada.checkFieldsRequired();
+                    if(context.items.solicitudSDP){
+                        if(context.items.solicitudSDP.CPRFechaDesde){
+                            context.forms.recuperable.checkFieldsRequired();
+                            recRequired = true;
+                        }
+                    }
+                    var validateJornada = context.forms.jornada.getValidation();
+                    var validateRecuperable = recRequired ? context.forms.jornada.getValidation() : true;
 
-                    // formulario de registro
-                context.forms.ceco = new EFWForms({
-                    container: $container.find('.form-container'),
-                    title: mths.getListTitle(),
-                    editable: true,
-                    fields: spo.getViewFields(context.lists.CentroCosto, 'Cequitos')
+                    if(validateJornada && validateRecuperable){
+                        //Mostrar alert
+                        dialogs.confirmDialog(
+                            dialogTitle,
+                            '¿Desea crear la solicitud RyS?',
+                            save
+                        )
+                    }else{
+                        dialogs.infoDialog(
+                            "Datos mal ingresados",
+                            'Rellene todos los campos correctamente'
+                        )
+                    }
+
+                    
                 });
 
-                context.forms.ceco.addRow();
-
-                if (listItemId) {
-                    context.forms.ceco.setValues(context.items.CentroCosto); 
-                    $('.ms-Button.ms-Button--primary').addClass('hide');
-                    $('.ms-Button.ms-Button--remove').addClass('hide');
-                    $updateButton.removeClass('hide');
-                     
-                } else {
-                    $createButton.removeClass('hide');  
-                }
-
                 $clearButton.on('click', function (e){
+                    context.forms.recuperable.setValues([]);
+                    context.forms.jornada.setValues([]);
                 });
 
                 // remover loader
@@ -363,19 +416,31 @@ var SolicitudRySPage = {
                 context.items = {};
 
                 var shouldInitForms = function () {
-                    if (loaded.CentroCosto) {
+                    if (loaded.Posicion && loaded.SolicitudRyS && loaded.solicitudSDP) {
                         initForm();
                     }
                 };             
 
+                spo.getListInfo('SolicitudRyS',
+                    function (response) {
+                        context.items.SolicitudRyS = [];
+                        context.lists.SolicitudRyS = response
+                        loaded.SolicitudRyS = true;
+                        shouldInitForms();
+                    },
+                    function (response) {
+                        var responseText = JSON.parse(response.responseText);
+                        console.log(responseText.error.message.value);
+                    }
+                );
                 
                 //Obtengo el listado de centro de costos para ser filtrados
-                spo.getListInfo('CentroCosto',
+                spo.getListInfo('Posicion',
                     function (response) {
-                        context.items.CentroCosto = [];
-                        context.lists.CentroCosto = response;
+                        context.items.Posicion = [];
+                        context.lists.Posicion = response;
                         if(listItemId){
-                            var query = spo.encodeUrlListQuery(context.lists.CentroCosto, {
+                            var query = spo.encodeUrlListQuery(context.lists.Posicion, {
                                 view: 'Todos los elementos',
                                 odata: {
                                     'select': '*',
@@ -383,11 +448,47 @@ var SolicitudRySPage = {
                                 }
                             });
 
-                            spo.getListItems(spo.getSiteUrl(), 'CentroCosto', query,
+                            spo.getListItems(spo.getSiteUrl(), 'Posicion', query,
                                 function (response) {
-                                    context.items.CentroCosto = response.d.results.length > 0 ? response.d.results : null;
-                                    loaded.CentroCosto= true;
-                                    shouldInitForms();
+                                    context.items.Posicion = response.d.results.length > 0 ? response.d.results[0] : null;
+                                    loaded.Posicion= true;
+                                    
+                                    if(context.items.Posicion.SolicitudSDPId != "" || context.items.Posicion.FechaExpiracion != null){
+                                        console.log('Posicion', context.items.Posicion)
+                                        spo.getListInfo('SolicitudSDP',
+                                            function (response) {
+                                                context.items.solicitudSDP = [];
+                                                context.lists.solicitudSDP = response;
+                                                    var query = spo.encodeUrlListQuery(context.lists.solicitudSDP, {
+                                                        view: 'Todos los elementos',
+                                                        odata: {
+                                                            'select': '*',
+                                                            'filter' : '(Id eq '+context.items.Posicion.SolicitudSDPId+')'
+                                                        }
+                                                    });
+
+                                                    spo.getListItems(spo.getSiteUrl(), 'SolicitudSDP', query,
+                                                        function (response) {
+                                                            context.items.solicitudSDP = response.d.results.length > 0 ? response.d.results[0] : null;
+                                                            loaded.solicitudSDP= true;
+                                                            shouldInitForms();
+                                                        },
+                                                        function (response) {
+                                                            var responseText = JSON.parse(response.responseText);
+                                                            console.log(responseText.error.message.value);
+                                                        }
+                                                    );
+                                            },
+                                            function (response) {
+                                                var responseText = JSON.parse(response.responseText);
+                                                console.log(responseText.error.message.value);
+                                            }
+                                        );
+
+                                    }else{
+                                        loaded.solicitudSDP = true
+                                        shouldInitForms();
+                                    }
                                 },
                                 function (response) {
                                     var responseText = JSON.parse(response.responseText);
@@ -396,7 +497,7 @@ var SolicitudRySPage = {
                             );
 
                         }else{
-                            loaded.CentroCosto= true;
+                            loaded.Posicion= true;
                             shouldInitForms();
                         }
                     },
