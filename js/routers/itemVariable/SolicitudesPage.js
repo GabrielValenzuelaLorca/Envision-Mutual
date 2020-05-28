@@ -371,7 +371,7 @@ var solicitudesPage = {
                     }else{
                         data.push({
                             "key": 0,
-                            "text": 'No dispone de trabajadores',
+                            "text": 'No dispone de colaboradores',
                             "item": null
                         });
                     }

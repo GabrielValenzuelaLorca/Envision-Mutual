@@ -309,7 +309,7 @@ var uploadItemsPage = {
                                         if(trabajador.Pabellon){
                                             return {
                                                 "Error": true,
-                                                "Message": "El trabajador no pertenece a listado de pabellón."
+                                                "Message": "El colaborador no pertenece a listado de pabellón."
                                             }
                                         }
                                     }
@@ -354,7 +354,7 @@ var uploadItemsPage = {
                                             if(!context.aprobado){
                                                 return {
                                                     "Error": true,
-                                                    "Message": "La categoria del trabajador no corresponde."
+                                                    "Message": "La categoria del colaborador no corresponde."
                                                 }
                                             }
                                         }else{
@@ -398,7 +398,7 @@ var uploadItemsPage = {
                                         "Codigo": fila.COD_PAYROLL,
                                         "Item": item.ID,
                                         "Nombre": trabajador.Rut,
-                                        "Cargo": trabajador.d_cargo ? trabajador.d_cargo.NombreCargo : 'El trabajador no posee cargo.',
+                                        "Cargo": trabajador.d_cargo ? trabajador.d_cargo.NombreCargo : 'El colaborador no posee cargo.',
                                         "CentroCosto": fila.CCOSTO ? fila.CCOSTO : trabajador.CentroCostoId,
                                         "Excepcion" : fila.CCOSTO ? 'Centro de costo diferente' : ''
                                     }
@@ -454,7 +454,7 @@ var uploadItemsPage = {
                                         }else{
                                             return {
                                                 "Error": true,
-                                                "Message": "No se encontraron coincidencias con el trabajador o ítem ingresado."
+                                                "Message": "No se encontraron coincidencias con el colaborador o ítem ingresado."
                                             }
                                         }
 
@@ -490,7 +490,7 @@ var uploadItemsPage = {
                                     if(jobs.length == 0){
                                         Errores.push({
                                             "Linea": linea,
-                                            "Message": `El código Payroll del trabajador ingresado no corresponde a su planta.`
+                                            "Message": `El código Payroll del colaborador ingresado no corresponde a su planta.`
                                         });
                                         linea++
                                         return;

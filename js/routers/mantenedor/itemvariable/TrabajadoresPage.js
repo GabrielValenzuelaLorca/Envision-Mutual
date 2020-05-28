@@ -9,7 +9,7 @@ trabajadoresPage.methods.getListView = function(){
 }
 
 trabajadoresPage.methods.getTitle = function(){
-    return "Trabajadores sin Coordinadores"
+    return "Colaboradores sin coordinador"
 }
 
 trabajadoresPage.methods.getListTitle = function(){

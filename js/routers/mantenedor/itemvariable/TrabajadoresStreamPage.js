@@ -105,7 +105,7 @@ trabajadoresStreamPage.methods.renderHeader = function($header){
             name = context.coo.Nombre+' '+context.coo.ApellidoPaterno+' '+context.coo.ApellidoMaterno;
         }
 
-        var title = "Trabajadores por Coordinador: "+ name;
+        var title = "Colaboradores por coordinador: "+ name;
 
     // tempalte con titulo, descripción opcional y un tabs
     var templateHtml = `
