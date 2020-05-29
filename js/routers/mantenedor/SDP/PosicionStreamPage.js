@@ -36,11 +36,13 @@ posicionStreamPage.methods.getOneItemSelectedButtons = function(item){
     var self = this, buttons = [],
     context = self._getPageContext(),
     buttons = [
-        localButtons.toEditPosition()
+        localButtons.toEditPosition(),
+        localButtons.deletePositionButton()
     ];
 
     if(item.Estado == "En revisión"){
         buttons.push(localButtons.enviarUnCyE())
+        
     }
 
     return buttons;
@@ -51,7 +53,8 @@ posicionStreamPage.methods.getMultiItemsSelectedButtons = function(items){
     var self = this, buttons = [],
     context = self._getPageContext(),
     buttons = [
-        localButtons.toEditPosition()
+        localButtons.toEditPosition(),
+        localButtons.deletePositionsButton()
     ];
     let allow = true;
     items.map(function(x){

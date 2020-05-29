@@ -216,7 +216,7 @@ var posicionPage = {
                     title: listItemId ? 'Edición de posiciones' : 'Formulario de posición',
                     editable: true,
                     fields: spo.getViewFields(context.lists.Posicion, 'Form'),
-                    onAddRow: function(EFWForm, UUID, item){
+                    formLogic: function(EFWForm, UUID, item){
 
                         //Generamos el ID Segun sea el caso
                         if(gestion && UO){
@@ -230,13 +230,77 @@ var posicionPage = {
                         }else{
                             mths.generateID();
                             EFWForm.inputs.NPosicion.setValue(currentID);
+                            console.log("Probando probando3")
+                            // Aqui setemos los presupuestos en falso
+                            console.log(EFWForm.inputs)                            
+                            EFWForm.inputs.Presupuestada.setValue(false)
+                            // EFWForm.inputs.ExtraPresupuesto.setDisabled(true)
+                            // EFWForm.inputs.Presupuestada.setDisabled(true)
                         }
                         EFWForm.inputs.NPosicion.setEditable(false)
 
                         //Autocomplete data to gestionar
 
-                        EFWForm.inputs.CentroCosto.params.onChange = function(comp, input, state, values){
+                        // var presionado = null;
+                        
+                        // EFWForm.inputs.ExtraPresupuesto.params.onChange = function(comp, input, state, value){                            
+                        //     console.log("print presupuestada", EFWForm.inputs.Presupuestada.getValue(), value)
+                        //     if(EFWForm.inputs.ExtraPresupuesto.getValue(true)){
+                        //         EFWForm.inputs.Presupuestada.setValue(false);
+                        //     }
+                        //     // console.log('Presionado', presionado)
+                            
+                        //     // if (EFWForm.inputs.Presupuestada.getValue() && value){
+                        //     //     EFWForm.inputs.Presupuestada.setValue(false)
+                        //     // }
+                        //     // new Promise((resolve, reject)=>{
+                        //     //     if(presionado =='boton2' || presionado == null){
+                        //     //         reject()
+                        //     //     }
+                        //     //     presionado = 'boton1'
+    
+                        //     //     console.log('Values', values)
+                        //     //     if(values){
+                        //     //         EFWForm.inputs.Presupuestada.setValue(false);
+                        //     //     } 
+                        //     //     resolve()
+                        //     // }).then(_ =>{
+                        //     //     presionado = null
+                        //     //     console.log('Se prendio esta mierda. LLamen a los bomberos!!.')
+                        //     // }).catch(error =>{
+                        //     //     console.log('Esta vaina no funona')
+                        //     // });                           
+                        // }
 
+                        // EFWForm.inputs.Presupuestada.params.onChange = function(comp, input, state, value){
+                            
+                        //     console.log("ExtraPresupuesto", EFWForm.inputs.ExtraPresupuesto.getValue());
+
+                        //     if (EFWForm.inputs.Presupuestada.getValue(true)){
+                        //         EFWForm.inputs.ExtraPresupuesto.setValue(false)
+                        //     }
+                        // //     // console.log('Presionado', presionado)
+                        // //     // new Promise((resolve, reject)=>{
+                        // //     //     if(presionado == null || presionado == 'boton1'){
+                        // //     //         reject()
+                        // //     //     }
+                        // //     //     presionado = 'boton2'
+                        // //     //     if(values){
+                        // //     //         EFWForm.inputs.ExtraPresupuesto.setValue(false);
+                        // //     //     }
+                        // //     //     resolve()
+                                  
+                        // //     // }).then(_ =>{
+
+                        // //     //     presionado = null
+                        // //     //     console.log('Se prendio esta mierda. LLamen a los bomberos!!.')
+                        // //     // }).catch(error =>{
+                        // //     //     console.log('Esta vaina no funona')
+                        // //     // });                            
+                            
+                        // }
+
+                        EFWForm.inputs.CentroCosto.params.onChange = function(comp, input, state, values){
                             if (values.length == 0){
                                 EFWForm.inputs.CentroCosto_x003a_Area_UN.resetValue();
                                 EFWForm.inputs.CentroCosto_x003a_Nivel_Org_1.resetValue();
@@ -258,8 +322,8 @@ var posicionPage = {
                             EFWForm.inputs.CentroCosto.setValue([{key: solicitud.CentroCosto.ID, text: solicitud.CentroCosto.D_CC, item: solicitud.CentroCosto}])
 
                             if(solicitud.AumentoPresupuesto == "Aumento presupuesto"){
-                                //Activar aumento presupuesto
-                                EFWForm.inputs.ExtraPresupuesto.setValue(true);
+                                //Activar aumento presupuesto                                
+                                EFWForm.inputs.Presupuestada.setValue(true);                                                              
                             }
                             //Nombre del cargo seleccionado
                             if(!solicitud.otroCargo){

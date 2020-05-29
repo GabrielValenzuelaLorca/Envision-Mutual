@@ -1298,7 +1298,7 @@ var solicitantePage = {
                                                     }
                                                 });
 
-                                                spo.getListItems(spo.getSiteUrl(), 'Planta', query,
+                                                spo.getListItems(spo.getSiteUrl(), 'Planta', query2,
                                                     function (response) {
                                                         context.items.solicitudSDP.DependenciaDirecta = response.d.results.length > 0 ? response.d.results[0] : null;
                                                         loaded.DependenciaDirecta = true;

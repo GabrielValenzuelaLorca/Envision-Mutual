@@ -646,7 +646,7 @@ localButtons.deleteItemsButton = function(){
 
             dialogs.confirmDialog(
                 dialogTitle,
-                '¿Esta seguro que quiere eiminar los ítems seleccionados?',
+                '¿Esta seguro que quiere eliminar los ítems seleccionados?',
                 save
             )
         }
@@ -3077,6 +3077,97 @@ localButtons.desaprobarMultiplesCyE = function(context){
                     app.dialog.alert(error)
                 })
             })
+        }
+    }
+    return button
+}
+
+localButtons.deletePositionButton = function(){
+    button = {
+        text:'Eliminar Posición',
+        class:'deletePos',
+        icon:'Delete',
+        onClick: function(component, item){
+
+            var dialogTitle = 'Eliminando Posición';
+
+            //Ejecuta toda la funcion despues de la validacion de la alerta
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                spo.deleteListItem(spo.getSiteUrl(), "Posicion", item.ID, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Posición eliminada con exito.',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al eliminar la posición, intente nuevamente',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+
+            dialogs.confirmDialog(
+                dialogTitle,
+                '¿Esta seguro que quiere eliminar la posición seleccionada?',
+                save
+            )
+        }
+    }
+    return button
+}
+
+localButtons.deletePositionsButton = function(){
+    button = {
+        text:'Eliminar Posiciónes',
+        class:'deletesposs',
+        icon:'Delete',
+        onClick: function(component, item){
+
+            var dialogTitle = 'Eliminando Posiciónes';
+
+            //Ejecuta toda la funcion despues de la validacion de la alerta
+            function save() {
+                var dialog = app.dialog.progress(dialogTitle);
+
+                var metadata = item.map(function(x){
+                        return x.ID
+                });
+
+                spo.deleteListItems(spo.getSiteUrl(), "Posicion", metadata, function (response) {
+                    dialog.close()
+                    dialogs.confirmDialog(
+                        dialogTitle,
+                        'Posiciones eliminadas con exito.',
+                        refresh,
+                        false
+                    )
+
+                }, function (response) {
+                    var responseText = JSON.parse(response.responseText);
+                    console.log('responseText', responseText);
+
+                    dialog.close();
+                    dialogs.infoDialog(
+                        'Error al eliminar las posiciones, intente nuevamente',
+                        responseText.error.message.value,
+                    )
+                });
+            }
+            dialogs.confirmDialog(
+                dialogTitle,
+                '¿Esta seguro que quiere eliminar las posiciones seleccionadas?',
+                save
+            )
         }
     }
     return button
