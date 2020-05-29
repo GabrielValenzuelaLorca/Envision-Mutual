@@ -947,7 +947,7 @@ var solicitantePage = {
                                 if (response.d.results.length>0){
                                     lastApr = response.d.results[0]
                                     let metadata = {
-                                        NextVal: null,
+                                        NextVal: "En espera de gestión por alguien de CyE",
                                         Estado: "Enviada a Compensación"
                                     }
 
@@ -1030,7 +1030,7 @@ var solicitantePage = {
                         var dialog = app.dialog.progress(dialogTitle);
                         let metadata = {
                             Estado: "Enviada a Compensación",
-                            NextVal: null,
+                            NextVal: "En espera de gestión por alguien de CyE",
                         }
 
                         let pos = JSON.parse(context.items.solicitudSDP.Aprobadores).length.toString()

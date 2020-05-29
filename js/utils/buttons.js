@@ -296,6 +296,7 @@ localButtons.toGestionar = function(context){
         class: 'gestionar',
         icon: 'PageEdit',
         onClick: function(component, item){
+            spo.updateListItem(spo.getSiteUrl(), "SolicitudSDP", item.ID, {NextVal: plantaAdmin.Email}, function (response) {}, function (response) {});
             var url = '/Posicion?';
             url += 'gestion='+item.ID;
             url += item.Posicion ? '&type='+item.Posicion : '';
