@@ -83,7 +83,7 @@ function getPromiseListItems(url, listname, query) {
     // Executing our items via an ajax request
     return new Promise((resolve, reject) => {
         $.ajax({
-            url: url + "/_api/web/lists/getbytitle('" + listname + "')/items" + query,
+            url: url + "/_api/web/lists/getbytitle('" + listname + "')/items" + query + "&$top=5000",
             method: "GET",
             headers: {
                 "Accept": "application/json; odata=verbose"
