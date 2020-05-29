@@ -343,6 +343,10 @@ function getRoutes(){
             path: '/SolicitudesRYS',
             component: solicitudesRySStreamPage
         },
+        {
+            path: '/SimuladorPage',
+            component: SimuladorPage
+        }
     ]
 
     var routes = [];

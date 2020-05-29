@@ -107,6 +107,7 @@ var AppScriptsArray = [
     "js/routers/SDP/MisPosicionesStreamPage.js",
     "js/routers/SDP/SolicitudRySPage.js",
     "js/routers/SDP/SolicitudesRySStreamPage.js",
+    "js/routers/SDP/SimuladorPage.js",
 
     //Mantenedores SDP
     "js/routers/mantenedor/SDP/PosicionStreamPage.js",
