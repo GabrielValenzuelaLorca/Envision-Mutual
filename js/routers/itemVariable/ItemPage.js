@@ -425,13 +425,21 @@ var itemPage = {
                 context.forms.person.inputs['Nombre'].params.source = function(dropdown, query, render){
                     let data = [];
                     if(context.items.Planta){
-                        context.items.Planta.map(function(array){
-                            data.push({
-                                "key": array.ID,
-                                "text": array.NombreCompleto,
-                                "item": array
-                            });
-                        })
+                        var choices = context.items.Planta || [];
+
+                        // Find matched items
+                        for (var i = 0; i < choices.length; i++) {
+                            var nombre = choices[i].NombreCompleto || '';
+                            if (nombre.toLowerCase().indexOf(query.toLowerCase()) >= 0) data.push({ key: choices[i].ID, text: choices[i].NombreCompleto, item:choices[i] }); 
+                        }
+                        
+                        // context.items.Planta.map(function(array){
+                        //     data.push({
+                        //         "key": array.ID,
+                        //         "text": array.NombreCompleto,
+                        //         "item": array
+                        //     });
+                        // })
                     }else{
                         data.push({
                             "key": 0,
