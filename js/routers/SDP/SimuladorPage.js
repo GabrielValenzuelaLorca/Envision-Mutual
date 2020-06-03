@@ -54,98 +54,165 @@ class SimuladorRenta{
         //var reajuste_base = (this.ipc[this.ipc.length-1].porc) + 1
         var reajuste_base = 1
 
-        var mansaje = ""
-        mansaje += "Cargo --> " + sueldoBase.cargo + "<br>"
-        mansaje += "Categoria --> " + sueldoBase.categoria + "<br>"
+        var haberes = []
+        debugger
 
-        var remu = 0
+        haberes.push({
+            nombre: "Cargo",
+            valor: sueldoBase.cargo,
+            haber: false
+        })
+        haberes.push({
+            nombre: "Categoria",
+            valor: sueldoBase.categoria,
+            haber: false
+        })
+
         var sueldo_base = sueldoBase.sbase
-
         if(sueldoBase.sbasehoras){
-            mansaje +="S.Base (horas) --> " + sueldo_base*reajuste_base*parseInt(obj.horas)*parseInt(obj.dias)+ "<br>"
-            remu += sueldo_base*reajuste_base*parseInt(obj.horas)*parseInt(obj.dias)
+            haberes.push({
+                nombre: "S.Base (horas)",
+                valor: sueldo_base*reajuste_base*parseInt(obj.horas)*parseInt(obj.dias),
+                haber: true
+            })
         }
         else{
-            mansaje +="S.Base --> " + sueldo_base*reajuste_base+ "<br>"
+            haberes.push({
+                nombre: "Sueldo Base",
+                valor: sueldo_base*reajuste_base,
+                haber: true
+            })
             if(parseInt(obj.sbase2)> 0){
-                mansaje +="S.Base 2 --> " + (sueldo_base*reajuste_base + parseInt(obj.sbase2) )+ "<br>"
+                haberes.push({
+                    nombre: "Sueldo Base 2",
+                    valor: sueldo_base*reajuste_base + parseInt(obj.sbase2) ,
+                    haber: true
+                })
                 sueldo_base += parseInt(obj.sbase2)
             }
-            remu += sueldo_base*reajuste_base
         }
+        //---------------
 
-       
-        mansaje +=sueldoBase.bono_comp>0?"Bono Compensatorio --> " + sueldoBase.bono_comp*reajuste_base+ "<br>":""
-        remu += sueldoBase.bono_comp*reajuste_base
-        mansaje += sueldoBase.trab_terreno>0?"Trab. Terreno--> " + sueldoBase.trab_terreno*reajuste_base+ "<br>":""
-        remu += sueldoBase.trab_terreno*reajuste_base
-
+        haberes.push({
+            nombre: "Bono Compensatorio",
+            valor: sueldoBase.bono_comp*reajuste_base,
+            haber: true
+        })
+        haberes.push({
+            nombre: "Trab. Terreno",
+            valor: sueldoBase.trab_terreno*reajuste_base,
+            haber: true
+        })
         if(sueldoBase.esc === "M"){
-            mansaje +=asignacion_anios.medico>0?"Antiguedad/Permanencia (Medico)--> " + sueldo_base * asignacion_anios.medico*reajuste_base+ "<br>":""
-            remu += sueldo_base * asignacion_anios.medico*reajuste_base
+            haberes.push({
+                nombre: "Antiguedad/Permanencia (Medico)",
+                valor: sueldo_base * asignacion_anios.medico*reajuste_base,
+                haber: true
+            })
         }
         else if(sueldoBase.esc === "L"){
-            mansaje +=asignacion_anios.medico>0?"Antiguedad/Permanencia (Medico L)--> " + sueldo_base * asignacion_anios.medico_l*reajuste_base+ "<br>":""
-            remu += sueldo_base * asignacion_anios.medico_l*reajuste_base
+            haberes.push({
+                nombre: "Antiguedad/Permanencia (Medico)",
+                valor: sueldo_base * asignacion_anios.medico_l*reajuste_base,
+                haber: true
+            })
         }
         else{
-            mansaje +=asignacion_anios.general>0?"Antiguedad/Permanencia (General)--> " + sueldo_base * asignacion_anios.general*reajuste_base+ "<br>":""
-            remu += sueldo_base * asignacion_anios.general*reajuste_base
+            haberes.push({
+                nombre: "Antiguedad/Permanencia (General)",
+                valor: sueldo_base * asignacion_anios.medico_l*reajuste_base,
+                haber: true
+            })
         }
 
-        mansaje +=asignaciones_extra.grati>0?"Gratificacion-->" + sueldo_base * asignaciones_extra.grati*reajuste_base+ "<br>":""
-        remu += sueldo_base * asignaciones_extra.grati*reajuste_base
+        haberes.push({
+            nombre: "Gratificacion",
+            valor: sueldo_base * asignaciones_extra.grati*reajuste_base,
+            haber: true
+        })
 
         if(sueldoBase.esc === "E"){
-            mansaje +=asignacion_zona.asig_z_exp>0?"Asig. Zona (Exp?)-->" + sueldo_base * asignacion_zona.asig_z_exp*reajuste_base+ "<br>":""
-            remu += sueldo_base * asignacion_zona.asig_z_gral*reajuste_base
+            haberes.push({
+                nombre: "Asig. Zona (EXP)",
+                valor: sueldo_base * asignacion_zona.asig_z_exp*reajuste_base,
+                haber: true
+            })
         }
         else{
-            mansaje +=asignacion_zona.asig_z_gral>0?"Asig. Zona (Gral?)-->" + sueldo_base * asignacion_zona.asig_z_gral*reajuste_base+ "<br>":""
-            remu += sueldo_base * asignacion_zona.asig_z_gral*reajuste_base
+            haberes.push({
+                nombre: "Asig. Zona (GRAL?)",
+                valor: sueldo_base * asignacion_zona.asig_z_gral*reajuste_base,
+                haber: true
+            })
         }
 
-        mansaje += asignaciones_extra.estimulo>0?"Asig. Estimulo-->" + sueldo_base * asignaciones_extra.estimulo*reajuste_base+ "<br>":""
-        remu += sueldo_base * asignaciones_extra.estimulo*reajuste_base
+        haberes.push({
+            nombre: "Asig. Estimulo",
+            valor: sueldo_base * asignaciones_extra.estimulo*reajuste_base,
+            haber: true
+        })
 
         if(obj.turnoLlamado){
-            mansaje +=asignaciones_extra.llamado>0?"Turno llamado-->" + sueldo_base * asignaciones_extra.llamado*reajuste_base+ "<br>":""
-            remu += sueldo_base * asignaciones_extra.llamado*reajuste_base
+            haberes.push({
+                nombre: "Turno llamado",
+                valor: sueldo_base * asignaciones_extra.llamado*reajuste_base,
+                haber: true
+            })
         }
         if(obj.respLugarTrab){
-            mansaje +=asignaciones_extra.resp_tl>0?"Asig. Resp. Lugar. Trab.-->" + sueldo_base * asignaciones_extra.resp_tl*reajuste_base+ "<br>":""
-            remu += sueldo_base * asignaciones_extra.resp_tl*reajuste_base
+            haberes.push({
+                nombre: "Asig. Resp. Lugar. Trab.",
+                valor: sueldo_base * asignaciones_extra.resp_tl*reajuste_base,
+                haber: true
+            })
         }
-        if(obj.bonoEntregaTurno && obj.jornada != "no"){
-            mansaje +=asignaciones_extra.bono_ent_t>0?"Bono Entr. Turno-->" + asignaciones_extra.bono_ent_t*reajuste_base+ "<br>":""
-            remu += asignaciones_extra.bono_ent_t*reajuste_base
+        
+        if(obj.bonoEntregaTurno && obj.jornada === "Media Jornada"){
+            haberes.push({
+                nombre: "Asig. Resp. Lugar. Trab.",
+                valor: asignaciones_extra.bono_ent_t*reajuste_base,
+                haber: true
+            })
         }
         if(obj.asigTitulo){
-            mansaje +=asignaciones_extra.titulo>0?"Asig. Titulo--> " + sueldo_base * asignaciones_extra.titulo*reajuste_base+ "<br>":""
-            remu +=   sueldo_base * asignaciones_extra.titulo*reajuste_base
+            haberes.push({
+                nombre: "Asig. Titulo",
+                valor: sueldo_base * asignaciones_extra.titulo*reajuste_base,
+                haber: true
+            })
         }
         if(obj.asigCaja){
-            mansaje +=asignaciones_extra.asigna_caja>0?"Asig. Caja-->" + asignaciones_extra.asigna_caja*reajuste_base+ "<br>":""
-            remu += asignaciones_extra.asigna_caja*reajuste_base
+            haberes.push({
+                nombre: "Asig. Caja",
+                valor:asignaciones_extra.asigna_caja*reajuste_base,
+                haber: true
+            })
         }
 
-        mansaje +=asignaciones_extra.movilizacion>0?"Asig. Movilizacion-->" + asignaciones_extra.movilizacion*reajuste_base+ "<br>":""
-        remu += asignaciones_extra.movilizacion*reajuste_base
-        mansaje +=sueldoBase.esp>0?"Asig. Especialidad-->" + sueldo_base * sueldoBase.esp*reajuste_base+ "<br>":""
-        remu += sueldo_base * sueldoBase.esp*reajuste_base
-        mansaje +=sueldoBase.sub>0?"Asig. Sub Especialidad-->" + sueldo_base * sueldoBase.sub*reajuste_base+ "<br>":""
-        remu += sueldo_base * sueldoBase.sub*reajuste_base
-
+        haberes.push({
+            nombre: "Asig. Movilizacion",
+            valor:asignaciones_extra.movilizacion*reajuste_base,
+            haber: true
+        })
+        haberes.push({
+            nombre: "Asig. Especialidad",
+            valor:sueldo_base * sueldoBase.esp*reajuste_base,
+            haber: true
+        })
+        haberes.push({
+            nombre: "Asig. Sub Especialidad",
+            valor:sueldo_base * sueldoBase.sub*reajuste_base,
+            haber: true
+        })
         if(obj.bonoCasa && remu<=asignaciones_extra.tope_bono_casa*reajuste_base){
-            mansaje += asignaciones_extra.bono_casa>0?"Bono casa-->" + asignaciones_extra.bono_casa*reajuste_base+ "<br>":""
-            remu += asignaciones_extra.bono_casa*reajuste_base
+            haberes.push({
+                nombre: "Bono casa",
+                valor:asignaciones_extra.bono_casa*reajuste_base,
+                haber: true
+            })
         }
 
-        mansaje +="--------------"+ "<br>"
-
-        mansaje +="Remuneracion Bruta Mensual: " + remu+ "<br>"
-
-        return mansaje
+        return haberes.filter(c => (c.valor > 0 && c.haber) || c.haber === false )
     }
 
 
@@ -167,140 +234,70 @@ var SimuladorPage ={
             </div>
         </div>
         <div class="page-content">
-            <div class="list inline-labels no-hairlines-md mainForm">
-                <div class="row">
-                    <div class="col-50">
-                        <div class="item-media"><i class="icon demo-list-icon"></i></div>
-                        <div class="item-inner">
-                            <div class="item-title item-label">Jornada</div>
-                            <div class="item-input-wrap">
-                                <select name="categoria"></select>
+            <div class="data-table card elevation-2">
+                <div class="card-content card-content-padding">
+                    <div class="card elevation-2">
+                        <div class="card-content">
+
+                            <div class="list">
+                                <ul>
+                                    <li class="accordion-item acordion-default">
+                                        <a href="#" class="item-content item-link">
+                                            <div class="item-inner">Categoria <i class="ms-Icon ms-Icon--TemporaryUser"></i></div>
+                                        </a>
+                                        <div class="accordion-item-content">
+                                            <div class="block">
+                                                <div class="list no-hairlines-md mainForm"></div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="accordion-item">
+                                        <a href="#" class="item-content item-link">
+                                            <div class="item-inner">Bonos <i class="ms-Icon ms-Icon--CheckMark"></i></div>
+                                        </a>
+                                        <div class="accordion-item-content">
+                                            <div class="block">
+                                                <div class="list no-hairlines-md bonosForm"></div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="accordion-item">
+                                        <a href="#" class="item-content item-link">
+                                            <div class="item-inner">Extras <i class="ms-Icon ms-Icon--Filters"></i></div>
+                                        </a>
+                                        <div class="accordion-item-content">
+                                            <div class="block">
+                                                <div class="list no-hairlines-md extraForm"></div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
+                            
                         </div>
                     </div>
-                    <div class="col-50">
-                        <div class="item-media"><i class="icon demo-list-icon"></i></div>
-                        <div class="item-inner">
-                            <div class="item-title item-label">Jornada</div>
-                            <div class="item-input-wrap">
-                                <select name="zona"></select>
+
+                    <div class="row">
+                        <div class="col resizable">
+                            <div class="card elevation-2">
+                                <div class="card-header">Haberes</div>
+                                <div class="card-content Resultados"></div>
                             </div>
+                            <span class="resize-handler"></span>
+                        </div>
+                        <div class="col resizable">
+                            <div class="card elevation-2">
+                                <div class="card-header">Remuneración Bruta Mensual</div>
+                                <div class="card-content ResultadoSueldo"></div>
+                            </div>
+                            <span class="resize-handler"></span>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-50">
-                        <div class="item-media"><i class="icon demo-list-icon"></i></div>
-                        <div class="item-inner">
-                            <div class="item-title item-label">Horas</div>
-                            <div class="item-input-wrap">
-                                <input type="text"  name="horas" placeholder="0">
-                                <span class="input-clear-button"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-50">
-                        <div class="item-media"><i class="icon demo-list-icon"></i></div>
-                        <div class="item-inner">
-                            <div class="item-title item-label">Dias</div>
-                            <div class="item-input-wrap">
-                                <input type="text"  name="dias" placeholder="0">
-                                <span class="input-clear-button"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-50">
-                        <div class="item-media"><i class="icon demo-list-icon"></i></div>
-                        <div class="item-inner">
-                            <div class="item-title item-label">Años</div>
-                            <div class="item-input-wrap">
-                                <input type="text"  name="anios" value=0>
-                                <span class="input-clear-button"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-50">
-                        <div class="item-media"><i class="icon demo-list-icon"></i></div>
-                        <div class="item-inner">
-                            <div class="item-title item-label">Sueldo Base 2</div>
-                            <div class="item-input-wrap">
-                                <input type="text"  name="sbase2" placeholder="0">
-                                <span class="input-clear-button"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-50">
-                        <div class="item-media"><i class="icon demo-list-icon"></i></div>
-                        <div class="item-inner">
-                            <div class="item-title item-label">Jornada</div>
-                            <div class="item-input-wrap">
-                                <select name="jornada">
-                                    <option value="no">Administrativo</option>
-                                    <option value="si">Turno 1</option>
-                                    <option value="si">Turno 2</option>
-                                    <option value="si">Turno 3</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-50"></div>
-                </div>
-                <div class="row">
-                    <div class="col-33">
-                        <span>Turno Llamado</span>
-                        <label class="toggle toggle-init color-black">
-                            <input type="checkbox"  name="turnoLlamado">
-                            <span class="toggle-icon"></span>
-                        </label>
-                    </div>
-                    <div class="col-33">
-                        <span>Resp. Lugar trab.</span>
-                        <label class="toggle toggle-init color-black">
-                            <input type="checkbox" name="respLugarTrab">
-                            <span class="toggle-icon"></span>
-                        </label>
-                    </div>
-                    <div class="col-33">
-                        <span>Bono entrega turno</span>
-                        <label class="toggle toggle-init color-black">
-                            <input type="checkbox" name="bonoEntregaTurno">
-                            <span class="toggle-icon"></span>
-                        </label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-33">
-                        <span>Asif. Titulo</span>
-                        <label class="toggle toggle-init color-black">
-                            <input type="checkbox" name="asigTitulo">
-                            <span class="toggle-icon"></span>
-                        </label>
-                    </div>
-                    <div class="col-33">
-                        <span>Asig caja</span>
-                        <label class="toggle toggle-init color-black">
-                            <input type="checkbox" name="asigCaja">
-                            <span class="toggle-icon"></span>
-                        </label>
-                    </div>
-                    <div class="col-33">
-                        <span>Bono Casa</span>
-                        <label class="toggle toggle-init color-black">
-                            <input type="checkbox" name="bonoCasa">
-                            <span class="toggle-icon"></span>
-                        </label>
-                    </div>
+                    
+     
                 </div>
             </div>
-
-            <button class="col button button-fill ejecutar">Calcular</button>
-
-            <div class="Resultados"></div>
-                
+     
             <div class="content-loader">
                 <div class="content-loader-inner">
                     <div class="image-logo lazy lazy-fadein" data-background="{{loader.image}}"></div>
@@ -358,6 +355,10 @@ var SimuladorPage ={
             if (!$loader.hasClass('ms-fadeOut100'))
                 page.$el.find('.content-loader').removeClass('ms-fadeIn100').addClass('ms-fadeOut100');
         },
+
+        getCategorias: function(){
+            
+        }
     
     },
     on: {
@@ -383,38 +384,473 @@ var SimuladorPage ={
             var initClass = async function() {
                 await context.simuladorRenta.init()
 
-                page.$el.find("select[name=categoria]").html(context.simuladorRenta.sueldobase.map(c =>{return "<option value='"+c.categoria+"'>"+c.categoria+"</option>"}))
-                page.$el.find("select[name=zona]").html(context.simuladorRenta.zona.map(c =>{return "<option value='"+c.ubicacion+"'>"+c.ubicacion+"</option>"}))
-                /*
-                    <option value="no">Administrativo</option>
-                                    <option value="si">Turno 1</option>
-                                    <option value="si">Turno 2</option>
-                                    <option value="si">Turno 3</option>
-                */
-            }
-            initClass()
+                var inputs = 
+                [{
+                    name: "categoria",
+                    type: "selector",
+                    title: "Categoria",
+                    icon: "WebAppBuilderModule",
+                    options: context.simuladorRenta.sueldobase.map(c => c.categoria)
+                },
+                {
+                    name: "zona",
+                    type: "selector",
+                    title: "Zona",
+                    icon: "WebAppBuilderModule",
+                    options: context.simuladorRenta.zona.map(c => c.ubicacion)
+                },
+                {
+                    name: "horas",
+                    type: "number",
+                    title: "Horas",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: 24
+                },
+                {
+                    name: "dias",
+                    type: "number",
+                    title: "Dias",
+                    icon: "WebAppBuilderModule",
+                    default: 30,
+                    min: 0,
+                    max: 30
+                },
+                {
+                    name: "anios",
+                    type: "number",
+                    title: "Años",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: 50
+                },
+                {
+                    name: "jornada",
+                    type: "selector",
+                    title: "Jornada",
+                    icon: "WebAppBuilderModule",
+                    options: ["Administrativo", "Media Jornada"]
+                },{},{}
+                ]
 
-            page.$el.find(".ejecutar").on('click', function(){
-                var form = page.$el.find(".mainForm").find("input").toArray().reduce(function(obj, item,i) {
-                    if(i >=4){
-                        obj[item.name] = item.checked;
-                        return obj;  
+                var bonosCheck = 
+                [{
+                    name: "turnoLlamado",
+                    title: "Turno Llamado",
+                    type: "checkbox",
+                    icon: "WebAppBuilderModule",
+                },
+                {
+                    name: "respLugarTrab",
+                    title: "Resp. Lugar Trab.",
+                    type: "checkbox",
+                    icon: "WebAppBuilderModule",
+                },{
+                    name: "bonoEntregaTurno",
+                    title: "Bono entrega turno",
+                    type: "checkbox",
+                    icon: "WebAppBuilderModule",
+                },
+                {
+                    name: "asigTitulo",
+                    title: "Asif. Titulo",
+                    type: "checkbox",
+                    icon: "WebAppBuilderModule",
+                },
+                {
+                    name: "asigCaja",
+                    title: "Asig. caja",
+                    type: "checkbox",
+                    icon: "WebAppBuilderModule",
+                },
+                {
+                    name: "bonoCasa",
+                    title: "Bono Casa",
+                    type: "checkbox",
+                    icon: "WebAppBuilderModule",
+                } ,{},{}
+                ]
+
+                var extra = 
+                [{
+                    name: "sbase2",
+                    type: "number",
+                    title: "Sueldo Base 2",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "ajuste",
+                    type: "number",
+                    title: "Ajuste",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "asigturllammedico",
+                    type: "number",
+                    title: "Asig. Tur. Llam. Medico",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "trasnoimp1",
+                    type: "number",
+                    title: "Tras. no imp 1",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "trasnoimp2",
+                    type: "number",
+                    title: "Tras. no imp 2",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "asigurgenciadiurna",
+                    type: "number",
+                    title: "Asig urgencia diurna",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "asignacionuci",
+                    type: "number",
+                    title: "asignacion UCI",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "comphorarionohabil",
+                    type: "number",
+                    title: "Comp horario no habil",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "tresidencia",
+                    type: "number",
+                    title: "T. Residencia",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "tllamadomedico",
+                    type: "number",
+                    title: "T. llamado Medico",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "bonocronicos",
+                    type: "number",
+                    title: "Bono Cronicos",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "sernageomin",
+                    type: "number",
+                    title: "Sernageomin",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "sergiominminero",
+                    type: "number",
+                    title: "Sergiomin Minero",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "subidaanticipada",
+                    type: "number",
+                    title: "Subida Anticipada",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "asigjefatura",
+                    type: "number",
+                    title: "Asig. Jefatura",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "asignacionmejovalor",
+                    type: "number",
+                    title: "Asignacion Mejo Valor",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "fondofijo",
+                    type: "number",
+                    title: "Fondo Fijo",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "asignacioncompcambio",
+                    type: "number",
+                    title: "Asignacion Comp por Cambio",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "otros1",
+                    type: "number",
+                    title: "Otros 1",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "otros2",
+                    type: "number",
+                    title: "Otros 2",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "otros3",
+                    type: "number",
+                    title: "Otros 3",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },
+                {
+                    name: "otros4",
+                    type: "number",
+                    title: "Otros 4",
+                    icon: "WebAppBuilderModule",
+                    default: 0,
+                    min: 0,
+                    max: Number.MAX_SAFE_INTEGER
+                },{},{}
+                ]
+                
+                var indexCol = 4
+                var colW = 100/indexCol
+                var nRows = Math.ceil(inputs.length/indexCol)
+                //Mainform
+                for (let i = 0; i < nRows; i++) {
+                    page.$el.find(".mainForm").append(`<div class="row row-`+i+`"></div>`)
+                }
+                //Haberes
+                var nRows = Math.ceil(bonosCheck.length/indexCol)
+                for (let i = 0; i < nRows; i++) {
+                    page.$el.find(".bonosForm").append(`<div class="row bonorow-`+i+`"></div>`)
+                }
+                //Extras
+                var nRows = Math.ceil(extra.length/indexCol)
+                for (let i = 0; i < nRows; i++) {
+                    page.$el.find(".extraForm").append(`<div class="row extrarow-`+i+`"></div>`)
+                }
+
+
+                for (let i = 0; i < inputs.length; i++) {
+                    var rowIndex =  Math.floor(i/indexCol)
+                    const element = inputs[i];
+                    if(element.type === "selector"){
+                        page.$el.find(".row-" + rowIndex).append(`
+                            <div class="col-`+colW+`">
+                                <div class="item-content item-input">
+                                    <div class="item-inner">
+                                        <div class="item-title item-label">`+element.title+`</div>
+                                        <div class="item-input-wrap">
+                                            <input name="`+element.name+`" type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `)
+                    }
+                    else if(element.type === "number"){
+                        page.$el.find(".row-" + rowIndex).append(`
+                            <div class="col-`+colW+`">
+                                <div class="item-content item-input">
+                                    <div class="item-inner">
+                                        <div class="item-title item-label">`+element.title+`</div>
+                                        <div class="item-input-wrap">
+                                            <input type="number" name="`+element.name+`" value="`+element.default+`" min="`+element.min+`" max="`+element.max+`" validate>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `)
                     }
                     else{
-                        obj[item.name] = item.value;
-                        return obj;  
+                        page.$el.find(".row-" + rowIndex).append(`<div class="col-`+colW+`"></div>`)
                     }
-                 
-                }, {});
+                }
 
-                form["categoria"] = page.$el.find("select[name=categoria]").val()
-                form["zona"] = page.$el.find("select[name=zona]").val()
-                form["jornada"] = page.$el.find("select[name=jornada]").val()
-               
-                page.$el.find(".Resultados").html( context.simuladorRenta.calcular(form))
+                for (let i = 0; i < bonosCheck.length; i++) {
+                    var rowIndex =  Math.floor(i/indexCol)
+                    const element = bonosCheck[i];
+                    if(element.type === "checkbox"){
+                        page.$el.find(".bonorow-" + rowIndex).append(`
+                            <div class="col-`+colW+`">
+                                <div class="item-content item-input">
+                                    <div class="item-inner">
+                                        <div class="item-title">`+element.title+`</div>
+                                        <div class="item-after">
+                                            <label class="toggle">
+                                                <input  name="`+element.name+`" type="checkbox">
+                                                <span class="toggle-icon"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `)
+                    }
+                    else{
+                        page.$el.find(".bonorow-" + rowIndex).append(`<div class="col-`+colW+`"></div>`)
+                    }
+                }
 
-            })
+                for (let i = 0; i < extra.length; i++) {
+                    var rowIndex =  Math.floor(i/indexCol)
+                    const element = extra[i];
+                    if(element.type === "number"){
+                        page.$el.find(".extrarow-" + rowIndex).append(`
+                            <div class="col-`+colW+`">
+                                <div class="item-content item-input">
+                                    <div class="item-inner">
+                                        <div class="item-title item-label">`+element.title+`</div>
+                                        <div class="item-input-wrap">
+                                            <input type="number" name="`+element.name+`" value="`+element.default+`" min="`+element.min+`" max="`+element.max+`" validate>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `)
+                    }
+                    else{
+                        page.$el.find(".extrarow-" + rowIndex).append(`<div class="col-`+colW+`"></div>`)
+                    }
+                }
 
+                var initSelectors = inputs.filter(c => c.type === "selector")
+                for (let i = 0; i < initSelectors.length; i++) {
+                    const element = initSelectors[i];
+
+                    app.autocomplete.create({
+                        inputEl: 'input[name='+element.name+']',
+                        openIn: 'dropdown',
+                        typeahead: true,
+                        source: function (query, render) {
+                          var results = [];
+                          if (query.length === 0) {
+                            render(results);
+                            return;
+                          }
+                          // Find matched items
+                          for (var i = 0; i < element.options.length; i++) {
+                            if (element.options[i].toLowerCase().indexOf(query.toLowerCase()) >= 0) results.push(element.options[i]);
+                          }
+                          // Render items by passing array with result items
+                          render(results);
+                        }
+                      });
+                }
+
+                app.accordion.open(".acordion-default")
+
+                page.$el.find("input").on("change", function(){
+                    var form = page.$el.find("input").toArray().reduce(function(obj, item) {
+                        if($(item).attr("type") === "checkbox"){
+                            obj[item.name] = item.checked;
+                            return obj;  
+                        }
+                        else{
+                            obj[item.name] =  $(item).val()
+                            return obj;  
+                        }
+                     
+                    }, {});
+
+                    var haberes = context.simuladorRenta.calcular(form)
+                    var html = ""
+                    var remu = 0
+                    haberes.forEach(e => {
+                        if(e.haber){
+                            remu+=e.valor
+                        }
+                        
+                        html += `
+                        <li>
+                            <div class="item-content">
+                                <div class="item-inner">
+                                    <div class="item-title">`+e.nombre+`</div>
+                                    <div class="item-after">`+e.valor+`</div>
+                                </div>
+                            </div>
+                        </li>
+                        `
+                    });
+
+    
+                    page.$el.find(".Resultados").html(`
+                        <div class="list">
+                            <ul>
+                            `+html+`
+                            </ul>
+                        </div>
+                    `)
+                    page.$el.find(".ResultadoSueldo").html(remu)
+
+                    
+
+                })
+
+            }
+            initClass()
             mths.removePageLoader()
         
 
